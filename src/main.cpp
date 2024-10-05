@@ -1,10 +1,18 @@
-#define GL3W_IMPLEMENTATION
-#include <gl3w.h>
 #include <iostream>
-#include "ecs.hpp";
+#include "render_system.hpp"
 
-int main() {
-	std::cout << "Hello world" << std::endl;
-	registry.list_all_components();
-	return 0;
+int main()
+{
+    RenderSystem renderSystem;
+
+    // Initialize OpenGL and create window
+    if (!renderSystem.initOpenGL(1920, 1080, "Game"))
+    {
+        std::cerr << "Failed to initialize RenderSystem." << std::endl;
+        return -1;
+    }
+
+    renderSystem.renderLoop();
+
+    return 0;
 }

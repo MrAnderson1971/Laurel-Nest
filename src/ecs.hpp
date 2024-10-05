@@ -6,18 +6,42 @@
 #include <unordered_map>
 #include <typeinfo>
 
-// Unique identifyer for all entities
+class ECSRegistry;
+
 class Entity
 {
 	unsigned int id;
-	static unsigned int id_count; // starts from 1, entit 0 is the default initialization
+	static unsigned int id_count;
 public:
-	Entity()
-	{
+	Entity() {
 		id = id_count++;
-		// Note, indices of already deleted entities arent re-used in this simple implementation.
 	}
-	explicit operator unsigned int() { return id; } // this enables manual casting to int
+
+    operator unsigned int() { return id; } // This enables manual casting to int
+
+	// Function template to add a component to the entity
+	template<typename Component>
+	Component& addComponent(Component&& c) {
+		return registry.get_component_container<Component>().emplace(*this, std::move(c));
+	}
+
+	// Function template to remove a component from the entity
+	template<typename Component>
+	void removeComponent() {
+		registry.get_component_container<Component>().remove(*this);
+	}
+
+	// Function template to check if the entity has a component
+	template<typename Component>
+	bool hasComponent() {
+		return registry.get_component_container<Component>().has(*this);
+	}
+
+	// Function template to get a component from the entity
+	template<typename Component>
+	Component& getComponent() {
+		return registry.get_component_container<Component>().get(*this);
+	}
 };
 
 // Common interface to refer to all containers in the ECS registry
@@ -63,14 +87,13 @@ public:
 		return components.back();
 	};
 
-	// The emplace function takes the the provided arguments Args, creates a new object of type Component, and inserts it into the ECS system
-	template<typename... Args>
-	Component& emplace(Entity e, Args &&... args) {
-		return insert(e, Component(std::forward<Args>(args)...));
+	// The emplace function takes an object of type Component, and inserts it into the ECS system
+	Component& emplace(Entity e, Component&& c) {
+		return insert(e, std::move(c));
 	};
-	template<typename... Args>
-	Component& emplace_with_duplicates(Entity e, Args &&... args) {
-		return insert(e, Component(std::forward<Args>(args)...), false);
+
+	Component& emplace_with_duplicates(Entity e, Component&& c) {
+		return insert(e, std::move(c), false);
 	};
 
 	// A wrapper to return the component of an entity
