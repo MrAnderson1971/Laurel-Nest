@@ -8,7 +8,7 @@
 #include <stb_image.h>
 
 RenderSystem::RenderSystem()
-    : window(nullptr), shaderProgram(0), VAO(0), VBO(0), EBO(0), texture(0)
+    : window(nullptr), shaderProgram(0), VAO(0), VBO(0), EBO(0)
 {
 }
 
@@ -51,6 +51,8 @@ bool RenderSystem::initOpenGL(int width, int height, const std::string& title)
     glViewport(0, 0, width, height);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    projection = glm::ortho(0.0f, static_cast<float>(windowWidth), static_cast<float>(windowHeight), 0.0f);
 
     loadShaders();
 
@@ -124,34 +126,18 @@ std::string RenderSystem::readShaderFile(const std::string& filePath)
 
 void RenderSystem::setupVertices()
 {
-    int width, height, nrChannels;
-    stbi_set_flip_vertically_on_load(true);
-    unsigned char* data = stbi_load(textures_path("splash_screen.png").c_str(), &width, &height, &nrChannels, 0);
-
-    float imageWidth = static_cast<float>(width);
-    float imageHeight = static_cast<float>(height);
-    float windowWidth = static_cast<float>(this->windowWidth);
-    float windowHeight = static_cast<float>(this->windowHeight);
-
-    // Calculate the positions to center the image
-    float left = (windowWidth - imageWidth) / 2.0f;
-    float right = left + imageWidth;
-    float bottom = (windowHeight - imageHeight) / 2.0f;
-    float top = bottom + imageHeight;
-
-    // Vertex data
     float vertices[] = {
-        right, top, 0.0f,    1.0f, 1.0f,
-        right, bottom, 0.0f, 1.0f, 0.0f,
-        left, bottom, 0.0f,  0.0f, 0.0f,
-        left, top, 0.0f,     0.0f, 1.0f 
+         0.5f,  0.5f, 0.0f,   1.0f, 1.0f,
+         0.5f, -0.5f, 0.0f,   1.0f, 0.0f,
+        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f,
+        -0.5f,  0.5f, 0.0f,   0.0f, 1.0f 
     };
-
 
     unsigned int indices[] = {
         0, 1, 3,
-        1, 2, 3
+        1, 2, 3 
     };
+
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
@@ -166,41 +152,9 @@ void RenderSystem::setupVertices()
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
-
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    projection = glm::ortho(0.0f, (float)windowWidth, 0.0f, (float)windowHeight);
-
-    if (data)
-    {
-        GLenum format = GL_RGB;
-        if (nrChannels == 1) {
-            format = GL_RED;
-        }
-        else if (nrChannels == 3) {
-            format = GL_RGB;
-        }
-        else if (nrChannels == 4) {
-            format = GL_RGBA;
-        }
-
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else
-    {
-        std::cerr << "Error: Failed to load texture" << std::endl;
-    }
-    stbi_image_free(data);
 
     glBindVertexArray(0);
 }
@@ -216,21 +170,89 @@ void RenderSystem::renderLoop()
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        drawSplashScreen();
+        auto& spriteContainer = registry.get_component_container<SpriteComponent>();
+        for (size_t i = 0; i < spriteContainer.components.size(); ++i)
+        {
+            Entity entity = spriteContainer.entities[i];
+
+            if (registry.get_component_container<TransformComponent>().has(entity))
+            {
+                SpriteComponent& sprite = spriteContainer.components[i];
+                TransformComponent& transform = registry.get_component_container<TransformComponent>().get(entity);
+
+                drawEntity(sprite, transform);
+            }
+        }
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 }
 
-void RenderSystem::drawSplashScreen()
+void RenderSystem::drawEntity(const SpriteComponent& sprite, const TransformComponent& transform)
 {
     glUseProgram(shaderProgram);
-    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
-    glBindTexture(GL_TEXTURE_2D, texture);
+    // Create model matrix from transform component
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, transform.position);
+    model = glm::rotate(model, glm::radians(transform.rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+    model = glm::scale(model, transform.scale * glm::vec3(sprite.width, sprite.height, 1.0f));
+
+    // Set uniforms
+    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+    GLuint modelLoc = glGetUniformLocation(shaderProgram, "model");
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+    // Bind texture
+    glBindTexture(GL_TEXTURE_2D, sprite.textureID);
+
+    // Bind VAO and draw
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+}
+
+GLuint RenderSystem::loadTexture(const std::string& filePath, int& outWidth, int& outHeight)
+{
+    GLuint textureID;
+    glGenTextures(1, &textureID);
+
+    int width, height, nrChannels;
+    unsigned char* data = stbi_load(textures_path(filePath).c_str(), &width, &height, &nrChannels, 0);
+    if (data)
+    {
+        GLenum format = GL_RGB;
+        if (nrChannels == 1) {
+            format = GL_RED;
+        }
+        else if (nrChannels == 3) {
+            format = GL_RGB;
+        }
+        else if (nrChannels == 4) {
+            format = GL_RGBA;
+        }
+
+        glBindTexture(GL_TEXTURE_2D, textureID);
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        // Set texture parameters
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        outWidth = width;
+        outHeight = height;
+    }
+    else
+    {
+        std::cerr << "Failed to load texture at path: " << filePath << std::endl;
+        glDeleteTextures(1, &textureID);
+        textureID = 0;
+    }
+    stbi_image_free(data);
+
+    return textureID;
 }
 
 void RenderSystem::cleanup()
@@ -239,7 +261,6 @@ void RenderSystem::cleanup()
     glDeleteBuffers(1, &VBO);
     glDeleteBuffers(1, &EBO);
     glDeleteProgram(shaderProgram);
-    glDeleteTextures(1, &texture);
 
     glfwDestroyWindow(window);
     glfwTerminate();
