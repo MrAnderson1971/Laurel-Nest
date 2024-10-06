@@ -23,7 +23,9 @@ private:
     GLuint shaderProgram;
     GLuint VAO, VBO, EBO;
     GLuint texture;
-    
+    glm::mat4 projection;
+    GLuint projectionLoc;
+
     int windowWidth;
     int windowHeight;
 };

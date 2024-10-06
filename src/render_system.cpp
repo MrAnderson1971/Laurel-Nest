@@ -49,6 +49,8 @@ bool RenderSystem::initOpenGL(int width, int height, const std::string& title)
     }
 
     glViewport(0, 0, width, height);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     loadShaders();
 
@@ -104,6 +106,7 @@ void RenderSystem::loadShaders()
 
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
+    projectionLoc = glGetUniformLocation(shaderProgram, "projection");
 }
 
 std::string RenderSystem::readShaderFile(const std::string& filePath)
@@ -121,18 +124,34 @@ std::string RenderSystem::readShaderFile(const std::string& filePath)
 
 void RenderSystem::setupVertices()
 {
+    int width, height, nrChannels;
+    stbi_set_flip_vertically_on_load(true);
+    unsigned char* data = stbi_load(textures_path("splash_screen.png").c_str(), &width, &height, &nrChannels, 0);
+
+    float imageWidth = static_cast<float>(width);
+    float imageHeight = static_cast<float>(height);
+    float windowWidth = static_cast<float>(this->windowWidth);
+    float windowHeight = static_cast<float>(this->windowHeight);
+
+    // Calculate the positions to center the image
+    float left = (windowWidth - imageWidth) / 2.0f;
+    float right = left + imageWidth;
+    float bottom = (windowHeight - imageHeight) / 2.0f;
+    float top = bottom + imageHeight;
+
+    // Vertex data
     float vertices[] = {
-         1.0f,  1.0f, 0.0f,  1.0f, 1.0f,
-         1.0f, -1.0f, 0.0f,  1.0f, 0.0f,
-        -1.0f, -1.0f, 0.0f,  0.0f, 0.0f,
-        -1.0f,  1.0f, 0.0f,  0.0f, 1.0f
+        right, top, 0.0f,    1.0f, 1.0f,
+        right, bottom, 0.0f, 1.0f, 0.0f,
+        left, bottom, 0.0f,  0.0f, 0.0f,
+        left, top, 0.0f,     0.0f, 1.0f 
     };
+
 
     unsigned int indices[] = {
         0, 1, 3,
         1, 2, 3
     };
-
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
@@ -159,9 +178,8 @@ void RenderSystem::setupVertices()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    int width, height, nrChannels;
-    stbi_set_flip_vertically_on_load(true);
-    unsigned char* data = stbi_load(textures_path("splash_screen.png").c_str(), &width, &height, &nrChannels, 0);
+    projection = glm::ortho(0.0f, (float)windowWidth, 0.0f, (float)windowHeight);
+
     if (data)
     {
         GLenum format = GL_RGB;
@@ -207,9 +225,10 @@ void RenderSystem::renderLoop()
 
 void RenderSystem::drawSplashScreen()
 {
-    glBindTexture(GL_TEXTURE_2D, texture);
-
     glUseProgram(shaderProgram);
+    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+    glBindTexture(GL_TEXTURE_2D, texture);
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
