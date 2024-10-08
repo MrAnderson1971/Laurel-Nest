@@ -13,3 +13,26 @@ struct SpriteComponent {
     float width;
     float height;
 };
+
+struct MotionComponent {
+    vec2 position;
+    vec2 velocity;
+    vec2 acceleration;
+    float angle;
+};
+
+struct AffectedByGravityComponent {
+
+};
+
+struct BreakableDoorComponent {
+    bool broken = false;
+};
+
+struct FlamethrowerComponent {
+
+};
+
+struct PlayerComponent {
+
+};
