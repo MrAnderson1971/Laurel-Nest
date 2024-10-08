@@ -28,11 +28,14 @@ bool RenderSystem::initOpenGL(int width, int height, const std::string& title)
         return false;
     }
 
+    GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
+
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
+    window = glfwCreateWindow(mode->width, mode->height, title.c_str(), primaryMonitor, nullptr);
     if (!window)
     {
         std::cerr << "Error: Window creation failed" << std::endl;
@@ -48,11 +51,12 @@ bool RenderSystem::initOpenGL(int width, int height, const std::string& title)
         return false;
     }
 
-    glViewport(0, 0, width, height);
+    glViewport(0, 0, mode->width, mode->height);
+
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    projection = glm::ortho(0.0f, static_cast<float>(windowWidth), static_cast<float>(windowHeight), 0.0f);
+    projection = glm::ortho(0.0f, static_cast<float>(mode->width), static_cast<float>(mode->height), 0.0f);
 
     loadShaders();
 
