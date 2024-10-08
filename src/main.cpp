@@ -4,7 +4,7 @@
 
 int main()
 {
-    RenderSystem renderSystem;
+    RenderSystem renderSystem(std::make_unique<WorldSystem>());
 
     if (!renderSystem.initOpenGL(1920, 1080, "Game"))
     {
