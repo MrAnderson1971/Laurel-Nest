@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 #pragma once
 
 // internal
@@ -87,4 +86,3 @@ private:
 };
 
 using WorldSystemPtr = std::unique_ptr<WorldSystem>;
->>>>>>> main
