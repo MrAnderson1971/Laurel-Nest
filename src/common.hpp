@@ -21,7 +21,7 @@
 
 using namespace glm;
 
-#include "ecs.hpp"
+#include "tiny_ecs.hpp"
 
 // Simple utility functions to avoid mistyping directory name
 // audio_path("audio.ogg") -> data/audio/audio.ogg

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "common.hpp"
-#include "ecs.hpp"
+#include "tiny_ecs.hpp"
 #include "render_system.hpp"
 
 // These are hardcoded to the dimensions of the entity texture

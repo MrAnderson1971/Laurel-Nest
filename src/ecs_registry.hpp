@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 
-#include "ecs.hpp"
+#include "tiny_ecs.hpp"
 #include "components.hpp"
 
 class ECSRegistry

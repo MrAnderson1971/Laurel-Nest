@@ -1,25 +1,47 @@
 #pragma once
-
-#include <algorithm>
 #include <vector>
-#include <unordered_map>
-#include <set>
-#include <functional>
 #include <typeindex>
-#include <assert.h>
+#include <memory>
+#include <iostream>
+#include <unordered_map>
+#include <typeinfo>
 
-// Unique identifyer for all entities
+class ECSRegistry;
+
 class Entity
 {
 	unsigned int id;
-	static unsigned int id_count; // starts from 1, entit 0 is the default initialization
+	static unsigned int id_count;
 public:
-	Entity()
-	{
+	Entity() {
 		id = id_count++;
-		// Note, indices of already deleted entities arent re-used in this simple implementation.
 	}
-	operator unsigned int() { return id; } // this enables automatic casting to int
+
+    operator unsigned int() { return id; } // This enables manual casting to int
+
+	// Function template to add a component to the entity
+	template<typename Component>
+	Component& addComponent(Component&& c) {
+		return registry.get_component_container<Component>().emplace(*this, std::move(c));
+	}
+
+	// Function template to remove a component from the entity
+	template<typename Component>
+	void removeComponent() {
+		registry.get_component_container<Component>().remove(*this);
+	}
+
+	// Function template to check if the entity has a component
+	template<typename Component>
+	bool hasComponent() {
+		return registry.get_component_container<Component>().has(*this);
+	}
+
+	// Function template to get a component from the entity
+	template<typename Component>
+	Component& getComponent() {
+		return registry.get_component_container<Component>().get(*this);
+	}
 };
 
 // Common interface to refer to all containers in the ECS registry
@@ -55,7 +77,9 @@ public:
 	inline Component& insert(Entity e, Component c, bool check_for_duplicates = true)
 	{
 		// Usually, every entity should only have one instance of each component type
-		assert(!(check_for_duplicates && has(e)) && "Entity already contained in ECS registry");
+		if (check_for_duplicates && has(e)) {
+			throw std::runtime_error("Entity already contained in ECS registry");
+		}
 
 		map_entity_componentID[e] = (unsigned int)components.size();
 		components.push_back(std::move(c)); // the move enforces move instead of copy constructor
@@ -63,14 +87,13 @@ public:
 		return components.back();
 	};
 
-	// The emplace function takes the the provided arguments Args, creates a new object of type Component, and inserts it into the ECS system
-	template<typename... Args>
-	Component& emplace(Entity e, Args &&... args) {
-		return insert(e, Component(std::forward<Args>(args)...));
+	// The emplace function takes an object of type Component, and inserts it into the ECS system
+	Component& emplace(Entity e, Component&& c) {
+		return insert(e, std::move(c));
 	};
-	template<typename... Args>
-	Component& emplace_with_duplicates(Entity e, Args &&... args) {
-		return insert(e, Component(std::forward<Args>(args)...), false);
+
+	Component& emplace_with_duplicates(Entity e, Component&& c) {
+		return insert(e, std::move(c), false);
 	};
 
 	// A wrapper to return the component of an entity
@@ -135,3 +158,62 @@ public:
 			map_entity_componentID[entities[i]] = i;
 	}
 };
+
+// ECSRegistry class with component registration
+class ECSRegistry
+{
+    std::vector<ContainerInterface*> registry_list;
+
+    void register_component_container(ContainerInterface* container) {
+        registry_list.push_back(container);
+    }
+
+public:
+    ECSRegistry() = default;
+
+    template<typename T>
+    ComponentContainer<T>& get_component_container() {
+        static ComponentContainer<T> container;
+
+        static bool registered = false;
+
+        if (!registered) {
+            register_component_container(&container);
+            registered = true;
+        }
+
+        return container;
+    }
+
+    void clear_all_components() {
+        for (auto* container : registry_list) {
+            container->clear();
+        }
+    }
+
+    void list_all_components() {
+        std::cout << "Debug info on all registry entries:\n";
+        for (const auto& container : registry_list) {
+            if (container->size() > 0) {
+                std::cout << container->size() << " components of type " << typeid(*container).name() << "\n";
+            }
+        }
+    }
+
+    void list_all_components_of(Entity e) {
+        std::cout << "Debug info on components of entity " << (unsigned int)e << ":\n";
+        for (const auto& container : registry_list) {
+            if (container->has(e)) {
+                std::cout << "type " << typeid(*container).name() << "\n";
+            }
+        }
+    }
+
+    void remove_all_components_of(Entity e) {
+        for (auto* container : registry_list) {
+            container->remove(e);
+        }
+    }
+};
+
+extern ECSRegistry registry;
