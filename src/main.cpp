@@ -15,6 +15,7 @@ using Clock = std::chrono::high_resolution_clock;
 
 int main()
 {
+<<<<<<< HEAD
 //    RenderSystem renderSystem;
 //
 //    if (!renderSystem.initOpenGL(1920, 1080, "Game"))
@@ -22,6 +23,9 @@ int main()
 //        std::cerr << "Failed to initialize RenderSystem." << std::endl;
 //        return -1;
 //    }
+=======
+    RenderSystem renderSystem(std::make_unique<WorldSystem>());
+>>>>>>> main
 
 //    Entity splashScreenEntity;
 //

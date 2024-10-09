@@ -99,4 +99,26 @@ struct RenderRequest {
     TEXTURE_ASSET_ID used_texture = TEXTURE_ASSET_ID::TEXTURE_COUNT;
     EFFECT_ASSET_ID used_effect = EFFECT_ASSET_ID::EFFECT_COUNT;
     GEOMETRY_BUFFER_ID used_geometry = GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
+=======
+struct MotionComponent {
+    vec2 position;
+    vec2 velocity;
+    vec2 acceleration;
+    float angle;
+};
+
+struct AffectedByGravityComponent {
+
+};
+
+struct BreakableDoorComponent {
+    bool broken = false;
+};
+
+struct FlamethrowerComponent {
+
+};
+
+struct PlayerComponent {
+
 };
