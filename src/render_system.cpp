@@ -7,8 +7,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-RenderSystem::RenderSystem(WorldSystemPtr world)
-    : window(nullptr), shaderProgram(0), VAO(0), VBO(0), EBO(0), worldSystem(std::move(world))
+RenderSystem::RenderSystem()
+    : window(nullptr), shaderProgram(0), VAO(0), VBO(0), EBO(0)
 {
 }
 
@@ -35,7 +35,8 @@ bool RenderSystem::initOpenGL(int width, int height, const std::string& title)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    window = glfwCreateWindow(mode->width, mode->height, title.c_str(), primaryMonitor, nullptr);
+    // pass in primaryMonitor in 4th arg for fullscreen
+    window = glfwCreateWindow(mode->width, mode->height, title.c_str(), nullptr, nullptr);
     if (!window)
     {
         std::cerr << "Error: Window creation failed" << std::endl;
@@ -61,8 +62,6 @@ bool RenderSystem::initOpenGL(int width, int height, const std::string& title)
     loadShaders();
 
     setupVertices();
-
-    worldSystem->setCloseWindowCallback([this]() { closeWindow(); });
 
     glfwSetKeyCallback(window, keyCallbackRedirect);
     glfwSetCursorPosCallback(window, mouseMoveCallbackRedirect);
@@ -175,27 +174,28 @@ void RenderSystem::closeWindow() {
 
 void RenderSystem::renderLoop()
 {
+    float lastTime = static_cast<float>(glfwGetTime());
+
     while (!glfwWindowShouldClose(window))
     {
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        float currentTime = static_cast<float>(glfwGetTime());
+        float deltaTime = currentTime - lastTime;
+        lastTime = currentTime;
 
-        auto& spriteContainer = registry.get_component_container<Sprite>();
-        for (size_t i = 0; i < spriteContainer.components.size(); ++i)
+        if (gameStateManager)
         {
-            Entity entity = spriteContainer.entities[i];
-
-            if (registry.get_component_container<TransformComponent>().has(entity))
-            {
-                Sprite& sprite = spriteContainer.components[i];
-                TransformComponent& transform = registry.get_component_container<TransformComponent>().get(entity);
-
-                drawEntity(sprite, transform);
-            }
+            gameStateManager->update(deltaTime);
+            gameStateManager->render();
         }
 
         glfwSwapBuffers(window);
         glfwPollEvents();
+    }
+
+    // Cleanup after loop exits
+    if (gameStateManager && gameStateManager->getCurrentState())
+    {
+        gameStateManager->getCurrentState()->cleanup();
     }
 }
 
@@ -276,16 +276,42 @@ void RenderSystem::cleanup()
     glfwTerminate();
 }
 
-void RenderSystem::keyCallbackRedirect(GLFWwindow* wnd, int key, int scancode, int action, int mods) {
-    RenderSystem* renderSystem = (RenderSystem*)glfwGetWindowUserPointer(wnd);
-    if (renderSystem && renderSystem->worldSystem) {
-        renderSystem->worldSystem->on_key(key, scancode, action, mods);  // Forward to WorldSystem
+void RenderSystem::keyCallbackRedirect(GLFWwindow* wnd, int key, int scancode, int action, int mods)
+{
+    RenderSystem* renderSystem = static_cast<RenderSystem*>(glfwGetWindowUserPointer(wnd));
+    if (renderSystem && renderSystem->gameStateManager)
+    {
+        renderSystem->gameStateManager->on_key(key, scancode, action, mods);
     }
 }
 
 void RenderSystem::mouseMoveCallbackRedirect(GLFWwindow* wnd, double xpos, double ypos) {
     RenderSystem* renderSystem = (RenderSystem*)glfwGetWindowUserPointer(wnd);
-    if (renderSystem && renderSystem->worldSystem) {
-        renderSystem->worldSystem->on_mouse_move(glm::vec2(xpos, ypos)); // Forward to WorldSystem
+    if (renderSystem && renderSystem->gameStateManager) {
+        renderSystem->gameStateManager->on_mouse_move(glm::vec2(xpos, ypos)); // Forward to WorldSystem
     }
+}
+
+void RenderSystem::setGameStateManager(GameStateManager* gsm) {
+    gameStateManager = gsm;
+}
+
+GameStateManager* RenderSystem::getGameStateManager() const
+{
+    return gameStateManager;
+}
+
+GLFWwindow* RenderSystem::getWindow() const
+{
+    return window;
+}
+
+int RenderSystem::getWindowWidth() const
+{
+    return windowWidth;
+}
+
+int RenderSystem::getWindowHeight() const
+{
+    return windowHeight;
 }
