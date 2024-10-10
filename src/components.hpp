@@ -8,10 +8,17 @@ struct TransformComponent {
     float rotation;
 };
 
-struct SpriteComponent {
+struct Sprite {
     GLuint textureID;
     float width;
     float height;
+};
+
+struct Motion {
+    vec2 position;
+    vec2 velocity;
+    vec2 acceleration;
+    float angle;
 };
 
 // Player component
@@ -99,26 +106,16 @@ struct RenderRequest {
     TEXTURE_ASSET_ID used_texture = TEXTURE_ASSET_ID::TEXTURE_COUNT;
     EFFECT_ASSET_ID used_effect = EFFECT_ASSET_ID::EFFECT_COUNT;
     GEOMETRY_BUFFER_ID used_geometry = GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
-=======
-struct MotionComponent {
-    vec2 position;
-    vec2 velocity;
-    vec2 acceleration;
-    float angle;
-};
 
-struct AffectedByGravityComponent {
+
+struct Gravity {
 
 };
 
-struct BreakableDoorComponent {
+struct BreakableDoor {
     bool broken = false;
 };
 
-struct FlamethrowerComponent {
-
-};
-
-struct PlayerComponent {
+struct Flamethrower {
 
 };

@@ -1,88 +1,30 @@
 #pragma once
-
-// internal
-#include "common.hpp"
-
-// stlib
-#include <vector>
-#include <random>
-
-#define SDL_MAIN_HANDLED
-#include <SDL.h>
-#include <SDL_mixer.h>
-
-#include "render_system.hpp"
-
-// Container for all our entities and game logic. Individual rendering / update is
-// deferred to the relative update() methods
-class WorldSystem
-{
-public:
-	WorldSystem();
-
-	// Creates a window
-	GLFWwindow* create_window();
-
-	// starts the game
-	void init(RenderSystem* renderer);
-
-	// Releases all associated resources
-	~WorldSystem();
-
-	// Steps the game ahead by ms milliseconds
-	bool step(float elapsed_ms);
-
-	// Check for collisions
-	void handle_collisions();
-
-	// Should the game be over ?
-	bool is_over()const;
-private:
-	// Input callback functions
-	void on_key(int key, int, int action, int mod);
-	void on_mouse_move(vec2 pos);
-
-	// restart level
-	void restart_game();
-
-	// OpenGL window handle
-	GLFWwindow* window;
-
-	// Number of fish eaten by the salmon, displayed in the window title
-	unsigned int points;
-
-	// Game state
-	RenderSystem* renderer;
-	float current_speed;
-	float next_goomba_spawn;
-	Entity player;
-
-	// music references
-	Mix_Music* background_music;
-	Mix_Chunk* player_dead_sound;
-	Mix_Chunk* player_recover_sound;
-
-	// C++ random number generator
-	std::default_random_engine rng;
-	std::uniform_real_distribution<float> uniform_dist; // number between 0..1
-};
-=======
-#pragma once
 #include "common.hpp"
 #include <memory>
-#include <functional>
+#include "ecs.hpp"
+#include "game_state.hpp"
+#include "render_system.hpp"
 
-class WorldSystem {
+constexpr double player_speed = 1;
+constexpr double player_jump_velocity = 1;
+
+class WorldSystem : public GameState {
 public:
-	WorldSystem();
+	WorldSystem(RenderSystem& renderSystem);
 	~WorldSystem();
 
-	void on_key(int key, int scancode, int action, int mods);
-	void on_mouse_move(const glm::vec2& position);
-	void setCloseWindowCallback(std::function<void()> closeCallback);
+	void init() override;
+	void on_key(int key, int scancode, int action, int mods) override;
+	void on_mouse_move(const glm::vec2& position) override;
+	void update(float deltaTime) override;
+	void render() override;
+	void cleanup() override;
+
+	void initKeyBindings();
 
 private:
-	std::function<void()> closeWindowCallback;
+	RenderSystem& renderSystem;
+	EntityPtr m_player;
+	std::unordered_map<int, std::function<void()>> keyPressActions;
+	std::unordered_map<int, std::function<void()>> keyReleaseActions;
 };
-
-using WorldSystemPtr = std::unique_ptr<WorldSystem>;
