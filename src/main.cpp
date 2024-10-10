@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "ecs.hpp"
 #include "components.hpp"
 #include "render_system.hpp"

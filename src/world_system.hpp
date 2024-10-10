@@ -2,11 +2,12 @@
 #include "common.hpp"
 #include <memory>
 #include "ecs.hpp"
+#include "ecs_registry.hpp"
 #include "game_state.hpp"
 #include "render_system.hpp"
 
-constexpr double player_speed = 1;
-constexpr double player_jump_velocity = 1;
+//constexpr double player_speed = 1;
+//constexpr double player_jump_velocity = 1;
 
 class WorldSystem : public GameState {
 public:
@@ -24,7 +25,7 @@ public:
 
 private:
 	RenderSystem& renderSystem;
-	EntityPtr m_player;
+	Entity m_player;
 	std::unordered_map<int, std::function<void()>> keyPressActions;
 	std::unordered_map<int, std::function<void()>> keyReleaseActions;
 };

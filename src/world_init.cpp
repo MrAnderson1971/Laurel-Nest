@@ -1,13 +1,17 @@
 #include "world_init.hpp"
-#include "ecs_registry.hpp"
+#include "ecs.hpp"
 
 Entity createPlayer(RenderSystem* renderer, vec2 pos)
 {
     auto entity = Entity();
 
-    // Store a reference to the potentially re-used mesh object
-    Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::PLAYER_GEO);
-    registry.meshPtrs.emplace(entity, &mesh);
+    // done in world_system.cpp init()
+//    Sprite playerSprite;
+//    GLuint playerTextureID = renderSystem.loadTexture("walk_1.png", playerWidth, playerHeight);
+//    playerSprite.textureID = playerTextureID;
+//    playerSprite.height = 1.0f;
+//    playerSprite.width = 1.0f;
+//    registry.sprites.emplace(entity, &mesh);
 
     // Setting initial motion values
     Motion& motion = registry.motions.emplace(entity);

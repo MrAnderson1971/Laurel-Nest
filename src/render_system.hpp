@@ -2,7 +2,7 @@
 
 #include <string>
 #include "common.hpp"
-#include "tiny_ecs.hpp"
+#include "ecs.hpp"
 #include "components.hpp"
 #include "game_state_manager.hpp"
 

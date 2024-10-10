@@ -1,6 +1,9 @@
 #pragma once
 #include "common.hpp"
-#define STB_IMAGE_IMPLEMENTATION
+#include <utility>
+#include <vector>
+#include <unordered_map>
+#include "../ext/stb_image/stb_image.h"
 
 struct TransformComponent {
     glm::vec3 position;
@@ -15,10 +18,10 @@ struct Sprite {
 };
 
 struct Motion {
-    vec2 position;
-    vec2 velocity;
-    vec2 acceleration;
-    float angle;
+    vec2 position = { 0, 0 };
+    float angle = 0;
+    vec2 velocity = { 0, 0 };
+    vec2 scale = { 10, 10 };
 };
 
 // Player component
@@ -39,13 +42,6 @@ struct DeathTimer
     float counter_ms = 3000;
 };
 
-struct Motion {
-    vec2 position = { 0, 0 };
-    float angle = 0;
-    vec2 velocity = { 0, 0 };
-    vec2 scale = { 10, 10 };
-};
-
 struct Collision
 {
     // Note, the first object is stored in the ECS container.entities
@@ -62,23 +58,10 @@ struct Mesh
     // std::vector<uint16_t> vertex_indices;
 };
 
-// Data structure for toggling debug mode
-struct Debug {
-    bool in_debug_mode = 0;
-    bool in_freeze_mode = 0;
-};
-extern Debug debugging;
-
 // Sets the brightness of the screen
 struct ScreenState
 {
     float darken_screen_factor = -1;
-};
-
-// A struct to refer to debugging graphics in the ECS
-struct DebugComponent
-{
-    // Note, an empty struct has size 1
 };
 
 enum class TEXTURE_ASSET_ID {
@@ -106,7 +89,7 @@ struct RenderRequest {
     TEXTURE_ASSET_ID used_texture = TEXTURE_ASSET_ID::TEXTURE_COUNT;
     EFFECT_ASSET_ID used_effect = EFFECT_ASSET_ID::EFFECT_COUNT;
     GEOMETRY_BUFFER_ID used_geometry = GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
-
+};
 
 struct Gravity {
 
