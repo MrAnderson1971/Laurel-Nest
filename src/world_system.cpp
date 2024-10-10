@@ -15,22 +15,30 @@ void WorldSystem::init() {
 	Motion playerMotion;
 	playerMotion.position = glm::vec2(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() / 2.0f);
 	playerMotion.velocity = glm::vec2(0, 0);
+	playerMotion.scale = { WALKING_BB_WIDTH, WALKING_BB_HEIGHT };
 	m_player->addComponent(std::move(playerMotion));
 
-	int playerWidth, playerHeight;
-	GLuint playerTextureID = renderSystem.loadTexture("walk_1.png", playerWidth, playerHeight);
+	Animation<PlayerState> playerAnimations;
+	std::vector<Sprite> walkingSprites;
+
+	for (unsigned i = 1; i <= 4; i++) {
+		int playerWidth, playerHeight;
+		GLuint playerTextureID = renderSystem.loadTexture("walk_" + std::to_string(i) + ".png", playerWidth, playerHeight);
+		Sprite sprite;
+		sprite.textureID = playerTextureID;
+		sprite.width = playerWidth;
+		sprite.height = playerHeight;
+		walkingSprites.push_back(sprite);
+	}
+	playerAnimations.addState(PlayerState::WALKING, walkingSprites);
+	playerAnimations.setState(PlayerState::WALKING);
+	m_player->addComponent(std::move(playerAnimations));
+
 	TransformComponent playerTransform;
 	playerTransform.position = glm::vec3(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() / 2.0f, 0.0f);
-	playerTransform.scale = glm::vec3(playerWidth, playerHeight, 1.0f);
+	playerTransform.scale = glm::vec3(WALKING_BB_WIDTH, WALKING_BB_HEIGHT, 1.0f);
 	playerTransform.rotation = 0.0f;
-
-	Sprite playerSprite;
-	playerSprite.textureID = playerTextureID;
-	playerSprite.height = 0.1f;
-	playerSprite.width = 0.1f;
-
 	m_player->addComponent(std::move(playerTransform));
-	m_player->addComponent(std::move(playerSprite));
 
 	initKeyBindings();
 }
@@ -50,9 +58,9 @@ void WorldSystem::render() {
 	// draw player, eventually draw everything
 	if (m_player)
 	{
-		auto& sprite = m_player->getComponent<Sprite>();
+		auto& animation = m_player->getComponent<Animation<PlayerState>>();
 		auto& transform = m_player->getComponent<TransformComponent>();
-		renderSystem.drawEntity(sprite, transform);
+		renderSystem.drawEntity(animation.getCurrentFrame(), transform);
 	}
 }
 

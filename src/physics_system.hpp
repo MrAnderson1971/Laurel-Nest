@@ -1,9 +1,8 @@
 #pragma once
 
 #include "common.hpp"
-#include "tiny_ecs.hpp"
+#include "ecs.hpp"
 #include "components.hpp"
-#include "ecs_registry.hpp"
 
 // A simple physics system that moves rigid bodies and checks for collision
 class PhysicsSystem
