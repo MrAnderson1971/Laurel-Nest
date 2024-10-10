@@ -5,6 +5,8 @@
 #include <iostream>
 #include <unordered_map>
 #include <typeinfo>
+#include <cassert>
+#include <algorithm>
 
 class ECSRegistry;
 
@@ -21,27 +23,19 @@ public:
 
 	// Function template to add a component to the entity
 	template<typename Component>
-	Component& addComponent(Component&& c) {
-		return registry.get_component_container<Component>().emplace(*this, std::move(c));
-	}
+	Component& addComponent(Component&& c);
 
 	// Function template to remove a component from the entity
 	template<typename Component>
-	void removeComponent() {
-		registry.get_component_container<Component>().remove(*this);
-	}
+	void removeComponent();
 
 	// Function template to check if the entity has a component
 	template<typename Component>
-	bool hasComponent() {
-		return registry.get_component_container<Component>().has(*this);
-	}
+	bool hasComponent();
 
 	// Function template to get a component from the entity
 	template<typename Component>
-	Component& getComponent() {
-		return registry.get_component_container<Component>().get(*this);
-	}
+	Component& getComponent();
 };
 
 // Common interface to refer to all containers in the ECS registry
@@ -217,3 +211,23 @@ public:
 };
 
 extern ECSRegistry registry;
+
+template<typename Component>
+Component& Entity::addComponent(Component&& c) {
+	return registry.get_component_container<Component>().emplace(*this, std::move(c));
+}
+
+template<typename Component>
+void Entity::removeComponent() {
+	registry.get_component_container<Component>().remove(*this);
+}
+
+template<typename Component>
+bool Entity::hasComponent() {
+	return registry.get_component_container<Component>().has(*this);
+}
+
+template<typename Component>
+Component &Entity::getComponent() {
+	return registry.get_component_container<Component>().get(*this);
+}

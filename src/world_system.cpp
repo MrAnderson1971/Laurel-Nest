@@ -13,6 +13,9 @@ void WorldSystem::setCloseWindowCallback(std::function<void()> closeCallback) {
 }
 
 void WorldSystem::on_key(int key, int scancode, int action, int mods) {
+	(void) scancode;
+	(void) action;
+	(void) mods;
 	if (action == GLFW_PRESS) {
 		switch (key) {
 			case GLFW_KEY_ESCAPE:
@@ -23,5 +26,5 @@ void WorldSystem::on_key(int key, int scancode, int action, int mods) {
 }
 
 void WorldSystem::on_mouse_move(const glm::vec2& position) {
-
+	(void) position;
 }

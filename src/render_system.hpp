@@ -17,7 +17,7 @@ public:
     bool initOpenGL(int width, int height, const std::string& title);
     void renderLoop();
     void cleanup();
-    GLuint RenderSystem::loadTexture(const std::string& filePath, int& outWidth, int& outHeight);
+    GLuint loadTexture(const std::string& filePath, int& outWidth, int& outHeight);
 
 private:
     void loadShaders();
