@@ -22,7 +22,7 @@ public:
 private:
     void loadShaders();
     void setupVertices();
-    void drawEntity(const SpriteComponent& sprite, const TransformComponent& transform);
+    void drawEntity(const Sprite& sprite, const TransformComponent& transform);
     std::string readShaderFile(const std::string& filePath);
 
     GLFWwindow* window;

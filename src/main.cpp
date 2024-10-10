@@ -24,12 +24,12 @@ int main()
 
     splashScreenEntity.addComponent<TransformComponent>(std::move(splashTransform));
 
-    SpriteComponent splashSprite;
+    Sprite splashSprite;
     splashSprite.textureID = splashTextureID;
     splashSprite.width = 1.0f;
     splashSprite.height = 1.0f;
 
-    splashScreenEntity.addComponent<SpriteComponent>(std::move(splashSprite));
+    splashScreenEntity.addComponent<Sprite>(std::move(splashSprite));
 
     renderSystem.renderLoop();
 

@@ -180,14 +180,14 @@ void RenderSystem::renderLoop()
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        auto& spriteContainer = registry.get_component_container<SpriteComponent>();
+        auto& spriteContainer = registry.get_component_container<Sprite>();
         for (size_t i = 0; i < spriteContainer.components.size(); ++i)
         {
             Entity entity = spriteContainer.entities[i];
 
             if (registry.get_component_container<TransformComponent>().has(entity))
             {
-                SpriteComponent& sprite = spriteContainer.components[i];
+                Sprite& sprite = spriteContainer.components[i];
                 TransformComponent& transform = registry.get_component_container<TransformComponent>().get(entity);
 
                 drawEntity(sprite, transform);
@@ -199,7 +199,7 @@ void RenderSystem::renderLoop()
     }
 }
 
-void RenderSystem::drawEntity(const SpriteComponent& sprite, const TransformComponent& transform)
+void RenderSystem::drawEntity(const Sprite& sprite, const TransformComponent& transform)
 {
     glUseProgram(shaderProgram);
 

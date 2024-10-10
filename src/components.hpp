@@ -8,31 +8,31 @@ struct TransformComponent {
     float rotation;
 };
 
-struct SpriteComponent {
+struct Sprite {
     GLuint textureID;
     float width;
     float height;
 };
 
-struct MotionComponent {
+struct Motion {
     vec2 position;
     vec2 velocity;
     vec2 acceleration;
     float angle;
 };
 
-struct AffectedByGravityComponent {
+struct Gravity {
 
 };
 
-struct BreakableDoorComponent {
+struct BreakableDoor {
     bool broken = false;
 };
 
-struct FlamethrowerComponent {
+struct Flamethrower {
 
 };
 
-struct PlayerComponent {
+struct Player {
 
 };

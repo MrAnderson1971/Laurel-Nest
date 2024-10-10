@@ -7,6 +7,7 @@
 #include <typeinfo>
 #include <cassert>
 #include <algorithm>
+#include <functional>
 
 class ECSRegistry;
 
@@ -37,6 +38,8 @@ public:
 	template<typename Component>
 	Component& getComponent();
 };
+
+using EntityPtr = std::unique_ptr<Entity>;
 
 // Common interface to refer to all containers in the ECS registry
 struct ContainerInterface
@@ -228,6 +231,6 @@ bool Entity::hasComponent() {
 }
 
 template<typename Component>
-Component &Entity::getComponent() {
+Component& Entity::getComponent() {
 	return registry.get_component_container<Component>().get(*this);
 }
