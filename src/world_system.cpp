@@ -26,8 +26,8 @@ void WorldSystem::init() {
 		GLuint playerTextureID = renderSystem.loadTexture("walk_" + std::to_string(i) + ".png", playerWidth, playerHeight);
 		Sprite sprite;
 		sprite.textureID = playerTextureID;
-		sprite.width = playerWidth;
-		sprite.height = playerHeight;
+		sprite.width = 0.2f;
+		sprite.height = 0.2f;
 		walkingSprites.push_back(sprite);
 	}
 	playerAnimations.addState(PlayerState::WALKING, walkingSprites);
@@ -46,9 +46,14 @@ void WorldSystem::init() {
 void WorldSystem::update(float deltaTime) {
 	TransformComponent& t = m_player->getComponent<TransformComponent>();
 	Motion& m = m_player->getComponent<Motion>();
+	auto& a = m_player->getComponent<Animation<PlayerState>>();
 	m.position += m.velocity;
 	t.position[0] = m.position[0];
 	t.position[1] = m.position[1];
+	
+	if (m.velocity[0] != 0) {
+		a.next(deltaTime);
+	}
 }
 
 void WorldSystem::render() {
