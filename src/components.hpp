@@ -86,13 +86,6 @@ struct DeathTimer
     float counter_ms = 3000;
 };
 
-struct Motion {
-    vec2 position = { 0, 0 };
-    float angle = 0;
-    vec2 velocity = { 0, 0 };
-    vec2 scale = { 10, 10 };
-};
-
 struct Collision
 {
     // Note, the first object is stored in the ECS container.entities
@@ -153,7 +146,7 @@ struct RenderRequest {
     TEXTURE_ASSET_ID used_texture = TEXTURE_ASSET_ID::TEXTURE_COUNT;
     EFFECT_ASSET_ID used_effect = EFFECT_ASSET_ID::EFFECT_COUNT;
     GEOMETRY_BUFFER_ID used_geometry = GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
-
+};
 
 struct Gravity {
 
