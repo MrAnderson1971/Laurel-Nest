@@ -7,6 +7,8 @@
 
 int main()
 {
+    std::cout << "START" << std::endl;
+
     RenderSystem renderSystem;
     GameStateManager gameStateManager;
     renderSystem.setGameStateManager(&gameStateManager);

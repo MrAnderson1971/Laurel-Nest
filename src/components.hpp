@@ -17,11 +17,58 @@ struct Sprite {
     float height;
 };
 
+enum PlayerState {
+    WALKING,
+    ATTACKING,
+    JUMPING,
+};
+
+/* Template Animation component for animated sprites
+Each supports different animation states, such as walking, jumping, etc.
+*/
+template<typename State>
+struct Animation {
+    std::unordered_map<State, std::vector<Sprite>> frames;
+    float frameDuration;
+    float currentTime;
+    size_t currentFrame;
+    State currentState;
+
+    Animation() : frameDuration(0.1f), currentTime(0.0f), currentFrame(0) {}
+
+    // add a new animation state
+    void addState(State newState, const std::vector<Sprite>& newSprites) {
+        frames[newState] = newSprites;
+    }
+
+    // get the next frame for the current state
+    void next(float deltaTime) {
+        currentTime += deltaTime;
+        if (currentTime >= frameDuration) {
+            currentFrame = (currentFrame + 1) % frames[currentState].size();
+            currentTime = 0.0f;
+        }
+    }
+
+    void setState(State newState) {
+        if (frames.find(newState) != frames.end()) {
+            currentState = newState;
+            currentFrame = 0;
+            currentTime = 0.0f;
+        }
+    }
+
+    const Sprite& getCurrentFrame() const {
+        return frames.at(currentState)[currentFrame];
+    }
+};
+
 struct Motion {
-    vec2 position = { 0, 0 };
-    float angle = 0;
-    vec2 velocity = { 0, 0 };
-    vec2 scale = { 10, 10 };
+    vec2 position;
+    float angle;
+    vec2 velocity;
+    vec2 scale;
+    vec2 acceleration;
 };
 
 // Player component
@@ -65,10 +112,30 @@ struct ScreenState
 };
 
 enum class TEXTURE_ASSET_ID {
-    PLAYER_WALK = 0,
-    PLAYER_JUMP = PLAYER_WALK + 1,
-    PLAYER_ATTACK = PLAYER_JUMP + 1,
-    TEXTURE_COUNT = PLAYER_ATTACK + 1
+    PLAYER_IDLE = 0,                      // idle.png
+    PLAYER_WALK_1 = PLAYER_IDLE + 1,      // walk_1.png
+    PLAYER_WALK_2 = PLAYER_WALK_1 + 1,    // walk_2.png
+    PLAYER_WALK_3 = PLAYER_WALK_2 + 1,    // walk_3.png
+    PLAYER_WALK_4 = PLAYER_WALK_3 + 1,    // walk_4.png
+    PLAYER_JUMP_1 = PLAYER_WALK_4 + 1,    // jump_1.png
+    PLAYER_JUMP_2 = PLAYER_JUMP_1 + 1,    // jump_2.png
+    PLAYER_JUMP_3 = PLAYER_JUMP_2 + 1,    // jump_3.png
+    PLAYER_JUMP_4 = PLAYER_JUMP_3 + 1,    // jump_4.png
+    PLAYER_ATTACK_1 = PLAYER_JUMP_4 + 1,  // attack_1.png
+    PLAYER_ATTACK_2 = PLAYER_ATTACK_1 + 1,// attack_2.png
+    PLAYER_ATTACK_3 = PLAYER_ATTACK_2 + 1,// attack_3.png
+    PLAYER_ATTACK_4 = PLAYER_ATTACK_3 + 1,// attack_4.png
+    PLAYER_ATTACK_5 = PLAYER_ATTACK_4 + 1,// attack_5.png
+    GOOMBA_WALK_ATTACK = PLAYER_ATTACK_5 + 1,  // goomba_walk_attack.PNG
+    GOOMBA_WALK_HIT = GOOMBA_WALK_ATTACK + 1,  // goomba_walk_hit.PNG
+    GOOMBA_WALK_IDLE = GOOMBA_WALK_HIT + 1,    // goomba_walk_idle.PNG
+    GOOMBA_WALK_NOTICE = GOOMBA_WALK_IDLE + 1, // goomba_walk_notice.PNG
+    GOOMBA_DEAD = GOOMBA_WALK_NOTICE + 1,      // goomba_dead.PNG
+    CEILING_FALL = GOOMBA_DEAD + 1,            // ceiling_fall.png
+    CEILING_HIT = CEILING_FALL + 1,            // ceiling_hit.png
+    CEILING_IDLE = CEILING_HIT + 1,            // ceiling_idle.png
+    SPLASH_SCREEN = CEILING_IDLE + 1,          // splash_screen.png
+    TEXTURE_COUNT = SPLASH_SCREEN + 1          // Count of all textures
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
