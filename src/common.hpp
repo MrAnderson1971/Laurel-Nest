@@ -23,8 +23,6 @@
 
 using namespace glm;
 
-#include "ecs.hpp"
-
 // Simple utility functions to avoid mistyping directory name
 // audio_path("audio.ogg") -> data/audio/audio.ogg
 // Get defintion of PROJECT_SOURCE_DIR from:
