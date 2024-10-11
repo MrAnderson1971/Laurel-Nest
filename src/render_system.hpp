@@ -36,7 +36,8 @@ class RenderSystem
             textures_path("ceiling_fall.png"),        // CEILING_FALL
             textures_path("ceiling_hit.png"),         // CEILING_HIT
             textures_path("ceiling_idle.png"),        // CEILING_IDLE
-            textures_path("splash_screen.png")        // SPLASH_SCREEN
+            textures_path("splash_screen.png"),       // SPLASH_SCREEN
+            textures_path("demo_ground.png")          // DEMO_GROUND
     };
 
 public:

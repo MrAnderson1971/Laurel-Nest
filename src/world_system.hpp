@@ -31,12 +31,14 @@ public:
 	void render() override;
 	void cleanup() override;
     Entity createPlayer(RenderSystem* renderer, vec2 pos);
+    void processPlayerInput(int key, int action);
 
 	void initKeyBindings();
 
 private:
 	RenderSystem& renderSystem;
 	Entity m_player;
+    Entity m_ground;
 	std::unordered_map<int, std::function<void()>> keyPressActions;
 	std::unordered_map<int, std::function<void()>> keyReleaseActions;
 };

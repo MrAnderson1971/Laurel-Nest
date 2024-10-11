@@ -17,6 +17,68 @@ RenderSystem::~RenderSystem()
     cleanup();
 }
 
+//bool RenderSystem::initOpenGL(int width, int height, const std::string& title)
+//{
+//    windowWidth = width;
+//    windowHeight = height;
+//
+//    if (!glfwInit())
+//    {
+//        std::cerr << "Error: GLFW initialization failed" << std::endl;
+//        return false;
+//    }
+//
+//    GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
+//    const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
+//
+//    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+//    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+//    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+//
+//    // pass in primaryMonitor in 4th arg for fullscreen
+//    window = glfwCreateWindow(mode->width, mode->height, title.c_str(), nullptr, nullptr);
+//    if (!window)
+//    {
+//        std::cerr << "Error: Window creation failed" << std::endl;
+//        glfwTerminate();
+//        return false;
+//    }
+//    glfwMakeContextCurrent(window);
+//
+//    if (gl3w_init())
+//    {
+//        std::cerr << "Error: gl3w initialization failed" << std::endl;
+//        glfwTerminate();
+//        return false;
+//    }
+//
+//    glViewport(0, 0, mode->width, mode->height);
+//
+//    glEnable(GL_BLEND);
+//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//
+//    projection = glm::ortho(0.0f, static_cast<float>(mode->width), static_cast<float>(mode->height), 0.0f);
+//
+//    int frame_buffer_width_px, frame_buffer_height_px;
+//    glfwGetFramebufferSize(window, &frame_buffer_width_px, &frame_buffer_height_px);
+//    // Note, this will be 2x the resolution given to glfwCreateWindow on retina displays
+//    if (frame_buffer_width_px != windowWidth || frame_buffer_height_px != windowHeight)
+//    {
+//        glViewport(0, 0, frame_buffer_width_px, frame_buffer_height_px);
+//        projection = glm::ortho(0.0f, static_cast<float>(frame_buffer_width_px), static_cast<float>(frame_buffer_height_px), 0.0f);
+//    }
+//
+//    loadShaders();
+//
+//    setupVertices();
+//
+//    glfwSetKeyCallback(window, keyCallbackRedirect);
+//    glfwSetCursorPosCallback(window, mouseMoveCallbackRedirect);
+//    glfwSetWindowUserPointer(window, this);
+//
+//    return true;
+//}
+
 bool RenderSystem::initOpenGL(int width, int height, const std::string& title)
 {
     windowWidth = width;
@@ -35,14 +97,15 @@ bool RenderSystem::initOpenGL(int width, int height, const std::string& title)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    // pass in primaryMonitor in 4th arg for fullscreen
-    window = glfwCreateWindow(mode->width, mode->height, title.c_str(), nullptr, nullptr);
+    // Create window with provided dimensions
+    window = glfwCreateWindow(windowWidth, windowHeight, title.c_str(), nullptr, nullptr);
     if (!window)
     {
         std::cerr << "Error: Window creation failed" << std::endl;
         glfwTerminate();
         return false;
     }
+
     glfwMakeContextCurrent(window);
 
     if (gl3w_init())
@@ -52,17 +115,24 @@ bool RenderSystem::initOpenGL(int width, int height, const std::string& title)
         return false;
     }
 
-    glViewport(0, 0, mode->width, mode->height);
+    // Get the actual framebuffer size (accounts for Retina scaling)
+    int frame_buffer_width_px, frame_buffer_height_px;
+    glfwGetFramebufferSize(window, &frame_buffer_width_px, &frame_buffer_height_px);
+
+    // Set the viewport to match the actual framebuffer size
+    glViewport(0, 0, frame_buffer_width_px, frame_buffer_height_px);
+
+    // Adjust the projection matrix to use the framebuffer size (not window size)
+    projection = glm::ortho(0.0f, static_cast<float>(frame_buffer_width_px), static_cast<float>(frame_buffer_height_px), 0.0f);
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    projection = glm::ortho(0.0f, static_cast<float>(mode->width), static_cast<float>(mode->height), 0.0f);
-
+    // Load shaders and set up vertices
     loadShaders();
-
     setupVertices();
 
+    // Set callbacks for input handling
     glfwSetKeyCallback(window, keyCallbackRedirect);
     glfwSetCursorPosCallback(window, mouseMoveCallbackRedirect);
     glfwSetWindowUserPointer(window, this);
