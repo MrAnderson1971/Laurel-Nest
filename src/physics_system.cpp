@@ -1,7 +1,7 @@
 // internal
 #include <iostream>
 #include "physics_system.hpp"
-#include "world_init.hpp"
+#include "ecs.hpp"
 
 // Returns the local bounding coordinates scaled by the current size of the entity
 vec2 get_bounding_box(const Motion& motion)
@@ -29,62 +29,54 @@ bool collides(const Motion& motion1, const Motion& motion2)
 
 void PhysicsSystem::step(float elapsed_ms)
 {
-	// Move fish based on how much time has passed, this is to (partially) avoid
-	// having entities move at different speed based on the machine.
-	auto& motion_registry = registry.motions;
-	for(uint i = 0; i< motion_registry.size(); i++)
-	{
-		// !!! TODO A1: update motion.position based on step_seconds and motion.velocity
-		Motion& motion = motion_registry.components[i];
-		Entity entity = motion_registry.entities[i];
-		float step_seconds = elapsed_ms / 1000.f;
-        if(!registry.players.has(motion_registry.entities[i])) {
+    // Move entities based on how much time has passed
+    float step_seconds = elapsed_ms / 1000.f;
+
+    // Access the Motion component container directly using the registry
+    for (uint i = 0; i < registry.motions.size(); i++)
+    {
+        Motion& motion = registry.motions.components[i];
+        Entity entity = registry.motions.entities[i];
+
+        // Update position for non-player entities
+        if (!registry.players.has(entity))
+        {
             motion.position.x += motion.velocity.x * step_seconds;
-        } else {
-            //
         }
-        if (registry.deathTimers.has(entity)) {
-            // flip the salmon upside down
+
+        // Handle death timer components
+        if (registry.deathTimers.has(entity))
+        {
+            // Apply gravity or buoyancy effect
             motion.angle = 0.f;
-            // Apply buoyancy effect
             motion.velocity.y -= 20.0f;
             motion.velocity.x = 0.0f;
 
+            // Update position based on velocity
             motion.position.x += motion.velocity.x * step_seconds;
             motion.position.y += motion.velocity.y * step_seconds;
         }
-		// (void)elapsed_ms; // placeholder to silence unused warning until implemented
-	}
+    }
 
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A2: HANDLE EGG UPDATES HERE
-	// DON'T WORRY ABOUT THIS UNTIL ASSIGNMENT 2
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // Check for collisions between all moving entities
+    for (uint i = 0; i < registry.motions.size(); i++)
+    {
+        Motion& motion_i = registry.motions.components[i];
+        Entity entity_i = registry.motions.entities[i];
 
-	// Check for collisions between all moving entities
-    ComponentContainer<Motion> &motion_container = registry.motions;
-	for(uint i = 0; i<motion_container.components.size(); i++)
-	{
-		Motion& motion_i = motion_container.components[i];
-		Entity entity_i = motion_container.entities[i];
-		
-		// note starting j at i+1 to compare all (i,j) pairs only once (and to not compare with itself)
-		for(uint j = i+1; j<motion_container.components.size(); j++)
-		{
-			Motion& motion_j = motion_container.components[j];
-			if (collides(motion_i, motion_j))
-			{
-				Entity entity_j = motion_container.entities[j];
-				// Create a collisions event
-				// We are abusing the ECS system a bit in that we potentially insert muliple collisions for the same entity
-				registry.collisions.emplace_with_duplicates(entity_i, entity_j);
-				registry.collisions.emplace_with_duplicates(entity_j, entity_i);
-			}
-		}
-	}
+        // Compare each entity with all other entities (i, j) pairs only once
+        for (uint j = i + 1; j < registry.motions.size(); j++)
+        {
+            Motion& motion_j = registry.motions.components[j];
+            Entity entity_j = registry.motions.entities[j];
 
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A2: HANDLE EGG collisions HERE
-	// DON'T WORRY ABOUT THIS UNTIL ASSIGNMENT 2
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            if (collides(motion_i, motion_j))
+            {
+                // Create a collision event by inserting into the collisions container
+                // This potentially inserts multiple collisions for the same entity
+                registry.collisions.emplace_with_duplicates(entity_i, entity_j);
+                registry.collisions.emplace_with_duplicates(entity_j, entity_i);
+            }
+        }
+    }
 }

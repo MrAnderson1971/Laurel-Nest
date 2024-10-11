@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "ecs.hpp"
 #include "components.hpp"
 #include "render_system.hpp"
@@ -5,6 +7,8 @@
 
 int main()
 {
+    std::cout << "START" << std::endl;
+
     RenderSystem renderSystem;
     GameStateManager gameStateManager;
     renderSystem.setGameStateManager(&gameStateManager);

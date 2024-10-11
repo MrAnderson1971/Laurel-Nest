@@ -21,14 +21,16 @@ void SplashScreenState::init()
     splashTransform.scale = glm::vec3(splashWidth, splashHeight, 1.0f);
     splashTransform.rotation = 0.0f;
 
-    splashScreenEntity.addComponent<TransformComponent>(std::move(splashTransform));
+    // splashScreenEntity.addComponent<TransformComponent>(std::move(splashTransform));
+    registry.transforms.emplace(splashScreenEntity, std::move(splashTransform));
 
     Sprite splashSprite;
     splashSprite.textureID = splashTextureID;
     splashSprite.width = 1.0f;
     splashSprite.height = 1.0f;
 
-    splashScreenEntity.addComponent<Sprite>(std::move(splashSprite));
+    // splashScreenEntity.addComponent<Sprite>(std::move(splashSprite));
+    registry.sprites.emplace(splashScreenEntity, std::move(splashSprite));
 }
 
 void SplashScreenState::on_key(int key, int scancode, int action, int mods)
@@ -65,9 +67,21 @@ void SplashScreenState::render()
     glClear(GL_COLOR_BUFFER_BIT);
 
     // Render the splash screen entity
-    auto& sprite = splashScreenEntity.getComponent<Sprite>();
-    auto& transform = splashScreenEntity.getComponent<TransformComponent>();
-    renderSystem.drawEntity(sprite, transform);
+//    auto& sprite = splashScreenEntity.getComponent<Sprite>();
+//    auto& transform = splashScreenEntity.getComponent<TransformComponent>();
+//    renderSystem.drawEntity(sprite, transform);
+
+    // Check if the splash screen entity has the required components before rendering
+    if (registry.sprites.has(splashScreenEntity) &&
+        registry.transforms.has(splashScreenEntity))
+    {
+        // Retrieve the Sprite and TransformComponent using the registry
+        auto& sprite = registry.sprites.get(splashScreenEntity);
+        auto& transform = registry.transforms.get(splashScreenEntity);
+
+        // Use the render system to draw the entity
+        renderSystem.drawEntity(sprite, transform);
+    }
 }
 
 void SplashScreenState::cleanup()
