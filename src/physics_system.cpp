@@ -29,11 +29,54 @@ bool collides(const Motion& motion1, const Motion& motion2)
 
 void PhysicsSystem::step(float elapsed_ms)
 {
-	// Move fish based on how much time has passed, this is to (partially) avoid
-	// having entities move at different speed based on the machine.
-	auto& motion_registry = registry.get_component_container<Motion>();
-	for(uint i = 0; i< motion_registry.size(); i++)
-	{
-          // TODO: stuff
-	}
+    // Move entities based on how much time has passed
+    float step_seconds = elapsed_ms / 1000.f;
+
+    // Access the Motion component container directly using the registry
+    for (uint i = 0; i < registry.motions.size(); i++)
+    {
+        Motion& motion = registry.motions.components[i];
+        Entity entity = registry.motions.entities[i];
+
+        // Update position for non-player entities
+        if (!registry.players.has(entity))
+        {
+            motion.position.x += motion.velocity.x * step_seconds;
+        }
+
+        // Handle death timer components
+        if (registry.deathTimers.has(entity))
+        {
+            // Apply gravity or buoyancy effect
+            motion.angle = 0.f;
+            motion.velocity.y -= 20.0f;
+            motion.velocity.x = 0.0f;
+
+            // Update position based on velocity
+            motion.position.x += motion.velocity.x * step_seconds;
+            motion.position.y += motion.velocity.y * step_seconds;
+        }
+    }
+
+    // Check for collisions between all moving entities
+    for (uint i = 0; i < registry.motions.size(); i++)
+    {
+        Motion& motion_i = registry.motions.components[i];
+        Entity entity_i = registry.motions.entities[i];
+
+        // Compare each entity with all other entities (i, j) pairs only once
+        for (uint j = i + 1; j < registry.motions.size(); j++)
+        {
+            Motion& motion_j = registry.motions.components[j];
+            Entity entity_j = registry.motions.entities[j];
+
+            if (collides(motion_i, motion_j))
+            {
+                // Create a collision event by inserting into the collisions container
+                // This potentially inserts multiple collisions for the same entity
+                registry.collisions.emplace_with_duplicates(entity_i, entity_j);
+                registry.collisions.emplace_with_duplicates(entity_j, entity_i);
+            }
+        }
+    }
 }
