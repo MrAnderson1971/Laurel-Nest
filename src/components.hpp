@@ -159,7 +159,7 @@ struct RenderRequest {
 };
 
 struct Gravity {
-
+    float accleration = 0.0098f;
 };
 
 struct BreakableDoor {

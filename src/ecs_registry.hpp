@@ -20,6 +20,7 @@ public:
     ComponentContainer<RenderRequest> renderRequests;
     ComponentContainer<ScreenState> screenStates;
     ComponentContainer<Animation<PlayerState>> playerAnimations;
+    ComponentContainer<Gravity> gravity;
 
     // constructor that adds all containers for looping over them
     // IMPORTANT: Don't forget to add any newly added containers!
@@ -34,6 +35,7 @@ public:
         registry_list.push_back(&renderRequests);
         registry_list.push_back(&screenStates);
         registry_list.push_back(&playerAnimations);
+        registry_list.push_back(&gravity);
     }
 
     void clear_all_components() {
