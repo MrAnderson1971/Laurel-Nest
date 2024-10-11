@@ -17,9 +17,12 @@ void SplashScreenState::init()
     GLuint splashTextureID = renderSystem.loadTexture("splash_screen.png", splashWidth, splashHeight);
 
     TransformComponent splashTransform;
-    // splashTransform.position = glm::vec3(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() / 2.0f, 0.0f);
+#ifdef _WIN32
+    splashTransform.position = glm::vec3(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() / 2.0f, 0.0f);
+#else
     splashTransform.position = glm::vec3(renderSystem.getWindowWidth() / 2.0f + splashWidth / 4.0f,
                                          renderSystem.getWindowHeight() / 2.0f + splashHeight / 3.0f, 0.0f);
+#endif
     splashTransform.scale = glm::vec3(splashWidth, splashHeight, 1.0f);
     splashTransform.rotation = 0.0f;
 
