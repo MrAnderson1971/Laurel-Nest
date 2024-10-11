@@ -27,6 +27,12 @@ void GameStateManager::on_mouse_move(const glm::vec2& position) {
     }
 }
 
+void GameStateManager::on_mouse_click(int button, int action, const glm::vec2& position, int mods) {
+    if (currentState) {
+        currentState->on_mouse_click(button, action, position, mods);
+    }
+}
+
 void GameStateManager::update(float deltaTime)
 {
     if (currentState)

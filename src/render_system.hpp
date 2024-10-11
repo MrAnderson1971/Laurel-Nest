@@ -72,6 +72,7 @@ private:
 
     static void keyCallbackRedirect(GLFWwindow* wnd, int key, int scancode, int action, int mods);
     static void mouseMoveCallbackRedirect(GLFWwindow* wnd, double xpos, double ypos);
+    static void mouseClickCallbackRedirect(GLFWwindow* wnd, int button, int action, int mods);
 
     GameStateManager* gameStateManager;
 };

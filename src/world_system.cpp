@@ -269,6 +269,10 @@ void WorldSystem::on_mouse_move(const glm::vec2& position) {
     (void) position;
 }
 
+void WorldSystem::on_mouse_click(int button, int action, const glm::vec2& position, int mods) {
+    (void)button; (void)action; (void)position; (void)mods;
+}
+
 void WorldSystem::cleanup() {
     // Remove all components of the player entity from the registry
     registry.remove_all_components_of(m_player);

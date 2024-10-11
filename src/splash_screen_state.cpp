@@ -1,6 +1,7 @@
 #include "splash_screen_state.hpp"
 #include "components.hpp"
 #include "world_system.hpp"
+#include <iostream>
 
 SplashScreenState::SplashScreenState(RenderSystem& renderSystem)
     : renderSystem(renderSystem)
@@ -63,6 +64,15 @@ void SplashScreenState::on_mouse_move(const glm::vec2& position) {
 void SplashScreenState::update(float deltaTime)
 {
     (void)deltaTime;
+}
+
+void SplashScreenState::on_mouse_click(int button, int action, const glm::vec2& position, int mods) {
+    (void)mods;
+    if (action == GLFW_PRESS) {
+        if (button == GLFW_MOUSE_BUTTON_LEFT) {
+            std::cout << "left click at " << position[0] << ", " << position[1] << std::endl;
+        }
+    }
 }
 
 void SplashScreenState::render()
