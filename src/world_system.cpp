@@ -47,6 +47,8 @@ void WorldSystem::init() {
     playerTransform.rotation = 0.0f;
     registry.transforms.emplace(m_player, std::move(playerTransform));
 
+    registry.gravity.emplace(m_player, std::move(Gravity()));
+
     // Store player entity for later use
     this->m_player = m_player;
 
@@ -65,6 +67,11 @@ void WorldSystem::update(float deltaTime) {
         // Update position based on motion
         m.position += m.velocity;
 
+        // don't let it fall out the bottom of the screen
+        if (m.position[1] > window_height_px) {
+            m.position[1] = window_height_px;
+        }
+
         // Update the transform component based on the new motion position
         t.position[0] = m.position[0];
         t.position[1] = m.position[1];
@@ -72,6 +79,14 @@ void WorldSystem::update(float deltaTime) {
         // Advance animation if moving
         if (m.velocity[0] != 0) {
             a.next(deltaTime);
+        }
+    }
+
+    // handle gravity
+    for (auto& e : registry.gravity.entities) {
+        Gravity& g = registry.gravity.get(e);
+        if (registry.motions.has(e)) {
+            registry.motions.get(e).velocity[1] += g.accleration;
         }
     }
 }
@@ -112,7 +127,7 @@ void WorldSystem::initKeyBindings() {
 
     keyPressActions[GLFW_KEY_SPACE] = [this]() {
         if (registry.motions.has(m_player)) {
-            registry.motions.get(m_player).velocity[1] = player_jump_velocity;
+            registry.motions.get(m_player).velocity[1] = -player_jump_velocity;
         }
     };
 

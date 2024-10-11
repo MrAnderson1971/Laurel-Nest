@@ -7,8 +7,8 @@
 #include "render_system.hpp"
 
 
-constexpr double player_speed = 1;
-constexpr double player_jump_velocity = 1;
+constexpr float player_speed = 1.0f;
+constexpr float player_jump_velocity = 2.0f;
 
 // These are hardcoded to the dimensions of the entity texture
 // BB = bounding box
