@@ -5,6 +5,7 @@
 #include "ecs.hpp"
 #include "components.hpp"
 #include "game_state_manager.hpp"
+#include <array>
 
 class RenderSystem
 {
