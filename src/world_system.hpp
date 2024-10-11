@@ -9,12 +9,12 @@ constexpr double player_speed = 1;
 constexpr double player_jump_velocity = 1;
 // These are hardcoded to the dimensions of the entity texture
 // BB = bounding box
-const float WALKING_BB_WIDTH  = 0.4f * 399.f;
-const float WALKING_BB_HEIGHT = 0.4f * 712.f;
-const float JUMPING_BB_WIDTH  = 0.4f * 464.f;
-const float JUMPING_BB_HEIGHT = 0.4f * 740.f;
-const float ATTACKING_BB_WIDTH  = 0.4f * 1293.f;
-const float ATTACKING_BB_HEIGHT = 0.4f * 1135.f;
+const float WALKING_BB_WIDTH  = 2.f * 399.f;
+const float WALKING_BB_HEIGHT = 2.f * 712.f;
+const float JUMPING_BB_WIDTH  = 2.f * 464.f;
+const float JUMPING_BB_HEIGHT = 2.f * 740.f;
+const float ATTACKING_BB_WIDTH  = 2.f * 1293.f;
+const float ATTACKING_BB_HEIGHT = 2.f * 1135.f;
 
 class WorldSystem : public GameState {
 public:
