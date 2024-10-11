@@ -10,7 +10,7 @@ WorldSystem::~WorldSystem() {
 
 void WorldSystem::init() {
     // Create a new entity and register it in the ECSRegistry
-    Entity m_player = Entity();
+    m_player = Entity();
 
     // Add the Player component to the player entity
     registry.players.emplace(m_player, Player());
