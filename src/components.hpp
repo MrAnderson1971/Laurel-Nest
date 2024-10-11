@@ -135,7 +135,8 @@ enum class TEXTURE_ASSET_ID {
     CEILING_HIT = CEILING_FALL + 1,            // ceiling_hit.png
     CEILING_IDLE = CEILING_HIT + 1,            // ceiling_idle.png
     SPLASH_SCREEN = CEILING_IDLE + 1,          // splash_screen.png
-    TEXTURE_COUNT = SPLASH_SCREEN + 1          // Count of all textures
+    DEMO_GROUND = SPLASH_SCREEN + 1,           // demo_ground.png
+    TEXTURE_COUNT = DEMO_GROUND + 1          // Count of all textures
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 

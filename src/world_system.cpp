@@ -11,6 +11,7 @@ WorldSystem::~WorldSystem() {
 void WorldSystem::init() {
     // Create a new entity and register it in the ECSRegistry
     m_player = Entity();
+    m_ground = Entity();
 
     // Add the Player component to the player entity
     registry.players.emplace(m_player, Player());
@@ -47,13 +48,38 @@ void WorldSystem::init() {
     playerTransform.rotation = 0.0f;
     registry.transforms.emplace(m_player, std::move(playerTransform));
 
+    // Create and initialize a Motion component for the ground
+    Motion groundMotion;
+    groundMotion.position = glm::vec2(renderSystem.getWindowWidth() / 2.0f, 0.0f);
+    groundMotion.velocity = glm::vec2(0, 0);
+    groundMotion.scale = { renderSystem.getWindowWidth(), 50.0f }; // Assuming ground height is 50
+    registry.motions.emplace(m_ground, std::move(groundMotion));
+
+// Create and initialize a TransformComponent for the ground
+    TransformComponent groundTransform;
+    groundTransform.position = glm::vec3(renderSystem.getWindowWidth() / 2.0f, 25.0f, 0.0f); // Assuming ground height is 50
+    groundTransform.scale = glm::vec3(renderSystem.getWindowWidth(), 50.0f, 1.0f);
+    groundTransform.rotation = 0.0f;
+    registry.transforms.emplace(m_ground, std::move(groundTransform));
+
     registry.gravity.emplace(m_player, std::move(Gravity()));
 
     // Store player entity for later use
     this->m_player = m_player;
 
+    glfwSetWindowUserPointer(renderSystem.getWindow(), this);
+
+    // Set the key callback to handle input using processPlayerInput method
+    glfwSetKeyCallback(renderSystem.getWindow(), [](GLFWwindow* window, int key, int scancode, int action, int mods) {
+        // Get the WorldSystem instance from the window user pointer
+        WorldSystem* world = static_cast<WorldSystem*>(glfwGetWindowUserPointer(window));
+        if (world) {
+            world->processPlayerInput(key, action);
+        }
+    });
+
     // Initialize key bindings
-    initKeyBindings();
+    // initKeyBindings();
 }
 
 void WorldSystem::update(float deltaTime) {
@@ -75,6 +101,13 @@ void WorldSystem::update(float deltaTime) {
         // Update the transform component based on the new motion position
         t.position[0] = m.position[0];
         t.position[1] = m.position[1];
+
+        // Flip the texture based on movement direction
+        if (m.velocity[0] < 0) {
+            t.scale = glm::vec3(-std::abs(t.scale.x), t.scale.y, t.scale.z); // Flip along Y-axis
+        } else if (m.velocity[0] > 0) {
+            t.scale = glm::vec3(std::abs(t.scale.x), t.scale.y, t.scale.z); // Normal orientation
+        }
 
         // Advance animation if moving
         if (m.velocity[0] != 0) {
@@ -143,7 +176,75 @@ void WorldSystem::initKeyBindings() {
             registry.motions.get(m_player).velocity[0] = 0;
         }
     };
+
+    keyPressActions[GLFW_KEY_A] = [this]() {
+        std::cout << "start left" << std::endl;
+        if (registry.motions.has(m_player)) {
+            registry.motions.get(m_player).velocity[0] = -player_speed;
+        }
+    };
+
+    keyPressActions[GLFW_KEY_D] = [this]() {
+        std::cout << "start right" << std::endl;
+        if (registry.motions.has(m_player)) {
+            registry.motions.get(m_player).velocity[0] = player_speed;
+        }
+    };
 }
+
+void WorldSystem::processPlayerInput(int key, int action) {
+    // Escape key to close the window
+    if (action == GLFW_RELEASE && key == GLFW_KEY_ESCAPE) {
+        std::cout << "escape" << std::endl;
+        renderSystem.closeWindow();
+    }
+
+    // Move left (A key)
+    if (action == GLFW_PRESS && key == GLFW_KEY_A) {
+        std::cout << "start left" << std::endl;
+        if (registry.motions.has(m_player)) {
+            registry.motions.get(m_player).velocity[0] = -player_speed;
+        }
+    }
+
+    // Move right (D key)
+    if (action == GLFW_PRESS && key == GLFW_KEY_D) {
+        std::cout << "start right" << std::endl;
+        if (registry.motions.has(m_player)) {
+            registry.motions.get(m_player).velocity[0] = player_speed;
+        }
+    }
+
+    // Stop leftward movement (release A key)
+    if (action == GLFW_RELEASE && key == GLFW_KEY_A) {
+        std::cout << "end left" << std::endl;
+        if (registry.motions.has(m_player)) {
+            auto& motion = registry.motions.get(m_player);
+            if (motion.velocity[0] < 0) {  // Only stop leftward movement
+                motion.velocity[0] = 0;
+            }
+        }
+    }
+
+    // Stop rightward movement (release D key)
+    if (action == GLFW_RELEASE && key == GLFW_KEY_D) {
+        std::cout << "end right" << std::endl;
+        if (registry.motions.has(m_player)) {
+            auto& motion = registry.motions.get(m_player);
+            if (motion.velocity[0] > 0) {  // Only stop rightward movement
+                motion.velocity[0] = 0;
+            }
+        }
+    }
+
+    // Jump (Space key)
+    if (action == GLFW_PRESS && key == GLFW_KEY_SPACE) {
+        if (registry.motions.has(m_player)) {
+            registry.motions.get(m_player).velocity[1] = -player_jump_velocity;
+        }
+    }
+}
+
 
 void WorldSystem::on_key(int key, int scancode, int action, int mods) {
     (void) scancode;

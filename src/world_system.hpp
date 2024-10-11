@@ -14,10 +14,10 @@ constexpr float player_jump_velocity = 2.0f;
 // BB = bounding box
 const float WALKING_BB_WIDTH  = 2.f * 399.f;
 const float WALKING_BB_HEIGHT = 2.f * 712.f;
-const float JUMPING_BB_WIDTH  = 0.4f * 464.f;
-const float JUMPING_BB_HEIGHT = 0.4f * 740.f;
-const float ATTACKING_BB_WIDTH  = 0.4f * 1293.f;
-const float ATTACKING_BB_HEIGHT = 0.4f * 1135.f;
+const float JUMPING_BB_WIDTH  = 2.f * 464.f;
+const float JUMPING_BB_HEIGHT = 2.f * 740.f;
+const float ATTACKING_BB_WIDTH  = 2.f * 1293.f;
+const float ATTACKING_BB_HEIGHT = 2.f * 1135.f;
 
 class WorldSystem : public GameState {
 public:
@@ -31,12 +31,14 @@ public:
 	void render() override;
 	void cleanup() override;
     Entity createPlayer(RenderSystem* renderer, vec2 pos);
+    void processPlayerInput(int key, int action);
 
 	void initKeyBindings();
 
 private:
 	RenderSystem& renderSystem;
 	Entity m_player;
+    Entity m_ground;
 	std::unordered_map<int, std::function<void()>> keyPressActions;
 	std::unordered_map<int, std::function<void()>> keyReleaseActions;
 };
