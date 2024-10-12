@@ -10,24 +10,27 @@ vec2 get_bounding_box(const Motion& motion)
 	return { abs(motion.scale.x), abs(motion.scale.y) };
 }
 
-// This is a SUPER APPROXIMATE check that puts a circle around the bounding boxes and sees
-// if the center point of either object is inside the other's bounding-box-circle. You can
-// surely implement a more accurate detection
+// AABB detection
 bool collides(const Motion& motion1, const Motion& motion2)
 {
-	vec2 dp = motion1.position - motion2.position;
-	float dist_squared = dot(dp,dp);
-	const vec2 other_bonding_box = get_bounding_box(motion1) / 2.f;
-	const float other_r_squared = dot(other_bonding_box, other_bonding_box);
-	const vec2 my_bonding_box = get_bounding_box(motion2) / 2.f;
-	const float my_r_squared = dot(my_bonding_box, my_bonding_box);
-	const float r_squared = max(other_r_squared, my_r_squared);
-    if (dist_squared < r_squared)
+    vec2 box1 = get_bounding_box(motion1);
+    vec2 box2 = get_bounding_box(motion2);
+
+    vec2 half_size1 = box1 / 2.f;
+    vec2 half_size2 = box2 / 2.f;
+
+    vec2 dp = motion1.position - motion2.position;
+
+    bool overlapX = abs(dp.x) < (half_size1.x + half_size2.x);
+    bool overlapY = abs(dp.y) < (half_size1.y + half_size2.y);
+
+    if (overlapX && overlapY)
     {
         std::cout << "collision found" << std::endl;
         return true;
     }
-	return false;
+
+    return false;
 }
 
 void PhysicsSystem::step(float elapsed_ms)

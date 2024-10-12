@@ -53,3 +53,14 @@ struct Transform {
 };
 
 bool gl_has_errors();
+
+// no C++ 17 smh
+inline float clamp(float n, float min, float max) {
+	if (n > max) {
+		return max;
+	}
+	if (n < min) {
+		return min;
+	}
+	return n;
+}

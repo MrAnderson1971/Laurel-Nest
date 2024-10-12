@@ -13,8 +13,8 @@ struct TransformComponent {
 
 struct Sprite {
     GLuint textureID;
-    float width;
-    float height;
+    float width = 1.0f;
+    float height = 1.0f;
 };
 
 enum PlayerState {
