@@ -1,13 +1,11 @@
-#pragma once
-
 #include "game_state.hpp"
-#include "ecs.hpp"
 #include "render_system.hpp"
 
-class SplashScreenState : public GameState {
+class PauseState : public GameState {
 public:
-    SplashScreenState(RenderSystem& renderSystem);
-    ~SplashScreenState();
+    PauseState(RenderSystem& renderSystem);
+    ~PauseState();
+
     void init() override;
     void on_key(int key, int scancode, int action, int mods) override;
     void on_mouse_move(const glm::vec2& position) override;
@@ -17,6 +15,8 @@ public:
     void cleanup() override;
 
 private:
+    float timePassed;
+    Entity pauseScreenEntity;
     RenderSystem& renderSystem;
-    Entity splashScreenEntity;
+    inline void lerp(float start, float end, float t) const;
 };

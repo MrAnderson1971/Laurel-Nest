@@ -135,6 +135,7 @@ bool RenderSystem::initOpenGL(int width, int height, const std::string& title)
     // Set callbacks for input handling
     glfwSetKeyCallback(window, keyCallbackRedirect);
     glfwSetCursorPosCallback(window, mouseMoveCallbackRedirect);
+    glfwSetMouseButtonCallback(window, mouseClickCallbackRedirect);
     glfwSetWindowUserPointer(window, this);
 
     return true;
@@ -356,9 +357,18 @@ void RenderSystem::keyCallbackRedirect(GLFWwindow* wnd, int key, int scancode, i
 }
 
 void RenderSystem::mouseMoveCallbackRedirect(GLFWwindow* wnd, double xpos, double ypos) {
-    RenderSystem* renderSystem = (RenderSystem*)glfwGetWindowUserPointer(wnd);
+    RenderSystem* renderSystem = static_cast<RenderSystem*>(glfwGetWindowUserPointer(wnd));
     if (renderSystem && renderSystem->gameStateManager) {
         renderSystem->gameStateManager->on_mouse_move(glm::vec2(xpos, ypos)); // Forward to WorldSystem
+    }
+}
+
+void RenderSystem::mouseClickCallbackRedirect(GLFWwindow* wnd, int button, int action, int mods) {
+    RenderSystem* renderSystem = static_cast<RenderSystem*>(glfwGetWindowUserPointer(wnd));
+    if (renderSystem && renderSystem->gameStateManager) {
+        double xpos, ypos;
+        glfwGetCursorPos(wnd, &xpos, &ypos);
+        renderSystem->gameStateManager->on_mouse_click(button, action, glm::vec2(xpos, ypos), mods);
     }
 }
 
