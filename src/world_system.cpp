@@ -26,6 +26,16 @@ void WorldSystem::init() {
     playerMotion.scale = { WALKING_BB_WIDTH, WALKING_BB_HEIGHT };
     registry.motions.emplace(m_player, std::move(playerMotion));
 
+    // Create and initialize a Health component for the player
+    Health playerHealth;
+    playerHealth.max_health = 3;
+    playerHealth.current_health = 3;
+    registry.healths.emplace(m_player, std::move(playerHealth));
+
+    // Create the HealthFlask for the player to heal with
+    HealthFlask healthFlask;
+    registry.healthFlasks.emplace(m_player, std::move(healthFlask));
+
     // Add Player to gravity
     registry.gravity.emplace(m_player, std::move(Gravity()));
 
@@ -113,9 +123,22 @@ void WorldSystem::update(float deltaTime) {
             registry.motions.get(e).velocity[1] += g.accleration;
         }
     }
+
+    // Update the InvincibilityTimer (when the player gets damaged) for the player
+    float min_counter_ms = 2000.f;
+    for (Entity entity : registry.invinciblityTimers.entities) {
+        InvincibilityTimer& i_timer = registry.invinciblityTimers.get(entity);
+        i_timer.counter_ms -= deltaTime;
+        if (i_timer.counter_ms < min_counter_ms) {
+            min_counter_ms = i_timer.counter_ms;
+        }
+        // Remove the player's InvincibilityTimer once it has reached zero
+        if (i_timer.counter_ms < 0) {
+            registry.invinciblityTimers.remove(entity);
+        }
+    }
 }
 
-// Collisions
 void WorldSystem::handle_collisions() {
     // Loop over all collisions detected by the physics system
     auto& collisionsRegistry = registry.collisions;
@@ -124,9 +147,13 @@ void WorldSystem::handle_collisions() {
         Entity entity = collisionsRegistry.entities[i];
         Entity entity_other = collisionsRegistry.components[i].other;
 
-        // for now, we are only interested in collisions that involve the plyer
-        if (registry.players.has(entity)) {
-            //Player& player = registry.players.get(entity);
+        // Checking for collisions that involve the player
+        if (registry.playerAnimations.has(entity)) {
+
+            // Handle player getting damaged by enemies
+            if (registry.damages.has(entity_other) && !registry.invinciblityTimers.has(entity)) {
+                player_get_damaged(entity_other);
+            }
         }
     }
 
@@ -194,6 +221,11 @@ void WorldSystem::processPlayerInput(int key, int action) {
             registry.motions.get(m_player).velocity[1] = -player_jump_velocity;
         }
     }
+
+    // Press H to heal the player
+    if (action == GLFW_PRESS && key == GLFW_KEY_H) {
+        player_get_healed();
+    }
 }
 
 
@@ -214,3 +246,27 @@ void WorldSystem::cleanup() {
     // Remove all components of the player entity from the registry
     registry.remove_all_components_of(m_player);
 }
+
+void WorldSystem::player_get_damaged(Entity hostile) {
+    Health& player_health = registry.healths.get(m_player);
+    Damage hostile_damage = registry.damages.get(hostile);
+    // Make sure to give the player i-frames so that they dont just die from walking into a goomba
+    registry.invinciblityTimers.emplace(m_player);
+
+    player_health.current_health -= hostile_damage.damage_dealt;
+}
+
+void WorldSystem::player_get_healed() {
+    Health& player_health = registry.healths.get(m_player);
+    HealthFlask& health_flask = registry.healthFlasks.get(m_player);
+
+    if (health_flask.num_uses > 0 && player_health.max_health > player_health.current_health) {
+        player_health.current_health++;
+        health_flask.num_uses--;
+        printf("You have %d uses of your health flask left \n", health_flask.num_uses);
+    }
+    else {
+        printf("You have no more uses of your health flask \n");
+    }
+}
+
