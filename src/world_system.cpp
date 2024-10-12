@@ -109,6 +109,42 @@ void WorldSystem::update(float deltaTime) {
             registry.motions.get(e).velocity[1] += g.accleration;
         }
     }
+
+    // Update the InvincibilityTimer (when the player gets damaged) for the player 
+    float min_counter_ms = 2000.f;
+    for (Entity entity : registry.invinciblityTimers.entities) {
+        InvincibilityTimer& i_timer = registry.invinciblityTimers.get(entity);
+        i_timer.counter_ms -= deltaTime;
+        if (i_timer.counter_ms < min_counter_ms) {
+            min_counter_ms = i_timer.counter_ms;
+        }
+        // Remove the player's InvincibilityTimer once it has reached zero
+        if (i_timer.counter_ms < 0) {
+            registry.invinciblityTimers.remove(entity);
+        }
+    }
+}
+
+void WorldSystem::handle_collisions() {
+    // Loop over all collisions detected by the physics system
+    auto& collisionsRegistry = registry.collisions;
+    for (uint i = 0; i < collisionsRegistry.components.size(); i++) {
+        // The entity and its collider
+        Entity entity = collisionsRegistry.entities[i];
+        Entity entity_other = collisionsRegistry.components[i].other;
+
+        // Checking for collisions that involve the player
+        if (registry.playerAnimations.has(entity)) {
+
+            // Handle player getting damaged by enemies
+            if (registry.damages.has(entity_other) && !registry.invinciblityTimers.has(entity)) {
+                player_get_damaged(entity_other);
+            }
+        }
+    }
+
+    // Remove all collisions from this simulation step
+    registry.collisions.clear();
 }
 
 void WorldSystem::render() {
@@ -177,6 +213,11 @@ void WorldSystem::initKeyBindings() {
             registry.motions.get(m_player).velocity[0] = player_speed;
         }
     };
+
+    // For healing
+    keyReleaseActions[GLFW_KEY_H] = [this]() {
+        player_get_healed();
+        };
 }
 
 void WorldSystem::processPlayerInput(int key, int action) {
@@ -267,6 +308,13 @@ Entity createPlayer(RenderSystem* renderer, vec2 pos)
     // motion.scale = mesh.original_size * 0.6f;
     // motion.scale.y *= -1; // point front to the right
 
+    // Setting initial health values
+    Health& health = registry.healths.emplace(entity);
+    health.max_health = 3;
+    health.current_health = 3;
+
+    registry.healthFlasks.emplace(entity);
+
     // create an empty Player component for our character
     registry.players.emplace(entity);
     registry.renderRequests.insert(
@@ -276,5 +324,28 @@ Entity createPlayer(RenderSystem* renderer, vec2 pos)
               GEOMETRY_BUFFER_ID::PLAYER_GEO });
 
     return entity;
+}
+
+void WorldSystem::player_get_damaged(Entity hostile) {
+    Health& player_health = registry.healths.get(m_player);
+    Damage hostile_damage = registry.damages.get(hostile);
+    // Make sure to give the player i-frames so that they dont just die from walking into a goomba
+    registry.invinciblityTimers.emplace(m_player);
+
+    player_health.current_health -= hostile_damage.damage_dealt;
+}
+
+void WorldSystem::player_get_healed() {
+    Health& player_health = registry.healths.get(m_player);
+    HealthFlask& health_flask = registry.healthFlasks.get(m_player);
+
+    if (health_flask.num_uses > 0 && player_health.max_health > player_health.current_health) {
+        player_health.current_health++;
+        health_flask.num_uses--;
+        printf("You have %d uses of your health flask left \n", health_flask.num_uses);
+    }
+    else {
+        printf("You have no more uses of your health flask \n");
+    }
 }
 

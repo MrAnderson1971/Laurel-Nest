@@ -11,6 +11,10 @@ class ECSRegistry
 
 public:
     // Manually created list of all components this game has
+    ComponentContainer<Health> healths;
+    ComponentContainer<HealthFlask> healthFlasks;
+    ComponentContainer<Damage> damages;
+    ComponentContainer<InvincibilityTimer> invinciblityTimers;
     ComponentContainer<Motion> motions;
     ComponentContainer<Collision> collisions;
     ComponentContainer<DeathTimer> deathTimers;
@@ -26,6 +30,10 @@ public:
     // IMPORTANT: Don't forget to add any newly added containers!
     ECSRegistry()
     {
+        registry_list.push_back(&healths);
+        registry_list.push_back(&healthFlasks);
+        registry_list.push_back(&damages);
+        registry_list.push_back(&invinciblityTimers);
         registry_list.push_back(&deathTimers);
         registry_list.push_back(&motions);
         registry_list.push_back(&collisions);

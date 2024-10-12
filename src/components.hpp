@@ -77,6 +77,31 @@ struct Player
 
 };
 
+// Health component
+struct Health
+{
+    int max_health;
+    int current_health;
+};
+
+struct Damage
+{
+    int damage_dealt;
+};
+
+// A timer that will be associated to when the player can get damaged again 
+struct InvincibilityTimer
+{
+    float counter_ms = 1000;
+};
+
+struct HealthFlask
+{
+    int num_uses = 3;
+};
+
+
+
 // anything that is deadly to the player
 struct Deadly
 {
