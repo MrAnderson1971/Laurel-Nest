@@ -6,6 +6,7 @@
 #include "components.hpp"
 #include "game_state_manager.hpp"
 #include <array>
+#include "physics_system.hpp"
 
 class RenderSystem
 {
@@ -75,4 +76,5 @@ private:
     static void mouseClickCallbackRedirect(GLFWwindow* wnd, int button, int action, int mods);
 
     GameStateManager* gameStateManager;
+    PhysicsSystem physics; // remove when physics is move to GameState
 };

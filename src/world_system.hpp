@@ -33,8 +33,8 @@ public:
 	void cleanup() override;
     Entity createPlayer(RenderSystem* renderer, vec2 pos);
     void processPlayerInput(int key, int action);
+
 	void handle_collisions();
-	void initKeyBindings();
 
 private:
 	RenderSystem& renderSystem;
