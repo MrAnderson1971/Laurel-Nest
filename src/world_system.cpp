@@ -24,6 +24,16 @@ void WorldSystem::init() {
     playerMotion.scale = { WALKING_BB_WIDTH, WALKING_BB_HEIGHT };
     registry.motions.emplace(m_player, std::move(playerMotion));
 
+    // Create and initialize a Health component for the player
+    Health playerHealth;
+    playerHealth.max_health = 3;
+    playerHealth.current_health = 3;
+    registry.healths.emplace(m_player, std::move(playerHealth));
+
+    // Create the HealthFlask for the player to heal with
+    HealthFlask healthFlask;
+    registry.healthFlasks.emplace(m_player, std::move(healthFlask));
+
     // Create and initialize the Animation component
     Animation<PlayerState> playerAnimations;
     std::vector<Sprite> walkingSprites;
@@ -265,6 +275,11 @@ void WorldSystem::processPlayerInput(int key, int action) {
         if (registry.motions.has(m_player)) {
             registry.motions.get(m_player).velocity[1] = -player_jump_velocity;
         }
+    }
+
+    // Press H to heal the player
+    if (action == GLFW_PRESS && key == GLFW_KEY_H) {
+        player_get_healed();
     }
 }
 
