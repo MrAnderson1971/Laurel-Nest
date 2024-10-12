@@ -36,7 +36,7 @@ void WorldSystem::init() {
     HealthFlask healthFlask;
     registry.healthFlasks.emplace(m_player, std::move(healthFlask));
 
-    // Add Player to gravity
+    // Add gravity to the Player
     registry.gravity.emplace(m_player, std::move(Gravity()));
 
     // Create and initialize the Animation component
@@ -64,21 +64,30 @@ void WorldSystem::init() {
     playerTransform.rotation = 0.0f;
     registry.transforms.emplace(m_player, std::move(playerTransform));
 
-    // Ground:
 
-    // Create and initialize a Motion component for the ground
-    Motion groundMotion;
-    groundMotion.position = glm::vec2(renderSystem.getWindowWidth() / 2.0f, 0.0f);
-    groundMotion.velocity = glm::vec2(0, 0);
-    groundMotion.scale = { renderSystem.getWindowWidth(), 50.0f }; // Assuming ground height is 50
-    registry.motions.emplace(m_ground, std::move(groundMotion));
+    // MANDY LOOK
+    // Ground:
+    // sprite for ground, move this elsewhere for optimization. It is here for testing
+    Sprite groundSprite;
+    int groundWidth, groundHeight;
+    groundSprite.textureID = renderSystem.loadTexture("demo_ground.png", groundWidth, groundHeight);
+    groundSprite.width = renderSystem.getWindowWidth() - 175.f;
+    groundSprite.height = 350.f;
+    registry.sprites.emplace(m_ground, std::move(groundSprite));
 
     // Create and initialize a TransformComponent for the ground
     TransformComponent groundTransform;
-    groundTransform.position = glm::vec3(renderSystem.getWindowWidth() / 2.0f, 25.0f, 0.0f); // Assuming ground height is 50
-    groundTransform.scale = glm::vec3(renderSystem.getWindowWidth(), 50.0f, 1.0f);
-    groundTransform.rotation = 0.0f;
+    groundTransform.position = glm::vec3(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() - 50, 0.0);
+    groundTransform.scale = glm::vec3(1.0, 1.0, 1.0);
+    groundTransform.rotation = 1.0f;
     registry.transforms.emplace(m_ground, std::move(groundTransform));
+
+    // Create and initialize a Motion component for the ground
+    Motion groundMotion;
+    groundMotion.position = glm::vec2(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() - 50);
+    groundMotion.velocity = glm::vec2(0, 0);
+    groundMotion.scale = { 1.0, 1.0 };
+    registry.motions.emplace(m_ground, std::move(groundMotion));
 
 }
 
@@ -137,6 +146,9 @@ void WorldSystem::update(float deltaTime) {
             registry.invinciblityTimers.remove(entity);
         }
     }
+
+    // collisions
+    handle_collisions();
 }
 
 void WorldSystem::handle_collisions() {
@@ -146,14 +158,20 @@ void WorldSystem::handle_collisions() {
         // The entity and its collider
         Entity entity = collisionsRegistry.entities[i];
         Entity entity_other = collisionsRegistry.components[i].other;
-
         // Checking for collisions that involve the player
-        if (registry.playerAnimations.has(entity)) {
+        if (registry.players.has(entity)) {
 
             // Handle player getting damaged by enemies
             if (registry.damages.has(entity_other) && !registry.invinciblityTimers.has(entity)) {
                 player_get_damaged(entity_other);
             }
+
+            // temporary collision (Temporary - only for testing the platform)
+            if (registry.collisions.has(entity)) {
+                registry.motions.get(entity).position.y = min(registry.motions.get(entity).position.y,  renderSystem.getWindowHeight() - 350.f);
+                // registry.collisions.remove(entity);
+            }
+
         }
     }
 
@@ -172,6 +190,16 @@ void WorldSystem::render() {
         auto& animation = registry.playerAnimations.get(m_player);
         auto& transform = registry.transforms.get(m_player);
         renderSystem.drawEntity(animation.getCurrentFrame(), transform);
+    }
+
+    // MANDY LOOK
+
+    // Draw the ground entity if it exists and has the required components
+    if (registry.transforms.has(m_ground) && registry.sprites.has(m_ground))
+    {
+        auto& transform = registry.transforms.get(m_ground);
+        auto& sprite = registry.sprites.get(m_ground);
+        renderSystem.drawEntity(sprite, transform);
     }
 }
 
