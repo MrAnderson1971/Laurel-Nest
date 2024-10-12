@@ -256,6 +256,8 @@ void RenderSystem::renderLoop()
         if (gameStateManager)
         {
             gameStateManager->update(deltaTime);
+            // Update physics, modify gamestate to handle this later
+            physics.step(deltaTime);
             gameStateManager->render();
         }
 

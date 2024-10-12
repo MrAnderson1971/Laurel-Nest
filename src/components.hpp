@@ -83,6 +83,13 @@ struct Deadly
 
 };
 
+// anything that can be damaged but the player
+// enemies, bosses, 
+struct Damagable
+{
+    int health;
+};
+
 // A timer that will be associated to dying salmon
 struct DeathTimer
 {
@@ -161,12 +168,4 @@ struct RenderRequest {
 
 struct Gravity {
     float accleration = 0.0098f;
-};
-
-struct BreakableDoor {
-    bool broken = false;
-};
-
-struct Flamethrower {
-
 };

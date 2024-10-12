@@ -22,8 +22,11 @@ bool collides(const Motion& motion1, const Motion& motion2)
 	const vec2 my_bonding_box = get_bounding_box(motion2) / 2.f;
 	const float my_r_squared = dot(my_bonding_box, my_bonding_box);
 	const float r_squared = max(other_r_squared, my_r_squared);
-	if (dist_squared < r_squared)
-		return true;
+    if (dist_squared < r_squared)
+    {
+        std::cout << "collision found" << std::endl;
+        return true;
+    }
 	return false;
 }
 
