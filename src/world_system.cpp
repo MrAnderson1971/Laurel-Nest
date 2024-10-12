@@ -14,6 +14,8 @@ void WorldSystem::init() {
     m_player = Entity();
     m_ground = Entity();
 
+    // Player
+
     // Add the Player component to the player entity
     registry.players.emplace(m_player, Player());
 
@@ -23,6 +25,9 @@ void WorldSystem::init() {
     playerMotion.velocity = glm::vec2(0, 0);
     playerMotion.scale = { WALKING_BB_WIDTH, WALKING_BB_HEIGHT };
     registry.motions.emplace(m_player, std::move(playerMotion));
+
+    // Add Player to gravity
+    registry.gravity.emplace(m_player, std::move(Gravity()));
 
     // Create and initialize the Animation component
     Animation<PlayerState> playerAnimations;
@@ -49,6 +54,8 @@ void WorldSystem::init() {
     playerTransform.rotation = 0.0f;
     registry.transforms.emplace(m_player, std::move(playerTransform));
 
+    // Ground:
+
     // Create and initialize a Motion component for the ground
     Motion groundMotion;
     groundMotion.position = glm::vec2(renderSystem.getWindowWidth() / 2.0f, 0.0f);
@@ -56,17 +63,13 @@ void WorldSystem::init() {
     groundMotion.scale = { renderSystem.getWindowWidth(), 50.0f }; // Assuming ground height is 50
     registry.motions.emplace(m_ground, std::move(groundMotion));
 
-// Create and initialize a TransformComponent for the ground
+    // Create and initialize a TransformComponent for the ground
     TransformComponent groundTransform;
     groundTransform.position = glm::vec3(renderSystem.getWindowWidth() / 2.0f, 25.0f, 0.0f); // Assuming ground height is 50
     groundTransform.scale = glm::vec3(renderSystem.getWindowWidth(), 50.0f, 1.0f);
     groundTransform.rotation = 0.0f;
     registry.transforms.emplace(m_ground, std::move(groundTransform));
 
-    registry.gravity.emplace(m_player, std::move(Gravity()));
-
-    // Initialize key bindings
-    // initKeyBindings();
 }
 
 void WorldSystem::update(float deltaTime) {
@@ -97,6 +100,7 @@ void WorldSystem::update(float deltaTime) {
         }
 
         // Advance animation if moving
+        // TODO: do not walk when jumping
         if (m.velocity[0] != 0) {
             a.next(deltaTime);
         }
@@ -111,6 +115,25 @@ void WorldSystem::update(float deltaTime) {
     }
 }
 
+// Collisions
+void WorldSystem::handle_collisions() {
+    // Loop over all collisions detected by the physics system
+    auto& collisionsRegistry = registry.collisions;
+    for (uint i = 0; i < collisionsRegistry.components.size(); i++) {
+        // The entity and its collider
+        Entity entity = collisionsRegistry.entities[i];
+        Entity entity_other = collisionsRegistry.components[i].other;
+
+        // for now, we are only interested in collisions that involve the plyer
+        if (registry.players.has(entity)) {
+            //Player& player = registry.players.get(entity);
+        }
+    }
+
+    // Remove all collisions from this simulation step
+    registry.collisions.clear();
+}
+
 void WorldSystem::render() {
     glClearColor(0.2f, 0.2f, 0.8f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -123,60 +146,6 @@ void WorldSystem::render() {
         auto& transform = registry.transforms.get(m_player);
         renderSystem.drawEntity(animation.getCurrentFrame(), transform);
     }
-}
-
-// Initialize key bindings for player controls
-void WorldSystem::initKeyBindings() {
-    keyPressActions[GLFW_KEY_ESCAPE] = [this]() {
-        std::cout << "escape" << std::endl;
-        renderSystem.closeWindow();
-    };
-
-    keyPressActions[GLFW_KEY_A] = [this]() {
-        std::cout << "start left" << std::endl;
-        if (registry.motions.has(m_player)) {
-            registry.motions.get(m_player).velocity[0] = -player_speed;
-        }
-    };
-
-    keyPressActions[GLFW_KEY_D] = [this]() {
-        if (registry.motions.has(m_player)) {
-            registry.motions.get(m_player).velocity[0] = player_speed;
-        }
-    };
-
-    keyPressActions[GLFW_KEY_SPACE] = [this]() {
-        if (registry.motions.has(m_player)) {
-            registry.motions.get(m_player).velocity[1] = -player_jump_velocity;
-        }
-    };
-
-    keyReleaseActions[GLFW_KEY_A] = [this]() {
-        std::cout << "end left" << std::endl;
-        if (registry.motions.has(m_player)) {
-            registry.motions.get(m_player).velocity[0] = 0;
-        }
-    };
-
-    keyReleaseActions[GLFW_KEY_D] = [this]() {
-        if (registry.motions.has(m_player)) {
-            registry.motions.get(m_player).velocity[0] = 0;
-        }
-    };
-
-    keyPressActions[GLFW_KEY_A] = [this]() {
-        std::cout << "start left" << std::endl;
-        if (registry.motions.has(m_player)) {
-            registry.motions.get(m_player).velocity[0] = -player_speed;
-        }
-    };
-
-    keyPressActions[GLFW_KEY_D] = [this]() {
-        std::cout << "start right" << std::endl;
-        if (registry.motions.has(m_player)) {
-            registry.motions.get(m_player).velocity[0] = player_speed;
-        }
-    };
 }
 
 void WorldSystem::processPlayerInput(int key, int action) {
@@ -245,36 +214,3 @@ void WorldSystem::cleanup() {
     // Remove all components of the player entity from the registry
     registry.remove_all_components_of(m_player);
 }
-
-Entity createPlayer(RenderSystem* renderer, vec2 pos)
-{
-    auto entity = Entity();
-
-    // done in world_system.cpp init()
-//    Sprite playerSprite;
-//    GLuint playerTextureID = renderSystem.loadTexture("walk_1.png", playerWidth, playerHeight);
-//    playerSprite.textureID = playerTextureID;
-//    playerSprite.height = 1.0f;
-//    playerSprite.width = 1.0f;
-//    registry.sprites.emplace(entity, &mesh);
-
-    // Setting initial motion values
-    Motion& motion = registry.motions.emplace(entity);
-    motion.position = pos;
-    motion.angle = 0.f;
-    motion.velocity = { 0.f, 0.f };
-    motion.scale = vec2({ WALKING_BB_WIDTH, WALKING_BB_HEIGHT });
-    // motion.scale = mesh.original_size * 0.6f;
-    // motion.scale.y *= -1; // point front to the right
-
-    // create an empty Player component for our character
-    registry.players.emplace(entity);
-    registry.renderRequests.insert(
-            entity,
-            { TEXTURE_ASSET_ID::PLAYER_WALK_1,
-              EFFECT_ASSET_ID::PLAYER_EFFECT,
-              GEOMETRY_BUFFER_ID::PLAYER_GEO });
-
-    return entity;
-}
-

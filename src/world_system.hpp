@@ -34,7 +34,7 @@ public:
     Entity createPlayer(RenderSystem* renderer, vec2 pos);
     void processPlayerInput(int key, int action);
 
-	void initKeyBindings();
+	void handle_collisions();
 
 private:
 	RenderSystem& renderSystem;
