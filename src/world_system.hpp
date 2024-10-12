@@ -31,7 +31,6 @@ public:
 	void update(float deltaTime) override;
 	void render() override;
 	void cleanup() override;
-    Entity createPlayer(RenderSystem* renderer, vec2 pos);
     void processPlayerInput(int key, int action);
 
 	void handle_collisions();
