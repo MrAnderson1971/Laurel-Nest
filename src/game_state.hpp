@@ -17,4 +17,6 @@ public:
     virtual void update(float deltaTime) = 0;
     virtual void render() = 0;
     virtual void cleanup() = 0;
+    virtual void pause() {}
+    virtual void resume() {};
 };

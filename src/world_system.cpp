@@ -1,5 +1,6 @@
 #include <iostream>
 #include "world_system.hpp"
+#include "pause_state.hpp"
 
 WorldSystem::WorldSystem(RenderSystem& renderSystem) : renderSystem(renderSystem) {
 }
@@ -63,20 +64,6 @@ void WorldSystem::init() {
     registry.transforms.emplace(m_ground, std::move(groundTransform));
 
     registry.gravity.emplace(m_player, std::move(Gravity()));
-
-    // Store player entity for later use
-    this->m_player = m_player;
-
-    glfwSetWindowUserPointer(renderSystem.getWindow(), this);
-
-    // Set the key callback to handle input using processPlayerInput method
-    glfwSetKeyCallback(renderSystem.getWindow(), [](GLFWwindow* window, int key, int scancode, int action, int mods) {
-        // Get the WorldSystem instance from the window user pointer
-        WorldSystem* world = static_cast<WorldSystem*>(glfwGetWindowUserPointer(window));
-        if (world) {
-            world->processPlayerInput(key, action);
-        }
-    });
 
     // Initialize key bindings
     // initKeyBindings();
@@ -195,13 +182,11 @@ void WorldSystem::initKeyBindings() {
 void WorldSystem::processPlayerInput(int key, int action) {
     // Escape key to close the window
     if (action == GLFW_RELEASE && key == GLFW_KEY_ESCAPE) {
-        std::cout << "escape" << std::endl;
-        renderSystem.closeWindow();
+        renderSystem.getGameStateManager()->pauseState(std::make_unique<PauseState>(renderSystem));
     }
 
     // Move left (A key)
     if (action == GLFW_PRESS && key == GLFW_KEY_A) {
-        std::cout << "start left" << std::endl;
         if (registry.motions.has(m_player)) {
             registry.motions.get(m_player).velocity[0] = -player_speed;
         }
@@ -209,7 +194,6 @@ void WorldSystem::processPlayerInput(int key, int action) {
 
     // Move right (D key)
     if (action == GLFW_PRESS && key == GLFW_KEY_D) {
-        std::cout << "start right" << std::endl;
         if (registry.motions.has(m_player)) {
             registry.motions.get(m_player).velocity[0] = player_speed;
         }
@@ -217,7 +201,6 @@ void WorldSystem::processPlayerInput(int key, int action) {
 
     // Stop leftward movement (release A key)
     if (action == GLFW_RELEASE && key == GLFW_KEY_A) {
-        std::cout << "end left" << std::endl;
         if (registry.motions.has(m_player)) {
             auto& motion = registry.motions.get(m_player);
             if (motion.velocity[0] < 0) {  // Only stop leftward movement
@@ -228,7 +211,6 @@ void WorldSystem::processPlayerInput(int key, int action) {
 
     // Stop rightward movement (release D key)
     if (action == GLFW_RELEASE && key == GLFW_KEY_D) {
-        std::cout << "end right" << std::endl;
         if (registry.motions.has(m_player)) {
             auto& motion = registry.motions.get(m_player);
             if (motion.velocity[0] > 0) {  // Only stop rightward movement
@@ -247,22 +229,8 @@ void WorldSystem::processPlayerInput(int key, int action) {
 
 
 void WorldSystem::on_key(int key, int scancode, int action, int mods) {
-    (void) scancode;
-    (void) action;
-    (void) mods;
-    if (action == GLFW_PRESS) {
-        auto it = keyPressActions.find(key);
-        if (it != keyPressActions.end()) {
-            it->second();
-        }
-    }
-
-    if (action == GLFW_RELEASE) {
-        auto it = keyReleaseActions.find(key);
-        if (it != keyReleaseActions.end()) {
-            it->second();
-        }
-    }
+    (void)scancode; (void)mods;
+    processPlayerInput(key, action);
 }
 
 void WorldSystem::on_mouse_move(const glm::vec2& position) {

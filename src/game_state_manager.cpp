@@ -13,6 +13,26 @@ void GameStateManager::changeState(std::unique_ptr<GameState> newState)
     }
 }
 
+void GameStateManager::pauseState(std::unique_ptr<GameState> newState) {
+    if (currentState) {
+        currentState->pause();
+        pausedState = std::move(currentState);
+    }
+    currentState = std::move(newState);
+    if (currentState) {
+        currentState->init();
+    }
+}
+
+void GameStateManager::resumeState() {
+    if (currentState) {
+        currentState->cleanup();
+    }
+    if (pausedState) {
+        currentState = std::move(pausedState); // do not init
+    }
+}
+
 void GameStateManager::on_key(int key, int scancode, int action, int mods)
 {
     if (currentState)
