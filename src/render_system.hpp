@@ -39,7 +39,11 @@ class RenderSystem
             textures_path("ceiling_hit.png"),         // CEILING_HIT
             textures_path("ceiling_idle.png"),        // CEILING_IDLE
             textures_path("splash_screen.png"),       // SPLASH_SCREEN
-            textures_path("demo_ground.png")          // DEMO_GROUND
+            textures_path("demo_ground.png"),         // DEMO_GROUND
+            textures_path("heart_3.png"),             // HEART_3
+            textures_path("heart_2.png"),             // HEART_2
+            textures_path("heart_1.png"),             // HEART_1
+            textures_path("heart_0.png")              // HEART_0
     };
 
 public:

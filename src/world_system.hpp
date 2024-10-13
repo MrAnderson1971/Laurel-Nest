@@ -43,4 +43,7 @@ private:
 	std::unordered_map<int, std::function<void()>> keyReleaseActions;
 	void player_get_damaged(Entity hostile);
 	void player_get_healed();
+    bool checkPlayerGroundCollision();
+    bool canJump = false;
+    bool isGrounded = false;
 };
