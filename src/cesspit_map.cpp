@@ -42,6 +42,7 @@ void Cesspit::room1(RenderSystem& renderSystem) {
 
     // platform
     Entity m_platform = Entity();
+    registry.bounding_box.emplace(m_platform);
     Sprite platformSprite;
     int platformWidth, platformHeight;
     platformSprite.textureID = renderSystem.loadTexture("demo_ground.png", platformWidth, platformHeight);
