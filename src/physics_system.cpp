@@ -47,30 +47,30 @@ void PhysicsSystem::step(float elapsed_ms)
     float step_seconds = elapsed_ms / 1000.f;
 
     // Access the Motion component container directly using the registry
-    for (uint i = 0; i < registry.motions.size(); i++)
-    {
-        Motion& motion = registry.motions.components[i];
-        Entity entity = registry.motions.entities[i];
+    //for (uint i = 0; i < registry.motions.size(); i++)
+    //{
+    //    Motion& motion = registry.motions.components[i];
+    //    Entity entity = registry.motions.entities[i];
 
-        // Update position for non-player entities
-        if (!registry.players.has(entity))
-        {
-            motion.position.x += motion.velocity.x * step_seconds;
-        }
+    //    // Update position for non-player entities
+    //    if (!registry.players.has(entity))
+    //    {
+    //        motion.position.x += motion.velocity.x * step_seconds;
+    //    }
 
-        // Handle death timer components
-        if (registry.deathTimers.has(entity))
-        {
-            // Apply gravity or buoyancy effect
-            motion.angle = 0.f;
-            motion.velocity.y -= 20.0f;
-            motion.velocity.x = 0.0f;
+    //    // Handle death timer components
+    //    if (registry.deathTimers.has(entity))
+    //    {
+    //        // Apply gravity or buoyancy effect
+    //        motion.angle = 0.f;
+    //        motion.velocity.y -= 20.0f;
+    //        motion.velocity.x = 0.0f;
 
-            // Update position based on velocity
-            motion.position.x += motion.velocity.x * step_seconds;
-            motion.position.y += motion.velocity.y * step_seconds;
-        }
-    }
+    //        // Update position based on velocity
+    //        motion.position.x += motion.velocity.x * step_seconds;
+    //        motion.position.y += motion.velocity.y * step_seconds;
+    //    }
+    //}
 
     // Check for collisions between all moving entities
     for (uint i = 0; i < registry.motions.size(); i++)

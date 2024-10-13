@@ -65,7 +65,8 @@ void Cesspit::room1(RenderSystem& renderSystem) {
     registry.envObject.emplace(m_platform, std::move(platformObj));
 
     // note on bg: don't add motion
-
+    registry.grounds.emplace(m_ground, std::move(Ground()));
+    registry.grounds.emplace(m_platform, std::move(Ground()));
 }
     
 

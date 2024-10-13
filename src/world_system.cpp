@@ -81,7 +81,7 @@ void WorldSystem::init() {
         GLuint attackTextureID = renderSystem.loadTexture("attack_" + std::to_string(i) + ".png", playerWidth, playerHeight);
         Sprite attackSprite;
         attackSprite.textureID = attackTextureID;
-        attackSprite.width = 2.0f;
+        attackSprite.width = 1.0f;
         attackSprite.height = 1.0f;
         attackingSprites.push_back(attackSprite);
     }
@@ -125,94 +125,123 @@ void WorldSystem::init() {
     heartSpriteTransform.scale = glm::vec3(HEARTS_WIDTH, HEARTS_HEIGHT, 1.0);
     heartSpriteTransform.rotation = 0.0f;
     registry.transforms.emplace(m_hearts, std::move(heartSpriteTransform));
+
+    Sprite goombaSprite;
+    int goombaWidth, goombaHeight;
+    goombaSprite.textureID = renderSystem.loadTexture("goomba_walk_idle.PNG", goombaWidth, goombaHeight);
+    goombaWidth /= 5; goombaHeight /= 5;
+    registry.sprites.emplace(m_goomba, goombaSprite);
+
+    TransformComponent goombaTransform;
+    registry.transforms.emplace(m_goomba, std::move(goombaTransform));
+    Motion goombaMotion;
+    goombaMotion.position = vec2(400, 0);
+    goombaMotion.scale = vec2(goombaWidth, goombaHeight);
+    registry.motions.emplace(m_goomba, std::move(goombaMotion));
+    registry.gravity.emplace(m_goomba, std::move(Gravity()));
 }
 
 void WorldSystem::update(float deltaTime) {
-    static PlayerState lastState = PlayerState::WALKING; // Track the last state
+    static PlayerState lastState = PlayerState::WALKING; // Track the player's last state
 
-    if (registry.transforms.has(m_player) && registry.motions.has(m_player) && registry.playerAnimations.has(m_player)) {
-        auto& t = registry.transforms.get(m_player);
-        auto& m = registry.motions.get(m_player);
-        auto& a = registry.playerAnimations.get(m_player);
-        auto& c = registry.combat.get(m_player);
+    // Loop through all entities that have motion components
+    for (auto entity : registry.motions.entities) {
+        if (registry.transforms.has(entity) && registry.motions.has(entity)) {
+            auto& t = registry.transforms.get(entity);
+            auto& m = registry.motions.get(entity);
 
-        // Step 1: Apply gravity if not grounded
-        auto& g = registry.gravity.get(m_player);
-        m.velocity.y += g.accleration;
-        // Step 2: Update position based on velocity
-        m.position += m.velocity;
+            // Step 1: Apply gravity if not grounded
+            if (registry.gravity.has(entity)) {
+                auto& g = registry.gravity.get(entity);
+                m.velocity.y += g.accleration;
+            }
 
-        canJump = false;
-        // Handle collisions
-        handle_collisions();
+            // Step 2: Update position based on velocity
+            m.position += m.velocity;
 
-        // Step 3: Prevent falling out of the screen
-//        if (m.position[1] > window_height_px) {
-//            m.position[1] = window_height_px;
-//        }
-        if (m.position[1] > window_height_px) {
-            m.position[1] = window_height_px;
-            m.velocity.y = 0;  // Stop vertical movement at the bottom of the screen
-            isGrounded = true;  // The player is grounded again
-            canJump = true;     // Allow jumping again
-        }
-        m.position[0] = clamp(m.position[0], 0, window_width_px);
+            // If this is the player, reset canJump before handling collisions
+            if (entity == m_player) {
+                canJump = false;  // Only the player can jump
+            }
 
-        // Step 4: Update the transform component
-        t.position[0] = m.position[0];
-        t.position[1] = m.position[1];
+            // Step 3: Prevent falling out of the screen for all entities
+            if (m.position[1] > window_height_px) {
+                m.position[1] = window_height_px;
+                m.velocity.y = 0;
 
-        // Step 5: Flip the texture based on movement direction
-        if (m.velocity[0] < 0) {
-            t.scale.x = -std::abs(t.scale.x);  // Flip X-axis
-        } else if (m.velocity[0] > 0) {
-            t.scale.x = std::abs(t.scale.x);  // Restore X-axis
-        }
+                // Only the player can be grounded and jump
+                if (entity == m_player) {
+                    isGrounded = true;
+                    canJump = true;
+                }
+            }
+            m.position[0] = clamp(m.position[0], 0, window_width_px);
 
-        // Attack
-        if (c.frames > 0 && !canAttack) {
-            c.frames -= 1;
-        }
-        else {
-            canAttack = true;
-        }
+            // Step 4: Update the transform component for all entities
+            t = m;
 
-        // Step 6: Handle player state (JUMPING, WALKING, or ATTACKING)
-        PlayerState currentState = a.getState();
-        if (c.frames > 0 && !canAttack) {
-            currentState = PlayerState::ATTACKING;
-        }
-        else if (m.velocity[0] != 0) {
-            currentState = PlayerState::WALKING;
-        }
-        else {
-            currentState = PlayerState::IDLE;
-        }
+            // Step 5: Flip the texture based on movement direction for all entities
+            if (m.velocity[0] < 0) {
+                t.scale.x = -std::abs(t.scale.x);
+            }
+            else if (m.velocity[0] > 0) {
+                t.scale.x = std::abs(t.scale.x);
+            }
 
-        // Step 7: Update bounding box size based on state
-        if (currentState == PlayerState::WALKING) {
-            m.scale = glm::vec2(WALKING_BB_WIDTH * 0.2f, WALKING_BB_HEIGHT * 0.2f);
-        } else if (currentState == PlayerState::JUMPING) {
-            m.scale = glm::vec2(JUMPING_BB_WIDTH * 0.2f, JUMPING_BB_HEIGHT * 0.2f);
-        } else if (currentState == PlayerState::ATTACKING) {
-            m.scale = glm::vec2(ATTACKING_BB_WIDTH * 0.2f, ATTACKING_BB_HEIGHT * 0.2f);
-        }
+            // Player-specific logic
+            if (entity == m_player && registry.playerAnimations.has(m_player) && registry.combat.has(m_player)) {
+                auto& a = registry.playerAnimations.get(m_player);
+                auto& c = registry.combat.get(m_player);
 
-        // Step 8: Update the player animation state if it has changed
-        if (currentState != lastState) {
-            a.setState(currentState);
-            lastState = currentState;
-        }
-        else {
-            if ((a.currentState == JUMPING && !isGrounded) ||
-                (a.currentState == WALKING && m.velocity[0] != 0) ||
-                (a.currentState == IDLE && m.velocity[0] == 0) ||
-                (a.currentState == ATTACKING)) {
+                // Attack handling
+                if (c.frames > 0 && !canAttack) {
+                    c.frames -= 1;
+                }
+                else {
+                    canAttack = true;
+                }
 
-                a.next(deltaTime);  // Advance the animation frame
+                // Step 6: Handle player state (JUMPING, WALKING, ATTACKING)
+                PlayerState currentState = a.getState();
+                if (c.frames > 0 && !canAttack) {
+                    currentState = PlayerState::ATTACKING;
+                }
+                else if (m.velocity[0] != 0) {
+                    currentState = PlayerState::WALKING;
+                }
+                else {
+                    currentState = PlayerState::IDLE;
+                }
+
+                // Step 7: Update bounding box size based on state
+                if (currentState == PlayerState::WALKING) {
+                    m.scale = glm::vec2(WALKING_BB_WIDTH * 0.2f, WALKING_BB_HEIGHT * 0.2f);
+                }
+                else if (currentState == PlayerState::JUMPING) {
+                    m.scale = glm::vec2(JUMPING_BB_WIDTH * 0.2f, JUMPING_BB_HEIGHT * 0.2f);
+                }
+                else if (currentState == PlayerState::ATTACKING) {
+                    m.scale = glm::vec2(ATTACKING_BB_WIDTH * 0.2f, ATTACKING_BB_HEIGHT * 0.2f);
+                }
+
+                // Step 8: Update the player animation state if it has changed
+                if (currentState != lastState) {
+                    a.setState(currentState);
+                    lastState = currentState;
+                }
+                else {
+                    if ((a.currentState == JUMPING && !isGrounded) ||
+                        (a.currentState == WALKING && m.velocity[0] != 0) ||
+                        (a.currentState == IDLE && m.velocity[0] == 0) ||
+                        (a.currentState == ATTACKING)) {
+                        a.next(deltaTime);  // Advance the animation frame
+                    }
+                }
             }
         }
     }
+    // Handle collisions
+    handle_collisions();
 }
 
 void WorldSystem::handle_collisions() {
@@ -223,28 +252,29 @@ void WorldSystem::handle_collisions() {
         vec2 direction = collisionsRegistry.components[i].direction;
         vec2 overlap = collisionsRegistry.components[i].overlap;
 
-        if (registry.players.has(entity)) {
-            Motion& playerMotion = registry.motions.get(entity);
+        if (registry.grounds.has(entity_other)) {
+            Motion& thisMotion = registry.motions.get(entity);
             Motion& otherMotion = registry.motions.get(entity_other);
 
             if (direction.x != 0) {
-                playerMotion.position.x -= overlap.x * direction.x;
-                playerMotion.velocity.x = 0;
+                thisMotion.position.x -= overlap.x * direction.x;
+                thisMotion.velocity.x = 0;
             }
-            else if (direction.y > 0 && playerMotion.velocity.y > 0) {
-                playerMotion.position.y -= overlap.y;
-                playerMotion.velocity.y = 0;
-                canJump = true;  // Allow player to jump again
-                isGrounded = true;  // Player is grounded
+            else if (direction.y > 0 && thisMotion.velocity.y > 0) {
+                thisMotion.position.y -= overlap.y;
+                thisMotion.velocity.y = 0;
+                if (registry.players.has(entity)) {
+                    canJump = true;  // Allow player to jump again
+                    isGrounded = true;  // Player is grounded
+                }
             }
-            else if (direction.y < 0) {
-                playerMotion.position.y += overlap.y;
-                playerMotion.velocity.y = 0;
+            else if (direction.y < 0 && thisMotion.velocity.y < 0) {
+                thisMotion.position.y += overlap.y;
+                thisMotion.velocity.y = 0;
             }
-
-            if (registry.damages.has(entity_other) && !registry.invinciblityTimers.has(entity)) {
-                player_get_damaged(entity_other);
-            }
+        }
+        if (registry.players.has(entity) && registry.damages.has(entity_other) && !registry.invinciblityTimers.has(entity)) {
+            player_get_damaged(entity_other);
         }
     }
 
@@ -306,6 +336,11 @@ void WorldSystem::render() {
         update_heartSprite(health.current_health);
     }
    
+    if (registry.sprites.has(m_goomba) && registry.transforms.has(m_goomba)) {
+        auto& s = registry.sprites.get(m_goomba);
+        auto& t = registry.transforms.get(m_goomba);
+        renderSystem.drawEntity(s, t);
+    }
 }
 
 void WorldSystem::processPlayerInput(int key, int action) {
