@@ -105,11 +105,30 @@ void WorldSystem::init() {
     // sprite for ground, move this elsewhere for optimization. It is here for testing
     cesspit.room1(renderSystem);
 
+       // Create and initialize the Heart sprites
+
+    std::vector<Sprite> heartSprites;
+    for (unsigned i = 0; i <= 3; i++) {
+        int heartWidth, heartHeight;
+        GLuint heartTextureID = renderSystem.loadTexture("heart_" + std::to_string(i) + ".png", heartWidth, heartHeight);
+        Sprite heartSprite;
+        heartSprite.textureID = heartTextureID;
+        heartSprite.width = 1.0f;
+        heartSprite.height = 1.0f;
+        heartSprites.push_back(heartSprite);
+    }
+    registry.heartSprites.emplace(m_hearts, std::move(heartSprites));
+
+    // Create and initialize the a Transform component for the Heart sprites
+    TransformComponent heartSpriteTransform;
+    heartSpriteTransform.position = glm::vec3(250.0f, 120.0f, 0.0);
+    heartSpriteTransform.scale = glm::vec3(HEARTS_WIDTH, HEARTS_HEIGHT, 1.0);
+    heartSpriteTransform.rotation = 0.0f;
+    registry.transforms.emplace(m_hearts, std::move(heartSpriteTransform));
 }
 
 void WorldSystem::update(float deltaTime) {
     static PlayerState lastState = PlayerState::WALKING; // Track the last state
-    //canJump = false;
 
     if (registry.transforms.has(m_player) && registry.motions.has(m_player) && registry.playerAnimations.has(m_player)) {
         auto& t = registry.transforms.get(m_player);
