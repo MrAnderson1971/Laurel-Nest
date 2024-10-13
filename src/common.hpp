@@ -4,6 +4,7 @@
 #include <string>
 #include <tuple>
 #include <vector>
+#include <type_traits>
 
 // glfw (OpenGL)
 #ifndef NOMINMAX
@@ -55,12 +56,23 @@ struct Transform {
 bool gl_has_errors();
 
 // no C++ 17 smh
-inline float clamp(float n, float min, float max) {
-	if (n > max) {
-		return max;
+	// Basically allows this to be called on anything that's a number (float, int, unsigned int, etc.)
+	template <typename T1, typename T2, typename T3>
+	inline typename std::enable_if<std::is_arithmetic<T1>::value &&
+	                               std::is_arithmetic<T2>::value &&
+	                               std::is_arithmetic<T3>::value, typename std::common_type<T1, T2, T3>::type>::type
+clamp(T1 n, T2 min, T3 max) {
+		using T = typename std::common_type<T1, T2, T3>::type;
+		T tn = static_cast<T>(n);
+		T tmin = static_cast<T>(min);
+		T tmax = static_cast<T>(max);
+
+		if (tn < tmin) {
+			return tmin;
+		}
+		if (tn > tmax) {
+			return tmax;
+		}
+		return tn;
 	}
-	if (n < min) {
-		return min;
-	}
-	return n;
-}
+
