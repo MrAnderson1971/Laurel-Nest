@@ -5,12 +5,6 @@
 #include <unordered_map>
 #include "../ext/stb_image/stb_image.h"
 
-struct TransformComponent {
-    glm::vec3 position;
-    glm::vec3 scale;
-    float rotation;
-};
-
 struct Sprite {
     GLuint textureID;
     float width = 1.0f;
@@ -80,10 +74,27 @@ struct Animation {
 
 struct Motion {
     vec2 position;
-    float angle;
-    vec2 velocity;
-    vec2 scale;
-    vec2 acceleration;
+    float angle = 0;
+    vec2 velocity = { 0, 0 };
+    vec2 scale = { 0, 0 };
+    vec2 acceleration = { 0, 0 };
+};
+
+struct TransformComponent {
+    glm::vec3 position;
+    glm::vec3 scale;
+    float rotation;
+
+    TransformComponent& operator=(const Motion& m) {
+        position.x = m.position.x;
+        position.y = m.position.y;
+        position.z = 0;
+        scale.x = m.scale.x;
+        scale.y = m.scale.y;
+        scale.z = 1.f;
+        rotation = m.angle;
+        return *this;
+    }
 };
 
 // Player component
@@ -146,7 +157,10 @@ struct Collision
 {
     // Note, the first object is stored in the ECS container.entities
     Entity other; // the second object involved in the collision
-    Collision(Entity& other) { this->other = other; };
+    vec2 direction;
+    vec2 overlap;
+    Collision(Entity& other, const vec2& direction, const vec2& overlap) : direction(direction), overlap(overlap)
+    { this->other = other; };
 };
 
 // Mesh data structure for storing vertex and index buffers
@@ -221,6 +235,33 @@ struct Gravity {
     float accleration = 0.0098f;
 };
 
+
+struct Patrol_AI {
+    int direction = -1;
+    float patrolSpeed = 0; //When spawing the Goomba
+    float patrolMinX = 0;
+    float patrolMaxX = 0;
+};
+
+struct BoundingBox {
+    vec2 p1; // Top Left
+    vec2 p2; // Bottom Left
+    vec3 p3; // Bottom Right
+    vec4 p4; // Top Right
+    float width = 1;
+    float height = 1;
+};
+
+
+
 struct Environment {
     bool door = false;
+};
+
+struct Ground {
+
+};
+
+struct Patrol_AI {
+    bool movingRight = true;
 };

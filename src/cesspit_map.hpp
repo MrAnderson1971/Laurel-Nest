@@ -18,6 +18,7 @@ public:
 	Entity m_ground;
 	Entity m_ceiling;
 	Entity m_bg;
+  Entity m_goomba;
 
 private:
 };

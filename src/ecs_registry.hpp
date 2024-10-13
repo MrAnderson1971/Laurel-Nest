@@ -26,9 +26,12 @@ public:
     ComponentContainer<ScreenState> screenStates;
     ComponentContainer<Animation<PlayerState>> playerAnimations;
     ComponentContainer<Gravity> gravity;
+    ComponentContainer<Patrol_AI> patrol;
+    ComponentContainer<BoundingBox> bounding_box;
     ComponentContainer<Environment> envObject;
     ComponentContainer<Combat> combat;
-
+    ComponentContainer<Ground> grounds;
+    ComponentContainer<Patrol_AI> patrol_ais;
 
     // constructor that adds all containers for looping over them
     // IMPORTANT: Don't forget to add any newly added containers!
@@ -49,9 +52,12 @@ public:
         registry_list.push_back(&screenStates);
         registry_list.push_back(&playerAnimations);
         registry_list.push_back(&gravity);
+        registry_list.push_back(&patrol);
+        registry_list.push_back(&bounding_box);
         registry_list.push_back(&envObject);
         registry_list.push_back(&combat);
-
+        registry_list.push_back(&grounds);
+        registry_list.push_back(&patrol_ais);
     }
 
     void clear_all_components() {
