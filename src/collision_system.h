@@ -1,8 +1,16 @@
-//
-// Created by kapur on 12/10/2024.
-//
+#include <vector>
 
-#ifndef GAME_COLLISION_SYSTEM_H
-#define GAME_COLLISION_SYSTEM_H
+#include "ecs_registry.hpp"
+#include "common.hpp"
+#include "components.hpp"
 
-#endif //GAME_COLLISION_SYSTEM_H
+class Collision_System
+{
+public:
+    bool checkForCollision(Entity e1, Entity e2);
+
+    void updateBoundingBox(Entity e1);
+
+    DirectionofCollision get_Direction_of_Collision(Entity e1, Entity e2);
+
+};

@@ -193,3 +193,24 @@ struct RenderRequest {
 struct Gravity {
     float accleration = 0.0098f;
 };
+
+
+struct Patrol_AI {
+    int direction = -1;
+    float patrolSpeed = 0; //When spawing the Goomba
+    float patrolMinX = 0;
+    float patrolMaxX = 0;
+};
+
+struct BoundingBox {
+    vec2 p1; // Top Left
+    vec2 p2; // Bottom Left
+    vec3 p3; // Bottom Right
+    vec4 p4; // Top Right
+};
+
+struct DirectionofCollision{
+    float x;
+    float y;
+    float angle;
+};

@@ -1,8 +1,12 @@
-//
-// Created by kapur on 12/10/2024.
-//
+#pragma once
 
-#ifndef GAME_AI_SYSTEM_H
-#define GAME_AI_SYSTEM_H
+#include <vector>
 
-#endif //GAME_AI_SYSTEM_H
+#include "ecs_registry.hpp"
+#include "common.hpp"
+
+class AISystem
+{
+public:
+    void step(float elapsed_ms);
+};
