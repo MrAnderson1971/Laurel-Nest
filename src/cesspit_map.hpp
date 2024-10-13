@@ -15,6 +15,7 @@ public:
 	void room3(RenderSystem& renderSystem);
 	void bossRoom(RenderSystem& renderSystem);
 	Entity m_ground;
+    Entity m_goomba;
 
 private:
 };
