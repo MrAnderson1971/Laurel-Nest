@@ -39,23 +39,30 @@ bool static checkForCollision(Entity e1, Entity e2){
 
 
 // AABB detection
-//bool collides(const Entity& e1, const Entity& e2)
+//bool collides(const Motion& motion1, const Motion& motion2, vec2& direction, vec2& overlap)
 //{
-////    vec2 box1 = get_bounding_box(motion1);
-////    vec2 box2 = get_bounding_box(motion2);
-//
+//    vec2 box1 = get_bounding_box(motion1);
+//    vec2 box2 = get_bounding_box(motion2);
 //
 //    vec2 half_size1 = box1 / 2.f;
 //    vec2 half_size2 = box2 / 2.f;
 //
-//    vec2 dp = motion1.position - motion2.position;
+//    vec2 dp = motion2.position - motion1.position;
 //
-//    bool overlapX = abs(dp.x) < (half_size1.x + half_size2.x);
-//    bool overlapY = abs(dp.y) < (half_size1.y + half_size2.y);
+//    float overlapX = half_size1.x + half_size2.x - abs(dp.x);
+//    float overlapY = half_size1.y + half_size2.y - abs(dp.y);
 //
-//    if (overlapX && overlapY)
-//    {
-//        std::cout << "collision found" << std::endl;
+//    if (overlapX > 0 && overlapY > 0) {
+//        vec2 collisionDirection;
+//        if (overlapX < overlapY) {
+//            collisionDirection = vec2((dp.x > 0) ? 1 : -1, 0);
+//        } else {
+//            collisionDirection = vec2(0, (dp.y > 0) ? 1 : -1);
+//        }
+//
+//        direction = collisionDirection;
+//        overlap = vec2(overlapX, overlapY);
+//
 //        return true;
 //    }
 //
@@ -105,12 +112,15 @@ void PhysicsSystem::step(float elapsed_ms)
             //Motion& motion_j = registry.motions.components[j];
             Entity entity_j = registry.motions.entities[j];
 
+            vec2 direction;
+            vec2 overlap;
+            //if (collides(motion_i, motion_j, direction, overlap))
             if (checkForCollision(entity_i, entity_j))
             {
                 // Create a collision event by inserting into the collisions container
                 // This potentially inserts multiple collisions for the same entity
-                registry.collisions.emplace_with_duplicates(entity_i, entity_j);
-                registry.collisions.emplace_with_duplicates(entity_j, entity_i);
+                registry.collisions.emplace_with_duplicates(entity_i, entity_j, direction, overlap);
+                registry.collisions.emplace_with_duplicates(entity_j, entity_i, direction, overlap);
             }
         }
     }

@@ -146,7 +146,10 @@ struct Collision
 {
     // Note, the first object is stored in the ECS container.entities
     Entity other; // the second object involved in the collision
-    Collision(Entity& other) { this->other = other; };
+    vec2 direction;
+    vec2 overlap;
+    Collision(Entity& other, const vec2& direction, const vec2& overlap) : direction(direction), overlap(overlap)
+    { this->other = other; };
 };
 
 // Mesh data structure for storing vertex and index buffers
