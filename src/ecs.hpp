@@ -63,7 +63,7 @@ public:
         return components.back();
     };
 
-    // The emplace function takes the the provided arguments Args, creates a new object of type Component, and inserts it into the ECS system
+    // The emplace function takes the provided arguments Args, creates a new object of type Component, and inserts it into the ECS system
     template<typename... Args>
     Component& emplace(Entity e, Args &&... args) {
         return insert(e, Component(std::forward<Args>(args)...));

@@ -39,6 +39,7 @@ private:
 	RenderSystem& renderSystem;
 	Entity m_player;
     Entity m_ground;
+    Entity m_goomba;
 	std::unordered_map<int, std::function<void()>> keyPressActions;
 	std::unordered_map<int, std::function<void()>> keyReleaseActions;
 	void player_get_damaged(Entity hostile);

@@ -13,6 +13,7 @@ void WorldSystem::init() {
     // Create a new entity and register it in the ECSRegistry
     m_player = Entity();
     m_ground = Entity();
+    m_goomba = Entity();
 
     // Player
 
@@ -86,6 +87,8 @@ void WorldSystem::init() {
     registry.transforms.emplace(m_player, std::move(playerTransform));
 
 
+
+
     // MANDY LOOK
     // Ground:
     // sprite for ground, move this elsewhere for optimization. It is here for testing
@@ -96,12 +99,25 @@ void WorldSystem::init() {
     groundSprite.height = 1.0f;
     registry.sprites.emplace(m_ground, std::move(groundSprite));
 
+    Sprite goomba;
+    int groundWidth_1, groundHeight_1;
+    goomba.textureID = renderSystem.loadTexture("goomba_walk_idle.PNG", groundWidth_1, groundHeight_1);
+    goomba.width = 1.0f;
+    goomba.height = 1.0f;
+    registry.sprites.emplace(m_goomba, std::move(goomba));
+
     // Create and initialize a TransformComponent for the ground
     TransformComponent groundTransform;
     groundTransform.position = glm::vec3(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() - 50, 0.0);
     groundTransform.scale = glm::vec3(groundWidth, groundHeight, 1.0);
     groundTransform.rotation = 0.0f;
     registry.transforms.emplace(m_ground, std::move(groundTransform));
+
+    TransformComponent goomba_transform;
+    goomba_transform.position = glm::vec3(renderSystem.getWindowWidth() / 2.0f + 10, renderSystem.getWindowHeight() + 100, 0.0);
+    goomba_transform.scale = glm::vec3(2, 2, 1.0);
+    goomba_transform.rotation = 0.0f;
+    registry.transforms.emplace(m_goomba, std::move(goomba_transform));
 
     // Create and initialize a Motion component for the ground
     Motion groundMotion;
@@ -110,6 +126,12 @@ void WorldSystem::init() {
     groundMotion.scale = { groundWidth, groundHeight };
     registry.motions.emplace(m_ground, std::move(groundMotion));
 
+    // Create and initialize a Motion component for the goomba
+    Motion goombaMotion;
+    goombaMotion.position = glm::vec2(renderSystem.getWindowWidth() / 2.0f + 10, renderSystem.getWindowHeight() + 100);
+    goombaMotion.velocity = glm::vec2(0, 0);
+    goombaMotion.scale = {2, 2};
+    registry.motions.emplace(m_goomba, std::move(goombaMotion));
 }
 
 void WorldSystem::update(float deltaTime) {
@@ -257,6 +279,16 @@ void WorldSystem::render() {
         auto& sprite = registry.sprites.get(m_ground);
         renderSystem.drawEntity(sprite, transform);
     }
+    // Draw the Goomba entity if it exists and has the required components
+    if (registry.transforms.has(m_goomba) && registry.sprites.has(m_goomba))
+    {
+        auto& transform = registry.transforms.get(  m_goomba);
+        auto& sprite = registry.sprites.get(m_goomba);
+        renderSystem.drawEntity(sprite, transform);
+    }
+
+
+
 }
 
 void WorldSystem::processPlayerInput(int key, int action) {
