@@ -139,6 +139,7 @@ void WorldSystem::init() {
     goombaMotion.scale = vec2(goombaWidth, goombaHeight);
     registry.motions.emplace(m_goomba, std::move(goombaMotion));
     registry.gravity.emplace(m_goomba, std::move(Gravity()));
+    registry.patrol_ais.emplace(m_goomba, std::move(Patrol_AI()));
 }
 
 void WorldSystem::update(float deltaTime) {
@@ -242,6 +243,31 @@ void WorldSystem::update(float deltaTime) {
     }
     // Handle collisions
     handle_collisions();
+
+    for (auto& e : registry.invinciblityTimers.entities) {
+        auto& i = registry.invinciblityTimers.get(e);
+        i.counter_ms -= deltaTime;
+        if (i.counter_ms < 0) {
+            registry.invinciblityTimers.remove(e);
+        }
+    }
+
+    for (auto& e : registry.patrol_ais.entities) {
+        auto& p = registry.patrol_ais.get(e);
+        if (registry.motions.has(e)) {
+            auto& m = registry.motions.get(e);
+            if (std::abs(m.position.x - renderSystem.getWindowWidth()) < 10) {
+                p.movingRight = false;
+            } else if (std::abs(m.position.x - 0) < 10) {
+                p.movingRight = true;
+            }
+            if (p.movingRight) {
+                m.velocity.x = 1;
+            } else {
+                m.velocity.x = -1;
+            }
+        }
+    }
 }
 
 void WorldSystem::handle_collisions() {

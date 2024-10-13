@@ -29,6 +29,7 @@ public:
     ComponentContainer<Environment> envObject;
     ComponentContainer<Combat> combat;
     ComponentContainer<Ground> grounds;
+    ComponentContainer<Patrol_AI> patrol_ais;
 
     // constructor that adds all containers for looping over them
     // IMPORTANT: Don't forget to add any newly added containers!
@@ -52,6 +53,7 @@ public:
         registry_list.push_back(&envObject);
         registry_list.push_back(&combat);
         registry_list.push_back(&grounds);
+        registry_list.push_back(&patrol_ais);
     }
 
     void clear_all_components() {

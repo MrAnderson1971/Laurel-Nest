@@ -241,3 +241,7 @@ struct Environment {
 struct Ground {
 
 };
+
+struct Patrol_AI {
+    bool movingRight = true;
+};
