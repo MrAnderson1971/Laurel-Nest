@@ -26,7 +26,7 @@ bool collides(const Motion& motion1, const Motion& motion2)
 
     if (overlapX && overlapY)
     {
-        std::cout << "collision found" << std::endl;
+        // std::cout << "collision found" << std::endl;
         return true;
     }
 

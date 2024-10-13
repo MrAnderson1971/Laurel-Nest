@@ -42,12 +42,17 @@ void WorldSystem::init() {
     // Add gravity to the Player
     registry.gravity.emplace(m_player, std::move(Gravity()));
 
+    // Add Combat to Player
+    registry.combat.emplace(m_player, std::move(Combat()));
+
     // Create and initialize the Animation component
 
-
     Animation<PlayerState> playerAnimations;
+    std::vector<Sprite> idleSprite;
     std::vector<Sprite> walkingSprites;
     std::vector<Sprite> jumpingSprites;
+    std::vector<Sprite> attackingSprites;
+
 
     for (unsigned i = 1; i <= 4; i++) {
         int playerWidth, playerHeight;
@@ -57,6 +62,9 @@ void WorldSystem::init() {
         sprite.width = 1.0f;
         sprite.height = 1.0f;
         walkingSprites.push_back(sprite);
+        if (i == 2) {
+            idleSprite.push_back(sprite);
+        }
     }
 
     for (unsigned i = 1; i <= 4; i++) {
@@ -69,9 +77,21 @@ void WorldSystem::init() {
         jumpingSprites.push_back(jumpSprite);
     }
 
+    for (unsigned i = 1; i <= 5; i++) {
+        int playerWidth, playerHeight;
+        GLuint attackTextureID = renderSystem.loadTexture("attack_" + std::to_string(i) + ".png", playerWidth, playerHeight);
+        Sprite attackSprite;
+        attackSprite.textureID = attackTextureID;
+        attackSprite.width = 2.0f;
+        attackSprite.height = 1.0f;
+        attackingSprites.push_back(attackSprite);
+    }
+
     playerAnimations.addState(PlayerState::WALKING, walkingSprites);
-    playerAnimations.setState(PlayerState::WALKING);
+    playerAnimations.addState(PlayerState::IDLE, idleSprite);
+    playerAnimations.setState(PlayerState::IDLE);
     playerAnimations.addState(PlayerState::JUMPING, jumpingSprites);
+    playerAnimations.addState(PlayerState::ATTACKING, attackingSprites);
     registry.playerAnimations.emplace(m_player, std::move(playerAnimations));
 
 
@@ -95,6 +115,7 @@ void WorldSystem::update(float deltaTime) {
         auto& t = registry.transforms.get(m_player);
         auto& m = registry.motions.get(m_player);
         auto& a = registry.playerAnimations.get(m_player);
+        auto& c = registry.combat.get(m_player);
 
         // Step 1: Apply gravity if not grounded
         if (!isGrounded) {
@@ -128,12 +149,27 @@ void WorldSystem::update(float deltaTime) {
             t.scale.x = std::abs(t.scale.x);  // Restore X-axis
         }
 
+        // Attack
+        if (c.frames > 0 && !canAttack) {
+            c.frames -= 1;
+        }
+        else {
+            canAttack = true;
+        }
+
         // Step 6: Handle player state (JUMPING, WALKING, or ATTACKING)
         PlayerState currentState = a.getState();
-        if (m.velocity[1] != 0) {
+        if (c.frames > 0 && !canAttack) {
+            currentState = PlayerState::ATTACKING;
+        }
+        else if (m.velocity[1] != 0) {
             currentState = PlayerState::JUMPING;
-        } else if (m.velocity[0] != 0 && m.velocity[1] == 0) {
+        }
+        else if (m.velocity[0] != 0 && m.velocity[1] == 0) {
             currentState = PlayerState::WALKING;
+        }
+        else {
+            currentState = PlayerState::IDLE;
         }
 
         // Step 7: Update bounding box size based on state
@@ -149,8 +185,13 @@ void WorldSystem::update(float deltaTime) {
         if (currentState != lastState) {
             a.setState(currentState);
             lastState = currentState;
-        } else {
-            if ((a.currentState == JUMPING && !isGrounded) || (a.currentState == WALKING && m.velocity[0] != 0)) {
+        }
+        else {
+            if ((a.currentState == JUMPING && !isGrounded) ||
+                (a.currentState == WALKING && m.velocity[0] != 0) ||
+                (a.currentState == IDLE && m.velocity[0] == 0) ||
+                (a.currentState == ATTACKING)) {
+
                 a.next(deltaTime);  // Advance the animation frame
             }
         }
@@ -235,6 +276,14 @@ void WorldSystem::render() {
         auto& sprite = registry.sprites.get(cesspit.m_ground);
         renderSystem.drawEntity(sprite, transform);
     }
+
+    // Draw health
+    if (registry.transforms.has(m_hearts) && registry.sprites.has(m_hearts))
+    {
+        auto& transform = registry.transforms.get(m_hearts);
+        auto& sprite = registry.sprites.get(m_hearts);
+        renderSystem.drawEntity(sprite, transform);
+    }
     
     if (registry.transforms.has(m_hearts) && registry.heartSprites.has(m_hearts))
     {
@@ -305,6 +354,25 @@ void WorldSystem::processPlayerInput(int key, int action) {
     // Press H to heal the player
     if (action == GLFW_PRESS && key == GLFW_KEY_H) {
         player_get_healed();
+    }
+
+    // Press N to ATTACK - change to left click
+    if (action == GLFW_PRESS && key == GLFW_KEY_N) {
+        if (registry.combat.has(m_player)) {
+            if (canAttack) {  // Ensure the player can attack
+                // make a call to bounding boxes here
+                std::cout << "is attacking" << std::endl;
+                canAttack = false;  // Prevent further attacks for a time
+                auto& c = registry.combat.get(m_player);
+                c.frames = c.max_frames;
+
+                // Change state to ATTACKING
+                if (registry.playerAnimations.has(m_player)) {
+                    auto& playerAnimation = registry.playerAnimations.get(m_player);
+                    playerAnimation.setState(PlayerState::ATTACKING);
+                }
+            }
+        }
     }
 
     // THIS IS JUST A TEST TO SEE IF THE HEALTHSPRITES UPDATE AND THEY DO
