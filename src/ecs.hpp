@@ -8,6 +8,8 @@
 #include <typeindex>
 #include <assert.h>
 
+#include <stdio.h>
+
 // Unique identifyer for all entities
 class Entity
 {

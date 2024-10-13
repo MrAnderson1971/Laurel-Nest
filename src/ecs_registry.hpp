@@ -21,7 +21,8 @@ public:
     ComponentContainer<Player> players;
     ComponentContainer<TransformComponent> transforms;
     ComponentContainer<Sprite> sprites;
-    ComponentContainer<RenderRequest> renderRequests;
+    ComponentContainer<std::vector<Sprite>> heartSprites;
+    ComponentContainer<RenderRequest> renderRequests; 
     ComponentContainer<ScreenState> screenStates;
     ComponentContainer<Animation<PlayerState>> playerAnimations;
     ComponentContainer<Gravity> gravity;
@@ -42,6 +43,7 @@ public:
         registry_list.push_back(&players);
         registry_list.push_back(&transforms);
         registry_list.push_back(&sprites);
+        registry_list.push_back(&heartSprites);
         registry_list.push_back(&renderRequests);
         registry_list.push_back(&screenStates);
         registry_list.push_back(&playerAnimations);

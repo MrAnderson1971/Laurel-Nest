@@ -6,6 +6,38 @@
 // Returns the local bounding coordinates scaled by the current size of the entity
 
 
+bool static checkForCollision(Entity e1, Entity e2){
+    unsigned long size = registry.bounding_box.size();
+    BoundingBox b1 = registry.bounding_box.get(e1);
+    BoundingBox b2 = registry.bounding_box.get(e2);
+
+    //top left
+    if(b1.p1.x <= b2.p1.x && b1.p4.x >= b2.p1.x ){
+        if(b1.p1.y >= b2.p1.y && b1.p2.y <= b2.p1.y){
+            return true;
+        }
+    }else if(b1.p1.x <= b2.p4.x && b1.p4.x >= b2.p4.x){ //Top right
+        if(b1.p1.y >= b2.p4.y && b1.p2.y <= b2.p4.y){
+            return true;
+        }
+    } else if(b1.p1.x <= b2.p2.x && b1.p4.x >= b2.p2.x) { //Bottom Left
+        if(b1.p1.y >= b2.p2.y && b1.p2.y <= b2.p2.y){
+            return true;
+        }
+    }else if(b1.p1.x < b2.p3.x && b1.p4.x > b2.p3.x){ // Bottom Right
+        if(b1.p1.y >= b2.p3.y && b1.p2.y <= b2.p3.y){
+            return true;
+        }
+    } else{
+        return false;
+    }
+}
+
+
+
+
+
+
 // AABB detection
 //bool collides(const Entity& e1, const Entity& e2)
 //{
@@ -73,7 +105,7 @@ void PhysicsSystem::step(float elapsed_ms)
             //Motion& motion_j = registry.motions.components[j];
             Entity entity_j = registry.motions.entities[j];
 
-            if (Collision_System::checkForCollision(entity_i, entity_j))
+            if (checkForCollision(entity_i, entity_j))
             {
                 // Create a collision event by inserting into the collisions container
                 // This potentially inserts multiple collisions for the same entity

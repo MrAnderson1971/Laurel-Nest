@@ -42,7 +42,10 @@ add_executable(${PROJECT_NAME} ${SOURCE_FILES}
         src/ai_system.h
         src/ai_system.cpp
         src/collision_system.h
-        src/collision_system.cpp)
+        src/collision_system.cpp
+        src/cesspit_map.cpp
+        src/cesspit_map.hpp
+        src/cesspit_map.cpp)
 target_include_directories(${PROJECT_NAME} PUBLIC src/)
 
 # Added this so policy CMP0065 doesn't scream
