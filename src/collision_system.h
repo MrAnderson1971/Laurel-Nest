@@ -7,7 +7,7 @@
 class Collision_System
 {
 public:
-    bool checkForCollision(Entity e1, Entity e2);
+    bool static checkForCollision(Entity e1, Entity e2);
 
     void updateBoundingBox(Entity e1);
 

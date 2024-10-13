@@ -2,7 +2,7 @@
 #include "ecs.hpp"
 
 
-bool Collision_System::checkForCollision(Entity e1, Entity e2){
+bool static checkForCollision(Entity e1, Entity e2){
     unsigned long size = registry.bounding_box.size();
     BoundingBox b1 = registry.bounding_box.get(e1);
     BoundingBox b2 = registry.bounding_box.get(e2);
@@ -57,10 +57,5 @@ void Collision_System::updateBoundingBox(Entity e1){
     bounding_box.p4.y = y_value_max;
 }
 
-//void Collision_System::get_Direction_of_Collision(Entity e1, Entity e2){
-//    if(checkForCollision(e1,e2)){
-//
-//    }
-//}
 
 
