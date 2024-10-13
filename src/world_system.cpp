@@ -109,6 +109,7 @@ void WorldSystem::init() {
 
 void WorldSystem::update(float deltaTime) {
     static PlayerState lastState = PlayerState::WALKING; // Track the last state
+    //canJump = false;
 
     if (registry.transforms.has(m_player) && registry.motions.has(m_player) && registry.playerAnimations.has(m_player)) {
         auto& t = registry.transforms.get(m_player);
@@ -117,10 +118,11 @@ void WorldSystem::update(float deltaTime) {
         auto& c = registry.combat.get(m_player);
 
         // Step 1: Apply gravity if not grounded
-        if (!isGrounded) {
             auto& g = registry.gravity.get(m_player);
             m.velocity.y += g.accleration;
-        }
+
+            // Handle collisions
+            handle_collisions();
 
         // Step 2: Update position based on velocity
         m.position += m.velocity;
@@ -161,10 +163,7 @@ void WorldSystem::update(float deltaTime) {
         if (c.frames > 0 && !canAttack) {
             currentState = PlayerState::ATTACKING;
         }
-        else if (m.velocity[1] != 0) {
-            currentState = PlayerState::JUMPING;
-        }
-        else if (m.velocity[0] != 0 && m.velocity[1] == 0) {
+        else if (m.velocity[0] != 0) {
             currentState = PlayerState::WALKING;
         }
         else {
@@ -195,9 +194,6 @@ void WorldSystem::update(float deltaTime) {
             }
         }
     }
-
-    // Handle collisions
-    handle_collisions();
 }
 
 void WorldSystem::handle_collisions() {
@@ -221,12 +217,6 @@ void WorldSystem::handle_collisions() {
                 playerMotion.velocity.y = 0;
                 canJump = true;  // Allow player to jump again
                 isGrounded = true;  // Player is grounded
-
-                // Change state to WALKING if moving horizontally
-                if (registry.playerAnimations.has(entity) && playerMotion.velocity[0] != 0) {
-                    auto& playerAnimation = registry.playerAnimations.get(entity);
-                    playerAnimation.setState(PlayerState::WALKING);
-                }
             }
             else if (direction.y < 0) {
                 playerMotion.position.y += overlap.y;
