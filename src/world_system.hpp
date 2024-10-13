@@ -39,10 +39,12 @@ private:
 	RenderSystem& renderSystem;
 	Entity m_player;
     Entity m_ground;
+	Entity m_hearts;
 	std::unordered_map<int, std::function<void()>> keyPressActions;
 	std::unordered_map<int, std::function<void()>> keyReleaseActions;
 	void player_get_damaged(Entity hostile);
 	void player_get_healed();
+	void update_heartSprite(int num_hearts);
     bool checkPlayerGroundCollision();
     bool canJump = false;
     bool isGrounded = false;
