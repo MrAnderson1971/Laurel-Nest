@@ -356,25 +356,6 @@ void WorldSystem::processPlayerInput(int key, int action) {
         player_get_healed();
     }
 
-    // Press N to ATTACK - change to left click
-    if (action == GLFW_PRESS && key == GLFW_KEY_N) {
-        if (registry.combat.has(m_player)) {
-            if (canAttack) {  // Ensure the player can attack
-                // make a call to bounding boxes here
-                std::cout << "is attacking" << std::endl;
-                canAttack = false;  // Prevent further attacks for a time
-                auto& c = registry.combat.get(m_player);
-                c.frames = c.max_frames;
-
-                // Change state to ATTACKING
-                if (registry.playerAnimations.has(m_player)) {
-                    auto& playerAnimation = registry.playerAnimations.get(m_player);
-                    playerAnimation.setState(PlayerState::ATTACKING);
-                }
-            }
-        }
-    }
-
     // THIS IS JUST A TEST TO SEE IF THE HEALTHSPRITES UPDATE AND THEY DO
     // Press L to DAMAGE the player
     if (action == GLFW_PRESS && key == GLFW_KEY_L) {
@@ -400,7 +381,24 @@ void WorldSystem::on_mouse_move(const glm::vec2& position) {
 }
 
 void WorldSystem::on_mouse_click(int button, int action, const glm::vec2& position, int mods) {
-    (void)button; (void)action; (void)position; (void)mods;
+    (void)button; (void)action;
+    if (action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_LEFT) {
+        if (registry.combat.has(m_player)) {
+            if (canAttack) {  // Ensure the player can attack
+                // make a call to bounding boxes here
+                std::cout << "is attacking" << std::endl;
+                canAttack = false;  // Prevent further attacks for a time
+                auto& c = registry.combat.get(m_player);
+                c.frames = c.max_frames;
+
+                // Change state to ATTACKING
+                if (registry.playerAnimations.has(m_player)) {
+                    auto& playerAnimation = registry.playerAnimations.get(m_player);
+                    playerAnimation.setState(PlayerState::ATTACKING);
+                }
+            }
+        }
+    }
 }
 
 void WorldSystem::cleanup() {
