@@ -407,6 +407,7 @@ void WorldSystem::player_get_healed() {
 void WorldSystem::update_heartSprite(int num_hearts) {
     auto& transform = registry.transforms.get(m_hearts);
     auto& heartSprites = registry.heartSprites.get(m_hearts);
+    num_hearts = clamp(num_hearts, 0, static_cast<int>(heartSprites.size()));
     Sprite heartSprite = heartSprites[num_hearts];
     renderSystem.drawEntity(heartSprite, transform);
 }
