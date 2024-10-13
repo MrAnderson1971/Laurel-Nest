@@ -106,6 +106,8 @@ void Cesspit::room1(RenderSystem& renderSystem) {
 
     Environment goombaObj;
     registry.envObject.emplace(m_goomba, std::move(goombaObj));
+    registry.grounds.emplace(m_ground, std::move(Ground()));
+    registry.grounds.emplace(m_platform, std::move(Ground()));
 }
 
 

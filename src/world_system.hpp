@@ -41,7 +41,9 @@ public:
 private:
 	RenderSystem& renderSystem;
 	Entity m_player;
-    //Entity m_ground;
+  //Entity m_ground;
+	Entity m_hearts;
+	Entity m_goomba;
 	Cesspit cesspit;
     Entity m_hearts;
 	std::unordered_map<int, std::function<void()>> keyPressActions;

@@ -5,12 +5,6 @@
 #include <unordered_map>
 #include "../ext/stb_image/stb_image.h"
 
-struct TransformComponent {
-    glm::vec3 position;
-    glm::vec3 scale;
-    float rotation;
-};
-
 struct Sprite {
     GLuint textureID;
     float width = 1.0f;
@@ -80,10 +74,27 @@ struct Animation {
 
 struct Motion {
     vec2 position;
-    float angle;
-    vec2 velocity;
-    vec2 scale;
-    vec2 acceleration;
+    float angle = 0;
+    vec2 velocity = { 0, 0 };
+    vec2 scale = { 0, 0 };
+    vec2 acceleration = { 0, 0 };
+};
+
+struct TransformComponent {
+    glm::vec3 position;
+    glm::vec3 scale;
+    float rotation;
+
+    TransformComponent& operator=(const Motion& m) {
+        position.x = m.position.x;
+        position.y = m.position.y;
+        position.z = 0;
+        scale.x = m.scale.x;
+        scale.y = m.scale.y;
+        scale.z = 1.f;
+        rotation = m.angle;
+        return *this;
+    }
 };
 
 // Player component
@@ -244,4 +255,12 @@ struct BoundingBox {
 
 struct Environment {
     bool door = false;
+};
+
+struct Ground {
+
+};
+
+struct Patrol_AI {
+    bool movingRight = true;
 };
