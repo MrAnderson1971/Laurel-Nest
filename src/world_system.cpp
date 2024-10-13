@@ -44,6 +44,9 @@ void WorldSystem::init() {
     std::vector<Sprite> walkingSprites;
     std::vector<Sprite> jumpingSprites;
 
+
+    registry.bounding_box.emplace(m_player);
+
     for (unsigned i = 1; i <= 4; i++) {
         int playerWidth, playerHeight;
         GLuint playerTextureID = renderSystem.loadTexture("walk_" + std::to_string(i) + ".png", playerWidth, playerHeight);
@@ -52,7 +55,13 @@ void WorldSystem::init() {
         sprite.width = 1.0f;
         sprite.height = 1.0f;
         walkingSprites.push_back(sprite);
+
+        //Adding Bounding Box to the entities
+        BoundingBox x = registry.bounding_box.get(m_player);
+        x.height = sprite.height;
+        x.width = sprite.width;
     }
+
 
     for (unsigned i = 1; i <= 4; i++) {
         int playerWidth, playerHeight;

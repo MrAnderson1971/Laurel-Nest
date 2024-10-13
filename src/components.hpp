@@ -225,6 +225,8 @@ struct BoundingBox {
     vec2 p2; // Bottom Left
     vec3 p3; // Bottom Right
     vec4 p4; // Top Right
+    float width;
+    float height;
 };
 
 

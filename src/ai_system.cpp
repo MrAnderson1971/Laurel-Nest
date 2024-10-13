@@ -16,6 +16,6 @@ void AISystem::step(float elapsed_ms)
             motion.velocity.x = motion.velocity.x * (patrol_component.direction);
         }
     }
-    (void)elapsed_ms; // placeholder to silence unused warning until implemented
+    //(void)elapsed_ms; // placeholder to silence unused warning until implemented
 
 }
