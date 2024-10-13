@@ -137,13 +137,14 @@ void WorldSystem::update(float deltaTime) {
         auto& c = registry.combat.get(m_player);
 
         // Step 1: Apply gravity if not grounded
-        if (!isGrounded) {
-            auto& g = registry.gravity.get(m_player);
-            m.velocity.y += g.accleration;
-        }
-
+        auto& g = registry.gravity.get(m_player);
+        m.velocity.y += g.accleration;
         // Step 2: Update position based on velocity
         m.position += m.velocity;
+
+        canJump = false;
+        // Handle collisions
+        handle_collisions();
 
         // Step 3: Prevent falling out of the screen
 //        if (m.position[1] > window_height_px) {
@@ -181,10 +182,7 @@ void WorldSystem::update(float deltaTime) {
         if (c.frames > 0 && !canAttack) {
             currentState = PlayerState::ATTACKING;
         }
-        else if (m.velocity[1] != 0) {
-            currentState = PlayerState::JUMPING;
-        }
-        else if (m.velocity[0] != 0 && m.velocity[1] == 0) {
+        else if (m.velocity[0] != 0) {
             currentState = PlayerState::WALKING;
         }
         else {
@@ -215,9 +213,6 @@ void WorldSystem::update(float deltaTime) {
             }
         }
     }
-
-    // Handle collisions
-    handle_collisions();
 }
 
 void WorldSystem::handle_collisions() {
@@ -225,28 +220,26 @@ void WorldSystem::handle_collisions() {
     for (uint i = 0; i < collisionsRegistry.components.size(); i++) {
         Entity entity = collisionsRegistry.entities[i];
         Entity entity_other = collisionsRegistry.components[i].other;
+        vec2 direction = collisionsRegistry.components[i].direction;
+        vec2 overlap = collisionsRegistry.components[i].overlap;
 
         if (registry.players.has(entity)) {
             Motion& playerMotion = registry.motions.get(entity);
             Motion& otherMotion = registry.motions.get(entity_other);
 
-            if (playerMotion.velocity[1] != 0) {  // Handle only falling
-                float platformTop = otherMotion.position[1] - otherMotion.scale[1] / 2.f;
-                float playerBottom = playerMotion.position[1] + playerMotion.scale[1] / 2.f;
-
-                if (playerBottom > platformTop) {
-                    // Player lands on the platform
-                    playerMotion.position[1] = platformTop - playerMotion.scale[1] / 2.f;
-                    playerMotion.velocity[1] = 0;  // Reset vertical velocity
-                    canJump = true;  // Allow player to jump again
-                    isGrounded = true;  // Player is grounded
-
-                    // Change state to WALKING if moving horizontally
-                    if (registry.playerAnimations.has(entity) && playerMotion.velocity[0] != 0) {
-                        auto& playerAnimation = registry.playerAnimations.get(entity);
-                        playerAnimation.setState(PlayerState::WALKING);
-                    }
-                }
+            if (direction.x != 0) {
+                playerMotion.position.x -= overlap.x * direction.x;
+                playerMotion.velocity.x = 0;
+            }
+            else if (direction.y > 0 && playerMotion.velocity.y > 0) {
+                playerMotion.position.y -= overlap.y;
+                playerMotion.velocity.y = 0;
+                canJump = true;  // Allow player to jump again
+                isGrounded = true;  // Player is grounded
+            }
+            else if (direction.y < 0) {
+                playerMotion.position.y += overlap.y;
+                playerMotion.velocity.y = 0;
             }
 
             if (registry.damages.has(entity_other) && !registry.invinciblityTimers.has(entity)) {
@@ -287,10 +280,9 @@ void WorldSystem::render() {
         auto& transform = registry.transforms.get(m_player);
         renderSystem.drawEntity(animation.getCurrentFrame(), transform);
     }
-    
 
     // Draw the ground entity if it exists and has the required components
-    for (auto & obj : registry.envObject.entities) {
+    for (auto& obj : registry.envObject.entities) {
         if (registry.transforms.has(obj) && registry.sprites.has(obj))
         {
             auto& transform = registry.transforms.get(obj);

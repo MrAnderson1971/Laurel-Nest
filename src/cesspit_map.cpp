@@ -43,8 +43,7 @@ void Cesspit::room1(RenderSystem& renderSystem) {
     Sprite platformSprite;
     int platformWidth, platformHeight;
     platformSprite.textureID = renderSystem.loadTexture("demo_ground.png", platformWidth, platformHeight);
-    platformSprite.width = 0.2f;
-    platformSprite.height = 1.0f;
+    platformWidth /= 5;
     registry.sprites.emplace(m_platform, std::move(platformSprite));
 
     // Create and initialize a TransformComponent for the ground
