@@ -5,6 +5,7 @@
 #include "ecs_registry.hpp"
 #include "game_state.hpp"
 #include "render_system.hpp"
+#include "cesspit_map.hpp"
 
 
 constexpr float player_speed = 1.0f;
@@ -38,7 +39,8 @@ public:
 private:
 	RenderSystem& renderSystem;
 	Entity m_player;
-    Entity m_ground;
+    //Entity m_ground;
+	Cesspit cesspit;
 	std::unordered_map<int, std::function<void()>> keyPressActions;
 	std::unordered_map<int, std::function<void()>> keyReleaseActions;
 	void player_get_damaged(Entity hostile);

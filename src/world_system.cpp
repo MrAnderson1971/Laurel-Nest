@@ -1,6 +1,7 @@
 #include <iostream>
 #include "world_system.hpp"
 #include "pause_state.hpp"
+#include "cesspit_map.hpp"
 
 WorldSystem::WorldSystem(RenderSystem& renderSystem) : renderSystem(renderSystem) {
 }
@@ -12,7 +13,8 @@ WorldSystem::~WorldSystem() {
 void WorldSystem::init() {
     // Create a new entity and register it in the ECSRegistry
     m_player = Entity();
-    m_ground = Entity();
+    //m_ground = Entity();
+    cesspit = Cesspit();
 
     // Player
 
@@ -76,30 +78,9 @@ void WorldSystem::init() {
     playerTransform.rotation = 0.0f;
     registry.transforms.emplace(m_player, std::move(playerTransform));
 
-
-    // MANDY LOOK
     // Ground:
     // sprite for ground, move this elsewhere for optimization. It is here for testing
-    Sprite groundSprite;
-    int groundWidth, groundHeight;
-    groundSprite.textureID = renderSystem.loadTexture("demo_ground.png", groundWidth, groundHeight);
-    groundSprite.width = 1.0f;
-    groundSprite.height = 1.0f;
-    registry.sprites.emplace(m_ground, std::move(groundSprite));
-
-    // Create and initialize a TransformComponent for the ground
-    TransformComponent groundTransform;
-    groundTransform.position = glm::vec3(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() - 50, 0.0);
-    groundTransform.scale = glm::vec3(groundWidth, groundHeight, 1.0);
-    groundTransform.rotation = 0.0f;
-    registry.transforms.emplace(m_ground, std::move(groundTransform));
-
-    // Create and initialize a Motion component for the ground
-    Motion groundMotion;
-    groundMotion.position = glm::vec2(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() - 50);
-    groundMotion.velocity = glm::vec2(0, 0);
-    groundMotion.scale = { groundWidth, groundHeight };
-    registry.motions.emplace(m_ground, std::move(groundMotion));
+    cesspit.room1(renderSystem);
 
 }
 
@@ -242,10 +223,10 @@ void WorldSystem::render() {
     // MANDY LOOK
 
     // Draw the ground entity if it exists and has the required components
-    if (registry.transforms.has(m_ground) && registry.sprites.has(m_ground))
+    if (registry.transforms.has(cesspit.m_ground) && registry.sprites.has(cesspit.m_ground))
     {
-        auto& transform = registry.transforms.get(m_ground);
-        auto& sprite = registry.sprites.get(m_ground);
+        auto& transform = registry.transforms.get(cesspit.m_ground);
+        auto& sprite = registry.sprites.get(cesspit.m_ground);
         renderSystem.drawEntity(sprite, transform);
     }
 }
