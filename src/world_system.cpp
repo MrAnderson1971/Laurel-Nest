@@ -16,6 +16,9 @@ void WorldSystem::init() {
     m_player = Entity();
     //m_ground = Entity();
     cesspit = Cesspit();
+    m_goomba = Entity();
+
+
     // Player
 
     // Add the Player component to the player entity
@@ -42,12 +45,9 @@ void WorldSystem::init() {
     registry.gravity.emplace(m_player, std::move(Gravity()));
 
     // Create and initialize the Animation component
-
-
     Animation<PlayerState> playerAnimations;
     std::vector<Sprite> walkingSprites;
     std::vector<Sprite> jumpingSprites;
-
 
     registry.bounding_box.emplace(m_player);
 
@@ -88,6 +88,29 @@ void WorldSystem::init() {
     playerTransform.scale = glm::vec3(WALKING_BB_WIDTH * 0.2f, WALKING_BB_HEIGHT * 0.2f, 1.0f);
     playerTransform.rotation = 0.0f;
     registry.transforms.emplace(m_player, std::move(playerTransform));
+
+    Sprite goomba;
+    int groundWidth_1, groundHeight_1;
+    goomba.textureID = renderSystem.loadTexture("goomba_walk_idle.png", groundWidth_1, groundHeight_1);
+    goomba.width = 1.0f;
+    goomba.height = 1.0f;
+    registry.sprites.emplace(m_goomba, std::move(goomba));
+
+    TransformComponent goomba_transform;
+    goomba_transform.position = glm::vec3(renderSystem.getWindowWidth() / 2.0f + 10, renderSystem.getWindowHeight() + 100, 0.0);
+    goomba_transform.scale = glm::vec3(WALKING_BB_WIDTH * 0.2f, WALKING_BB_HEIGHT * 0.2f, 1.0f);
+    goomba_transform.rotation = 0.0f;
+    registry.transforms.emplace(m_goomba, std::move(goomba_transform));
+
+    // Create and initialize a Motion component for the goomba
+    Motion goombaMotion;
+    goombaMotion.position = glm::vec2(renderSystem.getWindowWidth() / 2.0f + 10, renderSystem.getWindowHeight() + 100);
+    goombaMotion.velocity = glm::vec2(0, 0);
+    goombaMotion.scale = {WALKING_BB_WIDTH * 0.2f, WALKING_BB_HEIGHT * 0.2f};
+    registry.motions.emplace(m_goomba, std::move(goombaMotion));
+
+    registry.bounding_box.emplace(m_goomba);
+
 
 
 
@@ -284,6 +307,15 @@ void WorldSystem::render() {
         auto& sprite = registry.sprites.get(cesspit.m_ground);
         renderSystem.drawEntity(sprite, transform);
     }
+
+    // Draw the Goomba entity if it exists and has the required components
+    if (registry.transforms.has(m_goomba) && registry.sprites.has(m_goomba))
+    {
+        auto& transform = registry.transforms.get(  m_goomba);
+        auto& sprite = registry.sprites.get(m_goomba);
+        renderSystem.drawEntity(sprite, transform);
+    }
+
 
     if (registry.transforms.has(m_hearts) && registry.heartSprites.has(m_hearts))
     {
