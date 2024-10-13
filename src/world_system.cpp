@@ -2,6 +2,7 @@
 #include "world_system.hpp"
 #include "pause_state.hpp"
 #include "cesspit_map.hpp"
+#include "collision_system.h"
 
 WorldSystem::WorldSystem(RenderSystem& renderSystem) : renderSystem(renderSystem) {
 }
@@ -14,7 +15,6 @@ void WorldSystem::init() {
     // Create a new entity and register it in the ECSRegistry
     m_player = Entity();
     cesspit = Cesspit();
-
 
     // Player
 
@@ -53,6 +53,8 @@ void WorldSystem::init() {
     std::vector<Sprite> attackingSprites;
 
 
+    registry.bounding_box.emplace(m_player);
+
     for (unsigned i = 1; i <= 4; i++) {
         int playerWidth, playerHeight;
         GLuint playerTextureID = renderSystem.loadTexture("walk_" + std::to_string(i) + ".png", playerWidth, playerHeight);
@@ -64,6 +66,11 @@ void WorldSystem::init() {
         if (i == 2) {
             idleSprite.push_back(sprite);
         }
+
+        //Adding Bounding Box to the entities
+        BoundingBox x = registry.bounding_box.get(m_player);
+        x.height = sprite.height;
+        x.width = sprite.width;
     }
 
     for (unsigned i = 1; i <= 4; i++) {
@@ -101,6 +108,10 @@ void WorldSystem::init() {
     playerTransform.rotation = 0.0f;
     registry.transforms.emplace(m_player, std::move(playerTransform));
 
+
+
+
+    // MANDY LOOK
     // Ground:
     // sprite for ground, move this elsewhere for optimization. It is here for testing
     cesspit.room1(renderSystem);
@@ -274,7 +285,50 @@ void WorldSystem::update(float deltaTime) {
             }
         }
     }
+    // Handle collisions
+    handle_collisions();
+    //checkPlayerGroundCollision();
+
+    //Update bounding boxes for all the entities
+    auto & bounding_boxes = registry.bounding_box;
+    for(int i = 0; i < bounding_boxes.size(); i++){
+        Entity e1 = bounding_boxes.entities[i];
+        updateBoundingBox(e1);
+    }
 }
+
+//void updateBoundingBox(Entity e1){
+//    Motion& player_motion = registry.motions.get(e1);
+//    float box_height = player_motion.scale.y * registry.bounding_box.get(e1).height;
+//    float y_value_min = player_motion.position.y - box_height/2;
+//    float y_value_max = player_motion.position.y + box_height/2;
+//    float box_width = player_motion.scale.x * registry.bounding_box.get(e1).width;
+//    float x_value_min = player_motion.position.x - box_width/2;
+//    float x_value_max = player_motion.position.x + box_width/2;
+//    BoundingBox bounding_box = registry.bounding_box.get(e1);
+//
+//    //Top Left
+//    bounding_box.p1.x = x_value_min;
+//    bounding_box.p1.y = y_value_max;
+//
+//    //Bottom Left
+//    bounding_box.p2.x = x_value_min;
+//    bounding_box.p2.y = y_value_min;
+//
+//    //Bottom Right
+//    bounding_box.p3.x = x_value_max;
+//    bounding_box.p3.y = y_value_min;
+//
+//    //Top Right
+//    bounding_box.p4.x = x_value_max;
+//    bounding_box.p4.y = y_value_max;
+//}
+
+
+
+
+
+
 
 void WorldSystem::handle_collisions() {
     auto& collisionsRegistry = registry.collisions;
@@ -352,6 +406,17 @@ void WorldSystem::render() {
             renderSystem.drawEntity(sprite, transform);
         }
     }
+//
+//    // Draw the Goomba entity if it exists and has the required components
+//    if (registry.transforms.has(m_goomba) && registry.sprites.has(m_goomba))
+//    {
+//        auto& transform = registry.transforms.get(  m_goomba);
+//        auto& sprite = registry.sprites.get(m_goomba);
+//        renderSystem.drawEntity(sprite, transform);
+//    }
+
+
+
 
     // Draw health
     if (registry.transforms.has(m_hearts) && registry.sprites.has(m_hearts))
@@ -360,14 +425,15 @@ void WorldSystem::render() {
         auto& sprite = registry.sprites.get(m_hearts);
         renderSystem.drawEntity(sprite, transform);
     }
-    
-    
+
+
     if (registry.transforms.has(m_hearts) && registry.heartSprites.has(m_hearts))
     {
         auto& health = registry.healths.get(m_player);
         update_heartSprite(health.current_health);
     }
-   
+
+
     if (registry.sprites.has(m_goomba) && registry.transforms.has(m_goomba)) {
         auto& s = registry.sprites.get(m_goomba);
         auto& t = registry.transforms.get(m_goomba);
@@ -385,6 +451,7 @@ void WorldSystem::processPlayerInput(int key, int action) {
     if (action == GLFW_PRESS && key == GLFW_KEY_A) {
         if (registry.motions.has(m_player)) {
             registry.motions.get(m_player).velocity[0] = -player_speed;
+
         }
     }
 
@@ -525,3 +592,36 @@ void WorldSystem::update_heartSprite(int num_hearts) {
     Sprite heartSprite = heartSprites[num_hearts];
     renderSystem.drawEntity(heartSprite, transform);
 }
+
+
+
+
+void WorldSystem::updateBoundingBox(Entity e1) {
+    Motion& player_motion = registry.motions.get(e1);
+    float box_height = player_motion.scale.y * registry.bounding_box.get(e1).height;
+    float y_value_min = player_motion.position.y - box_height/2;
+    float y_value_max = player_motion.position.y + box_height/2;
+    float box_width = player_motion.scale.x * registry.bounding_box.get(e1).width;
+    float x_value_min = player_motion.position.x - box_width/2;
+    float x_value_max = player_motion.position.x + box_width/2;
+    BoundingBox bounding_box = registry.bounding_box.get(e1);
+
+    //Top Left
+    bounding_box.p1.x = x_value_min;
+    bounding_box.p1.y = y_value_max;
+
+    //Bottom Left
+    bounding_box.p2.x = x_value_min;
+    bounding_box.p2.y = y_value_min;
+
+    //Bottom Right
+    bounding_box.p3.x = x_value_max;
+    bounding_box.p3.y = y_value_min;
+
+    //Top Right
+    bounding_box.p4.x = x_value_max;
+    bounding_box.p4.y = y_value_max;
+
+}
+
+

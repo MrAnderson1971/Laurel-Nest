@@ -75,6 +75,7 @@ void SplashScreenState::on_mouse_click(int button, int action, const glm::vec2& 
     }
 }
 
+
 void SplashScreenState::render()
 {
     // Clear the screen
