@@ -118,14 +118,14 @@ void WorldSystem::update(float deltaTime) {
         auto& c = registry.combat.get(m_player);
 
         // Step 1: Apply gravity if not grounded
-            auto& g = registry.gravity.get(m_player);
-            m.velocity.y += g.accleration;
-
-            // Handle collisions
-            handle_collisions();
-
+        auto& g = registry.gravity.get(m_player);
+        m.velocity.y += g.accleration;
         // Step 2: Update position based on velocity
         m.position += m.velocity;
+
+        canJump = false;
+        // Handle collisions
+        handle_collisions();
 
         // Step 3: Prevent falling out of the screen
 //        if (m.position[1] > window_height_px) {
@@ -212,7 +212,7 @@ void WorldSystem::handle_collisions() {
                 playerMotion.position.x -= overlap.x * direction.x;
                 playerMotion.velocity.x = 0;
             }
-            else if (direction.y > 0) {
+            else if (direction.y > 0 && playerMotion.velocity.y > 0) {
                 playerMotion.position.y -= overlap.y;
                 playerMotion.velocity.y = 0;
                 canJump = true;  // Allow player to jump again
