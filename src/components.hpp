@@ -209,8 +209,4 @@ struct BoundingBox {
     vec4 p4; // Top Right
 };
 
-struct DirectionofCollision{
-    float x;
-    float y;
-    float angle;
-};
+

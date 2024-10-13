@@ -11,6 +11,6 @@ public:
 
     void updateBoundingBox(Entity e1);
 
-    DirectionofCollision get_Direction_of_Collision(Entity e1, Entity e2);
+    void get_Direction_of_Collision(Entity e1, Entity e2);
 
 };

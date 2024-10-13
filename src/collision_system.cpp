@@ -57,8 +57,8 @@ void Collision_System::updateBoundingBox(Entity e1){
     bounding_box.p4.y = y_value_max;
 }
 
-//DirectionofCollision Collision_System::get_Direction_of_Collision(Entity e1, Entity e2){
-//    if(checkForCollision(e1,e2)){
-//
-//    }
-//}
+void Collision_System::get_Direction_of_Collision(Entity e1, Entity e2){
+    if(checkForCollision(e1,e2)){
+
+    }
+}
