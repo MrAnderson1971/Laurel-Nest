@@ -13,7 +13,6 @@ WorldSystem::~WorldSystem() {
 void WorldSystem::init() {
     // Create a new entity and register it in the ECSRegistry
     m_player = Entity();
-    //m_ground = Entity();
     cesspit = Cesspit();
 
 
@@ -228,13 +227,17 @@ void WorldSystem::render() {
         renderSystem.drawEntity(animation.getCurrentFrame(), transform);
     }
     
+
     // Draw the ground entity if it exists and has the required components
-    if (registry.transforms.has(cesspit.m_ground) && registry.sprites.has(cesspit.m_ground))
-    {
-        auto& transform = registry.transforms.get(cesspit.m_ground);
-        auto& sprite = registry.sprites.get(cesspit.m_ground);
-        renderSystem.drawEntity(sprite, transform);
+    for each (auto & obj in registry.envObject.entities) {
+        if (registry.transforms.has(obj) && registry.sprites.has(obj))
+        {
+            auto& transform = registry.transforms.get(obj);
+            auto& sprite = registry.sprites.get(obj);
+            renderSystem.drawEntity(sprite, transform);
+        }
     }
+    
     
     if (registry.transforms.has(m_hearts) && registry.heartSprites.has(m_hearts))
     {
