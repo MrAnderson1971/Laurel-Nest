@@ -131,6 +131,9 @@ void WorldSystem::init() {
     registry.motions.emplace(m_goomba, std::move(goombaMotion));
 
     registry.bounding_box.emplace(m_goomba);
+    BoundingBox bb = registry.bounding_box.get(m_goomba);
+    bb.height = 1.0f;
+    bb.width = 1.0f;
 
 
 
@@ -251,6 +254,7 @@ void WorldSystem::update(float deltaTime) {
 
     // Handle collisions
     handle_collisions();
+    //checkPlayerGroundCollision();
 
     //Update bounding boxes for all the entities
     auto & bounding_boxes = registry.bounding_box;
@@ -260,32 +264,32 @@ void WorldSystem::update(float deltaTime) {
     }
 }
 
-void updateBoundingBox(Entity e1){
-    Motion& player_motion = registry.motions.get(e1);
-    float box_height = player_motion.scale.y * registry.bounding_box.get(e1).height;
-    float y_value_min = player_motion.position.y - box_height/2;
-    float y_value_max = player_motion.position.y + box_height/2;
-    float box_width = player_motion.scale.x * registry.bounding_box.get(e1).width;
-    float x_value_min = player_motion.position.x - box_width/2;
-    float x_value_max = player_motion.position.x + box_width/2;
-    BoundingBox bounding_box = registry.bounding_box.get(e1);
-
-    //Top Left
-    bounding_box.p1.x = x_value_min;
-    bounding_box.p1.y = y_value_max;
-
-    //Bottom Left
-    bounding_box.p2.x = x_value_min;
-    bounding_box.p2.y = y_value_min;
-
-    //Bottom Right
-    bounding_box.p3.x = x_value_max;
-    bounding_box.p3.y = y_value_min;
-
-    //Top Right
-    bounding_box.p4.x = x_value_max;
-    bounding_box.p4.y = y_value_max;
-}
+//void updateBoundingBox(Entity e1){
+//    Motion& player_motion = registry.motions.get(e1);
+//    float box_height = player_motion.scale.y * registry.bounding_box.get(e1).height;
+//    float y_value_min = player_motion.position.y - box_height/2;
+//    float y_value_max = player_motion.position.y + box_height/2;
+//    float box_width = player_motion.scale.x * registry.bounding_box.get(e1).width;
+//    float x_value_min = player_motion.position.x - box_width/2;
+//    float x_value_max = player_motion.position.x + box_width/2;
+//    BoundingBox bounding_box = registry.bounding_box.get(e1);
+//
+//    //Top Left
+//    bounding_box.p1.x = x_value_min;
+//    bounding_box.p1.y = y_value_max;
+//
+//    //Bottom Left
+//    bounding_box.p2.x = x_value_min;
+//    bounding_box.p2.y = y_value_min;
+//
+//    //Bottom Right
+//    bounding_box.p3.x = x_value_max;
+//    bounding_box.p3.y = y_value_min;
+//
+//    //Top Right
+//    bounding_box.p4.x = x_value_max;
+//    bounding_box.p4.y = y_value_max;
+//}
 
 
 

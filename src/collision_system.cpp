@@ -30,32 +30,32 @@ bool static checkForCollision(Entity e1, Entity e2){
 }
 
 
-void static updateBoundingBox(Entity e1){
-    Motion& player_motion = registry.motions.get(e1);
-    float box_height = 12 * player_motion.scale.y; // 12 is a placeholder, that value should be the height of the player entity when scale = 1
-    float y_value_min = player_motion.position.y - box_height/2;
-    float y_value_max = player_motion.position.y + box_height/2;
-    float box_weight = 12 * player_motion.scale.x; // 12 is a placeholder, that value should be the width of the player entity when scale = 1
-    float x_value_min = player_motion.position.x - box_weight/2;
-    float x_value_max = player_motion.position.x + box_weight/2;
-    BoundingBox bounding_box = registry.bounding_box.get(e1);
-
-    //Top Left
-    bounding_box.p1.x = x_value_min;
-    bounding_box.p1.y = y_value_max;
-
-    //Bottom Left
-    bounding_box.p2.x = x_value_min;
-    bounding_box.p2.y = y_value_min;
-
-    //Bottom Right
-    bounding_box.p3.x = x_value_max;
-    bounding_box.p3.y = y_value_min;
-
-    //Top Right
-    bounding_box.p4.x = x_value_max;
-    bounding_box.p4.y = y_value_max;
-}
-
+//void static updateBoundingBox(Entity e1){
+//    Motion& player_motion = registry.motions.get(e1);
+//    float box_height = 12 * player_motion.scale.y; // 12 is a placeholder, that value should be the height of the player entity when scale = 1
+//    float y_value_min = player_motion.position.y - box_height/2;
+//    float y_value_max = player_motion.position.y + box_height/2;
+//    float box_weight = 12 * player_motion.scale.x; // 12 is a placeholder, that value should be the width of the player entity when scale = 1
+//    float x_value_min = player_motion.position.x - box_weight/2;
+//    float x_value_max = player_motion.position.x + box_weight/2;
+//    BoundingBox bounding_box = registry.bounding_box.get(e1);
+//
+//    //Top Left
+//    bounding_box.p1.x = x_value_min;
+//    bounding_box.p1.y = y_value_max;
+//
+//    //Bottom Left
+//    bounding_box.p2.x = x_value_min;
+//    bounding_box.p2.y = y_value_min;
+//
+//    //Bottom Right
+//    bounding_box.p3.x = x_value_max;
+//    bounding_box.p3.y = y_value_min;
+//
+//    //Top Right
+//    bounding_box.p4.x = x_value_max;
+//    bounding_box.p4.y = y_value_max;
+//}
+//
 
 

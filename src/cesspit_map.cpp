@@ -11,6 +11,9 @@ Cesspit::~Cesspit() {
 
 void Cesspit::room1(RenderSystem& renderSystem) {
     registry.bounding_box.emplace(m_ground);
+    BoundingBox bb = registry.bounding_box.get(m_ground);
+    bb.height = 1.0f;
+    bb.width = 1.0f;
 
     // clear previous environment
     registry.envObject.clear();
@@ -42,7 +45,6 @@ void Cesspit::room1(RenderSystem& renderSystem) {
 
     // platform
     Entity m_platform = Entity();
-    registry.bounding_box.emplace(m_platform);
     Sprite platformSprite;
     int platformWidth, platformHeight;
     platformSprite.textureID = renderSystem.loadTexture("demo_ground.png", platformWidth, platformHeight);
@@ -66,6 +68,11 @@ void Cesspit::room1(RenderSystem& renderSystem) {
     // add platform to environment to render out later
     Environment platformObj;
     registry.envObject.emplace(m_platform, std::move(platformObj));
+
+    registry.bounding_box.emplace(m_platform);
+    bb = registry.bounding_box.get(m_ground);
+    bb.height = 1.0f;
+    bb.width = 1.0f;
 
     // note on bg: don't add motion
 
