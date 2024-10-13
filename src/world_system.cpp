@@ -122,8 +122,8 @@ void WorldSystem::init() {
 
     // Create and initialize the a Transform component for the Heart sprites
     TransformComponent heartSpriteTransform;
-    heartSpriteTransform.position = glm::vec3(200.0f, 120.0f, 0.0);
-    heartSpriteTransform.scale = glm::vec3(300, 180, 1.0);
+    heartSpriteTransform.position = glm::vec3(250.0f, 120.0f, 0.0);
+    heartSpriteTransform.scale = glm::vec3(HEARTS_WIDTH, HEARTS_HEIGHT, 1.0);
     heartSpriteTransform.rotation = 0.0f;
     registry.transforms.emplace(m_hearts, std::move(heartSpriteTransform));
     
@@ -355,8 +355,13 @@ void WorldSystem::processPlayerInput(int key, int action) {
     // Press L to DAMAGE the player
     if (action == GLFW_PRESS && key == GLFW_KEY_L) {
         Health& player_health = registry.healths.get(m_player);
-        player_health.current_health--;
-        update_heartSprite(player_health.current_health);
+        if (player_health.current_health > 0) {
+            player_health.current_health--;
+            update_heartSprite(player_health.current_health);
+        }
+        else {
+            printf("For the purposes of this test, you have zero health and cannot damage yourself anymore");
+        }
     }
 }
 
@@ -385,8 +390,10 @@ void WorldSystem::player_get_damaged(Entity hostile) {
     // Make sure to give the player i-frames so that they dont just die from walking into a goomba
     registry.invinciblityTimers.emplace(m_player);
 
-    player_health.current_health -= hostile_damage.damage_dealt;
-    update_heartSprite(player_health.current_health);
+    if (player_health.current_health > 0) {
+        player_health.current_health -= hostile_damage.damage_dealt;
+        update_heartSprite(player_health.current_health);
+    }
 }
 
 void WorldSystem::player_get_healed() {
@@ -398,6 +405,9 @@ void WorldSystem::player_get_healed() {
         health_flask.num_uses--;
         update_heartSprite(player_health.current_health);
         printf("You have %d uses of your health flask left \n", health_flask.num_uses);
+    }
+    else if (player_health.max_health == player_health.current_health){
+        printf("You have full health \n");
     }
     else {
         printf("You have no more uses of your health flask \n");
