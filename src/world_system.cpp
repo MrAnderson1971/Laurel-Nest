@@ -165,7 +165,9 @@ void WorldSystem::update(float deltaTime) {
             a.setState(currentState);
             lastState = currentState;
         } else {
-            a.next(deltaTime);  // Advance the animation frame
+            if ((a.currentState == JUMPING && !isGrounded) || (a.currentState == WALKING && m.velocity[0] != 0)) {
+                a.next(deltaTime);  // Advance the animation frame
+            }
         }
     }
 
