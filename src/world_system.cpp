@@ -23,7 +23,7 @@ void WorldSystem::init() {
     Motion playerMotion;
     playerMotion.position = glm::vec2(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() / 2.0f);
     playerMotion.velocity = glm::vec2(0, 0);
-    playerMotion.scale = { WALKING_BB_WIDTH, WALKING_BB_HEIGHT };
+    playerMotion.scale = { WALKING_BB_WIDTH * 0.2f, WALKING_BB_HEIGHT * 0.2f };
     registry.motions.emplace(m_player, std::move(playerMotion));
 
     // Create and initialize a Health component for the player
@@ -48,8 +48,8 @@ void WorldSystem::init() {
         GLuint playerTextureID = renderSystem.loadTexture("walk_" + std::to_string(i) + ".png", playerWidth, playerHeight);
         Sprite sprite;
         sprite.textureID = playerTextureID;
-        sprite.width = 0.2f;
-        sprite.height = 0.2f;
+        sprite.width = 1.0f;
+        sprite.height = 1.0f;
         walkingSprites.push_back(sprite);
     }
 
@@ -60,7 +60,7 @@ void WorldSystem::init() {
     // Create and initialize a TransformComponent for the player
     TransformComponent playerTransform;
     playerTransform.position = glm::vec3(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() / 2.0f, 0.0f);
-    playerTransform.scale = glm::vec3(WALKING_BB_WIDTH, WALKING_BB_HEIGHT, 1.0f);
+    playerTransform.scale = glm::vec3(WALKING_BB_WIDTH * 0.2f, WALKING_BB_HEIGHT * 0.2f, 1.0f);
     playerTransform.rotation = 0.0f;
     registry.transforms.emplace(m_player, std::move(playerTransform));
 
@@ -71,22 +71,22 @@ void WorldSystem::init() {
     Sprite groundSprite;
     int groundWidth, groundHeight;
     groundSprite.textureID = renderSystem.loadTexture("demo_ground.png", groundWidth, groundHeight);
-    groundSprite.width = renderSystem.getWindowWidth() - 175.f;
-    groundSprite.height = 350.f;
+    groundSprite.width = 1.0f;
+    groundSprite.height = 1.0f;
     registry.sprites.emplace(m_ground, std::move(groundSprite));
 
     // Create and initialize a TransformComponent for the ground
     TransformComponent groundTransform;
     groundTransform.position = glm::vec3(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() - 50, 0.0);
-    groundTransform.scale = glm::vec3(1.0, 1.0, 1.0);
-    groundTransform.rotation = 1.0f;
+    groundTransform.scale = glm::vec3(groundWidth, groundHeight, 1.0);
+    groundTransform.rotation = 0.0f;
     registry.transforms.emplace(m_ground, std::move(groundTransform));
 
     // Create and initialize a Motion component for the ground
     Motion groundMotion;
     groundMotion.position = glm::vec2(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() - 50);
     groundMotion.velocity = glm::vec2(0, 0);
-    groundMotion.scale = { 1.0, 1.0 };
+    groundMotion.scale = { groundWidth, groundHeight };
     registry.motions.emplace(m_ground, std::move(groundMotion));
 
 }
@@ -106,6 +106,7 @@ void WorldSystem::update(float deltaTime) {
         if (m.position[1] > window_height_px) {
             m.position[1] = window_height_px;
         }
+        m.position[0] = clamp(m.position[0], 0, window_width_px);
 
         // Update the transform component based on the new motion position
         t.position[0] = m.position[0];
@@ -160,6 +161,8 @@ void WorldSystem::handle_collisions() {
         Entity entity_other = collisionsRegistry.components[i].other;
         // Checking for collisions that involve the player
         if (registry.players.has(entity)) {
+            Motion& playerMotion = registry.motions.get(entity);
+            Motion& otherMotion = registry.motions.get(entity_other);
 
             // Handle player getting damaged by enemies
             if (registry.damages.has(entity_other) && !registry.invinciblityTimers.has(entity)) {
@@ -168,10 +171,16 @@ void WorldSystem::handle_collisions() {
 
             // temporary collision (Temporary - only for testing the platform)
             if (registry.collisions.has(entity)) {
-                registry.motions.get(entity).position.y = min(registry.motions.get(entity).position.y,  renderSystem.getWindowHeight() - 350.f);
-                // registry.collisions.remove(entity);
-            }
+                if (playerMotion.velocity[1] > 0) {
+                    float platformTop = otherMotion.position[1] - otherMotion.scale[1] / 2.f;
+                    float playerBottom = playerMotion.position[1] + playerMotion.scale[1] / 2.f;
 
+                    if (playerBottom > platformTop) {
+                        playerMotion.position[1] = platformTop - playerMotion.scale[1] / 2.f;
+                        playerMotion.velocity[1] = 0;
+                    }
+                }
+            }
         }
     }
 

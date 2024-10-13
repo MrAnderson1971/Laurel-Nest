@@ -7,12 +7,6 @@ PauseState::~PauseState() {
     cleanup();
 }
 
-inline float clamp(float value, float minVal, float maxVal) {
-    if (value < minVal) { return minVal; }
-    if (value > maxVal) { return maxVal; }
-    return value;
-}
-
 inline void PauseState::lerp(float start, float end, float t) const {
     t = clamp(t, 0.0f, 1.0f);
     registry.transforms.get(pauseScreenEntity).position[1] = start * (1 - t) + end * t;
