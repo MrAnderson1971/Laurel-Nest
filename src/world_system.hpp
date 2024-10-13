@@ -16,9 +16,9 @@ constexpr float player_jump_velocity = 3.5f; // just high enough to reach the te
 const float WALKING_BB_WIDTH  = 2.f * 399.f;
 const float WALKING_BB_HEIGHT = 2.f * 712.f;
 const float JUMPING_BB_WIDTH  = 2.f * 464.f;
-const float JUMPING_BB_HEIGHT = 2.f * 740.f;
-const float ATTACKING_BB_WIDTH  = 2.f * 1293.f;
-const float ATTACKING_BB_HEIGHT = 2.f * 1135.f;
+const float JUMPING_BB_HEIGHT = 2.f * 714.f;
+const float ATTACKING_BB_WIDTH  = 2.f * 816.f;
+const float ATTACKING_BB_HEIGHT = 2.f * 714.f;
 const float HEARTS_WIDTH = 0.4f * 964.0f;
 const float HEARTS_HEIGHT = 0.4f * 366.0f;
 
