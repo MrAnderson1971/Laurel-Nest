@@ -28,6 +28,9 @@ public:
     ComponentContainer<Gravity> gravity;
     ComponentContainer<Patrol_AI> patrol;
     ComponentContainer<BoundingBox> bounding_box;
+    ComponentContainer<Environment> envObject;
+    ComponentContainer<Combat> combat;
+
 
     // constructor that adds all containers for looping over them
     // IMPORTANT: Don't forget to add any newly added containers!
@@ -50,6 +53,9 @@ public:
         registry_list.push_back(&gravity);
         registry_list.push_back(&patrol);
         registry_list.push_back(&bounding_box);
+        registry_list.push_back(&envObject);
+        registry_list.push_back(&combat);
+
     }
 
     void clear_all_components() {

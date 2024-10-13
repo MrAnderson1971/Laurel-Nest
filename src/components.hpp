@@ -18,6 +18,7 @@ struct Sprite {
 };
 
 enum PlayerState {
+    IDLE,
     WALKING,
     ATTACKING,
     JUMPING,
@@ -128,6 +129,13 @@ struct Damagable
     int health;
 };
 
+// struct for attacking
+struct Combat
+{
+    int max_frames = 240;
+    int frames = max_frames;
+};
+
 // A timer that will be associated to dying salmon
 struct DeathTimer
 {
@@ -230,3 +238,7 @@ struct BoundingBox {
 };
 
 
+
+struct Environment {
+    bool door = false;
+};

@@ -53,6 +53,7 @@ private:
     bool checkPlayerGroundCollision();
     bool canJump = false;
     bool isGrounded = false;
+	bool canAttack = true;
 
     void updateBoundingBox(Entity entity);
 };
