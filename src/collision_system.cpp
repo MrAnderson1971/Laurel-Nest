@@ -30,7 +30,7 @@ bool static checkForCollision(Entity e1, Entity e2){
 }
 
 
-void Collision_System::updateBoundingBox(Entity e1){
+void static updateBoundingBox(Entity e1){
     Motion& player_motion = registry.motions.get(e1);
     float box_height = 12 * player_motion.scale.y; // 12 is a placeholder, that value should be the height of the player entity when scale = 1
     float y_value_min = player_motion.position.y - box_height/2;

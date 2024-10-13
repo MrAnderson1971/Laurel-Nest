@@ -1,6 +1,7 @@
 #include <iostream>
 #include "world_system.hpp"
 #include "pause_state.hpp"
+#include "collision_system.h"
 
 WorldSystem::WorldSystem(RenderSystem& renderSystem) : renderSystem(renderSystem) {
 }
@@ -204,6 +205,13 @@ void WorldSystem::update(float deltaTime) {
 
     // Handle collisions
     handle_collisions();
+
+    //Update bounding boxes for all the entities
+    auto & bounding_boxes = registry.bounding_box;
+    for(int i = 0; i < bounding_boxes.size(); i++){
+        Entity e1 = bounding_boxes.entities[i];
+        Collision_System::updateBoundingBox(e1);
+    }
 }
 
 void WorldSystem::handle_collisions() {
@@ -301,6 +309,7 @@ void WorldSystem::processPlayerInput(int key, int action) {
     if (action == GLFW_PRESS && key == GLFW_KEY_A) {
         if (registry.motions.has(m_player)) {
             registry.motions.get(m_player).velocity[0] = -player_speed;
+
         }
     }
 
