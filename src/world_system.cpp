@@ -259,6 +259,16 @@ void WorldSystem::render() {
     glClearColor(0.2f, 0.2f, 0.8f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
+    // Draw the ground entity if it exists and has the required components
+    for each (auto & obj in registry.envObject.entities) {
+        if (registry.transforms.has(obj) && registry.sprites.has(obj))
+        {
+            auto& transform = registry.transforms.get(obj);
+            auto& sprite = registry.sprites.get(obj);
+            renderSystem.drawEntity(sprite, transform);
+        }
+    }
+
     // Draw the player entity if it exists and has the required components
     if (registry.playerAnimations.has(m_player) &&
         registry.transforms.has(m_player))
@@ -269,15 +279,7 @@ void WorldSystem::render() {
     }
     
 
-    // Draw the ground entity if it exists and has the required components
-    for each (auto & obj in registry.envObject.entities) {
-        if (registry.transforms.has(obj) && registry.sprites.has(obj))
-        {
-            auto& transform = registry.transforms.get(obj);
-            auto& sprite = registry.sprites.get(obj);
-            renderSystem.drawEntity(sprite, transform);
-        }
-    }
+    
 
     // Draw health
     if (registry.transforms.has(m_hearts) && registry.sprites.has(m_hearts))
