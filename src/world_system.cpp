@@ -140,6 +140,7 @@ void WorldSystem::init() {
     registry.motions.emplace(m_goomba, std::move(goombaMotion));
     registry.gravity.emplace(m_goomba, std::move(Gravity()));
     registry.patrol_ais.emplace(m_goomba, std::move(Patrol_AI()));
+    registry.damages.emplace(m_goomba, std::move(Damage{1}));
 }
 
 void WorldSystem::update(float deltaTime) {
@@ -244,12 +245,17 @@ void WorldSystem::update(float deltaTime) {
     // Handle collisions
     handle_collisions();
 
+    std::vector<Entity> to_remove;
     for (auto& e : registry.invinciblityTimers.entities) {
         auto& i = registry.invinciblityTimers.get(e);
-        i.counter_ms -= deltaTime;
-        if (i.counter_ms < 0) {
-            registry.invinciblityTimers.remove(e);
+        i.counter_ms -= deltaTime * 1000;
+        if (i.counter_ms <= 0) {
+            to_remove.push_back(e);
         }
+    }
+
+    for (auto& e : to_remove) {
+        registry.invinciblityTimers.remove(e);
     }
 
     for (auto& e : registry.patrol_ais.entities) {
