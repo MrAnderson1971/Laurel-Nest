@@ -16,6 +16,7 @@ void WorldSystem::init() {
     //m_ground = Entity();
     cesspit = Cesspit();
 
+
     // Player
 
     // Add the Player component to the player entity
@@ -42,6 +43,8 @@ void WorldSystem::init() {
     registry.gravity.emplace(m_player, std::move(Gravity()));
 
     // Create and initialize the Animation component
+
+
     Animation<PlayerState> playerAnimations;
     std::vector<Sprite> walkingSprites;
     std::vector<Sprite> jumpingSprites;
@@ -70,6 +73,7 @@ void WorldSystem::init() {
     playerAnimations.setState(PlayerState::WALKING);
     playerAnimations.addState(PlayerState::JUMPING, jumpingSprites);
     registry.playerAnimations.emplace(m_player, std::move(playerAnimations));
+
 
     // Create and initialize a TransformComponent for the player
     TransformComponent playerTransform;
@@ -184,6 +188,10 @@ void WorldSystem::handle_collisions() {
                     }
                 }
             }
+
+            if (registry.damages.has(entity_other) && !registry.invinciblityTimers.has(entity)) {
+                player_get_damaged(entity_other);
+            }
         }
     }
 
@@ -219,9 +227,7 @@ void WorldSystem::render() {
         auto& transform = registry.transforms.get(m_player);
         renderSystem.drawEntity(animation.getCurrentFrame(), transform);
     }
-
-    // MANDY LOOK
-
+    
     // Draw the ground entity if it exists and has the required components
     if (registry.transforms.has(cesspit.m_ground) && registry.sprites.has(cesspit.m_ground))
     {
@@ -229,6 +235,13 @@ void WorldSystem::render() {
         auto& sprite = registry.sprites.get(cesspit.m_ground);
         renderSystem.drawEntity(sprite, transform);
     }
+    
+    if (registry.transforms.has(m_hearts) && registry.heartSprites.has(m_hearts))
+    {
+        auto& health = registry.healths.get(m_player);
+        update_heartSprite(health.current_health);
+    }
+   
 }
 
 void WorldSystem::processPlayerInput(int key, int action) {
@@ -293,6 +306,19 @@ void WorldSystem::processPlayerInput(int key, int action) {
     if (action == GLFW_PRESS && key == GLFW_KEY_H) {
         player_get_healed();
     }
+
+    // THIS IS JUST A TEST TO SEE IF THE HEALTHSPRITES UPDATE AND THEY DO
+    // Press L to DAMAGE the player
+    if (action == GLFW_PRESS && key == GLFW_KEY_L) {
+        Health& player_health = registry.healths.get(m_player);
+        if (player_health.current_health > 0) {
+            player_health.current_health--;
+            update_heartSprite(player_health.current_health);
+        }
+        else {
+            printf("For the purposes of this test, you have zero health and cannot damage yourself anymore");
+        }
+    }
 }
 
 
@@ -320,7 +346,10 @@ void WorldSystem::player_get_damaged(Entity hostile) {
     // Make sure to give the player i-frames so that they dont just die from walking into a goomba
     registry.invinciblityTimers.emplace(m_player);
 
-    player_health.current_health -= hostile_damage.damage_dealt;
+    if (player_health.current_health > 0) {
+        player_health.current_health -= hostile_damage.damage_dealt;
+        update_heartSprite(player_health.current_health);
+    }
 }
 
 void WorldSystem::player_get_healed() {
@@ -330,10 +359,21 @@ void WorldSystem::player_get_healed() {
     if (health_flask.num_uses > 0 && player_health.max_health > player_health.current_health) {
         player_health.current_health++;
         health_flask.num_uses--;
+        update_heartSprite(player_health.current_health);
         printf("You have %d uses of your health flask left \n", health_flask.num_uses);
+    }
+    else if (player_health.max_health == player_health.current_health){
+        printf("You have full health \n");
     }
     else {
         printf("You have no more uses of your health flask \n");
     }
 }
 
+void WorldSystem::update_heartSprite(int num_hearts) {
+    auto& transform = registry.transforms.get(m_hearts);
+    auto& heartSprites = registry.heartSprites.get(m_hearts);
+    num_hearts = clamp(num_hearts, 0, static_cast<int>(heartSprites.size()));
+    Sprite heartSprite = heartSprites[num_hearts];
+    renderSystem.drawEntity(heartSprite, transform);
+}

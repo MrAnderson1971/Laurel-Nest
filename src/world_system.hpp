@@ -19,6 +19,8 @@ const float JUMPING_BB_WIDTH  = 2.f * 464.f;
 const float JUMPING_BB_HEIGHT = 2.f * 740.f;
 const float ATTACKING_BB_WIDTH  = 2.f * 1293.f;
 const float ATTACKING_BB_HEIGHT = 2.f * 1135.f;
+const float HEARTS_WIDTH = 0.4f * 964.0f;
+const float HEARTS_HEIGHT = 0.4f * 366.0f;
 
 class WorldSystem : public GameState {
 public:
@@ -45,6 +47,7 @@ private:
 	std::unordered_map<int, std::function<void()>> keyReleaseActions;
 	void player_get_damaged(Entity hostile);
 	void player_get_healed();
+	void update_heartSprite(int num_hearts);
     bool checkPlayerGroundCollision();
     bool canJump = false;
     bool isGrounded = false;
