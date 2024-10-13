@@ -10,16 +10,63 @@ Cesspit::Cesspit() {
 Cesspit::~Cesspit() {
 }
 
+void Cesspit::background(RenderSystem& renderSystem) {
+    // background
+    Sprite bgSprite;
+    int bgWidth, bgHeight;
+    bgSprite.textureID = renderSystem.loadTexture("cesspit_bg.png", bgWidth, bgHeight);
+    bgSprite.width = 1.0f;
+    bgSprite.height = 1.0f;
+    registry.sprites.emplace(m_bg, std::move(bgSprite));
+
+    // Create and initialize a TransformComponent for the ground
+    TransformComponent bgTransform;
+    bgTransform.position = glm::vec3(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() / 2.0f, 0.0);
+    bgTransform.scale = glm::vec3(bgWidth, bgHeight, 1.0);
+    bgTransform.rotation = 0.0f;
+    registry.transforms.emplace(m_bg, std::move(bgTransform));
+
+    Environment bgObj;
+    registry.envObject.emplace(m_bg, std::move(bgObj));
+}
 
 void Cesspit::room1(RenderSystem& renderSystem) {
 
     // clear previous environment
     registry.envObject.clear();
+    background(renderSystem);
 
+    // ceiling
+    Sprite ceilingSprite;
+    int ceilingWidth, ceilingHeight;
+    ceilingSprite.textureID = renderSystem.loadTexture("demo_ground.png", ceilingWidth, ceilingHeight);
+    ceilingSprite.width = 2.0f;
+    ceilingSprite.height = 1.0f;
+    registry.sprites.emplace(m_ceiling, std::move(ceilingSprite));
+
+    // Create and initialize a TransformComponent for the ground
+    TransformComponent ceilingTransform;
+    ceilingTransform.position = glm::vec3(renderSystem.getWindowWidth() / 2.0f, 100.0, 0.0);
+    ceilingTransform.scale = glm::vec3(ceilingWidth, ceilingHeight, 1.0);
+    ceilingTransform.rotation = 0.0f;
+    registry.transforms.emplace(m_ceiling, std::move(ceilingTransform));
+
+    // Create and initialize a Motion component for the ground
+    Motion ceilingMotion;
+    ceilingMotion.position = glm::vec2(renderSystem.getWindowWidth() / 2.0f, 100.0);
+    ceilingMotion.velocity = glm::vec2(0, 0);
+    ceilingMotion.scale = { ceilingWidth, ceilingHeight };
+    registry.motions.emplace(m_ceiling, std::move(ceilingMotion));
+
+    // add ground to environment to render out later
+    Environment ceilingObj;
+    registry.envObject.emplace(m_ceiling, std::move(ceilingObj));
+
+    // ground
     Sprite groundSprite;
     int groundWidth, groundHeight;
     groundSprite.textureID = renderSystem.loadTexture("demo_ground.png", groundWidth, groundHeight);
-    groundSprite.width = 1.0f;
+    groundSprite.width = 2.0f;
     groundSprite.height = 1.0f;
     registry.sprites.emplace(m_ground, std::move(groundSprite));
 
@@ -72,6 +119,7 @@ void Cesspit::room1(RenderSystem& renderSystem) {
     Environment platformObj;
     registry.envObject.emplace(m_platform, std::move(platformObj));
 
+
     registry.bounding_box.emplace(m_platform);
     bb = registry.bounding_box.get(m_ground);
     bb.height = platformSprite.height;
@@ -108,6 +156,7 @@ void Cesspit::room1(RenderSystem& renderSystem) {
     registry.envObject.emplace(m_goomba, std::move(goombaObj));
     registry.grounds.emplace(m_ground, std::move(Ground()));
     registry.grounds.emplace(m_platform, std::move(Ground()));
+
 }
 
 
