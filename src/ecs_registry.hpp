@@ -26,7 +26,9 @@ public:
     ComponentContainer<ScreenState> screenStates;
     ComponentContainer<Animation<PlayerState>> playerAnimations;
     ComponentContainer<Gravity> gravity;
+    ComponentContainer<Environment> envObject;
     ComponentContainer<Combat> combat;
+
 
     // constructor that adds all containers for looping over them
     // IMPORTANT: Don't forget to add any newly added containers!
@@ -47,7 +49,9 @@ public:
         registry_list.push_back(&screenStates);
         registry_list.push_back(&playerAnimations);
         registry_list.push_back(&gravity);
+        registry_list.push_back(&envObject);
         registry_list.push_back(&combat);
+
     }
 
     void clear_all_components() {
