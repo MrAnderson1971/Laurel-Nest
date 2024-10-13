@@ -129,7 +129,7 @@ void WorldSystem::init() {
     Sprite goombaSprite;
     int goombaWidth, goombaHeight;
     goombaSprite.textureID = renderSystem.loadTexture("goomba_walk_idle.PNG", goombaWidth, goombaHeight);
-    goombaWidth /= 5; goombaHeight /= 5;
+    goombaWidth /= 2; goombaHeight /= 2;
     registry.sprites.emplace(m_goomba, goombaSprite);
 
     TransformComponent goombaTransform;

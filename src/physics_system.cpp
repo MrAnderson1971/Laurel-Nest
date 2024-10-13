@@ -19,7 +19,7 @@ bool collides(const Motion& motion1, const Motion& motion2, vec2& direction, vec
     vec2 half_size1 = box1 / 2.f;
     vec2 half_size2 = box2 / 2.f;
 
-    vec2 dp = motion2.position - motion1.position;
+    vec2 dp = motion1.position - motion2.position;
 
     float overlapX = half_size1.x + half_size2.x - abs(dp.x);
     float overlapY = half_size1.y + half_size2.y - abs(dp.y);
@@ -90,7 +90,7 @@ void PhysicsSystem::step(float elapsed_ms)
             {
                 // Create a collision event by inserting into the collisions container
                 // This potentially inserts multiple collisions for the same entity
-                registry.collisions.emplace_with_duplicates(entity_i, entity_j, direction, overlap);
+                registry.collisions.emplace_with_duplicates(entity_i, entity_j, -direction, overlap);
                 registry.collisions.emplace_with_duplicates(entity_j, entity_i, direction, overlap);
             }
         }
