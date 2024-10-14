@@ -17,68 +17,6 @@ RenderSystem::~RenderSystem()
     cleanup();
 }
 
-//bool RenderSystem::initOpenGL(int width, int height, const std::string& title)
-//{
-//    windowWidth = width;
-//    windowHeight = height;
-//
-//    if (!glfwInit())
-//    {
-//        std::cerr << "Error: GLFW initialization failed" << std::endl;
-//        return false;
-//    }
-//
-//    GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
-//    const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
-//
-//    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-//    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-//    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-//
-//    // pass in primaryMonitor in 4th arg for fullscreen
-//    window = glfwCreateWindow(mode->width, mode->height, title.c_str(), nullptr, nullptr);
-//    if (!window)
-//    {
-//        std::cerr << "Error: Window creation failed" << std::endl;
-//        glfwTerminate();
-//        return false;
-//    }
-//    glfwMakeContextCurrent(window);
-//
-//    if (gl3w_init())
-//    {
-//        std::cerr << "Error: gl3w initialization failed" << std::endl;
-//        glfwTerminate();
-//        return false;
-//    }
-//
-//    glViewport(0, 0, mode->width, mode->height);
-//
-//    glEnable(GL_BLEND);
-//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-//
-//    projection = glm::ortho(0.0f, static_cast<float>(mode->width), static_cast<float>(mode->height), 0.0f);
-//
-//    int frame_buffer_width_px, frame_buffer_height_px;
-//    glfwGetFramebufferSize(window, &frame_buffer_width_px, &frame_buffer_height_px);
-//    // Note, this will be 2x the resolution given to glfwCreateWindow on retina displays
-//    if (frame_buffer_width_px != windowWidth || frame_buffer_height_px != windowHeight)
-//    {
-//        glViewport(0, 0, frame_buffer_width_px, frame_buffer_height_px);
-//        projection = glm::ortho(0.0f, static_cast<float>(frame_buffer_width_px), static_cast<float>(frame_buffer_height_px), 0.0f);
-//    }
-//
-//    loadShaders();
-//
-//    setupVertices();
-//
-//    glfwSetKeyCallback(window, keyCallbackRedirect);
-//    glfwSetCursorPosCallback(window, mouseMoveCallbackRedirect);
-//    glfwSetWindowUserPointer(window, this);
-//
-//    return true;
-//}
-
 bool RenderSystem::initOpenGL(int width, int height, const std::string& title)
 {
     windowWidth = width;
@@ -92,6 +30,11 @@ bool RenderSystem::initOpenGL(int width, int height, const std::string& title)
 
     GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
     const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
+
+    if (windowWidth > mode->width)
+        windowWidth = mode->width;
+    if (windowHeight > mode->height)
+        windowHeight = mode->height;
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -116,14 +59,32 @@ bool RenderSystem::initOpenGL(int width, int height, const std::string& title)
     }
 
     // Get the actual framebuffer size (accounts for Retina scaling)
+//    int frame_buffer_width_px, frame_buffer_height_px;
+//    glfwGetFramebufferSize(window, &frame_buffer_width_px, &frame_buffer_height_px);
+//
+//    // Set the viewport to match the actual framebuffer size
+//    glViewport(0, 0, frame_buffer_width_px, frame_buffer_height_px);
+//
+//    // Adjust the projection matrix to use the framebuffer size (not window size)
+//    projection = glm::ortho(0.0f, static_cast<float>(frame_buffer_width_px), static_cast<float>(frame_buffer_height_px), 0.0f);
+
+    int window_width_px, window_height_px;
     int frame_buffer_width_px, frame_buffer_height_px;
+    glfwGetWindowSize(window, &window_width_px, &window_height_px);
     glfwGetFramebufferSize(window, &frame_buffer_width_px, &frame_buffer_height_px);
 
-    // Set the viewport to match the actual framebuffer size
+    // Calculate the scale factor for high-DPI displays (framebuffer is larger on Retina screens)
+    float x_scale = static_cast<float>(frame_buffer_width_px) / static_cast<float>(window_width_px);
+    float y_scale = static_cast<float>(frame_buffer_height_px) / static_cast<float>(window_height_px);
+
+// Set the viewport based on framebuffer size
     glViewport(0, 0, frame_buffer_width_px, frame_buffer_height_px);
 
-    // Adjust the projection matrix to use the framebuffer size (not window size)
-    projection = glm::ortho(0.0f, static_cast<float>(frame_buffer_width_px), static_cast<float>(frame_buffer_height_px), 0.0f);
+// Adjust the projection matrix to account for high-DPI scaling
+    projection = glm::ortho(
+            0.0f, static_cast<float>(window_width_px),              // Left and right
+            static_cast<float>(window_height_px), 0.0f, 0.0f, 1.0f  // Bottom and top (inverted for OpenGL)
+    );
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

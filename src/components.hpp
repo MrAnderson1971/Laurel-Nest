@@ -69,6 +69,11 @@ struct Animation {
         }
     }
 
+    bool isAnimationComplete() const {
+        // Check if the current frame is the last one
+        return currentFrame >= frames.at(currentState).size() - 1;
+    }
+
     PlayerState getState() const {
         return currentState;
     }
@@ -220,7 +225,7 @@ struct RenderRequest {
 };
 
 struct Gravity {
-    float accleration = 0.0098f;
+    float accleration = 0.015f;
 };
 
 struct Environment {
