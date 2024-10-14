@@ -63,7 +63,7 @@ void WorldSystem::init() {
         sprite.width = 1.0f;
         sprite.height = 1.0f;
         walkingSprites.push_back(sprite);
-        if (i == 2) {
+        if (i == 3) {
             idleSprite.push_back(sprite);
         }
 
@@ -107,9 +107,6 @@ void WorldSystem::init() {
     playerTransform.scale = glm::vec3(WALKING_BB_WIDTH * 0.2f, WALKING_BB_HEIGHT * 0.2f, 1.0f);
     playerTransform.rotation = 0.0f;
     registry.transforms.emplace(m_player, std::move(playerTransform));
-
-
-
 
     // MANDY LOOK
     // Ground:
@@ -182,6 +179,16 @@ void WorldSystem::update(float deltaTime) {
                 m.position[1] = window_height_px;
                 m.velocity.y = 0;
 
+//        if (c.frames > 0 && !canAttack) {
+//            currentState = PlayerState::ATTACKING;
+//        }
+//        else if (m.velocity[0] != 0) {
+//            currentState = PlayerState::WALKING;
+//        }
+//        else {
+//            currentState = PlayerState::IDLE;
+//        }
+
                 // Only the player can be grounded and jump
                 if (entity == m_player) {
                     isGrounded = true;
@@ -215,19 +222,31 @@ void WorldSystem::update(float deltaTime) {
                 }
 
                 // Step 6: Handle player state (JUMPING, WALKING, ATTACKING)
+//                PlayerState currentState = a.getState();
+//                if (c.frames > 0 && !canAttack) {
+//                    currentState = PlayerState::ATTACKING;
+//                }
+//                else if (m.velocity[0] != 0) {
+//                    currentState = PlayerState::WALKING;
+//                }
+//                else {
+//                    currentState = PlayerState::IDLE;
+//                }
                 PlayerState currentState = a.getState();
-                if (c.frames > 0 && !canAttack) {
+                if (isGrounded && a.getState() == PlayerState::JUMPING) {
+                    currentState = PlayerState::IDLE;  // Switch to IDLE on landing
+                } else if (c.frames > 0 && !canAttack) {
                     currentState = PlayerState::ATTACKING;
-                }
-                else if (m.velocity[0] != 0) {
+                } else if (m.velocity[0] != 0) {
                     currentState = PlayerState::WALKING;
-                }
-                else {
+                } else if (!isGrounded) {
+                    currentState = PlayerState::JUMPING;
+                } else {
                     currentState = PlayerState::IDLE;
                 }
 
                 // Step 7: Update bounding box size based on state
-                if (currentState == PlayerState::WALKING) {
+                if (currentState == PlayerState::WALKING || currentState == PlayerState::IDLE) {
                     m.scale = glm::vec2(WALKING_BB_WIDTH * 0.2f, WALKING_BB_HEIGHT * 0.2f);
                 }
                 else if (currentState == PlayerState::JUMPING) {
@@ -249,6 +268,14 @@ void WorldSystem::update(float deltaTime) {
                         (a.currentState == ATTACKING)) {
                         a.next(deltaTime);  // Advance the animation frame
                     }
+                }
+
+                if (currentState == PlayerState::ATTACKING && a.isAnimationComplete()) {
+                    // Reset attack state and set the player back to IDLE or WALKING
+                    c.frames = 0;  // Reset attack frames
+                    canAttack = true;  // Allow another attack
+                    currentState = isGrounded ? PlayerState::IDLE : PlayerState::WALKING;  // Switch back to IDLE or WALKING
+                    a.setState(currentState);  // Update animation state
                 }
             }
         }
@@ -286,7 +313,7 @@ void WorldSystem::update(float deltaTime) {
         }
     }
     // Handle collisions
-    handle_collisions();
+    // handle_collisions();
     //checkPlayerGroundCollision();
 
     //Update bounding boxes for all the entities
@@ -323,12 +350,6 @@ void WorldSystem::update(float deltaTime) {
 //    bounding_box.p4.x = x_value_max;
 //    bounding_box.p4.y = y_value_max;
 //}
-
-
-
-
-
-
 
 void WorldSystem::handle_collisions() {
     auto& collisionsRegistry = registry.collisions;
@@ -498,6 +519,13 @@ void WorldSystem::processPlayerInput(int key, int action) {
                     playerAnimation.setState(PlayerState::JUMPING);
                 }
             }
+        }
+    }
+
+    if (action == GLFW_PRESS && key == GLFW_KEY_S) {
+        if (registry.motions.has(m_player)) {
+            auto& playerMotion = registry.motions.get(m_player);
+            playerMotion.velocity[1] += player_speed * 2.0f; // Increase downward velocity
         }
     }
 

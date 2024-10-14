@@ -17,12 +17,9 @@ void PauseState::init() {
     GLuint pauseTextureID = renderSystem.loadTexture("pause_screen.png", pauseWidth, pauseHeight);
 
     TransformComponent pauseTransform;
-#ifdef _WIN32
+
     pauseTransform.position = glm::vec3(renderSystem.getWindowWidth() / 2.0f, 0.0f, 0.0f);
-#else
-    pauseTransform.position = glm::vec3(renderSystem.getWindowWidth() / 2.0f + pauseWidth / 4.0f,
-        0.0f, 0.0f);
-#endif
+
     pauseTransform.scale = glm::vec3(pauseWidth, pauseHeight, 1.0f);
     pauseTransform.rotation = 0.0f;
 
