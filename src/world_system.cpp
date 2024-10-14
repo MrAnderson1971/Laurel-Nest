@@ -303,6 +303,7 @@ void WorldSystem::update(float deltaTime) {
                     canAttack = true;  // Allow another attack
                     currentState = isGrounded ? PlayerState::IDLE : PlayerState::WALKING;  // Switch back to IDLE or WALKING
                     a.setState(currentState);  // Update animation state
+                    registry.players.get(m_player).attacking = false;
                 }
             }
         }
@@ -419,7 +420,11 @@ void WorldSystem::handle_collisions() {
             }
         }
         if (registry.players.has(entity) && registry.damages.has(entity_other) && !registry.invinciblityTimers.has(entity)) {
-            player_get_damaged(entity_other);
+            if(registry.players.get(m_player).attacking){
+                hostile_get_damaged(m_goomba);
+            }else{
+                player_get_damaged(entity_other);
+            }
         }
 
         if (registry.weapons.has(entity) && registry.healths.has(entity_other)) {
@@ -576,18 +581,19 @@ void WorldSystem::processPlayerInput(int key, int action) {
         player_get_healed();
     }
 
-    // THIS IS JUST A TEST TO SEE IF THE HEALTHSPRITES UPDATE AND THEY DO
-    // Press L to DAMAGE the player
-    if (action == GLFW_PRESS && key == GLFW_KEY_L) {
-        Health& player_health = registry.healths.get(m_player);
-        if (player_health.current_health > 0) {
-            player_health.current_health--;
-            update_heartSprite(player_health.current_health);
-        }
-        else {
-            printf("For the purposes of this test, you have zero health and cannot damage yourself anymore");
-        }
-    }
+//    // THIS IS JUST A TEST TO SEE IF THE HEALTHSPRITES UPDATE AND THEY DO
+//    // Press L to DAMAGE the player
+//    if (action == GLFW_PRESS && key == GLFW_KEY_L) {
+//        Health& player_health = registry.healths.get(m_player);
+//        if (player_health.current_health > 0) {
+//            player_health.current_health--;
+//            update_heartSprite(player_health.current_health);
+//        }
+//        else {
+//            printf("For the purposes of this test, you have zero health and cannot damage yourself anymore");
+//        }
+//    }
+
 }
 
 
@@ -616,7 +622,7 @@ void WorldSystem::on_mouse_click(int button, int action, const glm::vec2& positi
                     auto& playerAnimation = registry.playerAnimations.get(m_player);
                     playerAnimation.setState(PlayerState::ATTACKING);
                 }
-                hostile_get_damaged(m_goomba);
+                registry.players.get(m_player).attacking = true;
             }
     
         }
