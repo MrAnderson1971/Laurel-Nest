@@ -107,6 +107,7 @@ bool RenderSystem::initOpenGL(int width, int height, const std::string& title)
     }
 
     glfwMakeContextCurrent(window);
+    //glfwSwapInterval(0);
 
     if (gl3w_init())
     {

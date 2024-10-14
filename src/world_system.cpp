@@ -14,6 +14,7 @@ WorldSystem::~WorldSystem() {
 void WorldSystem::init() {
     // Create a new entity and register it in the ECSRegistry
     m_player = Entity();
+    m_sword = Entity();
     cesspit = Cesspit();
 
     // Player
@@ -27,6 +28,14 @@ void WorldSystem::init() {
     playerMotion.velocity = glm::vec2(0, 0);
     playerMotion.scale = { WALKING_BB_WIDTH * 0.2f, WALKING_BB_HEIGHT * 0.2f };
     registry.motions.emplace(m_player, std::move(playerMotion));
+
+    // Add the Weapon component to the sword entity
+    registry.weapons.emplace(m_sword, Weapon());
+
+    // Create and initialize a damage component for the sword
+    Damage swordDamage;
+    swordDamage.damage_dealt = 1;
+    registry.damages.emplace(m_sword, std::move(swordDamage));
 
     // Create and initialize a Health component for the player
     Health playerHealth;
@@ -109,8 +118,6 @@ void WorldSystem::init() {
     registry.transforms.emplace(m_player, std::move(playerTransform));
 
 
-
-
     // MANDY LOOK
     // Ground:
     // sprite for ground, move this elsewhere for optimization. It is here for testing
@@ -152,6 +159,7 @@ void WorldSystem::init() {
     registry.gravity.emplace(m_goomba, std::move(Gravity()));
     registry.patrol_ais.emplace(m_goomba, std::move(Patrol_AI()));
     registry.damages.emplace(m_goomba, std::move(Damage{1}));
+    registry.healths.emplace(m_goomba, std::move(Health{1,1}));
 }
 
 void WorldSystem::update(float deltaTime) {
@@ -362,6 +370,10 @@ void WorldSystem::handle_collisions() {
         if (registry.players.has(entity) && registry.damages.has(entity_other) && !registry.invinciblityTimers.has(entity)) {
             player_get_damaged(entity_other);
         }
+
+        if (registry.weapons.has(entity) && registry.healths.has(entity_other)) {
+            hostile_get_damaged(entity_other);
+        }
     }
 
     registry.collisions.clear();
@@ -546,7 +558,9 @@ void WorldSystem::on_mouse_click(int button, int action, const glm::vec2& positi
                     auto& playerAnimation = registry.playerAnimations.get(m_player);
                     playerAnimation.setState(PlayerState::ATTACKING);
                 }
+                hostile_get_damaged(m_goomba);
             }
+    
         }
     }
 }
@@ -565,6 +579,9 @@ void WorldSystem::player_get_damaged(Entity hostile) {
     if (player_health.current_health > 0) {
         player_health.current_health -= hostile_damage.damage_dealt;
         update_heartSprite(player_health.current_health);
+        if (player_health.current_health == 0) {
+
+        }
     }
 }
 
@@ -584,6 +601,34 @@ void WorldSystem::player_get_healed() {
     else {
         printf("You have no more uses of your health flask \n");
     }
+}
+
+void WorldSystem::hostile_get_damaged(Entity hostile) {
+    if (registry.healths.has(hostile)) {
+        Health& hostile_health = registry.healths.get(hostile);
+        Damage sword_damage = registry.damages.get(m_sword);
+        if (hostile_health.current_health > 0) {
+            hostile_health.current_health--;
+            if (hostile_health.current_health == 0) {
+                registry.sprites.remove(hostile);
+                registry.bounding_box.remove(hostile);
+                Motion& hostile_motion = registry.motions.get(hostile);
+                hostile_motion.velocity = {0,0};
+                hostile_motion.position = hostile_motion.position + vec2(0, 50);
+                registry.gravity.remove(hostile);
+                registry.patrol_ais.remove(hostile);               
+                registry.damages.remove(hostile);
+                registry.healths.remove(hostile);
+                Sprite goombaSprite;
+                int goombaWidth, goombaHeight;
+                goombaSprite.textureID = renderSystem.loadTexture("goomba_dead.PNG", goombaWidth, goombaHeight);
+                goombaWidth /= 2; goombaHeight /= 2;
+                registry.sprites.emplace(hostile, goombaSprite);
+
+            }
+        }
+    }
+ 
 }
 
 void WorldSystem::update_heartSprite(int num_hearts) {

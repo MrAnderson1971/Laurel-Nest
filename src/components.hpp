@@ -118,12 +118,17 @@ struct Damage
 // A timer that will be associated to when the player can get damaged again 
 struct InvincibilityTimer
 {
-    float counter_ms = 1000;
+    float counter_ms = 2000;
 };
 
 struct HealthFlask
 {
     int num_uses = 3;
+};
+
+struct Weapon
+{
+    
 };
 
 
@@ -241,6 +246,7 @@ struct Patrol_AI {
     float patrolSpeed = 0; //When spawing the Goomba
     float patrolMinX = 0;
     float patrolMaxX = 0;
+    bool movingRight = true;
 };
 
 struct BoundingBox {
@@ -262,6 +268,6 @@ struct Ground {
 
 };
 
-struct Patrol_AI {
-    bool movingRight = true;
-};
+//struct Patrol_AI {
+//    bool movingRight = true;
+//};

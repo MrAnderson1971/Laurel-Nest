@@ -44,12 +44,14 @@ private:
   //Entity m_ground;
 	Entity m_hearts;
 	Entity m_goomba;
+	Entity m_sword;
 	Cesspit cesspit;
-    Entity m_hearts;
+    //Entity m_hearts;
 	std::unordered_map<int, std::function<void()>> keyPressActions;
 	std::unordered_map<int, std::function<void()>> keyReleaseActions;
 	void player_get_damaged(Entity hostile);
 	void player_get_healed();
+	void hostile_get_damaged(Entity hostile);
 	void update_heartSprite(int num_hearts);
     bool checkPlayerGroundCollision();
     bool canJump = false;
