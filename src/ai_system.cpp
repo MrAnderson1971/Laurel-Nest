@@ -17,14 +17,24 @@ void AISystem::step(Entity player_entity)
 //            patrol_component.direction *= -1;
 //            motion.velocity.x = motion.velocity.x * (patrol_component.direction);
 //        }
-        if((abs(motion_player.position.x - motion.position.x)) < 400 && (abs(motion_player.position.y - motion.position.y) <= 100)){
+        if((abs(motion_player.position.x - motion.position.x)) < 300 && (abs(motion_player.position.y - motion.position.y) <= 100) && !patrol_component.chasing){
             if(motion_player.position.x < motion.position.x){
                 patrol_component.patrolMinX = 0;
+//                if(motion.velocity.x > -3){
+//                    motion.velocity.x--;
+//                }else{
+//                    motion.velocity.x = -3;
+//                }
                 motion.velocity.x = -3;
                 patrol_component.chasing = true;
             }else{
                 patrol_component.patrolMinX = 0;
-                motion.velocity.x + 3;
+//                if(motion.velocity.x < -3){
+//                    motion.velocity.x++;
+//                }else{
+//                    motion.velocity.x = 3;
+//                }
+                motion.velocity.x = 3;
                 patrol_component.chasing = true;
             }
         }else{

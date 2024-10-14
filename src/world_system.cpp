@@ -301,15 +301,21 @@ void WorldSystem::update(float deltaTime) {
         auto& p = registry.patrol_ais.get(e);
         if (registry.motions.has(e)) {
             auto& m = registry.motions.get(e);
-            if(!p.chasing){
-                if (std::abs(m.position.x - renderSystem.getWindowWidth()) < 10) {
-                    p.movingRight = false;
-                } else if (std::abs(m.position.x - 0) < 10) {
-                    p.movingRight = true;
-                }
-                if (p.movingRight) {
+            if (std::abs(m.position.x - renderSystem.getWindowWidth()) < 10) {
+                p.movingRight = false;
+            } else if (std::abs(m.position.x - 0) < 10) {
+                p.movingRight = true;
+            }
+            if (p.movingRight) {
+                if(p.chasing){
+                    m.velocity.x == 3;
+                }else{
                     m.velocity.x = 1;
-                } else {
+                }
+            } else {
+                if(p.chasing){
+                    m.velocity.x == -3;
+                }else{
                     m.velocity.x = -1;
                 }
             }
