@@ -123,12 +123,17 @@ struct Damage
 // A timer that will be associated to when the player can get damaged again 
 struct InvincibilityTimer
 {
-    float counter_ms = 1000;
+    float counter_ms = 2000;
 };
 
 struct HealthFlask
 {
     int num_uses = 3;
+};
+
+struct Weapon
+{
+    
 };
 
 

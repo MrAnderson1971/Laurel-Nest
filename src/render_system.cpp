@@ -54,6 +54,7 @@ bool RenderSystem::initOpenGL(int width, int height, const std::string& title)
     glfwSwapInterval(0);
 # endif
 
+
     if (gl3w_init())
     {
         std::cerr << "Error: gl3w initialization failed" << std::endl;
