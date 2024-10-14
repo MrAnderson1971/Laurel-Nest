@@ -337,13 +337,13 @@ void WorldSystem::update(float deltaTime) {
             }
             if (p.movingRight) {
                 if(p.chasing){
-                    m.velocity.x == 3;
+                    m.velocity.x = 3;
                 }else{
                     m.velocity.x = 1;
                 }
             } else {
                 if(p.chasing){
-                    m.velocity.x == -3;
+                    m.velocity.x = -3;
                 }else{
                     m.velocity.x = -1;
                 }
