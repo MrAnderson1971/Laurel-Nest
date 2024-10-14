@@ -84,7 +84,7 @@ void WorldSystem::init() {
 
     for (unsigned i = 1; i <= 4; i++) {
         int playerWidth, playerHeight;
-        GLuint jumpTextureID = renderSystem.loadTexture("jump_" + std::to_string(i) + ".png", playerWidth,playerHeight);
+        GLuint jumpTextureID = renderSystem.loadTexture("jump_" + std::to_string(i) + ".png", playerWidth, playerHeight);
         Sprite jumpSprite;
         jumpSprite.textureID = jumpTextureID;
         jumpSprite.width = 1.0f;
@@ -123,7 +123,7 @@ void WorldSystem::init() {
     // sprite for ground, move this elsewhere for optimization. It is here for testing
     cesspit.room1(renderSystem);
 
-       // Create and initialize the Heart sprites
+    // Create and initialize the Heart sprites
 
     std::vector<Sprite> heartSprites;
     for (unsigned i = 0; i <= 3; i++) {
@@ -158,8 +158,8 @@ void WorldSystem::init() {
     registry.motions.emplace(m_goomba, std::move(goombaMotion));
     registry.gravity.emplace(m_goomba, std::move(Gravity()));
     registry.patrol_ais.emplace(m_goomba, std::move(Patrol_AI()));
-    registry.damages.emplace(m_goomba, std::move(Damage{1}));
-    registry.healths.emplace(m_goomba, std::move(Health{1,1}));
+    registry.damages.emplace(m_goomba, std::move(Damage{ 1 }));
+    registry.healths.emplace(m_goomba, std::move(Health{ 1,1 }));
 }
 
 void WorldSystem::update(float deltaTime) {
@@ -178,7 +178,20 @@ void WorldSystem::update(float deltaTime) {
             }
 
             // Step 2: Update position based on velocity
-            m.position += m.velocity;
+            if (registry.players.has(entity)) {
+                // Make the player's position stop once its head reaches the top of the window
+                if ((m.position[1] + m.velocity[1]) > 150) {
+                    m.position += m.velocity;
+                }
+                else {
+                    // Makes sure the player starts to drop immiediately cuz of gravity
+                    m.velocity[1] = 0;
+                }
+            }
+            else {
+                m.position += m.velocity;
+            }
+            
 
             // If this is the player, reset canJump before handling collisions
             if (entity == m_player) {
