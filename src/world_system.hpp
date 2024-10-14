@@ -41,7 +41,9 @@ public:
 private:
 	RenderSystem& renderSystem;
 	Entity m_player;
+  //Entity m_ground;
 	Entity m_hearts;
+	Entity m_goomba;
 	Cesspit cesspit;
 	std::unordered_map<int, std::function<void()>> keyPressActions;
 	std::unordered_map<int, std::function<void()>> keyReleaseActions;
@@ -52,4 +54,6 @@ private:
     bool canJump = false;
     bool isGrounded = false;
 	bool canAttack = true;
+
+    void updateBoundingBox(Entity entity);
 };

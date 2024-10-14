@@ -5,12 +5,6 @@
 #include <unordered_map>
 #include "../ext/stb_image/stb_image.h"
 
-struct TransformComponent {
-    glm::vec3 position;
-    glm::vec3 scale;
-    float rotation;
-};
-
 struct Sprite {
     GLuint textureID;
     float width = 1.0f;
@@ -85,10 +79,27 @@ struct Animation {
 
 struct Motion {
     vec2 position;
-    float angle;
-    vec2 velocity;
-    vec2 scale;
-    vec2 acceleration;
+    float angle = 0;
+    vec2 velocity = { 0, 0 };
+    vec2 scale = { 0, 0 };
+    vec2 acceleration = { 0, 0 };
+};
+
+struct TransformComponent {
+    glm::vec3 position;
+    glm::vec3 scale;
+    float rotation;
+
+    TransformComponent& operator=(const Motion& m) {
+        position.x = m.position.x;
+        position.y = m.position.y;
+        position.z = 0;
+        scale.x = m.scale.x;
+        scale.y = m.scale.y;
+        scale.z = 1.f;
+        rotation = m.angle;
+        return *this;
+    }
 };
 
 // Player component
@@ -197,11 +208,13 @@ enum class TEXTURE_ASSET_ID {
     CEILING_IDLE = CEILING_HIT + 1,            // ceiling_idle.png
     SPLASH_SCREEN = CEILING_IDLE + 1,          // splash_screen.png
     DEMO_GROUND = SPLASH_SCREEN + 1,           // demo_ground.png
-    HEART_3 = DEMO_GROUND + 1,                 // heart_3.png
+    DEMO_CEILING = DEMO_GROUND + 1,            // demo_ceiling.png
+    HEART_3 = DEMO_CEILING + 1,                 // heart_3.png
     HEART_2 = HEART_3 + 1,                     // heart_2.png
     HEART_1 = HEART_2 + 1,                     // heart_1.png
     HEART_0 = HEART_1 + 1,                     // heart_0.png
-    TEXTURE_COUNT = HEART_0 + 1                // Count of all textures
+    CESSPIT_BG = HEART_0 + 1,                  // cesspit_bg.png
+    TEXTURE_COUNT = CESSPIT_BG + 1             // Count of all textures
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
@@ -228,6 +241,30 @@ struct Gravity {
     float accleration = 0.015f;
 };
 
+
+struct Patrol_AI {
+    int direction = -1;
+    float patrolSpeed = 0; //When spawing the Goomba
+    float patrolMinX = 0;
+    float patrolMaxX = 0;
+    bool movingRight = true;
+};
+
+struct BoundingBox {
+    vec2 p1; // Top Left
+    vec2 p2; // Bottom Left
+    vec3 p3; // Bottom Right
+    vec4 p4; // Top Right
+    float width = 1;
+    float height = 1;
+};
+
+
+
 struct Environment {
     bool door = false;
+};
+
+struct Ground {
+
 };
