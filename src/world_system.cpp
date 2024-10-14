@@ -1,5 +1,8 @@
 #include <iostream>
 #include "world_system.hpp"
+
+#include <iomanip>
+
 #include "pause_state.hpp"
 #include "cesspit_map.hpp"
 #include "collision_system.h"
@@ -195,18 +198,19 @@ void WorldSystem::update(float deltaTime) {
                     canJump = true;
                 }
             }
+
             m.position[0] = clamp(m.position[0], 0, window_width_px);
 
-            // Step 4: Update the transform component for all entities
-            t = m;
-
-            // Step 5: Flip the texture based on movement direction for all entities
+            // Step 4: Flip the texture based on movement direction for all entities
             if (m.velocity[0] < 0) {
-                t.scale.x = -std::abs(t.scale.x);
+                m.scale.x = -std::abs(m.scale.x);
             }
             else if (m.velocity[0] > 0) {
-                t.scale.x = std::abs(t.scale.x);
+                m.scale.x = std::abs(m.scale.x);
             }
+
+            // Step 5: Update the transform component for all entities
+            t = m;
 
             // Player-specific logic
             if (entity == m_player && registry.playerAnimations.has(m_player) && registry.combat.has(m_player)) {
@@ -247,13 +251,13 @@ void WorldSystem::update(float deltaTime) {
 
                 // Step 7: Update bounding box size based on state
                 if (currentState == PlayerState::WALKING || currentState == PlayerState::IDLE) {
-                    m.scale = glm::vec2(WALKING_BB_WIDTH * 0.2f, WALKING_BB_HEIGHT * 0.2f);
+                    m.scale = glm::vec2(WALKING_BB_WIDTH * 0.2f * signof(m.scale.x), WALKING_BB_HEIGHT * 0.2f);
                 }
                 else if (currentState == PlayerState::JUMPING) {
-                    m.scale = glm::vec2(JUMPING_BB_WIDTH * 0.2f, JUMPING_BB_HEIGHT * 0.2f);
+                    m.scale = glm::vec2(JUMPING_BB_WIDTH * 0.2f * signof(m.scale.x), JUMPING_BB_HEIGHT * 0.2f);
                 }
                 else if (currentState == PlayerState::ATTACKING) {
-                    m.scale = glm::vec2(ATTACKING_BB_WIDTH * 0.2f, ATTACKING_BB_HEIGHT * 0.2f);
+                    m.scale = glm::vec2(ATTACKING_BB_WIDTH * 0.2f * signof(m.scale.x), ATTACKING_BB_HEIGHT * 0.2f);
                 }
 
                 // Step 8: Update the player animation state if it has changed
