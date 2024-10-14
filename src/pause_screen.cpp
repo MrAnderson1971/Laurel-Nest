@@ -17,12 +17,9 @@ void PauseState::init() {
     GLuint pauseTextureID = renderSystem.loadTexture("pause_screen.png", pauseWidth, pauseHeight);
 
     TransformComponent pauseTransform;
-#ifdef _WIN32
+
     pauseTransform.position = glm::vec3(renderSystem.getWindowWidth() / 2.0f, 0.0f, 0.0f);
-#else
-    pauseTransform.position = glm::vec3(renderSystem.getWindowWidth() / 2.0f + pauseWidth / 4.0f,
-        0.0f, 0.0f);
-#endif
+
     pauseTransform.scale = glm::vec3(pauseWidth, pauseHeight, 1.0f);
     pauseTransform.rotation = 0.0f;
 
@@ -66,6 +63,9 @@ void PauseState::render() {
 
 void PauseState::on_key(int button, int scancode, int action, int mods) {
     (void)button; (void)scancode; (void)action; (void)mods;
+    if (action == GLFW_RELEASE && button == GLFW_KEY_ESCAPE) {
+        glfwSetWindowShouldClose(renderSystem.getWindow(), GLFW_TRUE);
+    }
 }
 
 void PauseState::on_mouse_move(const glm::vec2& position) {
@@ -73,9 +73,7 @@ void PauseState::on_mouse_move(const glm::vec2& position) {
 }
 
 void PauseState::on_mouse_click(int button, int action, const glm::vec2& position, int mods) {
-    if (action == GLFW_PRESS) {
-        if (button == GLFW_MOUSE_BUTTON_LEFT) {
+    if (action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_LEFT) {
             renderSystem.getGameStateManager()->resumeState();
-        }
     }
 }

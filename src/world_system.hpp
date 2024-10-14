@@ -13,7 +13,7 @@ constexpr float player_jump_velocity = 3.5f; // just high enough to reach the te
 
 // These are hardcoded to the dimensions of the entity texture
 // BB = bounding box
-const float WALKING_BB_WIDTH  = 2.f * 399.f;
+ const float WALKING_BB_WIDTH  = 2.f * 399.f;
 const float WALKING_BB_HEIGHT = 2.f * 712.f;
 const float JUMPING_BB_WIDTH  = 2.f * 464.f;
 const float JUMPING_BB_HEIGHT = 2.f * 714.f;
@@ -46,7 +46,6 @@ private:
 	Entity m_goomba;
 	Entity m_sword;
 	Cesspit cesspit;
-    //Entity m_hearts;
 	std::unordered_map<int, std::function<void()>> keyPressActions;
 	std::unordered_map<int, std::function<void()>> keyReleaseActions;
 	void player_get_damaged(Entity hostile);

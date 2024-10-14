@@ -39,9 +39,9 @@ void Cesspit::room1(RenderSystem& renderSystem) {
     // ceiling
     Sprite ceilingSprite;
     int ceilingWidth, ceilingHeight;
-    ceilingSprite.textureID = renderSystem.loadTexture("demo_ground.png", ceilingWidth, ceilingHeight);
-    ceilingSprite.width = 2.0f;
-    ceilingSprite.height = 1.0f;
+    ceilingSprite.textureID = renderSystem.loadTexture("demo_ceiling.png", ceilingWidth, ceilingHeight);
+    ceilingSprite.width = 1.0f;
+    ceilingSprite.height = 0.5f;
     registry.sprites.emplace(m_ceiling, std::move(ceilingSprite));
 
     // Create and initialize a TransformComponent for the ground
@@ -66,20 +66,20 @@ void Cesspit::room1(RenderSystem& renderSystem) {
     Sprite groundSprite;
     int groundWidth, groundHeight;
     groundSprite.textureID = renderSystem.loadTexture("demo_ground.png", groundWidth, groundHeight);
-    groundSprite.width = 2.0f;
+    groundSprite.width = 1.0f;
     groundSprite.height = 1.0f;
     registry.sprites.emplace(m_ground, std::move(groundSprite));
 
     // Create and initialize a TransformComponent for the ground
     TransformComponent groundTransform;
-    groundTransform.position = glm::vec3(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() - 50.0f, 0.0);
+    groundTransform.position = glm::vec3(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() - 20.0f, 0.0);
     groundTransform.scale = glm::vec3(groundWidth, groundHeight, 1.0);
     groundTransform.rotation = 0.0f;
     registry.transforms.emplace(m_ground, std::move(groundTransform));
 
     // Create and initialize a Motion component for the ground
     Motion groundMotion;
-    groundMotion.position = glm::vec2(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() - 50.0f);
+    groundMotion.position = glm::vec2(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() - 20.0f);
     groundMotion.velocity = glm::vec2(0, 0);
     groundMotion.scale = { groundWidth, groundHeight };
     registry.motions.emplace(m_ground, std::move(groundMotion));
@@ -98,19 +98,20 @@ void Cesspit::room1(RenderSystem& renderSystem) {
     Sprite platformSprite;
     int platformWidth, platformHeight;
     platformSprite.textureID = renderSystem.loadTexture("demo_ground.png", platformWidth, platformHeight);
-    platformWidth /= 5;
+    platformWidth = static_cast<int>(platformWidth * 0.2);
+    platformHeight = static_cast<int> (platformHeight * 0.2);
     registry.sprites.emplace(m_platform, std::move(platformSprite));
 
     // Create and initialize a TransformComponent for the ground
     TransformComponent platformTransform;
-    platformTransform.position = glm::vec3(renderSystem.getWindowWidth() / 4.0f, 5 * renderSystem.getWindowHeight() / 9.0f, 0.0);
+    platformTransform.position = glm::vec3(renderSystem.getWindowWidth() / 3.0, renderSystem.getWindowHeight() * 4.5 / 10.0, 0.0);
     platformTransform.scale = glm::vec3(platformWidth, platformHeight, 1.0);
     platformTransform.rotation = 0.0f;
     registry.transforms.emplace(m_platform, std::move(platformTransform));
 
     // Create and initialize a Motion component for the ground
     Motion platformMotion;
-    platformMotion.position = glm::vec2(renderSystem.getWindowWidth() / 4.0f, 5 * renderSystem.getWindowHeight() / 9.0f);
+    platformMotion.position = glm::vec2(renderSystem.getWindowWidth() / 3.0f, renderSystem.getWindowHeight() * 4.5 / 10.0);
     platformMotion.velocity = glm::vec2(0, 0);
     platformMotion.scale = { platformWidth, platformHeight };
     registry.motions.emplace(m_platform, std::move(platformMotion));

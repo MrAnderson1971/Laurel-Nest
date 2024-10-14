@@ -63,6 +63,11 @@ struct Animation {
         }
     }
 
+    bool isAnimationComplete() const {
+        // Check if the current frame is the last one
+        return currentFrame >= frames.at(currentState).size() - 1;
+    }
+
     PlayerState getState() const {
         return currentState;
     }
@@ -208,7 +213,8 @@ enum class TEXTURE_ASSET_ID {
     CEILING_IDLE = CEILING_HIT + 1,            // ceiling_idle.png
     SPLASH_SCREEN = CEILING_IDLE + 1,          // splash_screen.png
     DEMO_GROUND = SPLASH_SCREEN + 1,           // demo_ground.png
-    HEART_3 = DEMO_GROUND + 1,                 // heart_3.png
+    DEMO_CEILING = DEMO_GROUND + 1,            // demo_ceiling.png
+    HEART_3 = DEMO_CEILING + 1,                 // heart_3.png
     HEART_2 = HEART_3 + 1,                     // heart_2.png
     HEART_1 = HEART_2 + 1,                     // heart_1.png
     HEART_0 = HEART_1 + 1,                     // heart_0.png
@@ -237,7 +243,7 @@ struct RenderRequest {
 };
 
 struct Gravity {
-    float accleration = 0.0098f;
+    float accleration = 0.01f;
 };
 
 
@@ -267,7 +273,3 @@ struct Environment {
 struct Ground {
 
 };
-
-//struct Patrol_AI {
-//    bool movingRight = true;
-//};
