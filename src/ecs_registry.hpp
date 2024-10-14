@@ -15,6 +15,7 @@ public:
     ComponentContainer<HealthFlask> healthFlasks;
     ComponentContainer<Damage> damages;
     ComponentContainer<InvincibilityTimer> invinciblityTimers;
+    ComponentContainer<Weapon> weapons;
     ComponentContainer<Motion> motions;
     ComponentContainer<Collision> collisions;
     ComponentContainer<DeathTimer> deathTimers;
@@ -41,6 +42,7 @@ public:
         registry_list.push_back(&healthFlasks);
         registry_list.push_back(&damages);
         registry_list.push_back(&invinciblityTimers);
+        registry_list.push_back(&weapons);
         registry_list.push_back(&deathTimers);
         registry_list.push_back(&motions);
         registry_list.push_back(&collisions);
