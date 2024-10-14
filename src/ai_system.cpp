@@ -16,9 +16,9 @@ void AISystem::step(Entity player_entity)
         if (!patrol_component.chasing && player_distance_x < chaseRange && player_distance_y <= 100) {
             patrol_component.chasing = true;
             if (motion_player.position.x < motion.position.x) {
-                motion.velocity.x = -5.0f;
+                motion.velocity.x = -3.0f;
             } else {
-                motion.velocity.x = 5.0f;
+                motion.velocity.x = 3.0f;
             }
             patrol_component.dashStartX = motion.position.x;
         }

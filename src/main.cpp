@@ -1,7 +1,5 @@
 #include <iostream>
 
-#include "ecs.hpp"
-#include "components.hpp"
 #include "render_system.hpp"
 #include "splash_screen_state.hpp"
 
@@ -13,7 +11,6 @@ int main()
     GameStateManager gameStateManager;
     renderSystem.setGameStateManager(&gameStateManager);
 
-    // if (!renderSystem.initOpenGL(1920, 1080, "Game"))
     if (!renderSystem.initOpenGL(1920, 1080, "Game"))
     {
         std::cerr << "Failed to initialize RenderSystem." << std::endl;

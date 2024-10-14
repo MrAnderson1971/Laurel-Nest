@@ -19,28 +19,26 @@ RenderSystem::~RenderSystem()
 
 bool RenderSystem::initOpenGL(int width, int height, const std::string& title)
 {
+    // Initialize the window width and height based on the parameters
     windowWidth = width;
     windowHeight = height;
 
+    // Initialize GLFW
     if (!glfwInit())
     {
         std::cerr << "Error: GLFW initialization failed" << std::endl;
         return false;
     }
 
-    GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
-    const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
+    // Allow the window to be resizable
+    glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 
-    if (windowWidth > mode->width)
-        windowWidth = mode->width;
-    if (windowHeight > mode->height)
-        windowHeight = mode->height;
-
+    // Set GLFW context version and profile
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    // Create window with provided dimensions
+    // Create the window with the provided size
     window = glfwCreateWindow(windowWidth, windowHeight, title.c_str(), nullptr, nullptr);
     if (!window)
     {
@@ -49,12 +47,13 @@ bool RenderSystem::initOpenGL(int width, int height, const std::string& title)
         return false;
     }
 
+    // Make the window's OpenGL context current
     glfwMakeContextCurrent(window);
 # if defined(__APPLE__)
-    glfwSwapInterval(0);
+    glfwSwapInterval(0);  // Disable vsync on macOS for better performance
 # endif
 
-
+    // Initialize OpenGL (GL3W)
     if (gl3w_init())
     {
         std::cerr << "Error: gl3w initialization failed" << std::endl;
@@ -62,34 +61,19 @@ bool RenderSystem::initOpenGL(int width, int height, const std::string& title)
         return false;
     }
 
-    // Get the actual framebuffer size (accounts for Retina scaling)
-//    int frame_buffer_width_px, frame_buffer_height_px;
-//    glfwGetFramebufferSize(window, &frame_buffer_width_px, &frame_buffer_height_px);
-//
-//    // Set the viewport to match the actual framebuffer size
-//    glViewport(0, 0, frame_buffer_width_px, frame_buffer_height_px);
-//
-//    // Adjust the projection matrix to use the framebuffer size (not window size)
-//    projection = glm::ortho(0.0f, static_cast<float>(frame_buffer_width_px), static_cast<float>(frame_buffer_height_px), 0.0f);
-
-    int window_width_px_, window_height_px_;
+    // Set the viewport to match the initial window size
     int frame_buffer_width_px, frame_buffer_height_px;
-    glfwGetWindowSize(window, &window_width_px_, &window_height_px_);
     glfwGetFramebufferSize(window, &frame_buffer_width_px, &frame_buffer_height_px);
-
-    // Calculate the scale factor for high-DPI displays (framebuffer is larger on Retina screens)
-    float x_scale = static_cast<float>(frame_buffer_width_px) / static_cast<float>(window_width_px_);
-    float y_scale = static_cast<float>(frame_buffer_height_px) / static_cast<float>(window_height_px_);
-
-// Set the viewport based on framebuffer size
     glViewport(0, 0, frame_buffer_width_px, frame_buffer_height_px);
 
-// Adjust the projection matrix to account for high-DPI scaling
+    // Adjust the projection matrix based on the logical window size (not framebuffer size)
     projection = glm::ortho(
-            0.0f, static_cast<float>(window_width_px_),              // Left and right
-            static_cast<float>(window_height_px_), 0.0f, 0.0f, 1.0f  // Bottom and top (inverted for OpenGL)
+            0.0f, static_cast<float>(windowWidth),   // Left and right
+            static_cast<float>(windowHeight), 0.0f,  // Bottom and top
+            0.0f, 1.0f  // Near and far planes
     );
 
+    // Enable blending for transparency
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -97,11 +81,31 @@ bool RenderSystem::initOpenGL(int width, int height, const std::string& title)
     loadShaders();
     setupVertices();
 
-    // Set callbacks for input handling
+    // Set GLFW callbacks for input handling
     glfwSetKeyCallback(window, keyCallbackRedirect);
     glfwSetCursorPosCallback(window, mouseMoveCallbackRedirect);
     glfwSetMouseButtonCallback(window, mouseClickCallbackRedirect);
     glfwSetWindowUserPointer(window, this);
+
+    // Handle window resizing dynamically
+    glfwSetFramebufferSizeCallback(window, [](GLFWwindow* window, int fb_width, int fb_height) {
+        // Update the viewport based on the framebuffer size (actual pixels)
+        glViewport(0, 0, fb_width, fb_height);
+
+        // Get the window size (logical size, not pixel size)
+        int window_width, window_height;
+        glfwGetWindowSize(window, &window_width, &window_height);
+
+        // Update the projection matrix based on the logical window size (not framebuffer size)
+        glm::mat4 projection = glm::ortho(
+                0.0f, static_cast<float>(window_width),   // Left and right
+                static_cast<float>(window_height), 0.0f,  // Bottom and top
+                0.0f, 1.0f  // Near and far planes
+        );
+
+        // Set the updated projection matrix (bind shader program and set it here)
+        // glUniformMatrix4fv(projection_location, 1, GL_FALSE, &projection[0][0]);
+    });
 
     return true;
 }
