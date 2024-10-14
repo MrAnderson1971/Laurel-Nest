@@ -50,6 +50,9 @@ bool RenderSystem::initOpenGL(int width, int height, const std::string& title)
     }
 
     glfwMakeContextCurrent(window);
+# if defined(__APPLE__)
+    glfwSwapInterval(0);
+# endif
 
     if (gl3w_init())
     {

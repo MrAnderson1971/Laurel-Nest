@@ -238,7 +238,7 @@ struct RenderRequest {
 };
 
 struct Gravity {
-    float accleration = 0.015f;
+    float accleration = 0.01f;
 };
 
 
