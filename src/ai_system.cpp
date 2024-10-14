@@ -3,7 +3,7 @@
 
 void AISystem::step(float elapsed_ms)
 {
-    unsigned long size = registry.patrol.size();
+    size_t size = registry.patrol.size();
 
     for (int i = 0; i < size; i++) {
         Patrol_AI& patrol_component = registry.patrol.components[i];

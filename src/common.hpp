@@ -76,3 +76,15 @@ clamp(T1 n, T2 min, T3 max) {
 		return tn;
 	}
 
+// Returns 1, -1, or 0 depending on the sign of a number
+template <typename Number>
+inline std::enable_if_t<std::is_arithmetic<Number>::value, int> signof(Number n) {
+	if (n > 0) {
+		return 1;
+	}
+	else if (n < 0) {
+		return -1;
+	}
+	return 0;
+}
+

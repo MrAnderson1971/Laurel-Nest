@@ -54,6 +54,7 @@ bool RenderSystem::initOpenGL(int width, int height, const std::string& title)
     glfwSwapInterval(0);
 # endif
 
+
     if (gl3w_init())
     {
         std::cerr << "Error: gl3w initialization failed" << std::endl;
@@ -71,22 +72,22 @@ bool RenderSystem::initOpenGL(int width, int height, const std::string& title)
 //    // Adjust the projection matrix to use the framebuffer size (not window size)
 //    projection = glm::ortho(0.0f, static_cast<float>(frame_buffer_width_px), static_cast<float>(frame_buffer_height_px), 0.0f);
 
-    int window_width_px, window_height_px;
+    int window_width_px_, window_height_px_;
     int frame_buffer_width_px, frame_buffer_height_px;
-    glfwGetWindowSize(window, &window_width_px, &window_height_px);
+    glfwGetWindowSize(window, &window_width_px_, &window_height_px_);
     glfwGetFramebufferSize(window, &frame_buffer_width_px, &frame_buffer_height_px);
 
     // Calculate the scale factor for high-DPI displays (framebuffer is larger on Retina screens)
-    float x_scale = static_cast<float>(frame_buffer_width_px) / static_cast<float>(window_width_px);
-    float y_scale = static_cast<float>(frame_buffer_height_px) / static_cast<float>(window_height_px);
+    float x_scale = static_cast<float>(frame_buffer_width_px) / static_cast<float>(window_width_px_);
+    float y_scale = static_cast<float>(frame_buffer_height_px) / static_cast<float>(window_height_px_);
 
 // Set the viewport based on framebuffer size
     glViewport(0, 0, frame_buffer_width_px, frame_buffer_height_px);
 
 // Adjust the projection matrix to account for high-DPI scaling
     projection = glm::ortho(
-            0.0f, static_cast<float>(window_width_px),              // Left and right
-            static_cast<float>(window_height_px), 0.0f, 0.0f, 1.0f  // Bottom and top (inverted for OpenGL)
+            0.0f, static_cast<float>(window_width_px_),              // Left and right
+            static_cast<float>(window_height_px_), 0.0f, 0.0f, 1.0f  // Bottom and top (inverted for OpenGL)
     );
 
     glEnable(GL_BLEND);
