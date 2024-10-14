@@ -156,7 +156,7 @@ void WorldSystem::init() {
     TransformComponent goombaTransform;
     registry.transforms.emplace(m_goomba, std::move(goombaTransform));
     Motion goombaMotion;
-    goombaMotion.position = vec2(renderSystem.getWindowWidth()-200, renderSystem.getWindowHeight()/2 + 100);
+    goombaMotion.position = vec2(renderSystem.getWindowWidth() / 3.f - 50, 100);
     goombaMotion.scale = vec2(goombaWidth, goombaHeight);
     registry.motions.emplace(m_goomba, std::move(goombaMotion));
     registry.gravity.emplace(m_goomba, std::move(Gravity()));
