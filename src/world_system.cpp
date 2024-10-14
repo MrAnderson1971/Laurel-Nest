@@ -310,6 +310,8 @@ void WorldSystem::update(float deltaTime) {
     // Handle collisions
     handle_collisions();
 
+
+
     std::vector<Entity> to_remove;
     for (auto& e : registry.invinciblityTimers.entities) {
         auto& i = registry.invinciblityTimers.get(e);
