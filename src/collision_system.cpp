@@ -3,7 +3,7 @@
 
 
 bool static checkForCollision(Entity e1, Entity e2){
-    unsigned long size = registry.bounding_box.size();
+    size_t size = registry.bounding_box.size();
     BoundingBox b1 = registry.bounding_box.get(e1);
     BoundingBox b2 = registry.bounding_box.get(e2);
 
