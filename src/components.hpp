@@ -253,6 +253,7 @@ struct Patrol_AI {
     float patrolMinX = 0;
     float patrolMaxX = 0;
     bool movingRight = true;
+    bool chasing = false;
 };
 
 struct BoundingBox {

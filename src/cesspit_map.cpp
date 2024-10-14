@@ -128,7 +128,7 @@ void Cesspit::room1(RenderSystem& renderSystem) {
 
     // note on bg: don't add motion
 
-    Sprite goombaSprite;
+/*    Sprite goombaSprite;
     int groundWidth_1, groundHeight_1;
     goombaSprite.textureID = renderSystem.loadTexture("goomba_walk_idle.png", groundWidth_1, groundHeight_1);
     goombaSprite.width = 1.0f;
@@ -154,7 +154,7 @@ void Cesspit::room1(RenderSystem& renderSystem) {
     bb.width = 1.0f;
 
     Environment goombaObj;
-    registry.envObject.emplace(m_goomba, std::move(goombaObj));
+    registry.envObject.emplace(m_goomba, std::move(goombaObj));*/
     registry.grounds.emplace(m_ground, std::move(Ground()));
     registry.grounds.emplace(m_platform, std::move(Ground()));
 
