@@ -63,6 +63,9 @@ void PauseState::render() {
 
 void PauseState::on_key(int button, int scancode, int action, int mods) {
     (void)button; (void)scancode; (void)action; (void)mods;
+    if (action == GLFW_RELEASE && button == GLFW_KEY_ESCAPE) {
+        glfwSetWindowShouldClose(renderSystem.getWindow(), GLFW_TRUE);
+    }
 }
 
 void PauseState::on_mouse_move(const glm::vec2& position) {
@@ -70,9 +73,7 @@ void PauseState::on_mouse_move(const glm::vec2& position) {
 }
 
 void PauseState::on_mouse_click(int button, int action, const glm::vec2& position, int mods) {
-    if (action == GLFW_PRESS) {
-        if (button == GLFW_MOUSE_BUTTON_LEFT) {
+    if (action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_LEFT) {
             renderSystem.getGameStateManager()->resumeState();
-        }
     }
 }
