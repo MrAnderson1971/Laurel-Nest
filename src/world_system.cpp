@@ -3,6 +3,7 @@
 #include "pause_state.hpp"
 #include "cesspit_map.hpp"
 #include "collision_system.h"
+#include "ai_system.h"
 
 WorldSystem::WorldSystem(RenderSystem& renderSystem) : renderSystem(renderSystem) {
 }
@@ -137,13 +138,13 @@ void WorldSystem::init() {
     Sprite goombaSprite;
     int goombaWidth, goombaHeight;
     goombaSprite.textureID = renderSystem.loadTexture("goomba_walk_idle.PNG", goombaWidth, goombaHeight);
-    goombaWidth /= 2; goombaHeight /= 2;
+    goombaWidth /= 4; goombaHeight /= 4;
     registry.sprites.emplace(m_goomba, goombaSprite);
 
     TransformComponent goombaTransform;
     registry.transforms.emplace(m_goomba, std::move(goombaTransform));
     Motion goombaMotion;
-    goombaMotion.position = vec2(400, 0);
+    goombaMotion.position = vec2(renderSystem.getWindowWidth()-200, renderSystem.getWindowHeight()/2 + 100);
     goombaMotion.scale = vec2(goombaWidth, goombaHeight);
     registry.motions.emplace(m_goomba, std::move(goombaMotion));
     registry.gravity.emplace(m_goomba, std::move(Gravity()));
@@ -153,7 +154,6 @@ void WorldSystem::init() {
 
 void WorldSystem::update(float deltaTime) {
     static PlayerState lastState = PlayerState::WALKING; // Track the player's last state
-
     // Loop through all entities that have motion components
     for (auto entity : registry.motions.entities) {
         if (registry.transforms.has(entity) && registry.motions.has(entity)) {
@@ -296,19 +296,22 @@ void WorldSystem::update(float deltaTime) {
         registry.invinciblityTimers.remove(e);
     }
 
+    AISystem::step(m_player);
     for (auto& e : registry.patrol_ais.entities) {
         auto& p = registry.patrol_ais.get(e);
         if (registry.motions.has(e)) {
             auto& m = registry.motions.get(e);
-            if (std::abs(m.position.x - renderSystem.getWindowWidth()) < 10) {
-                p.movingRight = false;
-            } else if (std::abs(m.position.x - 0) < 10) {
-                p.movingRight = true;
-            }
-            if (p.movingRight) {
-                m.velocity.x = 1;
-            } else {
-                m.velocity.x = -1;
+            if(!p.chasing){
+                if (std::abs(m.position.x - renderSystem.getWindowWidth()) < 10) {
+                    p.movingRight = false;
+                } else if (std::abs(m.position.x - 0) < 10) {
+                    p.movingRight = true;
+                }
+                if (p.movingRight) {
+                    m.velocity.x = 1;
+                } else {
+                    m.velocity.x = -1;
+                }
             }
         }
     }

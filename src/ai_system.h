@@ -8,5 +8,5 @@
 class AISystem
 {
 public:
-    void step(float elapsed_ms);
+    void static step(Entity player_entity);
 };
