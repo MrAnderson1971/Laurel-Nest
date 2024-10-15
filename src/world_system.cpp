@@ -156,7 +156,7 @@ void WorldSystem::init() {
     TransformComponent goombaTransform;
     registry.transforms.emplace(m_goomba, std::move(goombaTransform));
     Motion goombaMotion;
-    goombaMotion.position = vec2(renderSystem.getWindowWidth() / 3.f - 50, 100);
+    goombaMotion.position = vec2(renderSystem.getWindowWidth() - 50, 0);
     goombaMotion.scale = vec2(goombaWidth, goombaHeight);
     registry.motions.emplace(m_goomba, std::move(goombaMotion));
     registry.gravity.emplace(m_goomba, std::move(Gravity()));
@@ -418,6 +418,7 @@ void WorldSystem::handle_collisions() {
                 thisMotion.position.y += overlap.y;
                 thisMotion.velocity.y = 0;
             }
+
         }
         if (registry.players.has(entity) && registry.damages.has(entity_other) && !registry.invinciblityTimers.has(entity)) {
             if(registry.players.get(m_player).attacking){
@@ -426,7 +427,6 @@ void WorldSystem::handle_collisions() {
                 player_get_damaged(entity_other);
             }
         }
-
         if (registry.weapons.has(entity) && registry.healths.has(entity_other)) {
             hostile_get_damaged(entity_other);
         }
