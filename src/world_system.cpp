@@ -732,8 +732,8 @@ void WorldSystem::respawnGoomba() {
 
         if (!registry.bounding_box.has(m_goomba)) {
             BoundingBox goombaBoundingBox;
-            goombaBoundingBox.width = goombaWidth;
-            goombaBoundingBox.height = goombaHeight;
+            goombaBoundingBox.width = static_cast<float>(goombaWidth);
+            goombaBoundingBox.height = static_cast<float>(goombaHeight);
             registry.bounding_box.emplace(m_goomba, goombaBoundingBox);
         }
 
