@@ -103,9 +103,8 @@ struct TransformComponent {
 };
 
 // Player component
-struct Player
-{
-
+struct Player{
+    bool attacking = false;
 };
 
 // Health component
@@ -249,12 +248,12 @@ struct Gravity {
 
 struct Patrol_AI {
     int direction = -1;
-    float patrolSpeed = 0; //When spawing the Goomba
     float patrolMinX = 0;
     float patrolMaxX = 0;
     bool movingRight = true;
     bool chasing = false;
     float dashStartX = 0.0f;
+    bool landed = false;
 };
 
 struct BoundingBox {
