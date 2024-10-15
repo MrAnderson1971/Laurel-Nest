@@ -53,6 +53,7 @@ private:
 	void hostile_get_damaged(Entity hostile);
 	void update_heartSprite(int num_hearts);
     bool checkPlayerGroundCollision();
+    void respawnGoomba();
     bool canJump = false;
     bool isGrounded = false;
 	bool canAttack = true;

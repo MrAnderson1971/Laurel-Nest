@@ -423,12 +423,15 @@ void WorldSystem::handle_collisions() {
         if (registry.players.has(entity) && registry.damages.has(entity_other) && !registry.invinciblityTimers.has(entity)) {
             if(registry.players.get(m_player).attacking){
                 hostile_get_damaged(m_goomba);
+                registry.players.get(m_player).attacking = false;
             }else{
                 player_get_damaged(entity_other);
             }
         }
         if (registry.weapons.has(entity) && registry.healths.has(entity_other)) {
-            hostile_get_damaged(entity_other);
+            if (registry.players.get(m_player).attacking) {
+                hostile_get_damaged(entity_other);
+            }
         }
     }
 
@@ -581,6 +584,11 @@ void WorldSystem::processPlayerInput(int key, int action) {
         player_get_healed();
     }
 
+    // Press P to respawn the goomba
+    if (action == GLFW_PRESS && key == GLFW_KEY_P) {
+        respawnGoomba();
+    }
+
 //    // THIS IS JUST A TEST TO SEE IF THE HEALTHSPRITES UPDATE AND THEY DO
 //    // Press L to DAMAGE the player
 //    if (action == GLFW_PRESS && key == GLFW_KEY_L) {
@@ -686,14 +694,53 @@ void WorldSystem::hostile_get_damaged(Entity hostile) {
                 Sprite goombaSprite;
                 int goombaWidth, goombaHeight;
                 goombaSprite.textureID = renderSystem.loadTexture("goomba_dead.PNG", goombaWidth, goombaHeight);
-                goombaWidth /= 2; goombaHeight /= 2;
+                goombaWidth /= 4; goombaHeight /= 4;
                 registry.sprites.emplace(hostile, goombaSprite);
-
             }
         }
     }
  
 }
+
+void WorldSystem::respawnGoomba() {
+    // Check if the Goomba has been killed
+    if (!registry.healths.has(m_goomba)) {
+
+        registry.healths.emplace(m_goomba, Health{ 1, 1 }); // Goomba has 1 health
+
+        Sprite goombaSprite;
+        int goombaWidth, goombaHeight;
+        goombaSprite.textureID = renderSystem.loadTexture("goomba_walk_idle.PNG", goombaWidth, goombaHeight);
+        goombaWidth /= 4; goombaHeight /= 4;
+        registry.sprites.get(m_goomba) = goombaSprite;
+
+        auto& goombaMotion = registry.motions.get(m_goomba);
+        goombaMotion.position = glm::vec2(renderSystem.getWindowWidth() - 50, 0);
+        goombaMotion.velocity = glm::vec2(0, 0);
+
+        if (!registry.patrol_ais.has(m_goomba)) {
+            registry.patrol_ais.emplace(m_goomba, Patrol_AI());
+        }
+
+        if (!registry.damages.has(m_goomba)) {
+            registry.damages.emplace(m_goomba, Damage{ 1 });
+        }
+
+        if (!registry.gravity.has(m_goomba)) {
+            registry.gravity.emplace(m_goomba, Gravity());
+        }
+
+        if (!registry.bounding_box.has(m_goomba)) {
+            BoundingBox goombaBoundingBox;
+            goombaBoundingBox.width = goombaWidth;
+            goombaBoundingBox.height = goombaHeight;
+            registry.bounding_box.emplace(m_goomba, goombaBoundingBox);
+        }
+
+        std::cout << "Goomba has respawned" << std::endl;
+    }
+}
+
 
 void WorldSystem::update_heartSprite(int num_hearts) {
     auto& transform = registry.transforms.get(m_hearts);
