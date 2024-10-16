@@ -58,11 +58,11 @@ bool gl_has_errors();
 // no C++ 17 smh
 	// Basically allows this to be called on anything that's a number (float, int, unsigned int, etc.)
 	template <typename T1, typename T2, typename T3>
-	inline typename std::enable_if<std::is_arithmetic<T1>::value &&
-	                               std::is_arithmetic<T2>::value &&
-	                               std::is_arithmetic<T3>::value, typename std::common_type<T1, T2, T3>::type>::type
+	inline std::enable_if_t<std::is_arithmetic<T1>::value &&
+	                      std::is_arithmetic<T2>::value &&
+	                      std::is_arithmetic<T3>::value, std::common_type_t<T1, T2, T3>>
 clamp(T1 n, T2 min, T3 max) {
-		using T = typename std::common_type<T1, T2, T3>::type;
+		using T = std::common_type_t<T1, T2, T3>;
 		T tn = static_cast<T>(n);
 		T tmin = static_cast<T>(min);
 		T tmax = static_cast<T>(max);
