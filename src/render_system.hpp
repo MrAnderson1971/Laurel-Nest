@@ -48,8 +48,16 @@ class RenderSystem
     };
 
 public:
-    RenderSystem();
+
+    static RenderSystem& instance() {
+        static RenderSystem instance;
+        return instance;
+    }
+
     ~RenderSystem();
+
+    RenderSystem(const RenderSystem&) = delete;
+    RenderSystem& operator=(const RenderSystem&) = delete;
 
     void setGameStateManager(GameStateManager* gsm);
     GameStateManager* getGameStateManager() const;
@@ -64,6 +72,8 @@ public:
     void drawEntity(const Sprite& sprite, const TransformComponent& transform);
 
 private:
+    RenderSystem();
+
     void loadShaders();
     void setupVertices();
     std::string readShaderFile(const std::string& filePath);
@@ -84,3 +94,5 @@ private:
     GameStateManager* gameStateManager;
     PhysicsSystem physics; // remove when physics is move to GameState
 };
+
+extern RenderSystem& renderSystem;

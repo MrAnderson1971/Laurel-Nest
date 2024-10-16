@@ -24,7 +24,7 @@ class RegionManager;
 
 class WorldSystem : public GameState {
 public:
-	WorldSystem(RenderSystem& renderSystem);
+	WorldSystem();
 	~WorldSystem();
 
 	void init() override;
@@ -39,7 +39,6 @@ public:
 	void handle_collisions();
 
 private:
-	RenderSystem& renderSystem;
 	Entity m_player;
   //Entity m_ground;
 	Entity m_hearts;

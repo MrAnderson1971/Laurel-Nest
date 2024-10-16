@@ -8,9 +8,8 @@
 #include "collision_system.h"
 #include "ai_system.h"
 
-WorldSystem::WorldSystem(RenderSystem& renderSystem) : renderSystem(renderSystem) {
+WorldSystem::WorldSystem() {
     regionManager = std::make_unique<RegionManager>();
-    Region::setRenderSystem(renderSystem);
 }
 
 WorldSystem::~WorldSystem() {
@@ -518,7 +517,7 @@ void WorldSystem::render() {
 void WorldSystem::processPlayerInput(int key, int action) {
     // Escape key to close the window
     if (action == GLFW_RELEASE && key == GLFW_KEY_ESCAPE) {
-        renderSystem.getGameStateManager()->pauseState(std::make_unique<PauseState>(renderSystem));
+        renderSystem.getGameStateManager()->pauseState(std::make_unique<PauseState>());
     }
 
     // Move left (A key)
@@ -607,17 +606,14 @@ void WorldSystem::processPlayerInput(int key, int action) {
 }
 
 
-void WorldSystem::on_key(int key, int scancode, int action, int mods) {
-    (void)scancode; (void)mods;
+void WorldSystem::on_key(int key, int, int action, int) {
     processPlayerInput(key, action);
 }
 
-void WorldSystem::on_mouse_move(const glm::vec2& position) {
-    (void) position;
+void WorldSystem::on_mouse_move(const glm::vec2&) {
 }
 
-void WorldSystem::on_mouse_click(int button, int action, const glm::vec2& position, int mods) {
-    (void)button; (void)action;
+void WorldSystem::on_mouse_click(int button, int action, const glm::vec2&, int) {
     if (action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_LEFT) {
         if (registry.combat.has(m_player)) {
             if (canAttack) {  // Ensure the player can attack

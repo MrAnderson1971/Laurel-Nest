@@ -1,7 +1,7 @@
 #include "pause_state.hpp"
 #include "ecs_registry.hpp"
 
-PauseState::PauseState(RenderSystem& renderSystem) : renderSystem(renderSystem), timePassed(0) {}
+PauseState::PauseState(): timePassed(0) {}
 
 PauseState::~PauseState() {
     cleanup();

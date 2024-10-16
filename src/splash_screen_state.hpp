@@ -6,7 +6,7 @@
 
 class SplashScreenState : public GameState {
 public:
-    SplashScreenState(RenderSystem& renderSystem);
+    SplashScreenState();
     ~SplashScreenState();
     void init() override;
     void on_key(int key, int scancode, int action, int mods) override;
@@ -17,6 +17,5 @@ public:
     void cleanup() override;
 
 private:
-    RenderSystem& renderSystem;
     Entity splashScreenEntity;
 };

@@ -7,7 +7,6 @@ int main()
 {
     std::cout << "START" << std::endl;
 
-    RenderSystem renderSystem;
     GameStateManager gameStateManager;
     renderSystem.setGameStateManager(&gameStateManager);
 
@@ -17,7 +16,7 @@ int main()
         return -1;
     }
 
-    gameStateManager.changeState(std::make_unique<SplashScreenState>(renderSystem));
+    gameStateManager.changeState(std::make_unique<SplashScreenState>());
 
     renderSystem.renderLoop();
 
