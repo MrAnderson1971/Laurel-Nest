@@ -9,6 +9,8 @@
 #include "ai_system.h"
 
 WorldSystem::WorldSystem(RenderSystem& renderSystem) : renderSystem(renderSystem) {
+    regionManager = std::make_unique<RegionManager>();
+    Region::setRenderSystem(renderSystem);
 }
 
 WorldSystem::~WorldSystem() {
@@ -19,7 +21,7 @@ void WorldSystem::init() {
     // Create a new entity and register it in the ECSRegistry
     m_player = Entity();
     m_sword = Entity();
-    cesspit = Cesspit();
+    regionManager->setRegion(std::make_unique<Cesspit>());
 
     // Player
 
@@ -124,7 +126,7 @@ void WorldSystem::init() {
     // MANDY LOOK
     // Ground:
     // sprite for ground, move this elsewhere for optimization. It is here for testing
-    cesspit.room1(renderSystem);
+    regionManager->init();
 
     // Create and initialize the Heart sprites
 
