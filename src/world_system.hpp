@@ -2,11 +2,9 @@
 #include "common.hpp"
 #include <memory>
 #include "ecs.hpp"
-#include "ecs_registry.hpp"
 #include "game_state.hpp"
 #include "render_system.hpp"
-#include "cesspit_map.hpp"
-
+#include "region_manager.hpp"
 
 constexpr float player_speed = 1.0f;
 constexpr float player_jump_velocity = 3.5f; // just high enough to reach the test platform
@@ -22,9 +20,11 @@ const float ATTACKING_BB_HEIGHT = 2.f * 714.f;
 const float HEARTS_WIDTH = 0.4f * 964.0f;
 const float HEARTS_HEIGHT = 0.4f * 366.0f;
 
+class RegionManager;
+
 class WorldSystem : public GameState {
 public:
-	WorldSystem(RenderSystem& renderSystem);
+	WorldSystem();
 	~WorldSystem();
 
 	void init() override;
@@ -39,13 +39,12 @@ public:
 	void handle_collisions();
 
 private:
-	RenderSystem& renderSystem;
 	Entity m_player;
   //Entity m_ground;
 	Entity m_hearts;
 	Entity m_goomba;
 	Entity m_sword;
-	Cesspit cesspit;
+	std::unique_ptr<RegionManager> regionManager;
 	std::unordered_map<int, std::function<void()>> keyPressActions;
 	std::unordered_map<int, std::function<void()>> keyReleaseActions;
 	void player_get_damaged(Entity hostile);

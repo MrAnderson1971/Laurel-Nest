@@ -7,6 +7,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+RenderSystem& renderSystem = RenderSystem::instance();
+
 RenderSystem::RenderSystem()
     : window(nullptr), shaderProgram(0), VAO(0), VBO(0), EBO(0)
 {

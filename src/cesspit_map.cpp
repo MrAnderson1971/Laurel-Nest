@@ -10,7 +10,11 @@ Cesspit::Cesspit() {
 Cesspit::~Cesspit() {
 }
 
-void Cesspit::background(RenderSystem& renderSystem) {
+void Cesspit::init() {
+    room1();
+}
+
+void Cesspit::background() {
     // background
     Sprite bgSprite;
     int bgWidth, bgHeight;
@@ -30,11 +34,11 @@ void Cesspit::background(RenderSystem& renderSystem) {
     registry.envObject.emplace(m_bg, std::move(bgObj));
 }
 
-void Cesspit::room1(RenderSystem& renderSystem) {
+void Cesspit::room1() {
 
     // clear previous environment
     registry.envObject.clear();
-    background(renderSystem);
+    background();
 
     // ceiling
     Sprite ceilingSprite;
@@ -161,7 +165,7 @@ void Cesspit::room1(RenderSystem& renderSystem) {
 }
 
 
-void Cesspit::room2(RenderSystem& renderSystem) {
+void Cesspit::room2() {
     Sprite groundSprite;
     int groundWidth, groundHeight;
     groundSprite.textureID = renderSystem.loadTexture("demo_ground.png", groundWidth, groundHeight);
@@ -184,7 +188,7 @@ void Cesspit::room2(RenderSystem& renderSystem) {
     registry.motions.emplace(m_ground, std::move(groundMotion));
 }
 
-void Cesspit::room3(RenderSystem& renderSystem) {
+void Cesspit::room3() {
     Sprite groundSprite;
     int groundWidth, groundHeight;
     groundSprite.textureID = renderSystem.loadTexture("demo_ground.png", groundWidth, groundHeight);
@@ -207,7 +211,7 @@ void Cesspit::room3(RenderSystem& renderSystem) {
     registry.motions.emplace(m_ground, std::move(groundMotion));
 }
 
-void Cesspit::bossRoom(RenderSystem& renderSystem) {
+void Cesspit::bossRoom() {
     Sprite groundSprite;
     int groundWidth, groundHeight;
     groundSprite.textureID = renderSystem.loadTexture("demo_ground.png", groundWidth, groundHeight);

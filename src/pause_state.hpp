@@ -3,7 +3,7 @@
 
 class PauseState : public GameState {
 public:
-    PauseState(RenderSystem& renderSystem);
+    PauseState();
     ~PauseState();
 
     void init() override;
@@ -17,6 +17,5 @@ public:
 private:
     float timePassed;
     Entity pauseScreenEntity;
-    RenderSystem& renderSystem;
     inline void lerp(float start, float end, float t) const;
 };
