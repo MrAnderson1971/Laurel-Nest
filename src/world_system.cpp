@@ -31,7 +31,7 @@ void WorldSystem::init() {
     Motion playerMotion;
     playerMotion.position = glm::vec2(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() / 2.0f);
     playerMotion.velocity = glm::vec2(0, 0);
-    playerMotion.scale = { WALKING_BB_WIDTH * 0.2f, WALKING_BB_HEIGHT * 0.2f };
+    playerMotion.scale = { WALKING_BB_WIDTH, WALKING_BB_HEIGHT };
     registry.motions.emplace(m_player, std::move(playerMotion));
 
     // Add the Weapon component to the sword entity
@@ -60,12 +60,11 @@ void WorldSystem::init() {
 
     // Create and initialize the Animation component
 
-    Animation<PlayerState> playerAnimations;
+    Animation<PlayerState> playerAnimations(IDLE);
     std::vector<Sprite> idleSprite;
     std::vector<Sprite> walkingSprites;
     std::vector<Sprite> jumpingSprites;
     std::vector<Sprite> attackingSprites;
-
 
     registry.bounding_box.emplace(m_player);
 
@@ -109,7 +108,6 @@ void WorldSystem::init() {
 
     playerAnimations.addState(PlayerState::WALKING, walkingSprites);
     playerAnimations.addState(PlayerState::IDLE, idleSprite);
-    playerAnimations.setState(PlayerState::IDLE);
     playerAnimations.addState(PlayerState::JUMPING, jumpingSprites);
     playerAnimations.addState(PlayerState::ATTACKING, attackingSprites);
     registry.playerAnimations.emplace(m_player, std::move(playerAnimations));
@@ -118,7 +116,7 @@ void WorldSystem::init() {
     // Create and initialize a TransformComponent for the player
     TransformComponent playerTransform;
     playerTransform.position = glm::vec3(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() / 2.0f, 0.0f);
-    playerTransform.scale = glm::vec3(WALKING_BB_WIDTH * 0.2f, WALKING_BB_HEIGHT * 0.2f, 1.0f);
+    playerTransform.scale = glm::vec3(WALKING_BB_WIDTH, WALKING_BB_HEIGHT, 1.0f);
     playerTransform.rotation = 0.0f;
     registry.transforms.emplace(m_player, std::move(playerTransform));
 
@@ -206,16 +204,6 @@ void WorldSystem::update(float deltaTime) {
                 m.position[1] = window_height_px;
                 m.velocity.y = 0;
 
-//        if (c.frames > 0 && !canAttack) {
-//            currentState = PlayerState::ATTACKING;
-//        }
-//        else if (m.velocity[0] != 0) {
-//            currentState = PlayerState::WALKING;
-//        }
-//        else {
-//            currentState = PlayerState::IDLE;
-//        }
-
                 // Only the player can be grounded and jump
                 if (entity == m_player) {
                     isGrounded = true;
@@ -233,9 +221,6 @@ void WorldSystem::update(float deltaTime) {
                 m.scale.x = std::abs(m.scale.x);
             }
 
-            // Step 5: Update the transform component for all entities
-            t = m;
-
             // Player-specific logic
             if (entity == m_player && registry.playerAnimations.has(m_player) && registry.combat.has(m_player)) {
                 auto& a = registry.playerAnimations.get(m_player);
@@ -250,20 +235,8 @@ void WorldSystem::update(float deltaTime) {
                 }
 
                 // Step 6: Handle player state (JUMPING, WALKING, ATTACKING)
-//                PlayerState currentState = a.getState();
-//                if (c.frames > 0 && !canAttack) {
-//                    currentState = PlayerState::ATTACKING;
-//                }
-//                else if (m.velocity[0] != 0) {
-//                    currentState = PlayerState::WALKING;
-//                }
-//                else {
-//                    currentState = PlayerState::IDLE;
-//                }
                 PlayerState currentState = a.getState();
-                if (isGrounded && a.getState() == PlayerState::JUMPING) {
-                    currentState = PlayerState::IDLE;  // Switch to IDLE on landing
-                } else if (c.frames > 0 && !canAttack) {
+                if (c.frames > 0 && !canAttack) {
                     currentState = PlayerState::ATTACKING;
                 } else if (m.velocity[0] != 0) {
                     currentState = PlayerState::WALKING;
@@ -274,14 +247,17 @@ void WorldSystem::update(float deltaTime) {
                 }
 
                 // Step 7: Update bounding box size based on state
-                if (currentState == PlayerState::WALKING || currentState == PlayerState::IDLE) {
-                    m.scale = glm::vec2(WALKING_BB_WIDTH * 0.2f * signof(m.scale.x), WALKING_BB_HEIGHT * 0.2f);
-                }
-                else if (currentState == PlayerState::JUMPING) {
-                    m.scale = glm::vec2(JUMPING_BB_WIDTH * 0.2f * signof(m.scale.x), JUMPING_BB_HEIGHT * 0.2f);
-                }
-                else if (currentState == PlayerState::ATTACKING) {
-                    m.scale = glm::vec2(ATTACKING_BB_WIDTH * 0.2f * signof(m.scale.x), ATTACKING_BB_HEIGHT * 0.2f);
+                switch (currentState) {
+                case WALKING:
+                case IDLE:
+                    m.scale = vec2(WALKING_BB_WIDTH * signof(m.scale.x), WALKING_BB_HEIGHT);
+                    break;
+                case JUMPING:
+                    m.scale = vec2(JUMPING_BB_WIDTH * signof(m.scale.x), JUMPING_BB_HEIGHT);
+                    break;
+                case ATTACKING:
+                    m.scale = vec2(ATTACKING_BB_WIDTH * signof(m.scale.x), ATTACKING_BB_HEIGHT);
+                    break;
                 }
 
                 // Step 8: Update the player animation state if it has changed
@@ -307,12 +283,12 @@ void WorldSystem::update(float deltaTime) {
                     registry.players.get(m_player).attacking = false;
                 }
             }
+            // Step 5: Update the transform component for all entities
+            t = m;
         }
     }
     // Handle collisions
     handle_collisions();
-
-
 
     std::vector<Entity> to_remove;
     for (auto& e : registry.invinciblityTimers.entities) {
@@ -352,9 +328,6 @@ void WorldSystem::update(float deltaTime) {
             }
         }
     }
-    // Handle collisions
-    // handle_collisions();
-    //checkPlayerGroundCollision();
 
     //Update bounding boxes for all the entities
     auto & bounding_boxes = registry.bounding_box;
@@ -363,33 +336,6 @@ void WorldSystem::update(float deltaTime) {
         updateBoundingBox(e1);
     }
 }
-
-//void updateBoundingBox(Entity e1){
-//    Motion& player_motion = registry.motions.get(e1);
-//    float box_height = player_motion.scale.y * registry.bounding_box.get(e1).height;
-//    float y_value_min = player_motion.position.y - box_height/2;
-//    float y_value_max = player_motion.position.y + box_height/2;
-//    float box_width = player_motion.scale.x * registry.bounding_box.get(e1).width;
-//    float x_value_min = player_motion.position.x - box_width/2;
-//    float x_value_max = player_motion.position.x + box_width/2;
-//    BoundingBox bounding_box = registry.bounding_box.get(e1);
-//
-//    //Top Left
-//    bounding_box.p1.x = x_value_min;
-//    bounding_box.p1.y = y_value_max;
-//
-//    //Bottom Left
-//    bounding_box.p2.x = x_value_min;
-//    bounding_box.p2.y = y_value_min;
-//
-//    //Bottom Right
-//    bounding_box.p3.x = x_value_max;
-//    bounding_box.p3.y = y_value_min;
-//
-//    //Top Right
-//    bounding_box.p4.x = x_value_max;
-//    bounding_box.p4.y = y_value_max;
-//}
 
 void WorldSystem::handle_collisions() {
     auto& collisionsRegistry = registry.collisions;
@@ -479,18 +425,6 @@ void WorldSystem::render() {
         renderSystem.drawEntity(animation.getCurrentFrame(), transform);
     }
 
-    // Draw the ground entity if it exists and has the required components
-    
-//
-//    // Draw the Goomba entity if it exists and has the required components
-//    if (registry.transforms.has(m_goomba) && registry.sprites.has(m_goomba))
-//    {
-//        auto& transform = registry.transforms.get(  m_goomba);
-//        auto& sprite = registry.sprites.get(m_goomba);
-//        renderSystem.drawEntity(sprite, transform);
-//    }
-
-
     // Draw health
     if (registry.transforms.has(m_hearts) && registry.sprites.has(m_hearts))
     {
@@ -558,17 +492,11 @@ void WorldSystem::processPlayerInput(int key, int action) {
     // Jump (Space key)
     if (action == GLFW_PRESS && (key == GLFW_KEY_SPACE || key == GLFW_KEY_W)) {
         if (registry.motions.has(m_player)) {
-            auto &playerMotion = registry.motions.get(m_player);
+            auto& playerMotion = registry.motions.get(m_player);
             if (canJump) {  // Ensure the player can only jump if grounded
                 playerMotion.velocity[1] = -player_jump_velocity;  // Apply jump velocity
                 canJump = false;  // Prevent further jumps mid-air
                 isGrounded = false;
-
-                // Change state to JUMPING
-                if (registry.playerAnimations.has(m_player)) {
-                    auto& playerAnimation = registry.playerAnimations.get(m_player);
-                    playerAnimation.setState(PlayerState::JUMPING);
-                }
             }
         }
     }
@@ -589,22 +517,7 @@ void WorldSystem::processPlayerInput(int key, int action) {
     if (action == GLFW_PRESS && key == GLFW_KEY_P) {
         respawnGoomba();
     }
-
-//    // THIS IS JUST A TEST TO SEE IF THE HEALTHSPRITES UPDATE AND THEY DO
-//    // Press L to DAMAGE the player
-//    if (action == GLFW_PRESS && key == GLFW_KEY_L) {
-//        Health& player_health = registry.healths.get(m_player);
-//        if (player_health.current_health > 0) {
-//            player_health.current_health--;
-//            update_heartSprite(player_health.current_health);
-//        }
-//        else {
-//            printf("For the purposes of this test, you have zero health and cannot damage yourself anymore");
-//        }
-//    }
-
 }
-
 
 void WorldSystem::on_key(int key, int, int action, int) {
     processPlayerInput(key, action);
@@ -622,15 +535,8 @@ void WorldSystem::on_mouse_click(int button, int action, const glm::vec2&, int) 
                 canAttack = false;  // Prevent further attacks for a time
                 auto& c = registry.combat.get(m_player);
                 c.frames = c.max_frames;
-
-                // Change state to ATTACKING
-                if (registry.playerAnimations.has(m_player)) {
-                    auto& playerAnimation = registry.playerAnimations.get(m_player);
-                    playerAnimation.setState(PlayerState::ATTACKING);
-                }
                 registry.players.get(m_player).attacking = true;
             }
-    
         }
     }
 }
@@ -649,9 +555,6 @@ void WorldSystem::player_get_damaged(Entity hostile) {
     if (player_health.current_health > 0) {
         player_health.current_health -= hostile_damage.damage_dealt;
         update_heartSprite(player_health.current_health);
-        if (player_health.current_health == 0) {
-
-        }
     }
 }
 

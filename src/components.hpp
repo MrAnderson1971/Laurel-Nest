@@ -29,7 +29,7 @@ struct Animation {
     size_t currentFrame;
     State currentState;
 
-    Animation() : frameDuration(0.1f), currentTime(0.0f), currentFrame(0) {}
+    Animation(State s) : frameDuration(0.1f), currentTime(0.0f), currentFrame(0), currentState(s) {}
 
     // add a new animation state
     void addState(State newState, const std::vector<Sprite>& newSprites) {
@@ -45,21 +45,11 @@ struct Animation {
         }
     }
 
-//    void setState(State newState) {
-//        if (frames.find(newState) != frames.end()) {
-//            currentState = newState;
-//            currentFrame = 0;
-//            currentTime = 0.0f;
-//        }
-//    }
     void setState(State newState) {
         if (frames.find(newState) != frames.end()) {
             currentState = newState;
             currentFrame = 0;
             currentTime = 0.0f;
-
-            // Optional: Reset the scale based on the new state's sprite dimensions
-            const Sprite& sprite = frames[currentState][0]; // Get the first sprite of the new state
         }
     }
 
