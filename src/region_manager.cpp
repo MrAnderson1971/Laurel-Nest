@@ -4,9 +4,9 @@ void RegionManager::init() {
 
 }
 
-void RegionManager::setRegion(std::unique_ptr<Region> region) {
+void RegionManager::setRegion(const RegionFactory& region) {
 	if (region) {
-		currentRegion = std::move(region);
+		currentRegion = std::move(region());
 		currentRegion->init();
 	}
 }
