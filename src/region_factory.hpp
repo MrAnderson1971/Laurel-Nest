@@ -1,3 +1,4 @@
+#pragma once
 #include <memory>
 
 inline std::unique_ptr<Region> makeCesspit() {
