@@ -324,26 +324,26 @@ void RenderSystem::cleanup()
 
 void RenderSystem::keyCallbackRedirect(GLFWwindow* wnd, int key, int scancode, int action, int mods)
 {
-    RenderSystem* renderSystem = static_cast<RenderSystem*>(glfwGetWindowUserPointer(wnd));
-    if (renderSystem && renderSystem->gameStateManager)
+    RenderSystem* renderSystem_ = static_cast<RenderSystem*>(glfwGetWindowUserPointer(wnd));
+    if (renderSystem_ && renderSystem_->gameStateManager)
     {
-        renderSystem->gameStateManager->on_key(key, scancode, action, mods);
+        renderSystem_->gameStateManager->on_key(key, scancode, action, mods);
     }
 }
 
 void RenderSystem::mouseMoveCallbackRedirect(GLFWwindow* wnd, double xpos, double ypos) {
-    RenderSystem* renderSystem = static_cast<RenderSystem*>(glfwGetWindowUserPointer(wnd));
-    if (renderSystem && renderSystem->gameStateManager) {
-        renderSystem->gameStateManager->on_mouse_move(glm::vec2(xpos, ypos)); // Forward to WorldSystem
+    RenderSystem* renderSystem_ = static_cast<RenderSystem*>(glfwGetWindowUserPointer(wnd));
+    if (renderSystem_ && renderSystem_->gameStateManager) {
+        renderSystem_->gameStateManager->on_mouse_move(glm::vec2(xpos, ypos)); // Forward to WorldSystem
     }
 }
 
 void RenderSystem::mouseClickCallbackRedirect(GLFWwindow* wnd, int button, int action, int mods) {
-    RenderSystem* renderSystem = static_cast<RenderSystem*>(glfwGetWindowUserPointer(wnd));
-    if (renderSystem && renderSystem->gameStateManager) {
+    RenderSystem* renderSystem_ = static_cast<RenderSystem*>(glfwGetWindowUserPointer(wnd));
+    if (renderSystem_ && renderSystem_->gameStateManager) {
         double xpos, ypos;
         glfwGetCursorPos(wnd, &xpos, &ypos);
-        renderSystem->gameStateManager->on_mouse_click(button, action, glm::vec2(xpos, ypos), mods);
+        renderSystem_->gameStateManager->on_mouse_click(button, action, glm::vec2(xpos, ypos), mods);
     }
 }
 
