@@ -9,5 +9,4 @@ public:
 protected:
 	std::unique_ptr<RoomStrategy> currentRoom;
 	void setRoomStrategy(std::unique_ptr<RoomStrategy> roomStrat);
-	void createRoom() const;
 };

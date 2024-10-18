@@ -21,7 +21,7 @@ void WorldSystem::init() {
     // Create a new entity and register it in the ECSRegistry
     m_player = Entity();
     m_sword = Entity();
-    regionManager->setRegion(makeCesspit);
+    regionManager->setRegion(makeRegion<Cesspit>);
 
     // Player
 

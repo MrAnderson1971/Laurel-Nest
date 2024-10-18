@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 
-inline std::unique_ptr<Region> makeCesspit() {
-	return std::make_unique<Cesspit>();
+template<typename R>
+std::unique_ptr<Region> makeRegion() {
+	return std::make_unique<R>();
 }
