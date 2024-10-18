@@ -1,6 +1,7 @@
 #include <iostream>
 #include "cesspit_map.hpp"
 #include "world_system.hpp"
+#include "enemy.hpp"
 
 Cesspit::Cesspit() {
     m_ground = Entity();
@@ -125,39 +126,11 @@ void Cesspit::room1(RenderSystem& renderSystem) {
     bb = registry.bounding_box.get(m_ground);
     bb.height = platformSprite.height;
     bb.width = platformSprite.width;
-
-    // note on bg: don't add motion
-
-/*    Sprite goombaSprite;
-    int groundWidth_1, groundHeight_1;
-    goombaSprite.textureID = renderSystem.loadTexture("goomba_walk_idle.png", groundWidth_1, groundHeight_1);
-    goombaSprite.width = 1.0f;
-    goombaSprite.height = 1.0f;
-    registry.sprites.emplace(m_goomba, std::move(goombaSprite));
-
-    TransformComponent goomba_transform;
-    goomba_transform.position = glm::vec3(renderSystem.getWindowWidth() / 2.0f + 100, renderSystem.getWindowHeight()/2 + 320, 0.0);
-    goomba_transform.scale = glm::vec3(WALKING_BB_WIDTH * 0.2f, WALKING_BB_HEIGHT * 0.2f, 1.0f);
-    goomba_transform.rotation = 0.0f;
-    registry.transforms.emplace(m_goomba, std::move(goomba_transform));
-
-    // Create and initialize a Motion component for the goombaSprite
-    Motion goombaMotion;
-    goombaMotion.position = glm::vec2(renderSystem.getWindowWidth() / 2.0f + 100, renderSystem.getWindowHeight()/2 + 320);
-    goombaMotion.velocity = glm::vec2(0, 0);
-    goombaMotion.scale = {WALKING_BB_WIDTH * 0.2f, WALKING_BB_HEIGHT * 0.2f};
-    registry.motions.emplace(m_goomba, std::move(goombaMotion));
-
-    registry.bounding_box.emplace(m_goomba);
-    bb = registry.bounding_box.get(m_goomba);
-    bb.height = 1.0f;
-    bb.width = 1.0f;
-
-    Environment goombaObj;
-    registry.envObject.emplace(m_goomba, std::move(goombaObj));*/
     registry.grounds.emplace(m_ground, std::move(Ground()));
     registry.grounds.emplace(m_platform, std::move(Ground()));
 
+    GoombaLand goomba_land_1 = GoombaLand();
+    goomba_land_1.init(renderSystem.getWindowWidth() - 50, 0);
 }
 
 

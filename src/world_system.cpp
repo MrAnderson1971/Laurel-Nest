@@ -19,6 +19,8 @@ void WorldSystem::init() {
     // Create a new entity and register it in the ECSRegistry
     m_player = Entity();
     m_sword = Entity();
+    m_goombaLand = Entity();
+    m_goombaCeiling = Entity();
     cesspit = Cesspit();
 
     // Player
@@ -121,48 +123,14 @@ void WorldSystem::init() {
     playerTransform.rotation = 0.0f;
     registry.transforms.emplace(m_player, std::move(playerTransform));
 
+    init_all_goomba_sprites();
+
     // MANDY LOOK
     // Ground:
     // sprite for ground, move this elsewhere for optimization. It is here for testing
     cesspit.room1(renderSystem);
 
-    // Create and initialize the Heart sprites
-
-    std::vector<Sprite> heartSprites;
-    for (unsigned i = 0; i <= 3; i++) {
-        int heartWidth, heartHeight;
-        GLuint heartTextureID = renderSystem.loadTexture("heart_" + std::to_string(i) + ".png", heartWidth, heartHeight);
-        Sprite heartSprite;
-        heartSprite.textureID = heartTextureID;
-        heartSprite.width = 1.0f;
-        heartSprite.height = 1.0f;
-        heartSprites.push_back(heartSprite);
-    }
-    registry.heartSprites.emplace(m_hearts, std::move(heartSprites));
-
-    // Create and initialize the a Transform component for the Heart sprites
-    TransformComponent heartSpriteTransform;
-    heartSpriteTransform.position = glm::vec3(250.0f, 120.0f, 0.0);
-    heartSpriteTransform.scale = glm::vec3(HEARTS_WIDTH, HEARTS_HEIGHT, 1.0);
-    heartSpriteTransform.rotation = 0.0f;
-    registry.transforms.emplace(m_hearts, std::move(heartSpriteTransform));
-
-    Sprite goombaSprite;
-    int goombaWidth, goombaHeight;
-    goombaSprite.textureID = renderSystem.loadTexture("goomba_walk_idle.PNG", goombaWidth, goombaHeight);
-    goombaWidth /= 4; goombaHeight /= 4;
-    registry.sprites.emplace(m_goomba, goombaSprite);
-
-    TransformComponent goombaTransform;
-    registry.transforms.emplace(m_goomba, std::move(goombaTransform));
-    Motion goombaMotion;
-    goombaMotion.position = vec2(renderSystem.getWindowWidth() - 50, 0);
-    goombaMotion.scale = vec2(goombaWidth, goombaHeight);
-    registry.motions.emplace(m_goomba, std::move(goombaMotion));
-    registry.gravity.emplace(m_goomba, std::move(Gravity()));
-    registry.patrol_ais.emplace(m_goomba, std::move(Patrol_AI()));
-    registry.damages.emplace(m_goomba, std::move(Damage{ 1 }));
-    registry.healths.emplace(m_goomba, std::move(Health{ 1,1 }));
+    init_status_bar();
 }
 
 void WorldSystem::update(float deltaTime) {
@@ -422,7 +390,7 @@ void WorldSystem::handle_collisions() {
         }
         if (registry.players.has(entity) && registry.damages.has(entity_other) && !registry.invinciblityTimers.has(entity)) {
             if(registry.players.get(m_player).attacking){
-                hostile_get_damaged(m_goomba);
+                hostile_get_damaged(entity_other);
                 registry.players.get(m_player).attacking = false;
             }else{
                 player_get_damaged(entity_other);
@@ -478,38 +446,21 @@ void WorldSystem::render() {
         renderSystem.drawEntity(animation.getCurrentFrame(), transform);
     }
 
-    // Draw the ground entity if it exists and has the required components
-    
-//
-//    // Draw the Goomba entity if it exists and has the required components
-//    if (registry.transforms.has(m_goomba) && registry.sprites.has(m_goomba))
-//    {
-//        auto& transform = registry.transforms.get(  m_goomba);
-//        auto& sprite = registry.sprites.get(m_goomba);
-//        renderSystem.drawEntity(sprite, transform);
-//    }
-
-
-    // Draw health
-    if (registry.transforms.has(m_hearts) && registry.sprites.has(m_hearts))
-    {
-        auto& transform = registry.transforms.get(m_hearts);
-        auto& sprite = registry.sprites.get(m_hearts);
-        renderSystem.drawEntity(sprite, transform);
-    }
-
-
+    // Draw the status bar
     if (registry.transforms.has(m_hearts) && registry.heartSprites.has(m_hearts))
     {
         auto& health = registry.healths.get(m_player);
-        update_heartSprite(health.current_health);
+        update_status_bar(health.current_health);
     }
 
-
-    if (registry.sprites.has(m_goomba) && registry.transforms.has(m_goomba)) {
-        auto& s = registry.sprites.get(m_goomba);
-        auto& t = registry.transforms.get(m_goomba);
-        renderSystem.drawEntity(s, t);
+    // Draw the goombas
+    for (auto& obj : registry.hostiles.entities) {
+        if (registry.transforms.has(obj) && registry.sprites.has(obj))
+        {
+            auto& transform = registry.transforms.get(obj);
+            auto& sprite = registry.sprites.get(obj);
+            renderSystem.drawEntity(sprite, transform);
+        }
     }
 }
 
@@ -650,7 +601,7 @@ void WorldSystem::player_get_damaged(Entity hostile) {
 
     if (player_health.current_health > 0) {
         player_health.current_health -= hostile_damage.damage_dealt;
-        update_heartSprite(player_health.current_health);
+        update_status_bar(player_health.current_health);
         if (player_health.current_health == 0) {
 
         }
@@ -664,7 +615,7 @@ void WorldSystem::player_get_healed() {
     if (health_flask.num_uses > 0 && player_health.max_health > player_health.current_health) {
         player_health.current_health++;
         health_flask.num_uses--;
-        update_heartSprite(player_health.current_health);
+        update_status_bar(player_health.current_health);
         printf("You have %d uses of your health flask left \n", health_flask.num_uses);
     }
     else if (player_health.max_health == player_health.current_health){
@@ -675,6 +626,7 @@ void WorldSystem::player_get_healed() {
     }
 }
 
+// TODO: SOMEHOW DIFFERENTIATE BETWEEN GOOMBAS CUZ CEILING GOOMBA NEEDS GRAVITY WHEN IT DIES
 void WorldSystem::hostile_get_damaged(Entity hostile) {
     if (registry.healths.has(hostile)) {
         Health& hostile_health = registry.healths.get(hostile);
@@ -686,15 +638,10 @@ void WorldSystem::hostile_get_damaged(Entity hostile) {
                 registry.bounding_box.remove(hostile);
                 Motion& hostile_motion = registry.motions.get(hostile);
                 hostile_motion.velocity = {0,0};
-                hostile_motion.position = hostile_motion.position + vec2(0, 50);
-                registry.gravity.remove(hostile);
                 registry.patrol_ais.remove(hostile);               
                 registry.damages.remove(hostile);
                 registry.healths.remove(hostile);
-                Sprite goombaSprite;
-                int goombaWidth, goombaHeight;
-                goombaSprite.textureID = renderSystem.loadTexture("goomba_dead.PNG", goombaWidth, goombaHeight);
-                goombaWidth /= 4; goombaHeight /= 4;
+                Sprite goombaSprite = registry.goombaSprites.get(m_goombaLand).back();
                 registry.sprites.emplace(hostile, goombaSprite);
             }
         }
@@ -702,39 +649,40 @@ void WorldSystem::hostile_get_damaged(Entity hostile) {
  
 }
 
+// Currently broken
 void WorldSystem::respawnGoomba() {
     // Check if the Goomba has been killed
-    if (!registry.healths.has(m_goomba)) {
+    if (!registry.healths.has(m_goombaLand)) {
 
-        registry.healths.emplace(m_goomba, Health{ 1, 1 }); // Goomba has 1 health
+        registry.healths.emplace(m_goombaLand, Health{ 1, 1 }); // Goomba has 1 health
 
         Sprite goombaSprite;
         int goombaWidth, goombaHeight;
         goombaSprite.textureID = renderSystem.loadTexture("goomba_walk_idle.PNG", goombaWidth, goombaHeight);
         goombaWidth /= 4; goombaHeight /= 4;
-        registry.sprites.get(m_goomba) = goombaSprite;
+        registry.sprites.get(m_goombaLand) = goombaSprite;
 
-        auto& goombaMotion = registry.motions.get(m_goomba);
+        auto& goombaMotion = registry.motions.get(m_goombaLand);
         goombaMotion.position = glm::vec2(renderSystem.getWindowWidth() - 50, 0);
         goombaMotion.velocity = glm::vec2(0, 0);
 
-        if (!registry.patrol_ais.has(m_goomba)) {
-            registry.patrol_ais.emplace(m_goomba, Patrol_AI());
+        if (!registry.patrol_ais.has(m_goombaLand)) {
+            registry.patrol_ais.emplace(m_goombaLand, Patrol_AI());
         }
 
-        if (!registry.damages.has(m_goomba)) {
-            registry.damages.emplace(m_goomba, Damage{ 1 });
+        if (!registry.damages.has(m_goombaLand)) {
+            registry.damages.emplace(m_goombaLand, Damage{ 1 });
         }
 
-        if (!registry.gravity.has(m_goomba)) {
-            registry.gravity.emplace(m_goomba, Gravity());
+        if (!registry.gravity.has(m_goombaLand)) {
+            registry.gravity.emplace(m_goombaLand, Gravity());
         }
 
-        if (!registry.bounding_box.has(m_goomba)) {
+        if (!registry.bounding_box.has(m_goombaLand)) {
             BoundingBox goombaBoundingBox;
             goombaBoundingBox.width = static_cast<float>(goombaWidth);
             goombaBoundingBox.height = static_cast<float>(goombaHeight);
-            registry.bounding_box.emplace(m_goomba, goombaBoundingBox);
+            registry.bounding_box.emplace(m_goombaLand, goombaBoundingBox);
         }
 
         std::cout << "Goomba has respawned" << std::endl;
@@ -742,16 +690,36 @@ void WorldSystem::respawnGoomba() {
 }
 
 
-void WorldSystem::update_heartSprite(int num_hearts) {
+void WorldSystem::init_status_bar() {
+    // Create and initialize the Heart sprites
+
+    std::vector<Sprite> heartSprites;
+    for (unsigned i = 0; i <= 3; i++) {
+        int heartWidth, heartHeight;
+        GLuint heartTextureID = renderSystem.loadTexture("heart_" + std::to_string(i) + ".png", heartWidth, heartHeight);
+        Sprite heartSprite;
+        heartSprite.textureID = heartTextureID;
+        heartSprite.width = 1.0f;
+        heartSprite.height = 1.0f;
+        heartSprites.push_back(heartSprite);
+    }
+    registry.heartSprites.emplace(m_hearts, std::move(heartSprites));
+
+    // Create and initialize the a Transform component for the Heart sprites
+    TransformComponent heartSpriteTransform;
+    heartSpriteTransform.position = glm::vec3(250.0f, 120.0f, 0.0);
+    heartSpriteTransform.scale = glm::vec3(HEARTS_WIDTH, HEARTS_HEIGHT, 1.0);
+    heartSpriteTransform.rotation = 0.0f;
+    registry.transforms.emplace(m_hearts, std::move(heartSpriteTransform));
+}
+
+void WorldSystem::update_status_bar(int num_hearts) {
     auto& transform = registry.transforms.get(m_hearts);
     auto& heartSprites = registry.heartSprites.get(m_hearts);
     num_hearts = clamp(num_hearts, 0, static_cast<int>(heartSprites.size()));
     Sprite heartSprite = heartSprites[num_hearts];
     renderSystem.drawEntity(heartSprite, transform);
 }
-
-
-
 
 void WorldSystem::updateBoundingBox(Entity e1) {
     Motion& player_motion = registry.motions.get(e1);
@@ -779,6 +747,74 @@ void WorldSystem::updateBoundingBox(Entity e1) {
     bounding_box.p4.x = x_value_max;
     bounding_box.p4.y = y_value_max;
 
+}
+
+void WorldSystem::init_all_goomba_sprites() {
+    // Create and initialize all goomba sprites
+    init_goomba_land_sprites();
+    init_goomba_ceiling_sprites();
+}
+
+void WorldSystem::init_goomba_land_sprites() {
+    std::vector<Sprite> goombaLandSprites;
+    std::vector<Motion> goombaLandScales;
+    int goombaLandWidth, goombaLandHeight;
+
+    init_goomba_sprite(goombaLandWidth, goombaLandHeight, "goomba_walk_idle.PNG", goombaLandSprites);
+    init_goomba_scale(goombaLandWidth, goombaLandHeight, 4, goombaLandScales);
+
+    init_goomba_sprite(goombaLandWidth, goombaLandHeight, "goomba_walk_notice.PNG", goombaLandSprites);
+    init_goomba_scale(goombaLandWidth, goombaLandHeight, 4, goombaLandScales);
+
+    init_goomba_sprite(goombaLandWidth, goombaLandHeight, "goomba_walk_hit.PNG", goombaLandSprites);
+    init_goomba_scale(goombaLandWidth, goombaLandHeight, 4, goombaLandScales);
+
+    init_goomba_sprite(goombaLandWidth, goombaLandHeight, "goomba_walk_atack.PNG", goombaLandSprites);
+    init_goomba_scale(goombaLandWidth, goombaLandHeight, 4, goombaLandScales);
+
+    init_goomba_sprite(goombaLandWidth, goombaLandHeight, "goomba_dead.PNG", goombaLandSprites);
+    init_goomba_scale(goombaLandWidth, goombaLandHeight, 4, goombaLandScales);
+
+    TransformComponent goombaTransform;
+    registry.transforms.emplace(m_goombaLand, std::move(goombaTransform));
+    registry.goombaSprites.emplace(m_goombaLand, std::move(goombaLandSprites));
+    registry.goombaScales.emplace(m_goombaLand, std::move(goombaLandScales));
+}
+
+void WorldSystem::init_goomba_ceiling_sprites() {
+    // Create and initialize the ceilingGoombaSprites
+    std::vector<Sprite> goombaCeilingSprites;
+    std::vector<Motion> goombaCeilingScales;
+    int goombaCeilingWidth, goombaCeilingHeight;
+
+    init_goomba_sprite(goombaCeilingWidth, goombaCeilingHeight, "ceiling_idle.PNG", goombaCeilingSprites);
+    init_goomba_scale(goombaCeilingWidth, goombaCeilingHeight, 4, goombaCeilingScales);
+
+    init_goomba_sprite(goombaCeilingWidth, goombaCeilingHeight, "ceiling_hit.PNG", goombaCeilingSprites);
+    init_goomba_scale(goombaCeilingWidth, goombaCeilingHeight, 4, goombaCeilingScales);
+
+    init_goomba_sprite(goombaCeilingWidth, goombaCeilingHeight, "ceiling_fall.PNG", goombaCeilingSprites);
+    init_goomba_scale(goombaCeilingWidth, goombaCeilingHeight, 4, goombaCeilingScales);
+
+    init_goomba_sprite(goombaCeilingWidth, goombaCeilingHeight, "goomba_dead.PNG", goombaCeilingSprites);
+    init_goomba_scale(goombaCeilingWidth, goombaCeilingHeight, 4, goombaCeilingScales);
+
+    TransformComponent goombaTransform;
+    registry.transforms.emplace(m_goombaCeiling, std::move(goombaTransform));
+    registry.goombaSprites.emplace(m_goombaCeiling, std::move(goombaCeilingSprites));
+    registry.goombaScales.emplace(m_goombaCeiling, std::move(goombaCeilingScales));
+}
+
+void WorldSystem::init_goomba_sprite(int& width, int& height, std::string path, std::vector<Sprite>& Sprites) {
+    Sprite goombaSprite;
+    goombaSprite.textureID = renderSystem.loadTexture(path, width, height);
+    Sprites.push_back(goombaSprite);
+}
+
+void WorldSystem::init_goomba_scale(int width, int height, int factor, std::vector<Motion>& Motions) {
+    Motion goombaScale;
+    goombaScale.scale = { width / factor, height / factor };
+    Motions.push_back(goombaScale);
 }
 
 

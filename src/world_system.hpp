@@ -7,7 +7,6 @@
 #include "render_system.hpp"
 #include "cesspit_map.hpp"
 
-
 constexpr float player_speed = 1.0f;
 constexpr float player_jump_velocity = 3.5f; // just high enough to reach the test platform
 
@@ -37,22 +36,31 @@ public:
     void processPlayerInput(int key, int action);
 
 	void handle_collisions();
+	/*Entity m_goombaLand;
+	Entity m_goombaCeiling;*/
 
 private:
 	RenderSystem& renderSystem;
 	Entity m_player;
   //Entity m_ground;
 	Entity m_hearts;
-	Entity m_goomba;
 	Entity m_sword;
+	//Entity m_goombaLand;
+	Entity m_goombaCeiling;
 	Cesspit cesspit;
 	std::unordered_map<int, std::function<void()>> keyPressActions;
 	std::unordered_map<int, std::function<void()>> keyReleaseActions;
 	void player_get_damaged(Entity hostile);
 	void player_get_healed();
 	void hostile_get_damaged(Entity hostile);
-	void update_heartSprite(int num_hearts);
+	void update_status_bar(int num_hearts);
     bool checkPlayerGroundCollision();
+	void init_all_goomba_sprites();
+	void init_goomba_land_sprites();
+	void init_goomba_sprite(int& width, int& height, std::string path, std::vector<Sprite>& Sprites);
+	void init_goomba_scale(int width, int height, int factor, std::vector<Motion>& Motions);
+	void init_goomba_ceiling_sprites();
+	void init_status_bar();
     void respawnGoomba();
     bool canJump = false;
     bool isGrounded = false;
@@ -60,3 +68,4 @@ private:
 
     void updateBoundingBox(Entity entity);
 };
+

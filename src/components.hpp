@@ -21,6 +21,7 @@ enum PlayerState {
 /* Template Animation component for animated sprites
 Each supports different animation states, such as walking, jumping, etc.
 */
+
 template<typename State>
 struct Animation {
     std::unordered_map<State, std::vector<Sprite>> frames;
@@ -136,17 +137,10 @@ struct Weapon
 };
 
 
-// anything that is deadly to the player
-struct Deadly
+// anything that is hostile to the player
+struct Hostile
 {
 
-};
-
-// anything that can be damaged but the player
-// enemies, bosses, 
-struct Damagable
-{
-    int health;
 };
 
 // struct for attacking

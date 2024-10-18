@@ -20,9 +20,12 @@ public:
     ComponentContainer<Collision> collisions;
     ComponentContainer<DeathTimer> deathTimers;
     ComponentContainer<Player> players;
+    ComponentContainer<Hostile> hostiles;
     ComponentContainer<TransformComponent> transforms;
     ComponentContainer<Sprite> sprites;
     ComponentContainer<std::vector<Sprite>> heartSprites;
+    ComponentContainer<std::vector<Sprite>> goombaSprites;
+    ComponentContainer<std::vector<Motion>> goombaScales;
     ComponentContainer<RenderRequest> renderRequests; 
     ComponentContainer<ScreenState> screenStates;
     ComponentContainer<Animation<PlayerState>> playerAnimations;
@@ -47,9 +50,12 @@ public:
         registry_list.push_back(&motions);
         registry_list.push_back(&collisions);
         registry_list.push_back(&players);
+        registry_list.push_back(&hostiles);
         registry_list.push_back(&transforms);
         registry_list.push_back(&sprites);
         registry_list.push_back(&heartSprites);
+        registry_list.push_back(&goombaSprites);
+        registry_list.push_back(&goombaScales);
         registry_list.push_back(&renderRequests);
         registry_list.push_back(&screenStates);
         registry_list.push_back(&playerAnimations);
@@ -88,3 +94,5 @@ public:
 };
 
 extern ECSRegistry registry; // The global ECS registry
+extern Entity m_goombaLand;
+extern Entity m_goombaCeiling;
