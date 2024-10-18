@@ -1,15 +1,18 @@
 #pragma once
 #include <memory>
 #include "region.hpp"
+#include <functional>
 
 class Region;
+
+using RegionFactory = std::function<std::unique_ptr<Region>()>;
 
 class RegionManager {
 private:
 	std::unique_ptr<Region> currentRegion;
 public:
-	RegionManager() {};
-	~RegionManager() {};
+	RegionManager() = default;
+	~RegionManager() = default;
 	void init();
-	void setRegion(std::unique_ptr<Region> region);
+	void setRegion(const RegionFactory& region);
 };

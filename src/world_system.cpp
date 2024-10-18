@@ -7,6 +7,7 @@
 #include "cesspit_map.hpp"
 #include "collision_system.h"
 #include "ai_system.h"
+#include "region_factory.hpp"
 
 WorldSystem::WorldSystem() {
     regionManager = std::make_unique<RegionManager>();
@@ -20,7 +21,7 @@ void WorldSystem::init() {
     // Create a new entity and register it in the ECSRegistry
     m_player = Entity();
     m_sword = Entity();
-    regionManager->setRegion(std::make_unique<Cesspit>());
+    regionManager->setRegion(makeRegion<Cesspit>);
 
     // Player
 
