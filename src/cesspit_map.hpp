@@ -3,7 +3,7 @@
 #include "ecs.hpp"
 #include "region.hpp"
 
-class Cesspit final : public Region {
+class Cesspit : public Region {
 public:
 	Cesspit();
 	~Cesspit();
