@@ -3,7 +3,7 @@
 #include "ecs.hpp"
 #include "region.hpp"
 
-class Cesspit : public Region {
+class Cesspit final : public Region {
 public:
 	Cesspit();
 	~Cesspit();
@@ -12,12 +12,12 @@ public:
 
 private:
 	void background();
-	void room1();
+	Entity m_bg;
+
+	// TODO: other rooms
+#if 0
 	void room2();
 	void room3();
 	void bossRoom();
-	Entity m_ground;
-	Entity m_ceiling;
-	Entity m_bg;
-    Entity m_goomba;
+#endif
 };
