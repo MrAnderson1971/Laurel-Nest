@@ -9,27 +9,8 @@ Cesspit::~Cesspit() {
 }
 
 void Cesspit::init() {
-    background();
     setRoomStrategy(std::make_unique<Room1Strategy>());
     currentRoom->execute();
-}
-
-void Cesspit::background() {
-    // background
-    int bgWidth, bgHeight;
-    Sprite bgSprite(renderSystem.loadTexture("cesspit_bg.png", bgWidth, bgHeight));
-
-    registry.sprites.emplace(m_bg, std::move(bgSprite));
-
-    // Create and initialize a TransformComponent for the ground
-    TransformComponent bgTransform;
-    bgTransform.position = glm::vec3(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() / 2.0f, 0.0);
-    bgTransform.scale = glm::vec3(bgWidth, bgHeight, 1.0);
-    bgTransform.rotation = 0.0f;
-    registry.transforms.emplace(m_bg, std::move(bgTransform));
-
-    Environment bgObj;
-    registry.envObject.emplace(m_bg, std::move(bgObj));
 }
 
 // TODO: other rooms
