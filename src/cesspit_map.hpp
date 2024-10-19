@@ -11,8 +11,6 @@ public:
 	void init() override;
 
 private:
-	void background();
-	Entity m_bg;
 
 	// TODO: other rooms
 #if 0
