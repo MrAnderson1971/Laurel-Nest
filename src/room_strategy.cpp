@@ -23,13 +23,33 @@ void Room1Strategy::execute() {
     Environment bgObj;
     registry.envObject.emplace(m_bg, std::move(bgObj));
 
+    // spaceship
+    Entity m_spaceship;
+    Sprite spaceshipSprite;
+    int spaceshipWidth, spaceshipHeight;
+    spaceshipSprite.textureID = renderSystem.loadTexture("spaceship.png", spaceshipWidth, spaceshipHeight);
+    spaceshipSprite.width = 0.5f;
+    spaceshipSprite.height = 0.5f;
+    registry.sprites.emplace(m_spaceship, std::move(spaceshipSprite));
+
+    // Create and initialize a TransformComponent for the spaceship
+    TransformComponent spaceshipTransform;
+    spaceshipTransform.position = glm::vec3(renderSystem.getWindowWidth() * 0.1f, renderSystem.getWindowHeight() * 0.38f, 0.0);
+    spaceshipTransform.scale = glm::vec3(spaceshipWidth, spaceshipHeight, 1.0);
+    spaceshipTransform.rotation = 0.0f;
+    registry.transforms.emplace(m_spaceship, std::move(spaceshipTransform));
+
+    // add spaceship to environment to render out later
+    Environment spaceshipObg;
+    registry.envObject.emplace(m_spaceship, std::move(spaceshipObg));
+
     // ground left
     Entity m_ground_left;
     Sprite groundSprite_left;
     int groundWidth_left, groundHeight_left;
     groundSprite_left.textureID = renderSystem.loadTexture("demo_ground.png", groundWidth_left, groundHeight_left);
     groundSprite_left.width = 1.0f;
-    groundHeight_left = static_cast<int> (groundHeight_left * 2.0f);
+    groundHeight_left = static_cast<int> (groundHeight_left * 1.6f);
     registry.sprites.emplace(m_ground_left, std::move(groundSprite_left));
 
     // Create and initialize a TransformComponent for the ground
@@ -60,8 +80,8 @@ void Room1Strategy::execute() {
     Sprite groundSprite_right;
     int groundWidth_right, groundHeight_right;
     groundSprite_right.textureID = renderSystem.loadTexture("demo_ground.png", groundWidth_right, groundHeight_right);
-    groundWidth_right = static_cast<int>(groundWidth_right * 0.2f);
-    groundHeight_right = static_cast<int> (groundHeight_right * 2.0f);
+    groundWidth_right = static_cast<int>(groundWidth_right * 0.4f);
+    groundHeight_right = static_cast<int> (groundHeight_right * 1.6f);
     registry.sprites.emplace(m_ground_right, std::move(groundSprite_right));
 
     // Create and initialize a TransformComponent for the ground
@@ -92,7 +112,7 @@ void Room1Strategy::execute() {
     Sprite platformSprite1;
     int platformWidth1, platformHeight1;
     platformSprite1.textureID = renderSystem.loadTexture("demo_ground.png", platformWidth1, platformHeight1);
-    platformWidth1 = static_cast<int>(platformWidth1 * 0.15);
+    platformWidth1 = static_cast<int>(platformWidth1 * 0.1);
     platformHeight1 = static_cast<int> (platformHeight1 * 0.2);
     registry.sprites.emplace(m_platform1, std::move(platformSprite1));
 
@@ -124,7 +144,7 @@ void Room1Strategy::execute() {
     Sprite platformSprite2;
     int platformWidth2, platformHeight2;
     platformSprite2.textureID = renderSystem.loadTexture("demo_ground.png", platformWidth2, platformHeight2);
-    platformWidth2 = static_cast<int>(platformWidth2 * 0.15);
+    platformWidth2 = static_cast<int>(platformWidth2 * 0.1);
     platformHeight2 = static_cast<int> (platformHeight2 * 0.2);
     registry.sprites.emplace(m_platform2, std::move(platformSprite2));
 
@@ -151,7 +171,6 @@ void Room1Strategy::execute() {
     bb.height = platformSprite2.height;
     bb.width = platformSprite2.width;
     
-
     // note on bg: don't add motion
     registry.grounds.emplace(m_ground_left, std::move(Ground()));
     registry.grounds.emplace(m_ground_right, std::move(Ground()));
