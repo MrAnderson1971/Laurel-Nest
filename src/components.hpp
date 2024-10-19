@@ -4,11 +4,26 @@
 #include <vector>
 #include <unordered_map>
 #include "../ext/stb_image/stb_image.h"
+#include <memory>
 
 struct Sprite {
-    GLuint textureID;
-    float width = 1.0f;
-    float height = 1.0f;
+    std::shared_ptr<GLuint> textureID;
+    const float width = 1.0f;
+    const float height = 1.0f;
+
+    Sprite(GLuint id) {
+        textureID = std::shared_ptr<GLuint>(new GLuint(id), [](GLuint* id) {
+            if (glIsTexture(*id)) {
+                glDeleteTextures(1, id);
+            }
+            delete id;
+        });
+    }
+
+    Sprite& operator=(const Sprite& other) {
+        textureID = other.textureID;
+        return *this;
+    }
 };
 
 enum PlayerState {
@@ -32,8 +47,8 @@ struct Animation {
     Animation(State s) : frameDuration(0.1f), currentTime(0.0f), currentFrame(0), currentState(s) {}
 
     // add a new animation state
-    void addState(State newState, const std::vector<Sprite>& newSprites) {
-        frames[newState] = newSprites;
+    void addState(State newState, const std::vector<Sprite>&& newSprites) {
+        frames[newState] = std::move(newSprites);
     }
 
     // get the next frame for the current state
