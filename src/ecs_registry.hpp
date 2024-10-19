@@ -14,7 +14,10 @@ public:
     ComponentContainer<Health> healths;
     ComponentContainer<HealthFlask> healthFlasks;
     ComponentContainer<Damage> damages;
+    ComponentContainer<RecentlyDamagedTimer> recentDamageTimers;
     ComponentContainer<InvincibilityTimer> invinciblityTimers;
+    ComponentContainer<ProjectileTimer> projectileTimers;
+    ComponentContainer<Projectile> projectiles;
     ComponentContainer<Weapon> weapons;
     ComponentContainer<Motion> motions;
     ComponentContainer<Collision> collisions;
@@ -44,7 +47,10 @@ public:
         registry_list.push_back(&healths);
         registry_list.push_back(&healthFlasks);
         registry_list.push_back(&damages);
+        registry_list.push_back(&recentDamageTimers);
         registry_list.push_back(&invinciblityTimers);
+        registry_list.push_back(&projectileTimers);
+        registry_list.push_back(&projectiles);
         registry_list.push_back(&weapons);
         registry_list.push_back(&deathTimers);
         registry_list.push_back(&motions);

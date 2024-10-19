@@ -17,9 +17,9 @@ void GoombaLand::init_sprite() {
 	registry.sprites.emplace(entity, std::move(goombaLandSprites[0]));
 }
 
-void GoombaLand::init_components(int width, int height) {
+void GoombaLand::init_components(int x, int y) {
 	Motion goombaMotion;
-	goombaMotion.position = vec2(width, height);
+	goombaMotion.position = vec2(x, y);
 	goombaMotion.scale = registry.goombaScales.get(m_goombaLand)[0].scale;
 	registry.motions.emplace(entity, std::move(goombaMotion));
 
@@ -29,7 +29,7 @@ void GoombaLand::init_components(int width, int height) {
 	registry.gravity.emplace(entity, std::move(Gravity()));
 	registry.patrol_ais.emplace(entity, std::move(Patrol_AI()));
 	registry.damages.emplace(entity, std::move(Damage{ 1 }));
-	registry.healths.emplace(entity, std::move(Health{ 1,1 }));
+	registry.healths.emplace(entity, std::move(Health{ 3,3 }));
 	registry.hostiles.emplace(entity, std::move(Hostile()));
 }
 
@@ -42,5 +42,21 @@ void GoombaCeiling::init_sprite() {
 	registry.sprites.emplace(entity, std::move(goombaCeilingSprites[0]));
 }
 
-void GoombaCeiling::init_components(int width, int height) {
+void GoombaCeiling::init_components(int x, int y) {
+	Motion goombaMotion;
+	goombaMotion.position = vec2(x, y);
+	goombaMotion.scale = registry.goombaScales.get(m_goombaCeiling)[0].scale;
+	registry.motions.emplace(entity, std::move(goombaMotion));
+
+	TransformComponent goombaTransform = registry.transforms.get(m_goombaCeiling);
+	registry.transforms.emplace(entity, std::move(goombaTransform));
+
+	ProjectileTimer spit_timer;
+	spit_timer.max_time = 10;
+	spit_timer.elapsed_time = 10;
+	registry.projectileTimers.emplace(entity, std::move(spit_timer));
+
+	registry.healths.emplace(entity, std::move(Health{ 3,3 }));
+	registry.damages.emplace(entity, std::move(Damage{ 1 }));
+	registry.hostiles.emplace(entity, std::move(Hostile()));
 }

@@ -46,7 +46,7 @@ private:
 	Entity m_hearts;
 	Entity m_sword;
 	//Entity m_goombaLand;
-	Entity m_goombaCeiling;
+	//Entity m_goombaCeiling;
 	Cesspit cesspit;
 	std::unordered_map<int, std::function<void()>> keyPressActions;
 	std::unordered_map<int, std::function<void()>> keyReleaseActions;
@@ -61,11 +61,16 @@ private:
 	void init_goomba_scale(int width, int height, int factor, std::vector<Motion>& Motions);
 	void init_goomba_ceiling_sprites();
 	void init_status_bar();
+	void update_projectile_timer(float delta_time);
+	void update_damaged_sprites(float delta_time);
     void respawnGoomba();
     bool canJump = false;
     bool isGrounded = false;
 	bool canAttack = true;
 
     void updateBoundingBox(Entity entity);
+
+	void goomba_ceiling_death(Entity hostile);
+	void goomba_land_death(Entity hostile);
 };
 

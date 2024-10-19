@@ -131,6 +131,10 @@ void Cesspit::room1(RenderSystem& renderSystem) {
 
     GoombaLand goomba_land_1 = GoombaLand();
     goomba_land_1.init(renderSystem.getWindowWidth() - 50, 0);
+
+    GoombaCeiling goomba_ceiling_1 = GoombaCeiling();
+    goomba_ceiling_1.init((renderSystem.getWindowWidth() / 2), 50);
+
 }
 
 

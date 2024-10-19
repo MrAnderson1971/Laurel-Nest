@@ -120,10 +120,26 @@ struct Damage
     int damage_dealt;
 };
 
+struct RecentlyDamagedTimer
+{
+    float counter_ms = 0.5f;
+};
+
 // A timer that will be associated to when the player can get damaged again 
 struct InvincibilityTimer
 {
     float counter_ms = 2000;
+};
+
+struct ProjectileTimer
+{
+    float max_time;
+    float elapsed_time;
+};
+
+struct Projectile
+{
+
 };
 
 struct HealthFlask

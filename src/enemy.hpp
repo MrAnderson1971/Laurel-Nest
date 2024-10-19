@@ -9,14 +9,14 @@ public:
 	Entity entity;
 	Enemy();
 
-	void init(int width, int height) {
+	void init(int x, int y) {
 		init_sprite();
-		init_components(width, height);
+		init_components(x, y);
 	};
 
 private:
 	virtual void init_sprite() = 0;
-	virtual void init_components(int width, int height) = 0;
+	virtual void init_components(int x, int y) = 0;
 };
 
 class GoombaLand : public Enemy {
@@ -24,7 +24,7 @@ public:
 	GoombaLand();
 private:
 	void init_sprite() override;
-	void init_components(int width, int height) override;
+	void init_components(int x, int y) override;
 };
 
 class GoombaCeiling : public Enemy {
@@ -32,5 +32,5 @@ public:
 	GoombaCeiling();
 private:
 	void init_sprite() override;
-	void init_components(int width, int height) override;
+	void init_components(int x, int y) override;
 };
