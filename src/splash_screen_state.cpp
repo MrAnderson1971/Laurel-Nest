@@ -25,10 +25,7 @@ void SplashScreenState::init()
     // splashScreenEntity.addComponent<TransformComponent>(std::move(splashTransform));
     registry.transforms.emplace(splashScreenEntity, std::move(splashTransform));
 
-    Sprite splashSprite;
-    splashSprite.textureID = splashTextureID;
-    splashSprite.width = 1.0f;
-    splashSprite.height = 1.0f;
+    Sprite splashSprite(splashTextureID);
 
     // splashScreenEntity.addComponent<Sprite>(std::move(splashSprite));
     registry.sprites.emplace(splashScreenEntity, std::move(splashSprite));

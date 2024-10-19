@@ -261,7 +261,7 @@ void RenderSystem::drawEntity(const Sprite& sprite, const TransformComponent& tr
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
     // Bind texture
-    glBindTexture(GL_TEXTURE_2D, sprite.textureID);
+    glBindTexture(GL_TEXTURE_2D, *sprite.textureID.get());
 
     // Bind VAO and draw
     glBindVertexArray(VAO);

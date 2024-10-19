@@ -33,7 +33,7 @@ void WorldSystem::init() {
     playerMotion.position = glm::vec2(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() / 2.0f);
     playerMotion.velocity = glm::vec2(0, 0);
     playerMotion.scale = { WALKING_BB_WIDTH, WALKING_BB_HEIGHT };
-    registry.motions.emplace(m_player, std::move(playerMotion));
+    registry.motions.emplace(m_player, playerMotion);
 
     // Add the Weapon component to the sword entity
     registry.weapons.emplace(m_sword, Weapon());
@@ -41,23 +41,23 @@ void WorldSystem::init() {
     // Create and initialize a damage component for the sword
     Damage swordDamage;
     swordDamage.damage_dealt = 1;
-    registry.damages.emplace(m_sword, std::move(swordDamage));
+    registry.damages.emplace(m_sword, swordDamage);
 
     // Create and initialize a Health component for the player
     Health playerHealth;
     playerHealth.max_health = 3;
     playerHealth.current_health = 3;
-    registry.healths.emplace(m_player, std::move(playerHealth));
+    registry.healths.emplace(m_player, playerHealth);
 
     // Create the HealthFlask for the player to heal with
     HealthFlask healthFlask;
-    registry.healthFlasks.emplace(m_player, std::move(healthFlask));
+    registry.healthFlasks.emplace(m_player, healthFlask);
 
     // Add gravity to the Player
-    registry.gravity.emplace(m_player, std::move(Gravity()));
+    registry.gravity.emplace(m_player, Gravity());
 
     // Add Combat to Player
-    registry.combat.emplace(m_player, std::move(Combat()));
+    registry.combat.emplace(m_player, Combat());
 
     // Create and initialize the Animation component
 
@@ -72,10 +72,7 @@ void WorldSystem::init() {
     for (unsigned i = 1; i <= 4; i++) {
         int playerWidth, playerHeight;
         GLuint playerTextureID = renderSystem.loadTexture("walk_" + std::to_string(i) + ".png", playerWidth, playerHeight);
-        Sprite sprite;
-        sprite.textureID = playerTextureID;
-        sprite.width = 1.0f;
-        sprite.height = 1.0f;
+        Sprite sprite(playerTextureID);
         walkingSprites.push_back(sprite);
         if (i == 3) {
             idleSprite.push_back(sprite);
@@ -90,27 +87,21 @@ void WorldSystem::init() {
     for (unsigned i = 1; i <= 4; i++) {
         int playerWidth, playerHeight;
         GLuint jumpTextureID = renderSystem.loadTexture("jump_" + std::to_string(i) + ".png", playerWidth, playerHeight);
-        Sprite jumpSprite;
-        jumpSprite.textureID = jumpTextureID;
-        jumpSprite.width = 1.0f;
-        jumpSprite.height = 1.0f;
+        Sprite jumpSprite(jumpTextureID);
         jumpingSprites.push_back(jumpSprite);
     }
 
     for (unsigned i = 1; i <= 5; i++) {
         int playerWidth, playerHeight;
         GLuint attackTextureID = renderSystem.loadTexture("attack_" + std::to_string(i) + ".png", playerWidth, playerHeight);
-        Sprite attackSprite;
-        attackSprite.textureID = attackTextureID;
-        attackSprite.width = 1.0f;
-        attackSprite.height = 1.0f;
+        Sprite attackSprite(attackTextureID);
         attackingSprites.push_back(attackSprite);
     }
 
-    playerAnimations.addState(PlayerState::WALKING, walkingSprites);
-    playerAnimations.addState(PlayerState::IDLE, idleSprite);
-    playerAnimations.addState(PlayerState::JUMPING, jumpingSprites);
-    playerAnimations.addState(PlayerState::ATTACKING, attackingSprites);
+    playerAnimations.addState(PlayerState::WALKING, std::move(walkingSprites));
+    playerAnimations.addState(PlayerState::IDLE, std::move(idleSprite));
+    playerAnimations.addState(PlayerState::JUMPING, std::move(jumpingSprites));
+    playerAnimations.addState(PlayerState::ATTACKING, std::move(attackingSprites));
     registry.playerAnimations.emplace(m_player, std::move(playerAnimations));
 
 
@@ -119,7 +110,7 @@ void WorldSystem::init() {
     playerTransform.position = glm::vec3(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() / 2.0f, 0.0f);
     playerTransform.scale = glm::vec3(WALKING_BB_WIDTH, WALKING_BB_HEIGHT, 1.0f);
     playerTransform.rotation = 0.0f;
-    registry.transforms.emplace(m_player, std::move(playerTransform));
+    registry.transforms.emplace(m_player, playerTransform);
 
     // MANDY LOOK
     // Ground:
@@ -132,10 +123,7 @@ void WorldSystem::init() {
     for (unsigned i = 0; i <= 3; i++) {
         int heartWidth, heartHeight;
         GLuint heartTextureID = renderSystem.loadTexture("heart_" + std::to_string(i) + ".png", heartWidth, heartHeight);
-        Sprite heartSprite;
-        heartSprite.textureID = heartTextureID;
-        heartSprite.width = 1.0f;
-        heartSprite.height = 1.0f;
+        Sprite heartSprite(heartTextureID);
         heartSprites.push_back(heartSprite);
     }
     registry.heartSprites.emplace(m_hearts, std::move(heartSprites));
@@ -145,24 +133,23 @@ void WorldSystem::init() {
     heartSpriteTransform.position = glm::vec3(250.0f, 120.0f, 0.0);
     heartSpriteTransform.scale = glm::vec3(HEARTS_WIDTH, HEARTS_HEIGHT, 1.0);
     heartSpriteTransform.rotation = 0.0f;
-    registry.transforms.emplace(m_hearts, std::move(heartSpriteTransform));
+    registry.transforms.emplace(m_hearts, heartSpriteTransform);
 
-    Sprite goombaSprite;
     int goombaWidth, goombaHeight;
-    goombaSprite.textureID = renderSystem.loadTexture("goomba_walk_idle.PNG", goombaWidth, goombaHeight);
+    Sprite goombaSprite(renderSystem.loadTexture("goomba_walk_idle.PNG", goombaWidth, goombaHeight));
     goombaWidth /= 4; goombaHeight /= 4;
     registry.sprites.emplace(m_goomba, goombaSprite);
 
     TransformComponent goombaTransform;
-    registry.transforms.emplace(m_goomba, std::move(goombaTransform));
+    registry.transforms.emplace(m_goomba, goombaTransform);
     Motion goombaMotion;
     goombaMotion.position = vec2(renderSystem.getWindowWidth() - 50, 0);
     goombaMotion.scale = vec2(goombaWidth, goombaHeight);
-    registry.motions.emplace(m_goomba, std::move(goombaMotion));
-    registry.gravity.emplace(m_goomba, std::move(Gravity()));
-    registry.patrol_ais.emplace(m_goomba, std::move(Patrol_AI()));
-    registry.damages.emplace(m_goomba, std::move(Damage{ 1 }));
-    registry.healths.emplace(m_goomba, std::move(Health{ 1,1 }));
+    registry.motions.emplace(m_goomba, goombaMotion);
+    registry.gravity.emplace(m_goomba, Gravity());
+    registry.patrol_ais.emplace(m_goomba, Patrol_AI());
+    registry.damages.emplace(m_goomba, Damage{ 1 });
+    registry.healths.emplace(m_goomba, Health{ 1,1 });
 }
 
 void WorldSystem::update(float deltaTime) {
@@ -593,9 +580,8 @@ void WorldSystem::hostile_get_damaged(Entity hostile) {
                 registry.patrol_ais.remove(hostile);               
                 registry.damages.remove(hostile);
                 registry.healths.remove(hostile);
-                Sprite goombaSprite;
                 int goombaWidth, goombaHeight;
-                goombaSprite.textureID = renderSystem.loadTexture("goomba_dead.PNG", goombaWidth, goombaHeight);
+                Sprite goombaSprite(renderSystem.loadTexture("goomba_dead.PNG", goombaWidth, goombaHeight));
                 goombaWidth /= 4; goombaHeight /= 4;
                 registry.sprites.emplace(hostile, goombaSprite);
             }
@@ -610,9 +596,8 @@ void WorldSystem::respawnGoomba() {
 
         registry.healths.emplace(m_goomba, Health{ 1, 1 }); // Goomba has 1 health
 
-        Sprite goombaSprite;
         int goombaWidth, goombaHeight;
-        goombaSprite.textureID = renderSystem.loadTexture("goomba_walk_idle.PNG", goombaWidth, goombaHeight);
+        Sprite goombaSprite(renderSystem.loadTexture("goomba_walk_idle.PNG", goombaWidth, goombaHeight));
         goombaWidth /= 4; goombaHeight /= 4;
         registry.sprites.get(m_goomba) = goombaSprite;
 
@@ -652,9 +637,6 @@ void WorldSystem::update_heartSprite(int num_hearts) {
     renderSystem.drawEntity(heartSprite, transform);
 }
 
-
-
-
 void WorldSystem::updateBoundingBox(Entity e1) {
     Motion& player_motion = registry.motions.get(e1);
     float box_height = player_motion.scale.y * registry.bounding_box.get(e1).height;
@@ -682,5 +664,3 @@ void WorldSystem::updateBoundingBox(Entity e1) {
     bounding_box.p4.y = y_value_max;
 
 }
-
-

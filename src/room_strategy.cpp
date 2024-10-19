@@ -5,11 +5,9 @@
 void Room1Strategy::execute() {
     // ceiling
     Entity m_ceiling;
-    Sprite ceilingSprite;
     int ceilingWidth, ceilingHeight;
-    ceilingSprite.textureID = renderSystem.loadTexture("demo_ceiling.png", ceilingWidth, ceilingHeight);
-    ceilingSprite.width = 1.0f;
-    ceilingSprite.height = 0.5f;
+    Sprite ceilingSprite(renderSystem.loadTexture("demo_ceiling.png", ceilingWidth, ceilingHeight));
+    ceilingHeight /= 2;
     registry.sprites.emplace(m_ceiling, std::move(ceilingSprite));
 
     // Create and initialize a TransformComponent for the ground
@@ -32,11 +30,8 @@ void Room1Strategy::execute() {
 
     // ground
     Entity m_ground;
-    Sprite groundSprite;
     int groundWidth, groundHeight;
-    groundSprite.textureID = renderSystem.loadTexture("demo_ground.png", groundWidth, groundHeight);
-    groundSprite.width = 1.0f;
-    groundSprite.height = 1.0f;
+    Sprite groundSprite(renderSystem.loadTexture("demo_ground.png", groundWidth, groundHeight));
     registry.sprites.emplace(m_ground, std::move(groundSprite));
 
     // Create and initialize a TransformComponent for the ground
@@ -64,9 +59,8 @@ void Room1Strategy::execute() {
 
     // platform
     Entity m_platform = Entity();
-    Sprite platformSprite;
     int platformWidth, platformHeight;
-    platformSprite.textureID = renderSystem.loadTexture("demo_ground.png", platformWidth, platformHeight);
+    Sprite platformSprite(renderSystem.loadTexture("demo_ground.png", platformWidth, platformHeight));
     platformWidth = static_cast<int>(platformWidth * 0.2);
     platformHeight = static_cast<int> (platformHeight * 0.2);
     registry.sprites.emplace(m_platform, std::move(platformSprite));
@@ -88,7 +82,6 @@ void Room1Strategy::execute() {
     // add platform to environment to render out later
     Environment platformObj;
     registry.envObject.emplace(m_platform, std::move(platformObj));
-
 
     registry.bounding_box.emplace(m_platform);
     bb = registry.bounding_box.get(m_ground);

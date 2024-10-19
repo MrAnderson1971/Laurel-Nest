@@ -16,11 +16,9 @@ void Cesspit::init() {
 
 void Cesspit::background() {
     // background
-    Sprite bgSprite;
     int bgWidth, bgHeight;
-    bgSprite.textureID = renderSystem.loadTexture("cesspit_bg.png", bgWidth, bgHeight);
-    bgSprite.width = 1.0f;
-    bgSprite.height = 1.0f;
+    Sprite bgSprite(renderSystem.loadTexture("cesspit_bg.png", bgWidth, bgHeight));
+
     registry.sprites.emplace(m_bg, std::move(bgSprite));
 
     // Create and initialize a TransformComponent for the ground
