@@ -46,7 +46,8 @@ class RenderSystem
             textures_path("heart_1.png"),             // HEART_1
             textures_path("heart_0.png"),             // HEART_0
             textures_path("entrance_bg.PNG"),         // ENTRANCE_BG
-            textures_path("spaceship.PNG")            // SPACESHIP
+            textures_path("spaceship.PNG"),           // SPACESHIP
+            textures_path("pipes.PNG")                // PIPES
     };
 
 public:

@@ -225,7 +225,8 @@ enum class TEXTURE_ASSET_ID {
     CESSPIT_BG = HEART_0 + 1,                  // cesspit_bg.png
     ENTRANCE_BG = CESSPIT_BG + 1,              // entrance_bg.png
     SPACESHIP = ENTRANCE_BG + 1,               // spaceship.png
-    TEXTURE_COUNT = SPACESHIP + 1              // Count of all textures
+    PIPES = SPACESHIP+ 1,                      // pipes.png
+    TEXTURE_COUNT = PIPES + 1                  // Count of all textures
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
