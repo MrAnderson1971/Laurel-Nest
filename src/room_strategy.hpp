@@ -22,6 +22,10 @@ class Room3Strategy : public RoomStrategy {
 	void execute() override;
 };
 
+class Room4Strategy : public RoomStrategy {
+	void execute() override;
+};
+
 class BossRoomStrategy : public RoomStrategy {
 	void execute() override;
 };
