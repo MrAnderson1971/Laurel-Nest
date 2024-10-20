@@ -6,6 +6,10 @@ public:
 	virtual ~RoomStrategy() = default;
 };
 
+class EntranceRoomStrategy : public RoomStrategy {
+	void execute() override;
+};
+
 class Room1Strategy : public RoomStrategy {
 	void execute() override;
 };
