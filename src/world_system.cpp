@@ -339,7 +339,6 @@ void WorldSystem::handle_collisions() {
 
             if (direction.x != 0) {
                 thisMotion.position.x -= overlap.x * direction.x;
-                thisMotion.velocity.x = 0;
             }
             else if (direction.y > 0 && thisMotion.velocity.y > 0) {
                 thisMotion.position.y -= overlap.y;
