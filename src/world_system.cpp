@@ -330,7 +330,7 @@ void WorldSystem::update(float deltaTime) {
     }
 
     update_projectile_timer(deltaTime);
-
+    update_damaged_sprites(deltaTime);
 
  
 }

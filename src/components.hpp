@@ -122,7 +122,7 @@ struct Damage
 
 struct RecentlyDamagedTimer
 {
-    float counter_ms = 0.5f;
+    float counter_ms = 0.3f;
 };
 
 // A timer that will be associated to when the player can get damaged again 
