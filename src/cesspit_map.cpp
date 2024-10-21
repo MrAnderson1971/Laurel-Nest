@@ -9,7 +9,7 @@ Cesspit::~Cesspit() {
 }
 
 void Cesspit::init() {
-    setRoomStrategy(std::make_unique<Room2Strategy>());
+    setRoomStrategy(std::make_unique<ExitRoomStrategy>());
     currentRoom->execute();
 }
 
