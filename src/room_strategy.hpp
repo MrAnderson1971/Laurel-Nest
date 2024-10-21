@@ -30,3 +30,6 @@ class BossRoomStrategy : public RoomStrategy {
 	void execute() override;
 };
 
+class ExitRoomStrategy : public RoomStrategy {
+	void execute() override;
+};
