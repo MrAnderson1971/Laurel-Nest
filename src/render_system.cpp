@@ -9,6 +9,7 @@
 
 RenderSystem& renderSystem = RenderSystem::instance();
 
+
 RenderSystem::RenderSystem()
     : window(nullptr), shaderProgram(0), VAO(0), VBO(0), EBO(0)
 {
@@ -218,6 +219,10 @@ void RenderSystem::renderLoop()
 {
     float lastTime = static_cast<float>(glfwGetTime());
 
+    // FPS stuff
+    float FPS_Last_Time = 0;
+    unsigned int frames = 0;
+
     while (!glfwWindowShouldClose(window))
     {
         float currentTime = static_cast<float>(glfwGetTime());
@@ -232,6 +237,22 @@ void RenderSystem::renderLoop()
             physics.step(deltaTime);
 
             gameStateManager->render();
+        }
+
+        // FPS stuff
+        float FPS_Delta_Time = currentTime - FPS_Last_Time;
+        frames++;
+
+        if (FPS_Delta_Time >= 1.0)
+        {
+            std::cout << "Current time: " << currentTime << "\n";
+            std::cout << "Last time: " << FPS_Last_Time << "\n";
+            std::cout << "Frames: " << frames << "\n";
+            std::string FPS = std::to_string((1.0 / FPS_Delta_Time) * frames);
+            std::string FPS_String = "FPS: " + FPS;
+            glfwSetWindowTitle(window, FPS_String.c_str());
+            FPS_Last_Time = currentTime;
+            frames = 0;
         }
 
         glfwSwapBuffers(window);
