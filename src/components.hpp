@@ -274,12 +274,30 @@ struct BoundingBox {
     float height = 1;
 };
 
-
-
 struct Environment {
     bool door = false;
 };
 
 struct Ground {
 
+};
+
+// Components used for Maps and Rooms
+// For performance, consider:
+// - having different vectors for different types of components
+struct Room {
+    bool isActive = true;
+    std::unordered_map<unsigned int, unsigned int> map_entity_entityID;
+    std::vector<Entity> entities;
+
+    void insert(Entity entity) {
+        if (!has(entity)) {
+            map_entity_entityID[entity] = (unsigned int)entities.size();
+            entities.push_back(entity);
+        }
+    }
+
+    bool has(Entity entity) {
+        return map_entity_entityID.count(entity) > 0;
+    }
 };
