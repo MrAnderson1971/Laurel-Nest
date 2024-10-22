@@ -36,11 +36,13 @@ public:
 	void cleanup() override;
     void processPlayerInput(int key, int action);
 
+	void handle_motions(float deltaTime);
 	void handle_collisions();
+	void handle_invinciblity(float deltaTime);
+	void handle_ai();
 
 private:
 	Entity m_player;
-  //Entity m_ground;
 	Entity m_hearts;
 	Entity m_goomba;
 	Entity m_sword;

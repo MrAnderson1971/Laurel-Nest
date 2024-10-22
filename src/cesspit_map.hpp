@@ -12,10 +12,4 @@ public:
 
 private:
 
-	// TODO: other rooms
-#if 0
-	void room2();
-	void room3();
-	void bossRoom();
-#endif
 };
