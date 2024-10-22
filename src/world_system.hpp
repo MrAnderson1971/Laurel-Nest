@@ -36,13 +36,13 @@ public:
 	void cleanup() override;
     void processPlayerInput(int key, int action);
 
+	void handle_motions(float deltaTime);
 	void handle_collisions();
-	/*Entity m_goombaLand;
-	Entity m_goombaCeiling;*/
+	void handle_invinciblity(float deltaTime);
+	void handle_ai();
 
 private:
 	Entity m_player;
-  //Entity m_ground;
 	Entity m_hearts;
 	Entity m_sword;
 	std::unique_ptr<RegionManager> regionManager;

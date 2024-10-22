@@ -40,6 +40,8 @@ public:
     ComponentContainer<Ground> grounds;
     ComponentContainer<Patrol_AI> patrol_ais;
 
+    ComponentContainer<Room> rooms;
+
     // constructor that adds all containers for looping over them
     // IMPORTANT: Don't forget to add any newly added containers!
     ECSRegistry()

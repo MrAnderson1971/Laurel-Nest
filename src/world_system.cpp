@@ -125,6 +125,21 @@ void WorldSystem::init() {
 }
 
 void WorldSystem::update(float deltaTime) {
+    handle_motions(deltaTime);
+    handle_collisions();
+    handle_invinciblity(deltaTime);
+    handle_ai();
+
+    // TODO: make this its own function too??
+    //Update bounding boxes for all the entities
+    auto & bounding_boxes = registry.bounding_box;
+    for(int i = 0; i < bounding_boxes.size(); i++){
+        Entity e1 = bounding_boxes.entities[i];
+        updateBoundingBox(e1);
+    }
+}
+
+void WorldSystem::handle_motions(float deltaTime) {
     static PlayerState lastState = PlayerState::WALKING; // Track the player's last state
     // Loop through all entities that have motion components
     for (auto entity : registry.motions.entities) {
@@ -150,9 +165,10 @@ void WorldSystem::update(float deltaTime) {
                 }
             }
             else {
+                // TODO for Kuter: only the entities in the current room should move. 
+                // However, currently the goomba is not tied to a room, so I am not changing this.
                 m.position += m.velocity;
             }
-            
 
             // If this is the player, reset canJump before handling collisions
             if (entity == m_player) {
@@ -198,11 +214,14 @@ void WorldSystem::update(float deltaTime) {
                 PlayerState currentState = a.getState();
                 if (c.frames > 0 && !canAttack) {
                     currentState = PlayerState::ATTACKING;
-                } else if (m.velocity[0] != 0) {
+                }
+                else if (m.velocity[0] != 0) {
                     currentState = PlayerState::WALKING;
-                } else if (!isGrounded) {
+                }
+                else if (!isGrounded) {
                     currentState = PlayerState::JUMPING;
-                } else {
+                }
+                else {
                     currentState = PlayerState::IDLE;
                 }
 
@@ -299,8 +318,8 @@ void WorldSystem::update(float deltaTime) {
     update_projectile_timer(deltaTime);
     update_damaged_sprites(deltaTime);
 
- 
 }
+
 
 void WorldSystem::handle_collisions() {
     auto& collisionsRegistry = registry.collisions;
@@ -362,7 +381,6 @@ void WorldSystem::handle_collisions() {
     registry.collisions.clear();
 }
 
-
 bool WorldSystem::checkPlayerGroundCollision() {
     auto& playerMotion = registry.motions.get(m_player);
     for (auto& groundEntity : registry.collisions.entities) {
@@ -379,17 +397,73 @@ bool WorldSystem::checkPlayerGroundCollision() {
     return false;
 }
 
+void WorldSystem::handle_invinciblity(float deltaTime) {
+    std::vector<Entity> to_remove;
+    for (auto& e : registry.invinciblityTimers.entities) {
+        auto& i = registry.invinciblityTimers.get(e);
+        i.counter_ms -= deltaTime * 1000;
+        if (i.counter_ms <= 0) {
+            to_remove.push_back(e);
+        }
+    }
+
+    for (auto& e : to_remove) {
+        registry.invinciblityTimers.remove(e);
+    }
+}
+
+// TODO for Kuter: possibly need to add guards here once the goomba is tied to a room
+// to not step the ai of enemies in invisible rooms.
+void WorldSystem::handle_ai() {
+    AISystem::step(m_player);
+    for (auto& e : registry.patrol_ais.entities) {
+        auto& p = registry.patrol_ais.get(e);
+        if (registry.motions.has(e)) {
+            auto& m = registry.motions.get(e);
+            if (std::abs(m.position.x - renderSystem.getWindowWidth()) < 10) {
+                p.movingRight = false;
+            }
+            else if (std::abs(m.position.x - 0) < 10) {
+                p.movingRight = true;
+            }
+            if (p.movingRight) {
+                if (p.chasing) {
+                    m.velocity.x = 3;
+                }
+                else {
+                    m.velocity.x = 1;
+                }
+            }
+            else {
+                if (p.chasing) {
+                    m.velocity.x = -3;
+                }
+                else {
+                    m.velocity.x = -1;
+                }
+            }
+        }
+    }
+}
+
 void WorldSystem::render() {
     glClearColor(0.2f, 0.2f, 0.8f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // Draw the ground entity if it exists and has the required components
-    for (auto& obj : registry.envObject.entities) {
-        if (registry.transforms.has(obj) && registry.sprites.has(obj))
-        {
-            auto& transform = registry.transforms.get(obj);
-            auto& sprite = registry.sprites.get(obj);
-            renderSystem.drawEntity(sprite, transform);
+    // Draw the entity if it exists and has the required components
+    // also check if it is in the current room
+    // TODO for Kuter: rather looping therough the rooms, have a current room variable
+    for (auto& room_entity : registry.rooms.entities) {
+        Room& room = registry.rooms.get(room_entity);
+        if (room.isActive) {
+            for (auto& obj : room.entities) {
+                if (registry.envObject.has(obj) && registry.transforms.has(obj) && registry.sprites.has(obj))
+                {
+                    auto& transform = registry.transforms.get(obj);
+                    auto& sprite = registry.sprites.get(obj);
+                    renderSystem.drawEntity(sprite, transform);
+                }
+            }
         }
     }
 
@@ -401,7 +475,6 @@ void WorldSystem::render() {
         auto& transform = registry.transforms.get(m_player);
         renderSystem.drawEntity(animation.getCurrentFrame(), transform);
     }
-    // Draw the status bar
 
     if (registry.transforms.has(m_hearts) && registry.heartSprites.has(m_hearts))
     {
@@ -409,6 +482,7 @@ void WorldSystem::render() {
         update_status_bar(health.current_health);
     }
 
+    // TODO for Kuter: only draw enemies in the current room
     // Draw the goombas
     for (auto& obj : registry.hostiles.entities) {
         if (registry.transforms.has(obj) && registry.sprites.has(obj))
@@ -489,6 +563,20 @@ void WorldSystem::processPlayerInput(int key, int action) {
     if (action == GLFW_PRESS && key == GLFW_KEY_P) {
         respawnGoomba();
     }
+
+    // Press T to change room
+    // TODO for Kuter: remove this later
+    if (action == GLFW_PRESS && key == GLFW_KEY_T) {
+        for (auto& room_entity : registry.rooms.entities) {
+            Room& room = registry.rooms.get(room_entity);
+            if (room.isActive) {
+                room.isActive = false;
+            }
+            else {
+                room.isActive = true;
+            }
+        }
+    }
 }
 
 void WorldSystem::on_key(int key, int, int action, int) {
@@ -517,6 +605,9 @@ void WorldSystem::cleanup() {
     // Remove all components of the player entity from the registry
     registry.remove_all_components_of(m_player);
 }
+
+
+// TODO: move the functions below to their own classes
 
 void WorldSystem::player_get_damaged(Entity hostile) {
     Health& player_health = registry.healths.get(m_player);
