@@ -7,6 +7,9 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+RenderSystem& renderSystem = RenderSystem::instance();
+
+
 RenderSystem::RenderSystem()
     : window(nullptr), shaderProgram(0), VAO(0), VBO(0), EBO(0)
 {
@@ -216,6 +219,10 @@ void RenderSystem::renderLoop()
 {
     float lastTime = static_cast<float>(glfwGetTime());
 
+    // FPS stuff
+    float FPS_Last_Time = 0;
+    unsigned int frames = 0;
+
     while (!glfwWindowShouldClose(window))
     {
         float currentTime = static_cast<float>(glfwGetTime());
@@ -230,6 +237,22 @@ void RenderSystem::renderLoop()
             physics.step(deltaTime);
 
             gameStateManager->render();
+        }
+
+        // FPS stuff
+        float FPS_Delta_Time = currentTime - FPS_Last_Time;
+        frames++;
+
+        if (FPS_Delta_Time >= 1.0)
+        {
+            std::cout << "Current time: " << currentTime << "\n";
+            std::cout << "Last time: " << FPS_Last_Time << "\n";
+            std::cout << "Frames: " << frames << "\n";
+            std::string FPS = std::to_string((1.0 / FPS_Delta_Time) * frames);
+            std::string FPS_String = "FPS: " + FPS;
+            glfwSetWindowTitle(window, FPS_String.c_str());
+            FPS_Last_Time = currentTime;
+            frames = 0;
         }
 
         glfwSwapBuffers(window);
@@ -259,7 +282,7 @@ void RenderSystem::drawEntity(const Sprite& sprite, const TransformComponent& tr
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
     // Bind texture
-    glBindTexture(GL_TEXTURE_2D, sprite.textureID);
+    glBindTexture(GL_TEXTURE_2D, *sprite.textureID.get());
 
     // Bind VAO and draw
     glBindVertexArray(VAO);
@@ -322,26 +345,26 @@ void RenderSystem::cleanup()
 
 void RenderSystem::keyCallbackRedirect(GLFWwindow* wnd, int key, int scancode, int action, int mods)
 {
-    RenderSystem* renderSystem = static_cast<RenderSystem*>(glfwGetWindowUserPointer(wnd));
-    if (renderSystem && renderSystem->gameStateManager)
+    RenderSystem* renderSystem_ = static_cast<RenderSystem*>(glfwGetWindowUserPointer(wnd));
+    if (renderSystem_ && renderSystem_->gameStateManager)
     {
-        renderSystem->gameStateManager->on_key(key, scancode, action, mods);
+        renderSystem_->gameStateManager->on_key(key, scancode, action, mods);
     }
 }
 
 void RenderSystem::mouseMoveCallbackRedirect(GLFWwindow* wnd, double xpos, double ypos) {
-    RenderSystem* renderSystem = static_cast<RenderSystem*>(glfwGetWindowUserPointer(wnd));
-    if (renderSystem && renderSystem->gameStateManager) {
-        renderSystem->gameStateManager->on_mouse_move(glm::vec2(xpos, ypos)); // Forward to WorldSystem
+    RenderSystem* renderSystem_ = static_cast<RenderSystem*>(glfwGetWindowUserPointer(wnd));
+    if (renderSystem_ && renderSystem_->gameStateManager) {
+        renderSystem_->gameStateManager->on_mouse_move(glm::vec2(xpos, ypos)); // Forward to WorldSystem
     }
 }
 
 void RenderSystem::mouseClickCallbackRedirect(GLFWwindow* wnd, int button, int action, int mods) {
-    RenderSystem* renderSystem = static_cast<RenderSystem*>(glfwGetWindowUserPointer(wnd));
-    if (renderSystem && renderSystem->gameStateManager) {
+    RenderSystem* renderSystem_ = static_cast<RenderSystem*>(glfwGetWindowUserPointer(wnd));
+    if (renderSystem_ && renderSystem_->gameStateManager) {
         double xpos, ypos;
         glfwGetCursorPos(wnd, &xpos, &ypos);
-        renderSystem->gameStateManager->on_mouse_click(button, action, glm::vec2(xpos, ypos), mods);
+        renderSystem_->gameStateManager->on_mouse_click(button, action, glm::vec2(xpos, ypos), mods);
     }
 }
 

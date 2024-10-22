@@ -8,8 +8,10 @@
 #include "cesspit_map.hpp"
 #include "collision_system.h"
 #include "ai_system.h"
+#include "region_factory.hpp"
 
-WorldSystem::WorldSystem(RenderSystem& renderSystem) : renderSystem(renderSystem) {
+WorldSystem::WorldSystem() {
+    regionManager = std::make_unique<RegionManager>();
 }
 
 WorldSystem::~WorldSystem() {
@@ -22,8 +24,7 @@ void WorldSystem::init() {
     m_sword = Entity();
     m_goombaLand = Entity();
     m_goombaCeiling = Entity();
-    cesspit = Cesspit();
-
+ 
     // Player
 
     // Add the Player component to the player entity
@@ -33,8 +34,8 @@ void WorldSystem::init() {
     Motion playerMotion;
     playerMotion.position = glm::vec2(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() / 2.0f);
     playerMotion.velocity = glm::vec2(0, 0);
-    playerMotion.scale = { WALKING_BB_WIDTH * 0.2f, WALKING_BB_HEIGHT * 0.2f };
-    registry.motions.emplace(m_player, std::move(playerMotion));
+    playerMotion.scale = { WALKING_BB_WIDTH, WALKING_BB_HEIGHT };
+    registry.motions.emplace(m_player, playerMotion);
 
     // Add the Weapon component to the sword entity
     registry.weapons.emplace(m_sword, Weapon());
@@ -42,42 +43,38 @@ void WorldSystem::init() {
     // Create and initialize a damage component for the sword
     Damage swordDamage;
     swordDamage.damage_dealt = 1;
-    registry.damages.emplace(m_sword, std::move(swordDamage));
+    registry.damages.emplace(m_sword, swordDamage);
 
     // Create and initialize a Health component for the player
     Health playerHealth;
     playerHealth.max_health = 3;
     playerHealth.current_health = 3;
-    registry.healths.emplace(m_player, std::move(playerHealth));
+    registry.healths.emplace(m_player, playerHealth);
 
     // Create the HealthFlask for the player to heal with
     HealthFlask healthFlask;
-    registry.healthFlasks.emplace(m_player, std::move(healthFlask));
+    registry.healthFlasks.emplace(m_player, healthFlask);
 
     // Add gravity to the Player
-    registry.gravity.emplace(m_player, std::move(Gravity()));
+    registry.gravity.emplace(m_player, Gravity());
 
     // Add Combat to Player
-    registry.combat.emplace(m_player, std::move(Combat()));
+    registry.combat.emplace(m_player, Combat());
 
     // Create and initialize the Animation component
 
-    Animation<PlayerState> playerAnimations;
+    Animation<PlayerState> playerAnimations(IDLE);
     std::vector<Sprite> idleSprite;
     std::vector<Sprite> walkingSprites;
     std::vector<Sprite> jumpingSprites;
     std::vector<Sprite> attackingSprites;
-
 
     registry.bounding_box.emplace(m_player);
 
     for (unsigned i = 1; i <= 4; i++) {
         int playerWidth, playerHeight;
         GLuint playerTextureID = renderSystem.loadTexture("walk_" + std::to_string(i) + ".png", playerWidth, playerHeight);
-        Sprite sprite;
-        sprite.textureID = playerTextureID;
-        sprite.width = 1.0f;
-        sprite.height = 1.0f;
+        Sprite sprite(playerTextureID);
         walkingSprites.push_back(sprite);
         if (i == 3) {
             idleSprite.push_back(sprite);
@@ -92,46 +89,39 @@ void WorldSystem::init() {
     for (unsigned i = 1; i <= 4; i++) {
         int playerWidth, playerHeight;
         GLuint jumpTextureID = renderSystem.loadTexture("jump_" + std::to_string(i) + ".png", playerWidth, playerHeight);
-        Sprite jumpSprite;
-        jumpSprite.textureID = jumpTextureID;
-        jumpSprite.width = 1.0f;
-        jumpSprite.height = 1.0f;
+        Sprite jumpSprite(jumpTextureID);
         jumpingSprites.push_back(jumpSprite);
     }
 
     for (unsigned i = 1; i <= 5; i++) {
         int playerWidth, playerHeight;
         GLuint attackTextureID = renderSystem.loadTexture("attack_" + std::to_string(i) + ".png", playerWidth, playerHeight);
-        Sprite attackSprite;
-        attackSprite.textureID = attackTextureID;
-        attackSprite.width = 1.0f;
-        attackSprite.height = 1.0f;
+        Sprite attackSprite(attackTextureID);
         attackingSprites.push_back(attackSprite);
     }
 
-    playerAnimations.addState(PlayerState::WALKING, walkingSprites);
-    playerAnimations.addState(PlayerState::IDLE, idleSprite);
-    playerAnimations.setState(PlayerState::IDLE);
-    playerAnimations.addState(PlayerState::JUMPING, jumpingSprites);
-    playerAnimations.addState(PlayerState::ATTACKING, attackingSprites);
+    playerAnimations.addState(PlayerState::WALKING, std::move(walkingSprites));
+    playerAnimations.addState(PlayerState::IDLE, std::move(idleSprite));
+    playerAnimations.addState(PlayerState::JUMPING, std::move(jumpingSprites));
+    playerAnimations.addState(PlayerState::ATTACKING, std::move(attackingSprites));
     registry.playerAnimations.emplace(m_player, std::move(playerAnimations));
 
 
     // Create and initialize a TransformComponent for the player
     TransformComponent playerTransform;
     playerTransform.position = glm::vec3(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() / 2.0f, 0.0f);
-    playerTransform.scale = glm::vec3(WALKING_BB_WIDTH * 0.2f, WALKING_BB_HEIGHT * 0.2f, 1.0f);
+    playerTransform.scale = glm::vec3(WALKING_BB_WIDTH, WALKING_BB_HEIGHT, 1.0f);
     playerTransform.rotation = 0.0f;
-    registry.transforms.emplace(m_player, std::move(playerTransform));
+    registry.transforms.emplace(m_player, playerTransform);
 
     init_all_goomba_sprites();
-
     // MANDY LOOK
     // Ground:
     // sprite for ground, move this elsewhere for optimization. It is here for testing
-    cesspit.room1(renderSystem);
+    regionManager->init();
 
     init_status_bar();
+    regionManager->setRegion(makeRegion<Cesspit>);
 }
 
 void WorldSystem::update(float deltaTime) {
@@ -174,16 +164,6 @@ void WorldSystem::update(float deltaTime) {
                 m.position[1] = window_height_px;
                 m.velocity.y = 0;
 
-//        if (c.frames > 0 && !canAttack) {
-//            currentState = PlayerState::ATTACKING;
-//        }
-//        else if (m.velocity[0] != 0) {
-//            currentState = PlayerState::WALKING;
-//        }
-//        else {
-//            currentState = PlayerState::IDLE;
-//        }
-
                 // Only the player can be grounded and jump
                 if (entity == m_player) {
                     isGrounded = true;
@@ -201,9 +181,6 @@ void WorldSystem::update(float deltaTime) {
                 m.scale.x = std::abs(m.scale.x);
             }
 
-            // Step 5: Update the transform component for all entities
-            t = m;
-
             // Player-specific logic
             if (entity == m_player && registry.playerAnimations.has(m_player) && registry.combat.has(m_player)) {
                 auto& a = registry.playerAnimations.get(m_player);
@@ -218,20 +195,8 @@ void WorldSystem::update(float deltaTime) {
                 }
 
                 // Step 6: Handle player state (JUMPING, WALKING, ATTACKING)
-//                PlayerState currentState = a.getState();
-//                if (c.frames > 0 && !canAttack) {
-//                    currentState = PlayerState::ATTACKING;
-//                }
-//                else if (m.velocity[0] != 0) {
-//                    currentState = PlayerState::WALKING;
-//                }
-//                else {
-//                    currentState = PlayerState::IDLE;
-//                }
                 PlayerState currentState = a.getState();
-                if (isGrounded && a.getState() == PlayerState::JUMPING) {
-                    currentState = PlayerState::IDLE;  // Switch to IDLE on landing
-                } else if (c.frames > 0 && !canAttack) {
+                if (c.frames > 0 && !canAttack) {
                     currentState = PlayerState::ATTACKING;
                 } else if (m.velocity[0] != 0) {
                     currentState = PlayerState::WALKING;
@@ -242,14 +207,17 @@ void WorldSystem::update(float deltaTime) {
                 }
 
                 // Step 7: Update bounding box size based on state
-                if (currentState == PlayerState::WALKING || currentState == PlayerState::IDLE) {
-                    m.scale = glm::vec2(WALKING_BB_WIDTH * 0.2f * signof(m.scale.x), WALKING_BB_HEIGHT * 0.2f);
-                }
-                else if (currentState == PlayerState::JUMPING) {
-                    m.scale = glm::vec2(JUMPING_BB_WIDTH * 0.2f * signof(m.scale.x), JUMPING_BB_HEIGHT * 0.2f);
-                }
-                else if (currentState == PlayerState::ATTACKING) {
-                    m.scale = glm::vec2(ATTACKING_BB_WIDTH * 0.2f * signof(m.scale.x), ATTACKING_BB_HEIGHT * 0.2f);
+                switch (currentState) {
+                case WALKING:
+                case IDLE:
+                    m.scale = vec2(WALKING_BB_WIDTH * signof(m.scale.x), WALKING_BB_HEIGHT);
+                    break;
+                case JUMPING:
+                    m.scale = vec2(JUMPING_BB_WIDTH * signof(m.scale.x), JUMPING_BB_HEIGHT);
+                    break;
+                case ATTACKING:
+                    m.scale = vec2(ATTACKING_BB_WIDTH * signof(m.scale.x), ATTACKING_BB_HEIGHT);
+                    break;
                 }
 
                 // Step 8: Update the player animation state if it has changed
@@ -275,6 +243,8 @@ void WorldSystem::update(float deltaTime) {
                     registry.players.get(m_player).attacking = false;
                 }
             }
+            // Step 5: Update the transform component for all entities
+            t = m;
         }
     }
     // Handle collisions
@@ -318,9 +288,6 @@ void WorldSystem::update(float deltaTime) {
             }
         }
     }
-    // Handle collisions
-    // handle_collisions();
-    //checkPlayerGroundCollision();
 
     //Update bounding boxes for all the entities
     auto & bounding_boxes = registry.bounding_box;
@@ -334,33 +301,6 @@ void WorldSystem::update(float deltaTime) {
 
  
 }
-
-//void updateBoundingBox(Entity e1){
-//    Motion& player_motion = registry.motions.get(e1);
-//    float box_height = player_motion.scale.y * registry.bounding_box.get(e1).height;
-//    float y_value_min = player_motion.position.y - box_height/2;
-//    float y_value_max = player_motion.position.y + box_height/2;
-//    float box_width = player_motion.scale.x * registry.bounding_box.get(e1).width;
-//    float x_value_min = player_motion.position.x - box_width/2;
-//    float x_value_max = player_motion.position.x + box_width/2;
-//    BoundingBox bounding_box = registry.bounding_box.get(e1);
-//
-//    //Top Left
-//    bounding_box.p1.x = x_value_min;
-//    bounding_box.p1.y = y_value_max;
-//
-//    //Bottom Left
-//    bounding_box.p2.x = x_value_min;
-//    bounding_box.p2.y = y_value_min;
-//
-//    //Bottom Right
-//    bounding_box.p3.x = x_value_max;
-//    bounding_box.p3.y = y_value_min;
-//
-//    //Top Right
-//    bounding_box.p4.x = x_value_max;
-//    bounding_box.p4.y = y_value_max;
-//}
 
 void WorldSystem::handle_collisions() {
     auto& collisionsRegistry = registry.collisions;
@@ -376,7 +316,6 @@ void WorldSystem::handle_collisions() {
 
             if (direction.x != 0) {
                 thisMotion.position.x -= overlap.x * direction.x;
-                thisMotion.velocity.x = 0;
             }
             else if (direction.y > 0 && thisMotion.velocity.y > 0) {
                 thisMotion.position.y -= overlap.y;
@@ -392,9 +331,9 @@ void WorldSystem::handle_collisions() {
             }
 
         }
-        if (registry.players.has(entity) && registry.damages.has(entity_other) && !registry.invinciblityTimers.has(entity)) {
+        if (registry.players.has(entity) && !registry.invinciblityTimers.has(entity) && registry.damages.has(entity_other)) {
             if(registry.players.get(m_player).attacking){
-                hostile_get_damaged(entity_other);
+                goomba_get_damaged(entity_other);
                 registry.players.get(m_player).attacking = false;
             }else{
                 player_get_damaged(entity_other);
@@ -402,7 +341,7 @@ void WorldSystem::handle_collisions() {
         }
         if (registry.weapons.has(entity) && registry.healths.has(entity_other)) {
             if (registry.players.get(m_player).attacking) {
-                hostile_get_damaged(entity_other);
+                goomba_get_damaged(entity_other);
             }
         }
 
@@ -462,8 +401,8 @@ void WorldSystem::render() {
         auto& transform = registry.transforms.get(m_player);
         renderSystem.drawEntity(animation.getCurrentFrame(), transform);
     }
-
     // Draw the status bar
+
     if (registry.transforms.has(m_hearts) && registry.heartSprites.has(m_hearts))
     {
         auto& health = registry.healths.get(m_player);
@@ -484,7 +423,7 @@ void WorldSystem::render() {
 void WorldSystem::processPlayerInput(int key, int action) {
     // Escape key to close the window
     if (action == GLFW_RELEASE && key == GLFW_KEY_ESCAPE) {
-        renderSystem.getGameStateManager()->pauseState(std::make_unique<PauseState>(renderSystem));
+        renderSystem.getGameStateManager()->pauseState(std::make_unique<PauseState>());
     }
 
     // Move left (A key)
@@ -525,17 +464,11 @@ void WorldSystem::processPlayerInput(int key, int action) {
     // Jump (Space key)
     if (action == GLFW_PRESS && (key == GLFW_KEY_SPACE || key == GLFW_KEY_W)) {
         if (registry.motions.has(m_player)) {
-            auto &playerMotion = registry.motions.get(m_player);
+            auto& playerMotion = registry.motions.get(m_player);
             if (canJump) {  // Ensure the player can only jump if grounded
                 playerMotion.velocity[1] = -player_jump_velocity;  // Apply jump velocity
                 canJump = false;  // Prevent further jumps mid-air
                 isGrounded = false;
-
-                // Change state to JUMPING
-                if (registry.playerAnimations.has(m_player)) {
-                    auto& playerAnimation = registry.playerAnimations.get(m_player);
-                    playerAnimation.setState(PlayerState::JUMPING);
-                }
             }
         }
     }
@@ -556,34 +489,16 @@ void WorldSystem::processPlayerInput(int key, int action) {
     if (action == GLFW_PRESS && key == GLFW_KEY_P) {
         respawnGoomba();
     }
-
-//    // THIS IS JUST A TEST TO SEE IF THE HEALTHSPRITES UPDATE AND THEY DO
-//    // Press L to DAMAGE the player
-//    if (action == GLFW_PRESS && key == GLFW_KEY_L) {
-//        Health& player_health = registry.healths.get(m_player);
-//        if (player_health.current_health > 0) {
-//            player_health.current_health--;
-//            update_heartSprite(player_health.current_health);
-//        }
-//        else {
-//            printf("For the purposes of this test, you have zero health and cannot damage yourself anymore");
-//        }
-//    }
-
 }
 
-
-void WorldSystem::on_key(int key, int scancode, int action, int mods) {
-    (void)scancode; (void)mods;
+void WorldSystem::on_key(int key, int, int action, int) {
     processPlayerInput(key, action);
 }
 
-void WorldSystem::on_mouse_move(const glm::vec2& position) {
-    (void) position;
+void WorldSystem::on_mouse_move(const glm::vec2&) {
 }
 
-void WorldSystem::on_mouse_click(int button, int action, const glm::vec2& position, int mods) {
-    (void)button; (void)action;
+void WorldSystem::on_mouse_click(int button, int action, const glm::vec2&, int) {
     if (action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_LEFT) {
         if (registry.combat.has(m_player)) {
             if (canAttack) {  // Ensure the player can attack
@@ -592,15 +507,8 @@ void WorldSystem::on_mouse_click(int button, int action, const glm::vec2& positi
                 canAttack = false;  // Prevent further attacks for a time
                 auto& c = registry.combat.get(m_player);
                 c.frames = c.max_frames;
-
-                // Change state to ATTACKING
-                if (registry.playerAnimations.has(m_player)) {
-                    auto& playerAnimation = registry.playerAnimations.get(m_player);
-                    playerAnimation.setState(PlayerState::ATTACKING);
-                }
                 registry.players.get(m_player).attacking = true;
             }
-    
         }
     }
 }
@@ -643,7 +551,7 @@ void WorldSystem::player_get_healed() {
     }
 }
 
-void WorldSystem::hostile_get_damaged(Entity hostile) {
+void WorldSystem::goomba_get_damaged(Entity hostile) {
     if (registry.healths.has(hostile)) {
         Health& hostile_health = registry.healths.get(hostile);
         Damage sword_damage = registry.damages.get(m_sword);
@@ -682,9 +590,8 @@ void WorldSystem::respawnGoomba() {
 
         registry.healths.emplace(m_goombaLand, Health{ 1, 1 }); // Goomba has 1 health
 
-        Sprite goombaSprite;
         int goombaWidth, goombaHeight;
-        goombaSprite.textureID = renderSystem.loadTexture("goomba_walk_idle.PNG", goombaWidth, goombaHeight);
+        Sprite goombaSprite(renderSystem.loadTexture("goomba_walk_idle.PNG", goombaWidth, goombaHeight));
         goombaWidth /= 4; goombaHeight /= 4;
         registry.sprites.get(m_goombaLand) = goombaSprite;
 
@@ -723,10 +630,7 @@ void WorldSystem::init_status_bar() {
     for (unsigned i = 0; i <= 3; i++) {
         int heartWidth, heartHeight;
         GLuint heartTextureID = renderSystem.loadTexture("heart_" + std::to_string(i) + ".png", heartWidth, heartHeight);
-        Sprite heartSprite;
-        heartSprite.textureID = heartTextureID;
-        heartSprite.width = 1.0f;
-        heartSprite.height = 1.0f;
+        Sprite heartSprite(heartTextureID);      
         heartSprites.push_back(heartSprite);
     }
     registry.heartSprites.emplace(m_hearts, std::move(heartSprites));
@@ -832,8 +736,8 @@ void WorldSystem::init_goomba_ceiling_sprites() {
 }
 
 void WorldSystem::init_goomba_sprite(int& width, int& height, std::string path, std::vector<Sprite>& Sprites) {
-    Sprite goombaSprite;
-    goombaSprite.textureID = renderSystem.loadTexture(path, width, height);
+    GLuint goombaSpriteTextureId = renderSystem.loadTexture(path, width, height);
+    Sprite goombaSprite(goombaSpriteTextureId);
     Sprites.push_back(goombaSprite);
 }
 

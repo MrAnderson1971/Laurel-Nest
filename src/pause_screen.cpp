@@ -1,7 +1,7 @@
 #include "pause_state.hpp"
 #include "ecs_registry.hpp"
 
-PauseState::PauseState(RenderSystem& renderSystem) : renderSystem(renderSystem), timePassed(0) {}
+PauseState::PauseState(): timePassed(0) {}
 
 PauseState::~PauseState() {
     cleanup();
@@ -24,15 +24,12 @@ void PauseState::init() {
     pauseTransform.rotation = 0.0f;
 
     // splashScreenEntity.addComponent<TransformComponent>(std::move(pauseTransform));
-    registry.transforms.emplace(pauseScreenEntity, std::move(pauseTransform));
+    registry.transforms.emplace(pauseScreenEntity, pauseTransform);
 
-    Sprite pauseSprite;
-    pauseSprite.textureID = pauseTextureID;
-    pauseSprite.width = 1.0f;
-    pauseSprite.height = 1.0f;
+    Sprite pauseSprite(pauseTextureID);
 
     // splashScreenEntity.addComponent<Sprite>(std::move(pauseSprite));
-    registry.sprites.emplace(pauseScreenEntity, std::move(pauseSprite));
+    registry.sprites.emplace(pauseScreenEntity, pauseSprite);
 }
 
 void PauseState::update(float deltaTime) {

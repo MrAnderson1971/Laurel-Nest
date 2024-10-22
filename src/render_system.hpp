@@ -44,12 +44,24 @@ class RenderSystem
             textures_path("heart_3.png"),             // HEART_3
             textures_path("heart_2.png"),             // HEART_2
             textures_path("heart_1.png"),             // HEART_1
-            textures_path("heart_0.png")              // HEART_0
+            textures_path("heart_0.png"),             // HEART_0
+            textures_path("entrance_bg.PNG"),         // ENTRANCE_BG
+            textures_path("spaceship.PNG"),           // SPACESHIP
+            textures_path("pipes.PNG"),               // PIPES
+            textures_path("cesspit_boss_bg.PNG")      // CESSPIT_BOSS_BG
     };
 
 public:
-    RenderSystem();
+
+    static RenderSystem& instance() {
+        static RenderSystem instance;
+        return instance;
+    }
+
     ~RenderSystem();
+
+    RenderSystem(const RenderSystem&) = delete;
+    RenderSystem& operator=(const RenderSystem&) = delete;
 
     void setGameStateManager(GameStateManager* gsm);
     GameStateManager* getGameStateManager() const;
@@ -64,6 +76,8 @@ public:
     void drawEntity(const Sprite& sprite, const TransformComponent& transform);
 
 private:
+    RenderSystem();
+
     void loadShaders();
     void setupVertices();
     std::string readShaderFile(const std::string& filePath);
@@ -84,3 +98,5 @@ private:
     GameStateManager* gameStateManager;
     PhysicsSystem physics; // remove when physics is move to GameState
 };
+
+extern RenderSystem& renderSystem;

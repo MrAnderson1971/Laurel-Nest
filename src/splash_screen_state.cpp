@@ -3,8 +3,7 @@
 #include "world_system.hpp"
 #include <iostream>
 
-SplashScreenState::SplashScreenState(RenderSystem& renderSystem)
-    : renderSystem(renderSystem)
+SplashScreenState::SplashScreenState()
 {
 }
 
@@ -26,19 +25,14 @@ void SplashScreenState::init()
     // splashScreenEntity.addComponent<TransformComponent>(std::move(splashTransform));
     registry.transforms.emplace(splashScreenEntity, std::move(splashTransform));
 
-    Sprite splashSprite;
-    splashSprite.textureID = splashTextureID;
-    splashSprite.width = 1.0f;
-    splashSprite.height = 1.0f;
+    Sprite splashSprite(splashTextureID);
 
     // splashScreenEntity.addComponent<Sprite>(std::move(splashSprite));
     registry.sprites.emplace(splashScreenEntity, std::move(splashSprite));
 }
 
-void SplashScreenState::on_key(int key, int scancode, int action, int mods)
+void SplashScreenState::on_key(int key, int, int action, int)
 {
-    (void)scancode;
-    (void)mods;
     if (action == GLFW_PRESS)
     {
         if (key == GLFW_KEY_ESCAPE)
@@ -48,22 +42,19 @@ void SplashScreenState::on_key(int key, int scancode, int action, int mods)
         else
         {
             // go to game
-            renderSystem.getGameStateManager()->changeState(std::make_unique<WorldSystem>(renderSystem));
+            renderSystem.getGameStateManager()->changeState(std::make_unique<WorldSystem>());
         }
     }
 }
 
-void SplashScreenState::on_mouse_move(const glm::vec2& position) {
-    (void)position;
+void SplashScreenState::on_mouse_move(const glm::vec2& ) {
 }
 
-void SplashScreenState::update(float deltaTime)
+void SplashScreenState::update(float )
 {
-    (void)deltaTime;
 }
 
-void SplashScreenState::on_mouse_click(int button, int action, const glm::vec2& position, int mods) {
-    (void)mods;
+void SplashScreenState::on_mouse_click(int button, int action, const glm::vec2& position, int) {
     if (action == GLFW_PRESS) {
         if (button == GLFW_MOUSE_BUTTON_LEFT) {
             std::cout << "left click at " << position[0] << ", " << position[1] << std::endl;

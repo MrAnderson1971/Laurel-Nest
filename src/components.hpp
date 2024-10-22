@@ -4,11 +4,26 @@
 #include <vector>
 #include <unordered_map>
 #include "../ext/stb_image/stb_image.h"
+#include <memory>
 
 struct Sprite {
-    GLuint textureID;
-    float width = 1.0f;
-    float height = 1.0f;
+    std::shared_ptr<GLuint> textureID;
+    const float width = 1.0f;
+    const float height = 1.0f;
+
+    Sprite(GLuint id) {
+        textureID = std::shared_ptr<GLuint>(new GLuint(id), [](GLuint* id) {
+            if (glIsTexture(*id)) {
+                glDeleteTextures(1, id);
+            }
+            delete id;
+        });
+    }
+
+    Sprite& operator=(const Sprite& other) {
+        textureID = other.textureID;
+        return *this;
+    }
 };
 
 enum PlayerState {
@@ -30,11 +45,11 @@ struct Animation {
     size_t currentFrame;
     State currentState;
 
-    Animation() : frameDuration(0.1f), currentTime(0.0f), currentFrame(0) {}
+    Animation(State s) : frameDuration(0.1f), currentTime(0.0f), currentFrame(0), currentState(s) {}
 
     // add a new animation state
-    void addState(State newState, const std::vector<Sprite>& newSprites) {
-        frames[newState] = newSprites;
+    void addState(State newState, const std::vector<Sprite>&& newSprites) {
+        frames[newState] = std::move(newSprites);
     }
 
     // get the next frame for the current state
@@ -46,21 +61,11 @@ struct Animation {
         }
     }
 
-//    void setState(State newState) {
-//        if (frames.find(newState) != frames.end()) {
-//            currentState = newState;
-//            currentFrame = 0;
-//            currentTime = 0.0f;
-//        }
-//    }
     void setState(State newState) {
         if (frames.find(newState) != frames.end()) {
             currentState = newState;
             currentFrame = 0;
             currentTime = 0.0f;
-
-            // Optional: Reset the scale based on the new state's sprite dimensions
-            const Sprite& sprite = frames[currentState][0]; // Get the first sprite of the new state
         }
     }
 
@@ -228,7 +233,11 @@ enum class TEXTURE_ASSET_ID {
     HEART_1 = HEART_2 + 1,                     // heart_1.png
     HEART_0 = HEART_1 + 1,                     // heart_0.png
     CESSPIT_BG = HEART_0 + 1,                  // cesspit_bg.png
-    TEXTURE_COUNT = CESSPIT_BG + 1             // Count of all textures
+    ENTRANCE_BG = CESSPIT_BG + 1,              // entrance_bg.png
+    SPACESHIP = ENTRANCE_BG + 1,               // spaceship.png
+    PIPES = SPACESHIP + 1,                     // pipes.png
+    CESSPIT_BOSS_BG = PIPES + 1,               // cesspit_boss_bg.PNG
+    TEXTURE_COUNT = CESSPIT_BOSS_BG + 1        // Count of all textures
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 

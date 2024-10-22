@@ -17,7 +17,7 @@ void GoombaLand::init_sprite() {
 	registry.sprites.emplace(entity, std::move(goombaLandSprites[0]));
 }
 
-void GoombaLand::init_components(int x, int y) {
+void GoombaLand::init_components(float x, float y) {
 	Motion goombaMotion;
 	goombaMotion.position = vec2(x, y);
 	goombaMotion.scale = registry.goombaScales.get(m_goombaLand)[0].scale;
@@ -42,7 +42,7 @@ void GoombaCeiling::init_sprite() {
 	registry.sprites.emplace(entity, std::move(goombaCeilingSprites[0]));
 }
 
-void GoombaCeiling::init_components(int x, int y) {
+void GoombaCeiling::init_components(float x, float y) {
 	Motion goombaMotion;
 	goombaMotion.position = vec2(x, y);
 	goombaMotion.scale = registry.goombaScales.get(m_goombaCeiling)[0].scale;
@@ -52,8 +52,8 @@ void GoombaCeiling::init_components(int x, int y) {
 	registry.transforms.emplace(entity, std::move(goombaTransform));
 
 	ProjectileTimer spit_timer;
-	spit_timer.max_time = 10;
-	spit_timer.elapsed_time = 10;
+	spit_timer.max_time = 2;
+	spit_timer.elapsed_time = 2;
 	registry.projectileTimers.emplace(entity, std::move(spit_timer));
 
 	registry.healths.emplace(entity, std::move(Health{ 3,3 }));

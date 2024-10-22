@@ -1,24 +1,21 @@
 #pragma once
-#include "common.hpp"
-#include <memory>
-#include "ecs.hpp"
-#include "ecs_registry.hpp"
-#include "render_system.hpp"
 
-class Cesspit {
+#include "ecs.hpp"
+#include "region.hpp"
+
+class Cesspit : public Region {
 public:
 	Cesspit();
 	~Cesspit();
 
-	void background(RenderSystem& renderSystem);
-	void room1(RenderSystem& renderSystem);
-	void room2(RenderSystem& renderSystem);
-	void room3(RenderSystem& renderSystem);
-	void bossRoom(RenderSystem& renderSystem);
-	Entity m_ground;
-	Entity m_ceiling;
-	Entity m_bg;
-    Entity m_goomba;
+	void init() override;
 
 private:
+
+	// TODO: other rooms
+#if 0
+	void room2();
+	void room3();
+	void bossRoom();
+#endif
 };
