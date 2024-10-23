@@ -4,6 +4,7 @@
 #include <iomanip>
 
 #include "pause_state.hpp"
+#include "enemy.hpp"
 #include "cesspit_map.hpp"
 #include "collision_system.h"
 #include "ai_system.h"
@@ -21,8 +22,9 @@ void WorldSystem::init() {
     // Create a new entity and register it in the ECSRegistry
     m_player = Entity();
     m_sword = Entity();
-    regionManager->setRegion(makeRegion<Cesspit>);
-
+    m_goombaLand = Entity();
+    m_goombaCeiling = Entity();
+ 
     // Player
 
     // Add the Player component to the player entity
@@ -112,43 +114,14 @@ void WorldSystem::init() {
     playerTransform.rotation = 0.0f;
     registry.transforms.emplace(m_player, playerTransform);
 
+    init_all_goomba_sprites();
+    // MANDY LOOK
     // Ground:
     // sprite for ground, move this elsewhere for optimization. It is here for testing
     regionManager->init();
 
-    // Create and initialize the Heart sprites
-
-    std::vector<Sprite> heartSprites;
-    for (unsigned i = 0; i <= 3; i++) {
-        int heartWidth, heartHeight;
-        GLuint heartTextureID = renderSystem.loadTexture("heart_" + std::to_string(i) + ".png", heartWidth, heartHeight);
-        Sprite heartSprite(heartTextureID);
-        heartSprites.push_back(heartSprite);
-    }
-    registry.heartSprites.emplace(m_hearts, std::move(heartSprites));
-
-    // Create and initialize the a Transform component for the Heart sprites
-    TransformComponent heartSpriteTransform;
-    heartSpriteTransform.position = glm::vec3(250.0f, 120.0f, 0.0);
-    heartSpriteTransform.scale = glm::vec3(HEARTS_WIDTH, HEARTS_HEIGHT, 1.0);
-    heartSpriteTransform.rotation = 0.0f;
-    registry.transforms.emplace(m_hearts, heartSpriteTransform);
-
-    int goombaWidth, goombaHeight;
-    Sprite goombaSprite(renderSystem.loadTexture("goomba_walk_idle.PNG", goombaWidth, goombaHeight));
-    goombaWidth /= 4; goombaHeight /= 4;
-    registry.sprites.emplace(m_goomba, goombaSprite);
-
-    TransformComponent goombaTransform;
-    registry.transforms.emplace(m_goomba, goombaTransform);
-    Motion goombaMotion;
-    goombaMotion.position = vec2(renderSystem.getWindowWidth() - 50, 0);
-    goombaMotion.scale = vec2(goombaWidth, goombaHeight);
-    registry.motions.emplace(m_goomba, goombaMotion);
-    registry.gravity.emplace(m_goomba, Gravity());
-    registry.patrol_ais.emplace(m_goomba, Patrol_AI());
-    registry.damages.emplace(m_goomba, Damage{ 1 });
-    registry.healths.emplace(m_goomba, Health{ 1,1 });
+    init_status_bar();
+    regionManager->setRegion(makeRegion<Cesspit>);
 }
 
 void WorldSystem::update(float deltaTime) {
@@ -293,6 +266,58 @@ void WorldSystem::handle_motions(float deltaTime) {
             t = m;
         }
     }
+    // Handle collisions
+    handle_collisions();
+
+    std::vector<Entity> to_remove;
+    for (auto& e : registry.invinciblityTimers.entities) {
+        auto& i = registry.invinciblityTimers.get(e);
+        i.counter_ms -= deltaTime * 1000;
+        if (i.counter_ms <= 0) {
+            to_remove.push_back(e);
+        }
+    }
+
+    for (auto& e : to_remove) {
+        registry.invinciblityTimers.remove(e);
+    }
+
+    AISystem::step(m_player);
+    for (auto& e : registry.patrol_ais.entities) {
+        auto& p = registry.patrol_ais.get(e);
+        if (registry.motions.has(e)) {
+            auto& m = registry.motions.get(e);
+            if (std::abs(m.position.x - renderSystem.getWindowWidth()) < 10) {
+                p.movingRight = false;
+            } else if (std::abs(m.position.x - 0) < 10) {
+                p.movingRight = true;
+            }
+            if (p.movingRight) {
+                if(p.chasing){
+                    m.velocity.x = 3;
+                }else{
+                    m.velocity.x = 1;
+                }
+            } else {
+                if(p.chasing){
+                    m.velocity.x = -3;
+                }else{
+                    m.velocity.x = -1;
+                }
+            }
+        }
+    }
+
+    //Update bounding boxes for all the entities
+    auto & bounding_boxes = registry.bounding_box;
+    for(int i = 0; i < bounding_boxes.size(); i++){
+        Entity e1 = bounding_boxes.entities[i];
+        updateBoundingBox(e1);
+    }
+
+    update_projectile_timer(deltaTime);
+    update_damaged_sprites(deltaTime);
+
 }
 
 
@@ -325,9 +350,9 @@ void WorldSystem::handle_collisions() {
             }
 
         }
-        if (registry.players.has(entity) && registry.damages.has(entity_other) && !registry.invinciblityTimers.has(entity)) {
+        if (registry.players.has(entity) && !registry.invinciblityTimers.has(entity) && registry.damages.has(entity_other)) {
             if(registry.players.get(m_player).attacking){
-                hostile_get_damaged(m_goomba);
+                goomba_get_damaged(entity_other);
                 registry.players.get(m_player).attacking = false;
             }else{
                 player_get_damaged(entity_other);
@@ -335,9 +360,22 @@ void WorldSystem::handle_collisions() {
         }
         if (registry.weapons.has(entity) && registry.healths.has(entity_other)) {
             if (registry.players.get(m_player).attacking) {
-                hostile_get_damaged(entity_other);
+                goomba_get_damaged(entity_other);
             }
         }
+
+        // Remove the spit attack from ceiling goomba after it has hit the player or the ground
+        if (registry.projectiles.has(entity) && (registry.players.has(entity_other) || registry.grounds.has(entity_other))) {
+            registry.remove_all_components_of(entity);
+        }
+
+        if (registry.projectileTimers.has(entity) && registry.grounds.has(entity_other)) {
+            std::vector<Sprite> goombaCeilingSprites = registry.goombaSprites.get(m_goombaCeiling);
+            Sprite& goombaCeilingSprite = registry.sprites.get(entity);
+            goombaCeilingSprite = goombaCeilingSprites.back();
+            registry.projectileTimers.remove(entity);
+        }
+
     }
 
     registry.collisions.clear();
@@ -438,26 +476,21 @@ void WorldSystem::render() {
         renderSystem.drawEntity(animation.getCurrentFrame(), transform);
     }
 
-    // Draw health
-    if (registry.transforms.has(m_hearts) && registry.sprites.has(m_hearts))
-    {
-        auto& transform = registry.transforms.get(m_hearts);
-        auto& sprite = registry.sprites.get(m_hearts);
-        renderSystem.drawEntity(sprite, transform);
-    }
-
     if (registry.transforms.has(m_hearts) && registry.heartSprites.has(m_hearts))
     {
         auto& health = registry.healths.get(m_player);
-        update_heartSprite(health.current_health);
+        update_status_bar(health.current_health);
     }
 
     // TODO for Kuter: only draw enemies in the current room
-    // Draw Goomba
-    if (registry.sprites.has(m_goomba) && registry.transforms.has(m_goomba)) {
-        auto& s = registry.sprites.get(m_goomba);
-        auto& t = registry.transforms.get(m_goomba);
-        renderSystem.drawEntity(s, t);
+    // Draw the goombas
+    for (auto& obj : registry.hostiles.entities) {
+        if (registry.transforms.has(obj) && registry.sprites.has(obj))
+        {      
+            auto& transform = registry.transforms.get(obj);
+            auto& sprite = registry.sprites.get(obj);
+            renderSystem.drawEntity(sprite, transform);
+        }
     }
 }
 
@@ -584,7 +617,10 @@ void WorldSystem::player_get_damaged(Entity hostile) {
 
     if (player_health.current_health > 0) {
         player_health.current_health -= hostile_damage.damage_dealt;
-        update_heartSprite(player_health.current_health);
+        update_status_bar(player_health.current_health);
+        if (player_health.current_health == 0) {
+
+        }
     }
 }
 
@@ -595,7 +631,7 @@ void WorldSystem::player_get_healed() {
     if (health_flask.num_uses > 0 && player_health.max_health > player_health.current_health) {
         player_health.current_health++;
         health_flask.num_uses--;
-        update_heartSprite(player_health.current_health);
+        update_status_bar(player_health.current_health);
         printf("You have %d uses of your health flask left \n", health_flask.num_uses);
     }
     else if (player_health.max_health == player_health.current_health){
@@ -606,64 +642,71 @@ void WorldSystem::player_get_healed() {
     }
 }
 
-void WorldSystem::hostile_get_damaged(Entity hostile) {
+void WorldSystem::goomba_get_damaged(Entity hostile) {
     if (registry.healths.has(hostile)) {
         Health& hostile_health = registry.healths.get(hostile);
         Damage sword_damage = registry.damages.get(m_sword);
-        if (hostile_health.current_health > 0) {
-            hostile_health.current_health--;
-            if (hostile_health.current_health == 0) {
-                registry.sprites.remove(hostile);
-                registry.bounding_box.remove(hostile);
-                Motion& hostile_motion = registry.motions.get(hostile);
-                hostile_motion.velocity = {0,0};
-                hostile_motion.position = hostile_motion.position + vec2(0, 50);
-                registry.gravity.remove(hostile);
-                registry.patrol_ais.remove(hostile);               
-                registry.damages.remove(hostile);
-                registry.healths.remove(hostile);
-                int goombaWidth, goombaHeight;
-                Sprite goombaSprite(renderSystem.loadTexture("goomba_dead.PNG", goombaWidth, goombaHeight));
-                goombaWidth /= 4; goombaHeight /= 4;
-                registry.sprites.emplace(hostile, goombaSprite);
+        hostile_health.current_health--;
+
+        // If the goomba isnt dead yet, change their current sprite to their hit sprite
+       if (hostile_health.current_health > 0) {
+           registry.recentDamageTimers.emplace(hostile, std::move(RecentlyDamagedTimer()));
+           std::vector<Sprite> goombaSprites;
+           // Change the ceilingGoombas sprite
+           if (registry.projectileTimers.has(hostile)) {
+               goombaSprites = registry.goombaSprites.get(m_goombaCeiling);
+           }
+           // Change the landGoombas sprite
+           else {
+               goombaSprites = registry.goombaSprites.get(m_goombaLand);
+           }
+           Sprite& goombaSprite = registry.sprites.get(hostile);
+           goombaSprite = goombaSprites[1];
+       }
+        else {
+            if (registry.projectileTimers.has(hostile)) {
+                goomba_ceiling_death(hostile);
+            }
+            else {
+                goomba_land_death(hostile);
             }
         }
-    }
- 
+    } 
 }
 
+// Currently broken
 void WorldSystem::respawnGoomba() {
     // Check if the Goomba has been killed
-    if (!registry.healths.has(m_goomba)) {
+    if (!registry.healths.has(m_goombaLand)) {
 
-        registry.healths.emplace(m_goomba, Health{ 1, 1 }); // Goomba has 1 health
+        registry.healths.emplace(m_goombaLand, Health{ 1, 1 }); // Goomba has 1 health
 
         int goombaWidth, goombaHeight;
         Sprite goombaSprite(renderSystem.loadTexture("goomba_walk_idle.PNG", goombaWidth, goombaHeight));
         goombaWidth /= 4; goombaHeight /= 4;
-        registry.sprites.get(m_goomba) = goombaSprite;
+        registry.sprites.get(m_goombaLand) = goombaSprite;
 
-        auto& goombaMotion = registry.motions.get(m_goomba);
+        auto& goombaMotion = registry.motions.get(m_goombaLand);
         goombaMotion.position = glm::vec2(renderSystem.getWindowWidth() - 50, 0);
         goombaMotion.velocity = glm::vec2(0, 0);
 
-        if (!registry.patrol_ais.has(m_goomba)) {
-            registry.patrol_ais.emplace(m_goomba, Patrol_AI());
+        if (!registry.patrol_ais.has(m_goombaLand)) {
+            registry.patrol_ais.emplace(m_goombaLand, Patrol_AI());
         }
 
-        if (!registry.damages.has(m_goomba)) {
-            registry.damages.emplace(m_goomba, Damage{ 1 });
+        if (!registry.damages.has(m_goombaLand)) {
+            registry.damages.emplace(m_goombaLand, Damage{ 1 });
         }
 
-        if (!registry.gravity.has(m_goomba)) {
-            registry.gravity.emplace(m_goomba, Gravity());
+        if (!registry.gravity.has(m_goombaLand)) {
+            registry.gravity.emplace(m_goombaLand, Gravity());
         }
 
-        if (!registry.bounding_box.has(m_goomba)) {
+        if (!registry.bounding_box.has(m_goombaLand)) {
             BoundingBox goombaBoundingBox;
             goombaBoundingBox.width = static_cast<float>(goombaWidth);
             goombaBoundingBox.height = static_cast<float>(goombaHeight);
-            registry.bounding_box.emplace(m_goomba, goombaBoundingBox);
+            registry.bounding_box.emplace(m_goombaLand, goombaBoundingBox);
         }
 
         std::cout << "Goomba has respawned" << std::endl;
@@ -671,7 +714,27 @@ void WorldSystem::respawnGoomba() {
 }
 
 
-void WorldSystem::update_heartSprite(int num_hearts) {
+void WorldSystem::init_status_bar() {
+    // Create and initialize the Heart sprites
+
+    std::vector<Sprite> heartSprites;
+    for (unsigned i = 0; i <= 3; i++) {
+        int heartWidth, heartHeight;
+        GLuint heartTextureID = renderSystem.loadTexture("heart_" + std::to_string(i) + ".png", heartWidth, heartHeight);
+        Sprite heartSprite(heartTextureID);      
+        heartSprites.push_back(heartSprite);
+    }
+    registry.heartSprites.emplace(m_hearts, std::move(heartSprites));
+
+    // Create and initialize the a Transform component for the Heart sprites
+    TransformComponent heartSpriteTransform;
+    heartSpriteTransform.position = glm::vec3(250.0f, 120.0f, 0.0);
+    heartSpriteTransform.scale = glm::vec3(HEARTS_WIDTH, HEARTS_HEIGHT, 1.0);
+    heartSpriteTransform.rotation = 0.0f;
+    registry.transforms.emplace(m_hearts, std::move(heartSpriteTransform));
+}
+
+void WorldSystem::update_status_bar(int num_hearts) {
     auto& transform = registry.transforms.get(m_hearts);
     auto& heartSprites = registry.heartSprites.get(m_hearts);
     num_hearts = clamp(num_hearts, 0, static_cast<int>(heartSprites.size()));
@@ -705,4 +768,126 @@ void WorldSystem::updateBoundingBox(Entity e1) {
     bounding_box.p4.x = x_value_max;
     bounding_box.p4.y = y_value_max;
 
+}
+
+void WorldSystem::init_all_goomba_sprites() {
+    // Create and initialize all goomba sprites
+    init_goomba_land_sprites();
+    init_goomba_ceiling_sprites();
+}
+
+void WorldSystem::init_goomba_land_sprites() {
+    std::vector<Sprite> goombaLandSprites;
+    std::vector<Motion> goombaLandScales;
+    int goombaLandWidth, goombaLandHeight;
+
+    init_goomba_sprite(goombaLandWidth, goombaLandHeight, "goomba_walk_idle.PNG", goombaLandSprites);
+    init_goomba_scale(goombaLandWidth, goombaLandHeight, 4, goombaLandScales);
+
+    init_goomba_sprite(goombaLandWidth, goombaLandHeight, "goomba_walk_hit.PNG", goombaLandSprites);
+    init_goomba_scale(goombaLandWidth, goombaLandHeight, 4, goombaLandScales);
+
+    init_goomba_sprite(goombaLandWidth, goombaLandHeight, "goomba_walk_notice.PNG", goombaLandSprites);
+    init_goomba_scale(goombaLandWidth, goombaLandHeight, 4, goombaLandScales);
+
+    init_goomba_sprite(goombaLandWidth, goombaLandHeight, "goomba_walk_attack.PNG", goombaLandSprites);
+    init_goomba_scale(goombaLandWidth, goombaLandHeight, 4, goombaLandScales);
+
+    init_goomba_sprite(goombaLandWidth, goombaLandHeight, "goomba_dead.PNG", goombaLandSprites);
+    init_goomba_scale(goombaLandWidth, goombaLandHeight, 4, goombaLandScales);
+
+    TransformComponent goombaTransform;
+    registry.transforms.emplace(m_goombaLand, std::move(goombaTransform));
+    registry.goombaSprites.emplace(m_goombaLand, std::move(goombaLandSprites));
+    registry.goombaScales.emplace(m_goombaLand, std::move(goombaLandScales));
+}
+
+void WorldSystem::init_goomba_ceiling_sprites() {
+    // Create and initialize the ceilingGoombaSprites
+    std::vector<Sprite> goombaCeilingSprites;
+    std::vector<Motion> goombaCeilingScales;
+    int goombaCeilingWidth, goombaCeilingHeight;
+
+    init_goomba_sprite(goombaCeilingWidth, goombaCeilingHeight, "ceiling_idle.png", goombaCeilingSprites);
+    init_goomba_scale(goombaCeilingWidth, goombaCeilingHeight, 4, goombaCeilingScales);
+
+    init_goomba_sprite(goombaCeilingWidth, goombaCeilingHeight, "ceiling_hit.png", goombaCeilingSprites);
+    init_goomba_scale(goombaCeilingWidth, goombaCeilingHeight, 4, goombaCeilingScales);
+
+    init_goomba_sprite(goombaCeilingWidth, goombaCeilingHeight, "ceiling_fall.png", goombaCeilingSprites);
+    init_goomba_scale(goombaCeilingWidth, goombaCeilingHeight, 4, goombaCeilingScales);
+
+    init_goomba_sprite(goombaCeilingWidth, goombaCeilingHeight, "goomba_dead.png", goombaCeilingSprites);
+    init_goomba_scale(goombaCeilingWidth, goombaCeilingHeight, 4, goombaCeilingScales);
+
+    TransformComponent goombaTransform;
+    registry.transforms.emplace(m_goombaCeiling, std::move(goombaTransform));
+    registry.goombaSprites.emplace(m_goombaCeiling, std::move(goombaCeilingSprites));
+    registry.goombaScales.emplace(m_goombaCeiling, std::move(goombaCeilingScales));
+}
+
+void WorldSystem::init_goomba_sprite(int& width, int& height, std::string path, std::vector<Sprite>& Sprites) {
+    GLuint goombaSpriteTextureId = renderSystem.loadTexture(path, width, height);
+    Sprite goombaSprite(goombaSpriteTextureId);
+    Sprites.push_back(goombaSprite);
+}
+
+void WorldSystem::init_goomba_scale(int width, int height, int factor, std::vector<Motion>& Motions) {
+    Motion goombaScale;
+    goombaScale.scale = { width / factor, height / factor };
+    Motions.push_back(goombaScale);
+}
+
+// Counts down to when the ceiling goomba can attack again
+void WorldSystem::update_projectile_timer(float delta_time) {
+    for (Entity entity : registry.projectileTimers.entities) {
+        ProjectileTimer& projectile_counter = registry.projectileTimers.get(entity);
+        projectile_counter.elapsed_time -= delta_time;
+        if (projectile_counter.elapsed_time <= 0) {
+            AISystem::ceiling_goomba_attack(entity);
+            projectile_counter.elapsed_time = projectile_counter.max_time;
+        } 
+    }
+}
+
+// If the goomba is currently using its damaged sprite, revert it back to its idle sprite
+void WorldSystem::update_damaged_sprites(float delta_time) {
+    for (Entity entity : registry.recentDamageTimers.entities) {
+        RecentlyDamagedTimer& damaged_timer = registry.recentDamageTimers.get(entity);
+        damaged_timer.counter_ms -= delta_time;
+        if (damaged_timer.counter_ms <= 0) {
+            std::vector<Sprite> goombaSprites;
+            if (registry.projectileTimers.has(entity)) {
+                goombaSprites = registry.goombaSprites.get(m_goombaCeiling);
+            }
+            else {
+                goombaSprites = registry.goombaSprites.get(m_goombaLand);
+            }
+            Sprite& goombaSprite = registry.sprites.get(entity);
+            goombaSprite = goombaSprites[0];
+            registry.recentDamageTimers.remove(entity);
+        }
+    }
+}
+
+void WorldSystem::goomba_ceiling_death(Entity hostile) {
+    std::vector<Sprite> goombaCeilingSprites = registry.goombaSprites.get(m_goombaCeiling);
+    Sprite& goombaCeilingSprite = registry.sprites.get(hostile);
+    goombaCeilingSprite = goombaCeilingSprites[2];
+    registry.gravity.emplace(hostile, std::move(Gravity()));
+    registry.damages.remove(hostile);
+    registry.healths.remove(hostile);
+    registry.bounding_box.remove(hostile);
+}
+
+void WorldSystem::goomba_land_death(Entity hostile) {
+    registry.sprites.remove(hostile);
+    registry.bounding_box.remove(hostile);
+    Motion& hostile_motion = registry.motions.get(hostile);
+    hostile_motion.velocity = { 0,0 };
+    registry.patrol_ais.remove(hostile);
+    registry.damages.remove(hostile);
+    registry.healths.remove(hostile);
+    Sprite goombaSprite = registry.goombaSprites.get(m_goombaLand).back();
+    registry.sprites.emplace(hostile, goombaSprite);
 }

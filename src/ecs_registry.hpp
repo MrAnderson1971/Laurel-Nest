@@ -14,15 +14,21 @@ public:
     ComponentContainer<Health> healths;
     ComponentContainer<HealthFlask> healthFlasks;
     ComponentContainer<Damage> damages;
+    ComponentContainer<RecentlyDamagedTimer> recentDamageTimers;
     ComponentContainer<InvincibilityTimer> invinciblityTimers;
+    ComponentContainer<ProjectileTimer> projectileTimers;
+    ComponentContainer<Projectile> projectiles;
     ComponentContainer<Weapon> weapons;
     ComponentContainer<Motion> motions;
     ComponentContainer<Collision> collisions;
     ComponentContainer<DeathTimer> deathTimers;
     ComponentContainer<Player> players;
+    ComponentContainer<Hostile> hostiles;
     ComponentContainer<TransformComponent> transforms;
     ComponentContainer<Sprite> sprites;
     ComponentContainer<std::vector<Sprite>> heartSprites;
+    ComponentContainer<std::vector<Sprite>> goombaSprites;
+    ComponentContainer<std::vector<Motion>> goombaScales;
     ComponentContainer<RenderRequest> renderRequests; 
     ComponentContainer<ScreenState> screenStates;
     ComponentContainer<Animation<PlayerState>> playerAnimations;
@@ -43,15 +49,21 @@ public:
         registry_list.push_back(&healths);
         registry_list.push_back(&healthFlasks);
         registry_list.push_back(&damages);
+        registry_list.push_back(&recentDamageTimers);
         registry_list.push_back(&invinciblityTimers);
+        registry_list.push_back(&projectileTimers);
+        registry_list.push_back(&projectiles);
         registry_list.push_back(&weapons);
         registry_list.push_back(&deathTimers);
         registry_list.push_back(&motions);
         registry_list.push_back(&collisions);
         registry_list.push_back(&players);
+        registry_list.push_back(&hostiles);
         registry_list.push_back(&transforms);
         registry_list.push_back(&sprites);
         registry_list.push_back(&heartSprites);
+        registry_list.push_back(&goombaSprites);
+        registry_list.push_back(&goombaScales);
         registry_list.push_back(&renderRequests);
         registry_list.push_back(&screenStates);
         registry_list.push_back(&playerAnimations);
@@ -90,3 +102,5 @@ public:
 };
 
 extern ECSRegistry registry; // The global ECS registry
+extern Entity m_goombaLand;
+extern Entity m_goombaCeiling;

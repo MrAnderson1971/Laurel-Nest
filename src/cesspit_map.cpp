@@ -1,6 +1,7 @@
 #include <iostream>
 #include "cesspit_map.hpp"
 #include "world_system.hpp"
+#include "enemy.hpp"
 
 Cesspit::Cesspit() {
 }

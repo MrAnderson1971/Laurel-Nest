@@ -36,6 +36,7 @@ enum PlayerState {
 /* Template Animation component for animated sprites
 Each supports different animation states, such as walking, jumping, etc.
 */
+
 template<typename State>
 struct Animation {
     std::unordered_map<State, std::vector<Sprite>> frames;
@@ -124,10 +125,26 @@ struct Damage
     int damage_dealt;
 };
 
+struct RecentlyDamagedTimer
+{
+    float counter_ms = 0.3f;
+};
+
 // A timer that will be associated to when the player can get damaged again 
 struct InvincibilityTimer
 {
     float counter_ms = 2000;
+};
+
+struct ProjectileTimer
+{
+    float max_time;
+    float elapsed_time;
+};
+
+struct Projectile
+{
+
 };
 
 struct HealthFlask
@@ -141,17 +158,10 @@ struct Weapon
 };
 
 
-// anything that is deadly to the player
-struct Deadly
+// anything that is hostile to the player
+struct Hostile
 {
 
-};
-
-// anything that can be damaged but the player
-// enemies, bosses, 
-struct Damagable
-{
-    int health;
 };
 
 // struct for attacking
