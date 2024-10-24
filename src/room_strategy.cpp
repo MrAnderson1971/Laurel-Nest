@@ -182,8 +182,6 @@ void EntranceRoomStrategy::execute() {
     room.insert(m_platform1);
     room.insert(m_platform2);
     registry.rooms.emplace(m_entrance_room, std::move(room));
-    GoombaCeiling g = GoombaCeiling();
-    g.init(renderSystem.getWindowWidth() / 2.0f, g.bottom_edge);
 }
 
 void Room1Strategy::execute() {
@@ -328,16 +326,23 @@ void Room1Strategy::execute() {
     registry.grounds.emplace(m_ground, std::move(Ground()));
     registry.grounds.emplace(m_platform1, std::move(Ground()));
     registry.grounds.emplace(m_platform2, std::move(Ground()));
+    
+    // Ceiling Goomba
+    GoombaCeiling g1 = GoombaCeiling();
+    g1.init(renderSystem.getWindowWidth() / 2.0f, g1.bottom_edge);
+
+    GoombaLand g2 = GoombaLand();
+    g2.init(renderSystem.getWindowWidth() / 2.0f, 50.f);
 
     room.insert(m_bg);
     room.insert(m_ceiling);
     room.insert(m_ground);
     room.insert(m_platform1);
     room.insert(m_platform2);
+    room.insert(g1.entity);
+    room.insert(g2.entity);
     registry.rooms.emplace(m_room1, std::move(room));
 
-    GoombaCeiling g = GoombaCeiling();
-    g.init(renderSystem.getWindowWidth() / 2.0f, g.bottom_edge);
 }
 
 void Room2Strategy::execute() {
@@ -543,9 +548,6 @@ void Room2Strategy::execute() {
     registry.grounds.emplace(m_platform1, std::move(Ground()));
     registry.grounds.emplace(m_platform2, std::move(Ground()));
     registry.grounds.emplace(m_platform3, std::move(Ground()));
-
-    GoombaCeiling g = GoombaCeiling();
-    g.init(renderSystem.getWindowWidth() / 2.0f, g.bottom_edge);
 }
 
 void Room3Strategy::execute() {
@@ -782,9 +784,6 @@ void Room3Strategy::execute() {
     registry.grounds.emplace(m_pipe2, std::move(Ground()));
     registry.grounds.emplace(m_pipe3, std::move(Ground()));
 
-
-    GoombaCeiling g = GoombaCeiling();
-    g.init(renderSystem.getWindowWidth() / 2.0f, g.bottom_edge);
     }
 
 void Room4Strategy::execute() {
@@ -893,8 +892,6 @@ void Room4Strategy::execute() {
     registry.grounds.emplace(m_ground, std::move(Ground()));
     registry.grounds.emplace(m_platform, std::move(Ground()));
 
-    GoombaCeiling g = GoombaCeiling();
-    g.init(renderSystem.getWindowWidth() / 2.0f, g.bottom_edge);
     }
 
 void BossRoomStrategy::execute() {
@@ -1050,7 +1047,4 @@ void ExitRoomStrategy::execute() {
     // note on bg: don't add motion
     registry.grounds.emplace(m_ground, std::move(Ground()));
 
-
-    GoombaCeiling g = GoombaCeiling();
-    g.init(renderSystem.getWindowWidth() / 2.0f, g.bottom_edge);
 }

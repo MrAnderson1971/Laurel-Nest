@@ -70,4 +70,8 @@ void AISystem::ceiling_goomba_attack(Entity ceilingGoomba) {
     registry.gravity.emplace(spit, std::move(Gravity()));
     registry.damages.emplace(spit, std::move(Damage{ 1 }));
     registry.hostiles.emplace(spit, std::move(Hostile()));
+    
+    // Fix for spit by Kuter. change this when spit does not create a new entity every time.
+    // Don't worry about this line for now, I will deal with it in the weekend.
+    registry.rooms.get((registry.rooms.entities[1])).insert(spit);
 }
