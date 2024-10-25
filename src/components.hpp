@@ -36,6 +36,7 @@ enum PlayerState {
 /* Template Animation component for animated sprites
 Each supports different animation states, such as walking, jumping, etc.
 */
+
 template<typename State>
 struct Animation {
     std::unordered_map<State, std::vector<Sprite>> frames;
@@ -124,10 +125,26 @@ struct Damage
     int damage_dealt;
 };
 
+struct RecentlyDamagedTimer
+{
+    float counter_ms = 0.3f;
+};
+
 // A timer that will be associated to when the player can get damaged again 
 struct InvincibilityTimer
 {
     float counter_ms = 2000;
+};
+
+struct ProjectileTimer
+{
+    float max_time;
+    float elapsed_time;
+};
+
+struct Projectile
+{
+
 };
 
 struct HealthFlask
@@ -141,17 +158,10 @@ struct Weapon
 };
 
 
-// anything that is deadly to the player
-struct Deadly
+// anything that is hostile to the player
+struct Hostile
 {
 
-};
-
-// anything that can be damaged but the player
-// enemies, bosses, 
-struct Damagable
-{
-    int health;
 };
 
 // struct for attacking
@@ -225,7 +235,9 @@ enum class TEXTURE_ASSET_ID {
     CESSPIT_BG = HEART_0 + 1,                  // cesspit_bg.png
     ENTRANCE_BG = CESSPIT_BG + 1,              // entrance_bg.png
     SPACESHIP = ENTRANCE_BG + 1,               // spaceship.png
-    TEXTURE_COUNT = SPACESHIP + 1              // Count of all textures
+    PIPES = SPACESHIP + 1,                     // pipes.png
+    CESSPIT_BOSS_BG = PIPES + 1,               // cesspit_boss_bg.PNG
+    TEXTURE_COUNT = CESSPIT_BOSS_BG + 1        // Count of all textures
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
@@ -272,12 +284,30 @@ struct BoundingBox {
     float height = 1;
 };
 
-
-
 struct Environment {
     bool door = false;
 };
 
 struct Ground {
 
+};
+
+// Components used for Maps and Rooms
+// For performance, consider:
+// - having different vectors for different types of components
+struct Room {
+    bool isActive = true;
+    std::unordered_map<unsigned int, unsigned int> map_entity_entityID;
+    std::vector<Entity> entities;
+
+    void insert(Entity entity) {
+        if (!has(entity)) {
+            map_entity_entityID[entity] = (unsigned int)entities.size();
+            entities.push_back(entity);
+        }
+    }
+
+    bool has(Entity entity) {
+        return map_entity_entityID.count(entity) > 0;
+    }
 };
