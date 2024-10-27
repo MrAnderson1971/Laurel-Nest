@@ -22,7 +22,7 @@ public:
         // Note, indices of already deleted entities arent re-used in this simple implementation.
     }
     operator unsigned int() const { return id; } // this enables automatic casting to int
-    bool operator==(const Entity& other) { return id == other.id; } // this enables hash
+    bool operator==(const Entity& other) const { return id == other.id; } // this enables hash
 };
 
 // Common interface to refer to all containers in the ECS registry
