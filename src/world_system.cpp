@@ -115,7 +115,6 @@ void WorldSystem::init() {
     registry.transforms.emplace(m_player, playerTransform);
 
     init_all_goomba_sprites();
-    // MANDY LOOK
     // Ground:
     // sprite for ground, move this elsewhere for optimization. It is here for testing
     regionManager->init();
