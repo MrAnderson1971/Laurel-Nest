@@ -10,7 +10,7 @@ Cesspit::~Cesspit() {
 }
 
 void Cesspit::init() {
-    setRoomStrategy(std::make_unique<EntranceRoomStrategy>());
+    setRoomStrategy(std::make_unique<Room4Strategy>());
     currentRoom->execute();
     
     // TODO for Kuter: Execute all rooms when the map is loaded, clear them all when map changes.

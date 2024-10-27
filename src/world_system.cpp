@@ -115,6 +115,11 @@ void WorldSystem::init() {
     registry.transforms.emplace(m_player, playerTransform);
 
     init_all_goomba_sprites();
+
+    // Ground:
+    // sprite for ground, move this elsewhere for optimization. It is here for testing
+    regionManager->init();
+
     init_status_bar();
      
     // Initialize the region
