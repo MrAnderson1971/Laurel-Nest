@@ -11,12 +11,12 @@ constexpr float player_jump_velocity = 3.5f; // just high enough to reach the te
 
 // These are hardcoded to the dimensions of the entity texture
 // BB = bounding box
-const float WALKING_BB_WIDTH  = 2.f * 399.f * 0.2f;
-const float WALKING_BB_HEIGHT = 2.f * 712.f * 0.2f;
-const float JUMPING_BB_WIDTH  = 2.f * 464.f * 0.2f;
-const float JUMPING_BB_HEIGHT = 2.f * 714.f * 0.2f;
-const float ATTACKING_BB_WIDTH  = 2.f * 816.f * 0.2f;
-const float ATTACKING_BB_HEIGHT = 2.f * 714.f * 0.2f;
+const float WALKING_BB_WIDTH  = 1.2f * 399.f * 0.2f;
+const float WALKING_BB_HEIGHT = 1.2f * 712.f * 0.2f;
+const float JUMPING_BB_WIDTH  = 1.2f * 464.f * 0.2f;
+const float JUMPING_BB_HEIGHT = 1.2f * 714.f * 0.2f;
+const float ATTACKING_BB_WIDTH  = 1.2f * 816.f * 0.2f;
+const float ATTACKING_BB_HEIGHT = 1.2f * 714.f * 0.2f;
 const float HEARTS_WIDTH = 0.4f * 964.0f;
 const float HEARTS_HEIGHT = 0.4f * 366.0f;
 

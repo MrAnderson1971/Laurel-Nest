@@ -15,6 +15,6 @@ void Cesspit::init() {
     
     // TODO for Kuter: Execute all rooms when the map is loaded, clear them all when map changes.
     // uncomment below to test room transition
-    //setRoomStrategy(std::make_unique<Room1Strategy>());
-    //currentRoom->execute();
+    setRoomStrategy(std::make_unique<Room1Strategy>());
+    currentRoom->execute();
 }
