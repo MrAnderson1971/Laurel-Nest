@@ -190,7 +190,7 @@ void Room4Strategy::execute() {
     // for handling transitions
     Entity m_room4;
     Room room;
-    room.isActive = false;
+    room.isActive = true;
 
     // background
     Entity m_bg = SetBG("cesspit_bg.png");
