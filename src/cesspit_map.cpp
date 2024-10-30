@@ -10,11 +10,29 @@ Cesspit::~Cesspit() {
 }
 
 void Cesspit::init() {
+
+    // if you want to change the room, set start_room to a differnt currentRoom->exectue()
+
+    setRoomStrategy(std::make_unique<EntranceRoomStrategy>());
+    currentRoom->execute();
+    start_room = currentRoom->execute();
+
+    setRoomStrategy(std::make_unique<Room1Strategy>());
+    currentRoom->execute();
+    // start_room = currentRoom->execute();
+
+    setRoomStrategy(std::make_unique<Room2Strategy>());
+    currentRoom->execute();
+    // start_room = currentRoom->execute();
+
+    setRoomStrategy(std::make_unique<Room3Strategy>());
+    currentRoom->execute();
+    // start_room = currentRoom->execute();
+
     setRoomStrategy(std::make_unique<Room4Strategy>());
     currentRoom->execute();
-    
-    // TODO for Kuter: Execute all rooms when the map is loaded, clear them all when map changes.
-    // uncomment below to test room transition
-    //setRoomStrategy(std::make_unique<Room1Strategy>());
-    //currentRoom->execute();
+    // start_room = currentRoom->execute();
+
+    setRoomStrategy(std::make_unique<BossRoomStrategy>());
+    currentRoom->execute();
 }

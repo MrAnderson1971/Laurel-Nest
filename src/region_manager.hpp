@@ -14,5 +14,5 @@ public:
 	RegionManager() = default;
 	~RegionManager() = default;
 	void init();
-	void setRegion(const RegionFactory& region);
+	Entity setRegion(const RegionFactory& region);
 };

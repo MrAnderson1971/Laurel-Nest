@@ -296,7 +296,6 @@ struct Ground {
 // For performance, consider:
 // - having different vectors for different types of components
 struct Room {
-    bool isActive = true;
     std::unordered_map<unsigned int, unsigned int> map_entity_entityID;
     std::vector<Entity> entities;
 
