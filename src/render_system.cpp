@@ -1,11 +1,12 @@
 #define GL3W_IMPLEMENTATION
 #include "render_system.hpp"
+#include <SDL.h>
 #include <iostream>
 #include <fstream>
 #include <sstream>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
+//#define STB_IMAGE_IMPLEMENTATION
+//#include <stb_image.h>
 
 RenderSystem& renderSystem = RenderSystem::instance();
 
@@ -109,6 +110,9 @@ bool RenderSystem::initOpenGL(int width, int height, const std::string& title)
         // Set the updated projection matrix (bind shader program and set it here)
         // glUniformMatrix4fv(projection_location, 1, GL_FALSE, &projection[0][0]);
     });
+
+    // Initialize geometry buffers - load mesh texture
+    initializeGlGeometryBuffers();
 
     return true;
 }
@@ -330,6 +334,49 @@ GLuint RenderSystem::loadTexture(const std::string& filePath, int& outWidth, int
     stbi_image_free(data);
 
     return textureID;
+}
+
+template <class T>
+void RenderSystem::bindVBOandIBO(GEOMETRY_BUFFER_ID gid, std::vector<T> vertices, std::vector<uint16_t> indices)
+{
+    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffers[(uint)gid]);
+    glBufferData(GL_ARRAY_BUFFER,
+                 sizeof(vertices[0]) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
+    gl_has_errors();
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffers[(uint)gid]);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+                 sizeof(indices[0]) * indices.size(), indices.data(), GL_STATIC_DRAW);
+    gl_has_errors();
+}
+
+void RenderSystem::initializeGlMeshes()
+{
+    for (uint i = 0; i < mesh_paths.size(); i++)
+    {
+        // Initialize meshes
+        GEOMETRY_BUFFER_ID geom_index = mesh_paths[i].first;
+        std::string name = mesh_paths[i].second;
+        Mesh::loadFromOBJFile(name,
+                              meshes[(int)geom_index].vertices,
+                              meshes[(int)geom_index].vertex_indices,
+                              meshes[(int)geom_index].original_size);
+
+        bindVBOandIBO(geom_index,
+                      meshes[(int)geom_index].vertices,
+                      meshes[(int)geom_index].vertex_indices);
+    }
+}
+
+void RenderSystem::initializeGlGeometryBuffers()
+{
+    // Vertex Buffer creation.
+    glGenBuffers((GLsizei)vertex_buffers.size(), vertex_buffers.data());
+    // Index Buffer creation.
+    glGenBuffers((GLsizei)index_buffers.size(), index_buffers.data());
+
+    // Index and Vertex buffer data initialization.
+    initializeGlMeshes();
 }
 
 void RenderSystem::cleanup()
