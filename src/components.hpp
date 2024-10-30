@@ -305,7 +305,6 @@ namespace std {
     };
 }
 struct Room {
-    bool isActive = true;
     std::unordered_set<Entity> entities;
 
     void insert(Entity entity) {

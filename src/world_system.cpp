@@ -115,13 +115,13 @@ void WorldSystem::init() {
     registry.transforms.emplace(m_player, playerTransform);
 
     init_all_goomba_sprites();
-    // MANDY LOOK
-    // Ground:
-    // sprite for ground, move this elsewhere for optimization. It is here for testing
-    regionManager->init();
 
     init_status_bar();
-    regionManager->setRegion(makeRegion<Cesspit>);
+     
+    // Initialize the region
+    regionManager->init();
+    current_room = regionManager->setRegion(makeRegion<Cesspit>);
+    PhysicsSystem::setRoom(current_room);
 }
 
 void WorldSystem::update(float deltaTime) {
@@ -129,6 +129,8 @@ void WorldSystem::update(float deltaTime) {
     handle_collisions();
     handle_invinciblity(deltaTime);
     handle_ai();
+    update_projectile_timer(deltaTime);
+    update_damaged_sprites(deltaTime);
 
     // TODO: make this its own function too??
     //Update bounding boxes for all the entities
@@ -148,7 +150,7 @@ void WorldSystem::handle_motions(float deltaTime) {
             auto& m = registry.motions.get(entity);
 
             // Step 1: Apply gravity if not grounded
-            if (registry.gravity.has(entity)) {
+            if (registry.gravity.has(entity) && ( registry.players.has(entity) || registry.rooms.get(current_room).has(entity))) {
                 auto& g = registry.gravity.get(entity);
                 m.velocity.y += g.accleration;
             }
@@ -165,9 +167,9 @@ void WorldSystem::handle_motions(float deltaTime) {
                 }
             }
             else {
-                // TODO for Kuter: only the entities in the current room should move. 
-                // However, currently the goomba is not tied to a room, so I am not changing this.
-                m.position += m.velocity;
+                if (registry.rooms.get(current_room).has(entity)) {
+                    m.position += m.velocity;
+                }
             }
 
             // If this is the player, reset canJump before handling collisions
@@ -266,58 +268,6 @@ void WorldSystem::handle_motions(float deltaTime) {
             t = m;
         }
     }
-    // Handle collisions
-    handle_collisions();
-
-    std::vector<Entity> to_remove;
-    for (auto& e : registry.invinciblityTimers.entities) {
-        auto& i = registry.invinciblityTimers.get(e);
-        i.counter_ms -= deltaTime * 1000;
-        if (i.counter_ms <= 0) {
-            to_remove.push_back(e);
-        }
-    }
-
-    for (auto& e : to_remove) {
-        registry.invinciblityTimers.remove(e);
-    }
-
-    AISystem::step(m_player);
-    for (auto& e : registry.patrol_ais.entities) {
-        auto& p = registry.patrol_ais.get(e);
-        if (registry.motions.has(e)) {
-            auto& m = registry.motions.get(e);
-            if (std::abs(m.position.x - renderSystem.getWindowWidth()) < 10) {
-                p.movingRight = false;
-            } else if (std::abs(m.position.x - 0) < 10) {
-                p.movingRight = true;
-            }
-            if (p.movingRight) {
-                if(p.chasing){
-                    m.velocity.x = 3;
-                }else{
-                    m.velocity.x = 1;
-                }
-            } else {
-                if(p.chasing){
-                    m.velocity.x = -3;
-                }else{
-                    m.velocity.x = -1;
-                }
-            }
-        }
-    }
-
-    //Update bounding boxes for all the entities
-    auto & bounding_boxes = registry.bounding_box;
-    for(int i = 0; i < bounding_boxes.size(); i++){
-        Entity e1 = bounding_boxes.entities[i];
-        updateBoundingBox(e1);
-    }
-
-    update_projectile_timer(deltaTime);
-    update_damaged_sprites(deltaTime);
-
 }
 
 
@@ -377,7 +327,6 @@ void WorldSystem::handle_collisions() {
         }
 
     }
-
     registry.collisions.clear();
 }
 
@@ -452,18 +401,21 @@ void WorldSystem::render() {
 
     // Draw the entity if it exists and has the required components
     // also check if it is in the current room
-    // TODO for Kuter: rather looping therough the rooms, have a current room variable
-    for (auto& room_entity : registry.rooms.entities) {
-        Room& room = registry.rooms.get(room_entity);
-        if (room.isActive) {
-            for (auto& obj : room.entities) {
-                if (registry.envObject.has(obj) && registry.transforms.has(obj) && registry.sprites.has(obj))
-                {
-                    auto& transform = registry.transforms.get(obj);
-                    auto& sprite = registry.sprites.get(obj);
-                    renderSystem.drawEntity(sprite, transform);
-                }
-            }
+    Room& room = registry.rooms.get(current_room);
+    for (auto& obj : room.entities) {
+        // Draw Objects
+        if (registry.envObject.has(obj) && registry.transforms.has(obj) && registry.sprites.has(obj))
+        {
+            auto& transform = registry.transforms.get(obj);
+            auto& sprite = registry.sprites.get(obj);
+            renderSystem.drawEntity(sprite, transform);
+        }
+        // Draw the goombas
+        if (registry.hostiles.has(obj) && registry.transforms.has(obj) && registry.sprites.has(obj))
+        {
+            auto& transform = registry.transforms.get(obj);
+            auto& sprite = registry.sprites.get(obj);
+            renderSystem.drawEntity(sprite, transform);
         }
     }
 
@@ -480,17 +432,6 @@ void WorldSystem::render() {
     {
         auto& health = registry.healths.get(m_player);
         update_status_bar(health.current_health);
-    }
-
-    // TODO for Kuter: only draw enemies in the current room
-    // Draw the goombas
-    for (auto& obj : registry.hostiles.entities) {
-        if (registry.transforms.has(obj) && registry.sprites.has(obj))
-        {      
-            auto& transform = registry.transforms.get(obj);
-            auto& sprite = registry.sprites.get(obj);
-            renderSystem.drawEntity(sprite, transform);
-        }
     }
 }
 
@@ -564,19 +505,6 @@ void WorldSystem::processPlayerInput(int key, int action) {
         respawnGoomba();
     }
 
-    // Press T to change room
-    // TODO for Kuter: remove this later
-    if (action == GLFW_PRESS && key == GLFW_KEY_T) {
-        for (auto& room_entity : registry.rooms.entities) {
-            Room& room = registry.rooms.get(room_entity);
-            if (room.isActive) {
-                room.isActive = false;
-            }
-            else {
-                room.isActive = true;
-            }
-        }
-    }
 }
 
 void WorldSystem::on_key(int key, int, int action, int) {
@@ -843,8 +771,9 @@ void WorldSystem::update_projectile_timer(float delta_time) {
     for (Entity entity : registry.projectileTimers.entities) {
         ProjectileTimer& projectile_counter = registry.projectileTimers.get(entity);
         projectile_counter.elapsed_time -= delta_time;
-        if (projectile_counter.elapsed_time <= 0) {
-            AISystem::ceiling_goomba_attack(entity);
+        // TODO for Kuter: should this remain here?
+        if (projectile_counter.elapsed_time <= 0 && registry.rooms.get(current_room).has(entity)) {
+            AISystem::ceiling_goomba_attack(entity, current_room);
             projectile_counter.elapsed_time = projectile_counter.max_time;
         } 
     }
