@@ -15,7 +15,7 @@ void Cesspit::init() {
 
     setRoomStrategy(std::make_unique<EntranceRoomStrategy>());
     currentRoom->execute();
-    start_room = currentRoom->execute();
+    //start_room = currentRoom->execute();
 
     setRoomStrategy(std::make_unique<Room1Strategy>());
     currentRoom->execute();
@@ -35,4 +35,8 @@ void Cesspit::init() {
 
     setRoomStrategy(std::make_unique<BossRoomStrategy>());
     currentRoom->execute();
+
+    setRoomStrategy(std::make_unique<ExitRoomStrategy>());
+    currentRoom->execute();
+    start_room = currentRoom->execute();
 }
