@@ -50,7 +50,7 @@ void AISystem::step(Entity player_entity)
 }
 
 
-void AISystem::ceiling_goomba_attack(Entity ceilingGoomba) {
+void AISystem::ceiling_goomba_attack(Entity ceilingGoomba, Entity current_room) {
     Entity spit = Entity();
 
     // GIVE IT A PROPER SPRITE AT SOME POINT
@@ -71,7 +71,6 @@ void AISystem::ceiling_goomba_attack(Entity ceilingGoomba) {
     registry.damages.emplace(spit, std::move(Damage{ 1 }));
     registry.hostiles.emplace(spit, std::move(Hostile()));
     
-    // Fix for spit by Kuter. change this when spit does not create a new entity every time.
-    // Don't worry about this line for now, I will deal with it in the weekend.
-    registry.rooms.get((registry.rooms.entities[1])).insert(spit);
+    // TODO: maybe do this differently
+    registry.rooms.get(current_room).insert(spit);
 }

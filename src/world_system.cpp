@@ -116,15 +116,12 @@ void WorldSystem::init() {
 
     init_all_goomba_sprites();
 
-    // Ground:
-    // sprite for ground, move this elsewhere for optimization. It is here for testing
-    regionManager->init();
-
     init_status_bar();
      
     // Initialize the region
     regionManager->init();
-    regionManager->setRegion(makeRegion<Cesspit>);
+    current_room = regionManager->setRegion(makeRegion<Cesspit>);
+    PhysicsSystem::setRoom(current_room);
 }
 
 void WorldSystem::update(float deltaTime) {
@@ -152,10 +149,8 @@ void WorldSystem::handle_motions(float deltaTime) {
             auto& t = registry.transforms.get(entity);
             auto& m = registry.motions.get(entity);
 
-
-            // Quick fix by Kuter, will make it better in the weekend
             // Step 1: Apply gravity if not grounded
-            if (registry.gravity.has(entity) && ( registry.players.has(entity) || registry.rooms.get((registry.rooms.entities[1])).isActive)) {
+            if (registry.gravity.has(entity) && ( registry.players.has(entity) || registry.rooms.get(current_room).has(entity))) {
                 auto& g = registry.gravity.get(entity);
                 m.velocity.y += g.accleration;
             }
@@ -172,9 +167,7 @@ void WorldSystem::handle_motions(float deltaTime) {
                 }
             }
             else {
-                // TODO for Kuter: only the entities in the current room should move. 
-                // Quick fix by Kuter, will make it better in the weekend
-                if (registry.rooms.get((registry.rooms.entities[1])).has(entity)) {
+                if (registry.rooms.get(current_room).has(entity)) {
                     m.position += m.velocity;
                 }
             }
@@ -408,27 +401,21 @@ void WorldSystem::render() {
 
     // Draw the entity if it exists and has the required components
     // also check if it is in the current room
-    // TODO for Kuter: rather than 
-// looping therough the rooms, have a current room variable
-    for (auto& room_entity : registry.rooms.entities) {
-        Room& room = registry.rooms.get(room_entity);
-        if (room.isActive) {
-            for (auto& obj : room.entities) {
-                // Draw Objects
-                if (registry.envObject.has(obj) && registry.transforms.has(obj) && registry.sprites.has(obj))
-                {
-                    auto& transform = registry.transforms.get(obj);
-                    auto& sprite = registry.sprites.get(obj);
-                    renderSystem.drawEntity(sprite, transform);
-                }
-                // Draw the goombas
-                if (registry.hostiles.has(obj) && registry.transforms.has(obj) && registry.sprites.has(obj))
-                {
-                    auto& transform = registry.transforms.get(obj);
-                    auto& sprite = registry.sprites.get(obj);
-                    renderSystem.drawEntity(sprite, transform);
-                }
-            }
+    Room& room = registry.rooms.get(current_room);
+    for (auto& obj : room.entities) {
+        // Draw Objects
+        if (registry.envObject.has(obj) && registry.transforms.has(obj) && registry.sprites.has(obj))
+        {
+            auto& transform = registry.transforms.get(obj);
+            auto& sprite = registry.sprites.get(obj);
+            renderSystem.drawEntity(sprite, transform);
+        }
+        // Draw the goombas
+        if (registry.hostiles.has(obj) && registry.transforms.has(obj) && registry.sprites.has(obj))
+        {
+            auto& transform = registry.transforms.get(obj);
+            auto& sprite = registry.sprites.get(obj);
+            renderSystem.drawEntity(sprite, transform);
         }
     }
 
@@ -518,19 +505,6 @@ void WorldSystem::processPlayerInput(int key, int action) {
         respawnGoomba();
     }
 
-    // Press T to change room
-    // TODO for Kuter: remove this later
-    if (action == GLFW_PRESS && key == GLFW_KEY_T) {
-        for (auto& room_entity : registry.rooms.entities) {
-            Room& room = registry.rooms.get(room_entity);
-            if (room.isActive) {
-                room.isActive = false;
-            }
-            else {
-                room.isActive = true;
-            }
-        }
-    }
 }
 
 void WorldSystem::on_key(int key, int, int action, int) {
@@ -797,8 +771,9 @@ void WorldSystem::update_projectile_timer(float delta_time) {
     for (Entity entity : registry.projectileTimers.entities) {
         ProjectileTimer& projectile_counter = registry.projectileTimers.get(entity);
         projectile_counter.elapsed_time -= delta_time;
-        if (projectile_counter.elapsed_time <= 0) {
-            AISystem::ceiling_goomba_attack(entity);
+        // TODO for Kuter: should this remain here?
+        if (projectile_counter.elapsed_time <= 0 && registry.rooms.get(current_room).has(entity)) {
+            AISystem::ceiling_goomba_attack(entity, current_room);
             projectile_counter.elapsed_time = projectile_counter.max_time;
         } 
     }

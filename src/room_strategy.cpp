@@ -3,11 +3,10 @@
 #include "render_system.hpp"
 #include "enemy.hpp"
 
-void EntranceRoomStrategy::execute() {
+Entity EntranceRoomStrategy::execute() {
     // for handling transitions
     Entity m_entrance_room;
     Room room;
-    room.isActive = true;
 
     // background
     Entity m_bg = SetBG("entrance_bg.png");
@@ -56,13 +55,13 @@ void EntranceRoomStrategy::execute() {
     room.insert(m_platform1);
     room.insert(m_platform2);
     registry.rooms.emplace(m_entrance_room, std::move(room));
+    return m_entrance_room;
 }
 
-void Room1Strategy::execute() {
+Entity Room1Strategy::execute() {
     // for handling transitions
     Entity m_room1;
     Room room;
-    room.isActive = false;
 
     // background
     Entity m_bg = SetBG("cesspit_bg.png");
@@ -99,13 +98,13 @@ void Room1Strategy::execute() {
     room.insert(g1.entity);
     room.insert(g2.entity);
     registry.rooms.emplace(m_room1, std::move(room));
+    return m_room1;
 }
 
-void Room2Strategy::execute() {
+Entity Room2Strategy::execute() {
     // for handling transitions
     Entity m_room2;
     Room room;
-    room.isActive = false;
 
     // background
     Entity m_bg = SetBG("cesspit_bg.png");
@@ -143,13 +142,13 @@ void Room2Strategy::execute() {
     room.insert(m_platform2);
     room.insert(m_platform3);
     registry.rooms.emplace(m_room2, std::move(room));
+    return m_room2;
 }
 
-void Room3Strategy::execute() {
+Entity Room3Strategy::execute() {
     // for handling transitions
     Entity m_room3;
     Room room;
-    room.isActive = false;
 
     // background
     Entity m_bg = SetBG("cesspit_bg.png");
@@ -193,13 +192,13 @@ void Room3Strategy::execute() {
     room.insert(m_platform2);
     
     registry.rooms.emplace(m_room3, std::move(room));
+    return m_room3;
 }
 
-void Room4Strategy::execute() {
+Entity Room4Strategy::execute() {
     // for handling transitions
     Entity m_room4;
     Room room;
-    room.isActive = true;
 
     // background
     Entity m_bg = SetBG("cesspit_bg.png");
@@ -216,23 +215,26 @@ void Room4Strategy::execute() {
     // note on bg: don't add motion
     registry.grounds.emplace(m_ground, std::move(Ground()));
     registry.grounds.emplace(m_platform, std::move(Ground()));
+    
+    // Goombas
+    GoombaCeiling g = GoombaCeiling();
+    g.init(renderSystem.getWindowWidth() / 2.0f, g.bottom_edge);
 
     room.insert(m_bg);
     room.insert(m_ceiling);
     room.insert(m_ground);
     room.insert(m_platform);
+    room.insert(g.entity);
+    registry.rooms.emplace(m_room4, std::move(room)); 
 
-    registry.rooms.emplace(m_room4, std::move(room));
+    return m_room4;
 
-    GoombaCeiling g = GoombaCeiling();
-    g.init(renderSystem.getWindowWidth() / 2.0f, g.bottom_edge);
 }
 
-void BossRoomStrategy::execute() {
+Entity BossRoomStrategy::execute() {
     // for handling transitions
     Entity m_boss_room;
     Room room;
-    room.isActive = false;
 
     // background
     Entity m_bg = SetBG("cesspit_boss_bg.PNG");
@@ -251,10 +253,15 @@ void BossRoomStrategy::execute() {
     room.insert(m_ground);
 
     registry.rooms.emplace(m_boss_room, std::move(room));
+
+    return m_boss_room;
 }
 
 //TODO
-void ExitRoomStrategy::execute() {
+Entity ExitRoomStrategy::execute() {
+
+    Entity m_exit_room;
+
     // background
     Entity m_bg;
     int bgWidth, bgHeight;
@@ -327,4 +334,6 @@ void ExitRoomStrategy::execute() {
 
     // note on bg: don't add motion
     registry.grounds.emplace(m_ground, std::move(Ground()));
+
+    return m_exit_room;
 }
