@@ -45,6 +45,7 @@ private:
 	Entity m_player;
 	Entity m_hearts;
 	Entity m_sword;
+	Entity current_room;
 	std::unique_ptr<RegionManager> regionManager;
 
 	std::unordered_map<int, std::function<void()>> keyPressActions;

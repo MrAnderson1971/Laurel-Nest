@@ -5,13 +5,17 @@
 #include "collision_system.h"
 // Returns the local bounding coordinates scaled by the current size of the entity
 
+Entity currentRoom;
+
+void PhysicsSystem::setRoom(Entity newRoom) {
+    currentRoom = newRoom;
+}
+
 vec2 get_bounding_box(const Motion& motion)
 {
     // abs is to avoid negative scale due to the facing direction.
     return { abs(motion.scale.x), abs(motion.scale.y) };
 }
-
-
 
 
 bool static checkForCollision(Entity e1, Entity e2, vec2& direction, vec2& overlap) {
@@ -72,37 +76,23 @@ void PhysicsSystem::step(float elapsed_ms)
                 // Create a collision event by inserting into the collisions container
                 // This potentially inserts multiple collisions for the same entity
                 
-                // temporary - very bad!! - code added to ignore collisions in invisible rooms
-                // TODO for Kuter: reduce the numbder of unnecessary loops and searches
+                
+                // TODO for Kuter: there is an even better optimization, only loop the room entity list
 
-                bool isPlayer_i = false;
-                bool isPlayer_j = false;
-                bool isVisible_i = false;
-                bool isVisible_j = false;
+                bool isActive_i = false;
+                bool isActive_j = false;
 
-                if (registry.players.has(entity_i)) {
-                    isPlayer_i = true;
+                Room& room = registry.rooms.get(currentRoom);
+
+                if (registry.players.has(entity_i) || room.has(entity_i)) {
+                    isActive_i = true;
                 }
 
-                if (registry.players.has(entity_j)) {
-                    isPlayer_j = true;
+                if (registry.players.has(entity_j) || room.has(entity_j)) {
+                    isActive_j = true;
                 }
-
-                for (auto& room_entity : registry.rooms.entities) {
-                    Room& room = registry.rooms.get(room_entity);
-                    if (room.isActive) {
-                        if (room.has(entity_i)) {
-                            isVisible_i = true;
-                        }
-                        if (room.has(entity_j)) {
-                            isVisible_j = true;
-                        }
-                    }
-                }
-
-                // replace true with below for room transition
-                if //(true) {
-                    ((isPlayer_i && isVisible_j) || (isPlayer_j && isVisible_i) || (isVisible_i && isVisible_j)) {
+                
+                if (isActive_i && isActive_j) {
                     registry.collisions.emplace_with_duplicates(entity_i, entity_j, -direction, overlap);
                     registry.collisions.emplace_with_duplicates(entity_j, entity_i, direction, overlap);
                 }
