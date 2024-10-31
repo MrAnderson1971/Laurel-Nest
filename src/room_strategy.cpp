@@ -257,83 +257,54 @@ Entity BossRoomStrategy::execute() {
     return m_boss_room;
 }
 
-//TODO
 Entity ExitRoomStrategy::execute() {
-
+    // for handling transitions
     Entity m_exit_room;
+    Room room;
 
     // background
-    Entity m_bg;
-    int bgWidth, bgHeight;
-    Sprite bgSprite(renderSystem.loadTexture("entrance_bg.PNG", bgWidth, bgHeight));
-    registry.sprites.emplace(m_bg, std::move(bgSprite));
+    Entity m_bg = SetBG("entrance_bg.PNG");
 
-    // Create and initialize a TransformComponent for the ground
-    TransformComponent bgTransform;
-    bgTransform.position = glm::vec3(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() / 2.0f, 0.0);
-    bgTransform.scale = glm::vec3(bgWidth, bgHeight, 1.0);
-    bgTransform.rotation = 0.0f;
-    registry.transforms.emplace(m_bg, std::move(bgTransform));
+    // left wall
+    int yPos = renderSystem.getWindowHeight();
+    Entity m_wall_left = SetGround("demo_ground.png", 0.4f, 2.3f, 1.0f, yPos/2.f + 100.f);
 
-    Environment bgObj;
-    registry.envObject.emplace(m_bg, std::move(bgObj));
-
-    // ceiling
-    Entity m_ceiling;
-    int ceilingWidth, ceilingHeight;
-    Sprite ceilingSprite(renderSystem.loadTexture("demo_ceiling.png", ceilingWidth, ceilingHeight));
-    ceilingHeight /= 2;
-    registry.sprites.emplace(m_ceiling, std::move(ceilingSprite));
-
-    // Create and initialize a TransformComponent for the ceiling
-    TransformComponent ceilingTransform;
-    ceilingTransform.position = glm::vec3(renderSystem.getWindowWidth() / 2.0f, 100.0, 0.0);
-    ceilingTransform.scale = glm::vec3(ceilingWidth, ceilingHeight, 1.0);
-    ceilingTransform.rotation = 0.0f;
-    registry.transforms.emplace(m_ceiling, std::move(ceilingTransform));
-
-    // Create and initialize a Motion component for the ceiling
-    Motion ceilingMotion;
-    ceilingMotion.position = glm::vec2(renderSystem.getWindowWidth() / 2.0f, 100.0);
-    ceilingMotion.velocity = glm::vec2(0, 0);
-    ceilingMotion.scale = { ceilingWidth, ceilingHeight };
-    registry.motions.emplace(m_ceiling, std::move(ceilingMotion));
-
-    // add ceiling to environment to render out later
-    Environment ceilingObj;
-    registry.envObject.emplace(m_ceiling, std::move(ceilingObj));
-
+    // right right
+    Entity m_wall_right = SetGround("demo_ground.png", 0.4f, 2.3f, 0.0f, yPos/2.f + 300.f);
+    
     // ground
-    Entity m_ground;
-    int groundWidth, groundHeight;
-    Sprite groundSprite(renderSystem.loadTexture("demo_ground.png", groundWidth, groundHeight));
-    registry.sprites.emplace(m_ground, std::move(groundSprite));
+    Entity m_ground = SetGround("demo_ground.png", 1.0f, 1.0f, 0.5f, 20.0f);
 
-    // Create and initialize a TransformComponent for the ground
-    TransformComponent groundTransform;
-    groundTransform.position = glm::vec3(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() - 20.0f, 0.0);
-    groundTransform.scale = glm::vec3(groundWidth, groundHeight, 1.0);
-    groundTransform.rotation = 0.0f;
-    registry.transforms.emplace(m_ground, std::move(groundTransform));
+    // platform 1
+    Entity m_platform1 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.3f, 0.5f);
 
-    // Create and initialize a Motion component for the ground
-    Motion groundMotion;
-    groundMotion.position = glm::vec2(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() - 20.0f);
-    groundMotion.velocity = glm::vec2(0, 0);
-    groundMotion.scale = { groundWidth, groundHeight };
-    registry.motions.emplace(m_ground, std::move(groundMotion));
+    // platform 2
+    Entity m_platform2 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.5f, 0.7f);
 
-    // add ground to environment to render out later
-    Environment groundObj;
-    registry.envObject.emplace(m_ground, std::move(groundObj));
+    // platform 3
+    Entity m_platform3 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.55f, 0.2f);
 
-    registry.bounding_box.emplace(m_ground);
-    BoundingBox bb = registry.bounding_box.get(m_ground);
-    bb.height = groundSprite.height;
-    bb.width = groundSprite.width;
+    // platform 3
+    Entity m_platform4 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.7f, 0.3f);
 
     // note on bg: don't add motion
+    registry.grounds.emplace(m_wall_left, std::move(Ground()));
+    registry.grounds.emplace(m_wall_right, std::move(Ground()));
     registry.grounds.emplace(m_ground, std::move(Ground()));
+    registry.grounds.emplace(m_platform1, std::move(Ground()));
+    registry.grounds.emplace(m_platform2, std::move(Ground()));
+    registry.grounds.emplace(m_platform3, std::move(Ground()));
+    registry.grounds.emplace(m_platform4, std::move(Ground()));
 
+    room.insert(m_bg);
+    room.insert(m_wall_left);
+    room.insert(m_wall_right);
+    room.insert(m_ground);
+    room.insert(m_platform1);
+    room.insert(m_platform2);
+    room.insert(m_platform3);
+    room.insert(m_platform4);
+
+    registry.rooms.emplace(m_exit_room, std::move(room));
     return m_exit_room;
 }

@@ -15,6 +15,11 @@ class RenderSystem
     std::array<GLuint, texture_count> texture_gl_handles;
     std::array<ivec2, texture_count> texture_dimensions;
 
+    const std::vector < std::pair<GEOMETRY_BUFFER_ID, std::string>> mesh_paths =
+            {
+                    std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::BREAKABLE_ROCK, mesh_path("rock-b.obj"))
+            };
+
     // Make sure these paths remain in sync with the associated enumerators.
     const std::array<std::string, texture_count> texture_paths = {
             textures_path("idle.png"),                // PLAYER_IDLE
@@ -52,6 +57,10 @@ class RenderSystem
             textures_path("cesspit_boss_bg.PNG")      // CESSPIT_BOSS_BG
     };
 
+    std::array<GLuint, geometry_count> vertex_buffers;
+    std::array<GLuint, geometry_count> index_buffers;
+    std::array<Mesh, geometry_count> meshes;
+
 public:
 
     static RenderSystem& instance() {
@@ -72,6 +81,12 @@ public:
     GLFWwindow* getWindow() const;
     int getWindowWidth() const;
     int getWindowHeight() const;
+
+    template <class T>
+    void bindVBOandIBO(GEOMETRY_BUFFER_ID gid, std::vector<T> vertices, std::vector<uint16_t> indices);
+    void initializeGlMeshes();
+    void initializeGlGeometryBuffers();
+
     void cleanup();
     GLuint loadTexture(const std::string& filePath, int& outWidth, int& outHeight);
     void drawEntity(const Sprite& sprite, const TransformComponent& transform);

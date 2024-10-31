@@ -159,7 +159,7 @@ void WorldSystem::handle_motions(float deltaTime) {
             // Step 2: Update position based on velocity
             if (registry.players.has(entity)) {
                 // Make the player's position stop once its head reaches the top of the window
-                if ((m.position[1] + m.velocity[1]) > 150) {
+                if ((m.position[1] + m.velocity[1]) > 100) {
                     m.position += m.velocity;
                 }
                 else {

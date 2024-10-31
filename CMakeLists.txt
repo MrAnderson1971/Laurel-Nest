@@ -45,8 +45,6 @@ add_executable(${PROJECT_NAME} ${SOURCE_FILES}
         src/collision_system.cpp
         src/cesspit_map.cpp
         src/cesspit_map.hpp
-        src/goomba_logic.hpp
-        src/goomba_logic.cpp
         )
 target_include_directories(${PROJECT_NAME} PUBLIC src/)
 
