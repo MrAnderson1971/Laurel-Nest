@@ -90,6 +90,7 @@ struct Motion {
     vec2 velocity = { 0, 0 };
     vec2 scale = { 0, 0 };
     vec2 acceleration = { 0, 0 };
+    vec2 spawn_position = position;
 };
 
 struct TransformComponent {
@@ -226,7 +227,8 @@ enum class TEXTURE_ASSET_ID {
     CEILING_FALL = GOOMBA_DEAD + 1,            // ceiling_fall.png
     CEILING_HIT = CEILING_FALL + 1,            // ceiling_hit.png
     CEILING_IDLE = CEILING_HIT + 1,            // ceiling_idle.png
-    SPLASH_SCREEN = CEILING_IDLE + 1,          // splash_screen.png
+    CEILING_SPIT = CEILING_IDLE + 1,           // ceiling_spit.png 
+    SPLASH_SCREEN = CEILING_SPIT + 1,          // splash_screen.png
     DEMO_GROUND = SPLASH_SCREEN + 1,           // demo_ground.png
     DEMO_CEILING = DEMO_GROUND + 1,            // demo_ceiling.png
     HEART_3 = DEMO_CEILING + 1,                 // heart_3.png
@@ -316,4 +318,14 @@ struct Room {
     bool has(Entity entity) {
         return entities.count(entity) > 0;
     }
+};
+    
+
+// font character structure
+struct Character {
+    unsigned int TextureID;  // ID handle of the glyph texture
+    glm::ivec2   Size;       // Size of glyph
+    glm::ivec2   Bearing;    // Offset from baseline to left/top of glyph
+    unsigned int Advance;    // Offset to advance to next glyph
+    char character;
 };

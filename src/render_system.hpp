@@ -5,9 +5,10 @@
 #include "ecs.hpp"
 #include "components.hpp"
 #include "game_state_manager.hpp"
-#include <array>
+#include <array>	
 #include "physics_system.hpp"
-//#include "world_system.hpp"
+#include <map>				// map of character textures
+
 
 class RenderSystem
 {
@@ -74,6 +75,8 @@ public:
     void cleanup();
     GLuint loadTexture(const std::string& filePath, int& outWidth, int& outHeight);
     void drawEntity(const Sprite& sprite, const TransformComponent& transform);
+    bool fontInit(const std::string& font_filename, unsigned int font_default_size);
+    void renderText(std::string text, float x, float y, float scale, const glm::vec3& color, const glm::mat4& trans);
 
 private:
     RenderSystem();
@@ -87,6 +90,12 @@ private:
     GLuint VAO, VBO, EBO;
     glm::mat4 projection;
     GLuint projectionLoc;
+
+    // font elements
+    std::map<char, Character> m_ftCharacters;
+    GLuint m_font_shaderProgram;
+    GLuint m_font_VAO;
+    GLuint m_font_VBO;
 
     int windowWidth;
     int windowHeight;
