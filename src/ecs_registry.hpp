@@ -26,6 +26,7 @@ public:
     ComponentContainer<Hostile> hostiles;
     ComponentContainer<TransformComponent> transforms;
     ComponentContainer<Sprite> sprites;
+    ComponentContainer<Mesh*> meshPtrs;
     ComponentContainer<std::vector<Sprite>> heartSprites;
     ComponentContainer<std::vector<Sprite>> goombaSprites;
     ComponentContainer<std::vector<Motion>> goombaScales;
@@ -61,6 +62,7 @@ public:
         registry_list.push_back(&hostiles);
         registry_list.push_back(&transforms);
         registry_list.push_back(&sprites);
+        registry_list.push_back(&meshPtrs);
         registry_list.push_back(&heartSprites);
         registry_list.push_back(&goombaSprites);
         registry_list.push_back(&goombaScales);
