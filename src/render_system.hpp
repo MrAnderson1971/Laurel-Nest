@@ -16,7 +16,10 @@ class RenderSystem
 
     const std::vector < std::pair<GEOMETRY_BUFFER_ID, std::string>> mesh_paths =
             {
-                    std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::BREAKABLE_ROCK, mesh_path("rock-b.obj"))
+                    std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::PLAYER_IDLE_MESH, mesh_path("mesh_walk_3.obj")),
+                    std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::PLAYER_WALK_MESH, mesh_path("mesh_walk_3.obj")),
+                    std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::PLAYER_JUMP_MESH, mesh_path("mesh_jump_3.obj")),
+                    std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::PLAYER_ATTACK_MESH, mesh_path("mesh_attack_3.obj"))
             };
 
     // Make sure these paths remain in sync with the associated enumerators.
@@ -80,11 +83,8 @@ public:
     GLFWwindow* getWindow() const;
     int getWindowWidth() const;
     int getWindowHeight() const;
-
-    template <class T>
-    void bindVBOandIBO(GEOMETRY_BUFFER_ID gid, std::vector<T> vertices, std::vector<uint16_t> indices);
-    void initializeGlMeshes();
-    void initializeGlGeometryBuffers();
+    void loadPlayerMeshes(Entity playerEntity);
+    const Mesh& getPlayerMesh(Entity playerEntity, PlayerState state);
 
     void cleanup();
     GLuint loadTexture(const std::string& filePath, int& outWidth, int& outHeight);

@@ -114,6 +114,9 @@ void WorldSystem::init() {
     playerTransform.rotation = 0.0f;
     registry.transforms.emplace(m_player, playerTransform);
 
+    // load mesh for player
+    renderSystem.loadPlayerMeshes(m_player);
+
     init_all_goomba_sprites();
 
     init_status_bar();
