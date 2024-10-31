@@ -18,4 +18,5 @@ public:
 
 private:
     Entity splashScreenEntity;
+    Entity namesEntity;
 };
