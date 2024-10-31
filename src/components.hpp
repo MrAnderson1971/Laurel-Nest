@@ -262,7 +262,7 @@ struct RenderRequest {
 };
 
 struct Gravity {
-    float accleration = 0.01f;
+    float acceleration = 9.8f * TPS;
 };
 
 

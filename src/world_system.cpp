@@ -125,6 +125,7 @@ void WorldSystem::init() {
 }
 
 void WorldSystem::update(float deltaTime) {
+    deltaTime = min(deltaTime, max_delta_time); // so if there's a lag spike the movement doesn't become so large you phase through walls
     handle_motions(deltaTime);
     handle_collisions();
     handle_invinciblity(deltaTime);
@@ -152,14 +153,14 @@ void WorldSystem::handle_motions(float deltaTime) {
             // Step 1: Apply gravity if not grounded
             if (registry.gravity.has(entity) && ( registry.players.has(entity) || registry.rooms.get(current_room).has(entity))) {
                 auto& g = registry.gravity.get(entity);
-                m.velocity.y += g.accleration;
+                m.velocity.y += g.acceleration * deltaTime;
             }
 
             // Step 2: Update position based on velocity
             if (registry.players.has(entity)) {
                 // Make the player's position stop once its head reaches the top of the window
-                if ((m.position[1] + m.velocity[1]) > 150) {
-                    m.position += m.velocity;
+                if ((m.position[1] + m.velocity[1] * deltaTime) > 150) {
+                    m.position += m.velocity * deltaTime;
                 }
                 else {
                     // Makes sure the player starts to drop immiediately cuz of gravity
@@ -168,7 +169,7 @@ void WorldSystem::handle_motions(float deltaTime) {
             }
             else {
                 if (registry.rooms.get(current_room).has(entity)) {
-                    m.position += m.velocity;
+                    m.position += m.velocity * deltaTime;
                 }
             }
 
