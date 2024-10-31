@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include "../ext/stb_image/stb_image.h"
 #include <memory>
+#include <unordered_set>
 
 struct Sprite {
     std::shared_ptr<GLuint> textureID;
@@ -187,13 +188,26 @@ struct Collision
     { this->other = other; };
 };
 
+struct ColoredVertex
+{
+    vec3 position;
+    vec3 color;
+};
+
+// Single Vertex Buffer element for textured sprites (textured.vs.glsl)
+struct TexturedVertex
+{
+    vec3 position;
+    vec2 texcoord;
+};
+
 // Mesh data structure for storing vertex and index buffers
 struct Mesh
 {
-   // static bool loadFromOBJFile(std::string obj_path, std::vector<ColoredVertex>& out_vertices, std::vector<uint16_t>& out_vertex_indices, vec2& out_size);
+    static bool loadFromOBJFile(std::string obj_path, std::vector<ColoredVertex>& out_vertices, std::vector<uint16_t>& out_vertex_indices, vec2& out_size);
     vec2 original_size = {1,1};
-    // std::vector<ColoredVertex> vertices;
-    // std::vector<uint16_t> vertex_indices;
+    std::vector<ColoredVertex> vertices;
+    std::vector<uint16_t> vertex_indices;
 };
 
 // Sets the brightness of the screen
@@ -248,7 +262,8 @@ enum class EFFECT_ASSET_ID {
 const int effect_count = (int)EFFECT_ASSET_ID::EFFECT_COUNT;
 
 enum class GEOMETRY_BUFFER_ID {
-    PLAYER_GEO = 0,
+    BREAKABLE_ROCK = 0,
+    PLAYER_GEO = BREAKABLE_ROCK + 1,
     SPRITE = PLAYER_GEO + 1,
     GEOMETRY_COUNT = SPRITE + 1
 };
@@ -295,18 +310,24 @@ struct Ground {
 // Components used for Maps and Rooms
 // For performance, consider:
 // - having different vectors for different types of components
+namespace std {
+    template<>
+    struct hash<Entity> {
+        std::size_t operator()(const Entity& entity) const noexcept {
+            return hash<unsigned int>()(entity);
+        }
+    };
+}
 struct Room {
-    std::unordered_map<unsigned int, unsigned int> map_entity_entityID;
-    std::vector<Entity> entities;
+    std::unordered_set<Entity> entities;
 
     void insert(Entity entity) {
         if (!has(entity)) {
-            map_entity_entityID[entity] = (unsigned int)entities.size();
-            entities.push_back(entity);
+            entities.insert(entity);
         }
     }
 
     bool has(Entity entity) {
-        return map_entity_entityID.count(entity) > 0;
+        return entities.count(entity) > 0;
     }
 };
