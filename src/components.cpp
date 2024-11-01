@@ -56,109 +56,23 @@ bool Mesh::loadFromOBJFile(std::string obj_path, std::vector<ColoredVertex>& out
             out_normals.push_back(normal);
         }
         else if (strcmp(lineHeader, "f") == 0) {
-//            unsigned int vertexIndex[3] = {0, 0, 0};
-//            unsigned int uvIndex[3] = {0, 0, 0};
-//            unsigned int normalIndex[3] = {0, 0, 0};
-            std::string vertex1, vertex2, vertex3;
-            unsigned int vertexIndex[3], normalIndex[3], uvIndex[3];
+            unsigned int vertexIndex[3], normalIndex[3];
 
-            // Attempt to read face in the format `v/t/n`
-            int matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n",
-                                 &vertexIndex[0], &uvIndex[0], &normalIndex[0],
-                                 &vertexIndex[1], &uvIndex[1], &normalIndex[1],
-                                 &vertexIndex[2], &uvIndex[2], &normalIndex[2]);
-            if (matches == 9) {
-                // Successfully parsed `v/t/n` format
-//                for (int i = 0; i < 3; i++) {
-//                    out_vertex_indices.push_back((uint16_t)(vertexIndex[i] - 1));
-//                    out_uv_indices.push_back((uint16_t)(uvIndex[i] - 1));
-//                    out_normal_indices.push_back((uint16_t)(normalIndex[i] - 1));
-//                }
-                // -1 since .obj starts counting at 1 and OpenGL starts at 0
-                out_vertex_indices.push_back(static_cast<uint16_t>(vertexIndex[0]) - 1);
-                out_vertex_indices.push_back(static_cast<uint16_t>(vertexIndex[1]) - 1);
-                out_vertex_indices.push_back(static_cast<uint16_t>(vertexIndex[2]) - 1);
-                out_uv_indices.push_back(static_cast<uint16_t>(uvIndex[0]) - 1);
-                out_uv_indices.push_back(static_cast<uint16_t>(uvIndex[1]) - 1);
-                out_uv_indices.push_back(static_cast<uint16_t>(uvIndex[2]) - 1);
-                out_normal_indices.push_back(static_cast<uint16_t>(normalIndex[0]) - 1);
-                out_normal_indices.push_back(static_cast<uint16_t>(normalIndex[1]) - 1);
-                out_normal_indices.push_back(static_cast<uint16_t>(normalIndex[2]) - 1);
+            int matches = fscanf(file, "%d//%d %d//%d %d//%d\n", &vertexIndex[0], &normalIndex[0],
+                                 &vertexIndex[1], &normalIndex[1], &vertexIndex[2], &normalIndex[2]);
+
+            if (matches != 6) {
+                std::cerr << "File can't be read by this parser. Try exporting with different options." << std::endl;
+                fclose(file);
+                return false;
             }
-//            else {
-//                // Attempt to read `v//n` format
-//                matches = fscanf(file, "%d//%d %d//%d %d//%d\n",
-//                                 &vertexIndex[0], &normalIndex[0],
-//                                 &vertexIndex[1], &normalIndex[1],
-//                                 &vertexIndex[2], &normalIndex[2]);
-//                if (matches == 6) {
-//                    // Successfully parsed `v//n` format
-//                    for (int i = 0; i < 3; i++) {
-//                        out_vertex_indices.push_back((uint16_t)(vertexIndex[i] - 1));
-//                        out_normal_indices.push_back((uint16_t)(normalIndex[i] - 1));
-//                    }
-//                } else {
-//                    // Attempt to read `v/t` format (no normals)
-//                    matches = fscanf(file, "%d/%d %d/%d %d/%d\n",
-//                                     &vertexIndex[0], &uvIndex[0],
-//                                     &vertexIndex[1], &uvIndex[1],
-//                                     &vertexIndex[2], &uvIndex[2]);
-//                    if (matches == 6) {
-//                        // Successfully parsed `v/t` format
-//                        for (int i = 0; i < 3; i++) {
-//                            out_vertex_indices.push_back((uint16_t)(vertexIndex[i] - 1));
-//                            out_uv_indices.push_back((uint16_t)(uvIndex[i] - 1));
-//                        }
-//                    } else {
-//                        // Attempt to read `v` only format (only vertices)
-//                        matches = fscanf(file, "%d %d %d\n",
-//                                         &vertexIndex[0],
-//                                         &vertexIndex[1],
-//                                         &vertexIndex[2]);
-//                        if (matches == 3) {
-//                            // Successfully parsed `v` format
-//                            for (int i = 0; i < 3; i++) {
-//                                out_vertex_indices.push_back((uint16_t)(vertexIndex[i] - 1));
-//                            }
-//                        } else {
-//                            // Unsupported face format
-//                            fprintf(stderr, "File can't be read by parser. Unsupported face format in OBJ file\n");
-//                            fclose(file);
-//                            return false;
-//                        }
-//                    }
-//                }
-//            }
-//            std::string vertex1, vertex2, vertex3;
-//            unsigned int vertexIndex[3], normalIndex[3], uvIndex[3];
-//
-//            int matches = fscanf(file, "%d %d %d\n", &vertexIndex[0], &vertexIndex[1], &vertexIndex[2]);
-//            if (matches == 1) // try again
-//            {
-//                // Note first vertex index is already consumed by the first fscanf call (match ==1) since it aborts on the first error
-//                matches = fscanf(file, "//%d %d//%d %d//%d\n", &normalIndex[0], &vertexIndex[1], &normalIndex[1], &vertexIndex[2], &normalIndex[2]);
-//                if (matches != 5) // try again
-//                {
-//                    matches = fscanf(file, "%d/%d %d/%d/%d %d/%d/%d\n", &uvIndex[0], &normalIndex[0], &vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2]);
-//                    if (matches != 8)
-//                    {
-//                        printf("File can't be read by our simple parser :-( Try exporting with other options\n");
-//                        fclose(file);
-//                        return false;
-//                    }
-//                }
-//            }
-//
-//            // -1 since .obj starts counting at 1 and OpenGL starts at 0
-//            out_vertex_indices.push_back((uint16_t)vertexIndex[0] - 1);
-//            out_vertex_indices.push_back((uint16_t)vertexIndex[1] - 1);
-//            out_vertex_indices.push_back((uint16_t)vertexIndex[2] - 1);
-//            //out_uv_indices.push_back(uvIndex[0] - 1);
-//            //out_uv_indices.push_back(uvIndex[1] - 1);
-//            //out_uv_indices.push_back(uvIndex[2] - 1);
-//            out_normal_indices.push_back((uint16_t)normalIndex[0] - 1);
-//            out_normal_indices.push_back((uint16_t)normalIndex[1] - 1);
-//            out_normal_indices.push_back((uint16_t)normalIndex[2] - 1);
+
+            out_vertex_indices.push_back((uint16_t)vertexIndex[0] - 1);
+            out_vertex_indices.push_back((uint16_t)vertexIndex[1] - 1);
+            out_vertex_indices.push_back((uint16_t)vertexIndex[2] - 1);
+            out_normal_indices.push_back((uint16_t)normalIndex[0] - 1);
+            out_normal_indices.push_back((uint16_t)normalIndex[1] - 1);
+            out_normal_indices.push_back((uint16_t)normalIndex[2] - 1);
         }
         else {
             // Probably a comment, eat up the rest of the line
@@ -177,7 +91,7 @@ bool Mesh::loadFromOBJFile(std::string obj_path, std::vector<ColoredVertex>& out
         min_position = glm::min(min_position, pos.position);
     }
     if(abs(max_position.z - min_position.z)<0.001)
-        max_position.z = min_position.z+1; // don't scale z direction when everythin is on one plane
+        max_position.z = min_position.z+1; // don't scale z direction when everything is on one plane
 
     vec3 size3d = max_position - min_position;
     out_size = size3d;

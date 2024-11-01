@@ -114,6 +114,9 @@ void WorldSystem::init() {
     playerTransform.rotation = 0.0f;
     registry.transforms.emplace(m_player, playerTransform);
 
+    // load mesh for player
+    renderSystem.loadPlayerMeshes(m_player);
+
     init_all_goomba_sprites();
 
     init_status_bar();
@@ -279,27 +282,38 @@ void WorldSystem::handle_collisions() {
         vec2 direction = collisionsRegistry.components[i].direction;
         vec2 overlap = collisionsRegistry.components[i].overlap;
 
-        if (registry.grounds.has(entity_other)) {
-            Motion& thisMotion = registry.motions.get(entity);
-            Motion& otherMotion = registry.motions.get(entity_other);
+        if (!registry.motions.has(entity) || !registry.motions.has(entity_other)) {
+            continue;
+        }
+        Motion& thisMotion = registry.motions.get(entity);
+        Motion& otherMotion = registry.motions.get(entity_other);
 
+        if (registry.grounds.has(entity_other)) {
             if (direction.x != 0) {
-                thisMotion.position.x -= overlap.x * direction.x;
-            }
-            else if (direction.y > 0 && thisMotion.velocity.y > 0) {
-                thisMotion.position.y -= overlap.y;
-                thisMotion.velocity.y = 0;
-                if (registry.players.has(entity)) {
-                    canJump = true;  // Allow player to jump again
-                    isGrounded = true;  // Player is grounded
+                if (direction.x > 0 && thisMotion.velocity.x > 0) {
+                    thisMotion.position.x -= overlap.x;
+                } else if (direction.x < 0 && thisMotion.velocity.x < 0) {
+                    thisMotion.position.x += overlap.x;
+                }
+            } 
+            if (direction.y != 0) {
+                if (direction.y > 0 && thisMotion.velocity.y > 0) {
+                    // Downward collision
+                    thisMotion.position.y -= overlap.y;
+                    thisMotion.velocity.y = 0;
+
+                    if (registry.players.has(entity)) {
+                        canJump = true;  // Allow player to jump again
+                        isGrounded = true;  // Player is grounded
+                    }
+                }
+                else if (direction.y < 0 && thisMotion.velocity.y < 0) {
+                    thisMotion.position.y += overlap.y;
+                    thisMotion.velocity.y = 0;
                 }
             }
-            else if (direction.y < 0 && thisMotion.velocity.y < 0) {
-                thisMotion.position.y += overlap.y;
-                thisMotion.velocity.y = 0;
-            }
-
         }
+
         if (registry.players.has(entity) && !registry.invinciblityTimers.has(entity) && registry.damages.has(entity_other)) {
             if(registry.players.get(m_player).attacking){
                 goomba_get_damaged(entity_other);

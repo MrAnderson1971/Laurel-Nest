@@ -111,9 +111,6 @@ bool RenderSystem::initOpenGL(int width, int height, const std::string& title)
         // glUniformMatrix4fv(projection_location, 1, GL_FALSE, &projection[0][0]);
     });
 
-    // Initialize geometry buffers - load mesh texture
-    initializeGlGeometryBuffers();
-
     return true;
 }
 
@@ -336,48 +333,45 @@ GLuint RenderSystem::loadTexture(const std::string& filePath, int& outWidth, int
     return textureID;
 }
 
-template <class T>
-void RenderSystem::bindVBOandIBO(GEOMETRY_BUFFER_ID gid, std::vector<T> vertices, std::vector<uint16_t> indices)
-{
-    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffers[(uint)gid]);
-    glBufferData(GL_ARRAY_BUFFER,
-                 sizeof(vertices[0]) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
-    gl_has_errors();
+void RenderSystem::loadPlayerMeshes(Entity playerEntity) {
+    const std::unordered_map<PlayerState, std::string> playerMeshPaths = {
+            {PlayerState::IDLE, mesh_path("mesh_walk_3.obj")},
+            {PlayerState::WALKING, mesh_path("mesh_walk_3.obj")},
+            {PlayerState::JUMPING, mesh_path("mesh_jump_3.obj")},
+            {PlayerState::ATTACKING, mesh_path("mesh_attack_3.obj")}
+    };
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffers[(uint)gid]);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                 sizeof(indices[0]) * indices.size(), indices.data(), GL_STATIC_DRAW);
-    gl_has_errors();
-}
+    // Check if the player already has a PlayerMeshes component
+    if (!registry.playerMeshes.has(playerEntity)) {
+        registry.playerMeshes.emplace(playerEntity, PlayerMeshes{});
+    }
+    auto& playerMeshesComponent = registry.playerMeshes.get(playerEntity);
 
-void RenderSystem::initializeGlMeshes()
-{
-    for (uint i = 0; i < mesh_paths.size(); i++)
-    {
-        // Initialize meshes
-        GEOMETRY_BUFFER_ID geom_index = mesh_paths[i].first;
-        std::string name = mesh_paths[i].second;
-        Mesh::loadFromOBJFile(name,
-                              meshes[(int)geom_index].vertices,
-                              meshes[(int)geom_index].vertex_indices,
-                              meshes[(int)geom_index].original_size);
-
-        bindVBOandIBO(geom_index,
-                      meshes[(int)geom_index].vertices,
-                      meshes[(int)geom_index].vertex_indices);
+    // Load each mesh for the specified player states
+    for (const auto& playerMeshPath : playerMeshPaths) {
+        PlayerState state = playerMeshPath.first;
+        std::string path = playerMeshPath.second;
+        Mesh mesh;
+        if (Mesh::loadFromOBJFile(path, mesh.vertices, mesh.vertex_indices, mesh.original_size)) {
+            playerMeshesComponent.stateMeshes.emplace(state, std::move(mesh));
+        } else {
+            std::cerr << "Error: Failed to load mesh for state " << static_cast<int>(state) << " from " << path << std::endl;
+        }
     }
 }
 
-void RenderSystem::initializeGlGeometryBuffers()
-{
-    // Vertex Buffer creation.
-    glGenBuffers((GLsizei)vertex_buffers.size(), vertex_buffers.data());
-    // Index Buffer creation.
-    glGenBuffers((GLsizei)index_buffers.size(), index_buffers.data());
-
-    // Index and Vertex buffer data initialization.
-    initializeGlMeshes();
+const Mesh& RenderSystem::getPlayerMesh(Entity playerEntity, PlayerState state) {
+    static Mesh emptyMesh;
+    if (registry.playerMeshes.has(playerEntity)) {
+        const auto& playerMeshes = registry.playerMeshes.get(playerEntity).stateMeshes;
+        auto it = playerMeshes.find(state);
+        if (it != playerMeshes.end()) {
+            return it->second;
+        }
+    }
+    return emptyMesh;
 }
+
 
 void RenderSystem::cleanup()
 {
