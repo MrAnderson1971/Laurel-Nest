@@ -11,10 +11,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-// for texture image load
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-
 // fonts
 #include <ft2build.h>
 #include FT_FREETYPE_H

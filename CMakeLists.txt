@@ -157,13 +157,20 @@ if (NOT GLFW_FOUND OR NOT SDL2_FOUND)
 endif()
 
 # Add FreeType - Windows-specific; not tested on Linux or macOS
+# Include FreeType library
 if (IS_OS_WINDOWS)
-  set (FREETYPE_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/ext/freetype/include")
-  set (FREETYPE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/ext/freetype/release static/vs2015-2022/win64/freetype.lib")
-  # set (SDL2_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/ext/sdl/lib/SDL2-x86.lib")
-  include_directories("${CMAKE_CURRENT_SOURCE_DIR}/ext/freetype/include")
+    set(FREETYPE_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/ext/freetype/include")
+    set(FREETYPE_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/ext/freetype/release static/vs2015-2022/win64/freetype.lib")
 
-  find_package(Freetype REQUIRED)
+    # Create an imported target for FreeType
+    add_library(Freetype::Freetype STATIC IMPORTED)
+    set_target_properties(Freetype::Freetype PROPERTIES
+        IMPORTED_LOCATION "${FREETYPE_LIBRARIES}"
+        INTERFACE_INCLUDE_DIRECTORIES "${FREETYPE_INCLUDE_DIRS}"
+    )
+
+    # Link the FreeType target
+    target_link_libraries(${PROJECT_NAME} PUBLIC Freetype::Freetype)
 elseif (IS_OS_MAC)
   find_package(Freetype REQUIRED)
   if(Freetype_FOUND)
