@@ -73,36 +73,6 @@ bool Mesh::loadFromOBJFile(std::string obj_path, std::vector<ColoredVertex>& out
             out_normal_indices.push_back((uint16_t)normalIndex[0] - 1);
             out_normal_indices.push_back((uint16_t)normalIndex[1] - 1);
             out_normal_indices.push_back((uint16_t)normalIndex[2] - 1);
-//            std::string vertex1, vertex2, vertex3;
-//            unsigned int vertexIndex[3], normalIndex[3], uvIndex[3];
-//
-//            int matches = fscanf(file, "%d %d %d\n", &vertexIndex[0], &vertexIndex[1], &vertexIndex[2]);
-//            if (matches == 1) // try again
-//            {
-//                // Note first vertex index is already consumed by the first fscanf call (match ==1) since it aborts on the first error
-//                matches = fscanf(file, "//%d %d//%d %d//%d\n", &normalIndex[0], &vertexIndex[1], &normalIndex[1], &vertexIndex[2], &normalIndex[2]);
-//                if (matches != 5) // try again
-//                {
-//                    matches = fscanf(file, "%d/%d %d/%d/%d %d/%d/%d\n", &uvIndex[0], &normalIndex[0], &vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2]);
-//                    if (matches != 8)
-//                    {
-//                        printf("File can't be read by our simple parser :-( Try exporting with other options\n");
-//                        fclose(file);
-//                        return false;
-//                    }
-//                }
-//            }
-//
-//            // -1 since .obj starts counting at 1 and OpenGL starts at 0
-//            out_vertex_indices.push_back((uint16_t)vertexIndex[0] - 1);
-//            out_vertex_indices.push_back((uint16_t)vertexIndex[1] - 1);
-//            out_vertex_indices.push_back((uint16_t)vertexIndex[2] - 1);
-//            //out_uv_indices.push_back(uvIndex[0] - 1);
-//            //out_uv_indices.push_back(uvIndex[1] - 1);
-//            //out_uv_indices.push_back(uvIndex[2] - 1);
-//            out_normal_indices.push_back((uint16_t)normalIndex[0] - 1);
-//            out_normal_indices.push_back((uint16_t)normalIndex[1] - 1);
-//            out_normal_indices.push_back((uint16_t)normalIndex[2] - 1);
         }
         else {
             // Probably a comment, eat up the rest of the line
