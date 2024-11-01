@@ -378,18 +378,18 @@ void WorldSystem::handle_ai() {
             }
             if (p.movingRight) {
                 if (p.chasing) {
-                    m.velocity.x = 3;
+                    m.velocity.x = 3 * TPS;
                 }
                 else {
-                    m.velocity.x = 1;
+                    m.velocity.x = 1 * TPS;
                 }
             }
             else {
                 if (p.chasing) {
-                    m.velocity.x = -3;
+                    m.velocity.x = -3 * TPS;
                 }
                 else {
-                    m.velocity.x = -1;
+                    m.velocity.x = -1 * TPS;
                 }
             }
         }
