@@ -319,7 +319,7 @@ namespace std {
     };
 }
 struct Room {
-    std::unordered_set<Entity> entities;
+    std::set<Entity> entities;
 
     void insert(Entity entity) {
         if (!has(entity)) {
