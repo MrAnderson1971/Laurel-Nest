@@ -110,7 +110,7 @@ bool triangleIntersectsAABB(const vec3& v1, const vec3& v2, const vec3& v3, cons
     return true;
 }
 
-bool playerMeshCollide(Entity player, Entity other, vec2& direction, vec2& overlap) {
+bool playerMeshCollide2(Entity player, Entity other, vec2& direction, vec2& overlap) {
     PlayerState state = registry.playerAnimations.get(player).currentState;
     const Mesh& playerMesh = registry.playerMeshes.get(player).stateMeshes[state];
 
@@ -167,6 +167,53 @@ bool playerMeshCollide(Entity player, Entity other, vec2& direction, vec2& overl
     return foundCollision;
 }
 
+// checks to see if any vertex is within AABB
+bool playerMeshCollide(Entity player, Entity other, vec2& direction, vec2& overlap) {
+    auto& motion = registry.motions.get(other);
+    auto& motion1 = registry.motions.get(player);
+    PlayerState state = registry.playerAnimations.get(player).currentState;
+    const Mesh& mesh = registry.playerMeshes.get(player).stateMeshes[state];
+
+    vec2 half_size = get_bounding_box(motion) / 2.0f;
+    vec2 minbb = motion.position - half_size;
+    vec2 maxbb = motion.position + half_size;
+
+    Transform trans;
+    trans.translate(motion1.position).rotate(motion1.angle).scale(motion1.scale);
+
+    bool collisionDetected = false;
+    float minOverlap = FLT_MAX;
+    vec2 minOverlapDirection = { 0, 0 };
+
+    for (const auto& v : mesh.vertices) {
+        vec3 vertex = trans.mat * vec3(v.position.x, v.position.y, 1.0f);
+
+        // Check if vertex is inside AABB
+        if (vertex.x >= minbb.x && vertex.x <= maxbb.x &&
+            vertex.y >= minbb.y && vertex.y <= maxbb.y) {
+            collisionDetected = true;
+
+            float overlapX = std::min(maxbb.x - vertex.x, vertex.x - minbb.x);
+            float overlapY = std::min(maxbb.y - vertex.y, vertex.y - minbb.y);
+
+            if (overlapX < minOverlap) {
+                minOverlap = overlapX;
+                minOverlapDirection = vec2((vertex.x - (minbb.x + maxbb.x) / 2) > 0 ? 1 : -1, 0);
+            }
+            if (overlapY < minOverlap) {
+                minOverlap = overlapY;
+                minOverlapDirection = vec2(0, (vertex.y - (minbb.y + maxbb.y) / 2) > 0 ? 1 : -1);
+            }
+        }
+    }
+
+    if (collisionDetected) {
+        overlap = vec2(minOverlap, minOverlap);
+        direction = minOverlapDirection;
+    }
+
+    return collisionDetected;
+}
 
 void PhysicsSystem::step(float elapsed_ms)
 {
@@ -200,13 +247,12 @@ void PhysicsSystem::step(float elapsed_ms)
 
                 if (isActive_i && isActive_j) {
                     // Mesh Collision for player
-                    if (registry.players.has(entity_i) || registry.players.has(entity_j)) {
-                        Entity playerEntity = registry.players.has(entity_i) ? entity_i : entity_j;
-                        Entity otherEntity = (playerEntity == entity_i) ? entity_j : entity_i;
-
-                        if (playerMeshCollide(playerEntity, otherEntity, direction, overlap)) {
-                            registry.collisions.emplace_with_duplicates(playerEntity, otherEntity, -direction, overlap);
-                            registry.collisions.emplace_with_duplicates(otherEntity, playerEntity, direction, overlap);
+                    if (registry.players.has(entity_i)) {
+                        vec2 direction2;
+                        vec2 overlap2;
+                        if (playerMeshCollide(entity_i, entity_j, direction2, overlap2)) {
+                            registry.collisions.emplace_with_duplicates(entity_i, entity_j, -direction2, overlap2);
+                            registry.collisions.emplace_with_duplicates(entity_j, entity_i, direction2, overlap2);
                         }
                     } else {
                         // Non-player collision events directly with direction and overlap

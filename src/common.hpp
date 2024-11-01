@@ -48,9 +48,9 @@ const int window_height_px = 1080;
 // We recomment making all components non-copyable by derving from ComponentNonCopyable
 struct Transform {
 	mat3 mat = { { 1.f, 0.f, 0.f }, { 0.f, 1.f, 0.f}, { 0.f, 0.f, 1.f} }; // start with the identity
-	void scale(vec2 scale);
-	void rotate(float radians);
-	void translate(vec2 offset);
+	Transform& scale(vec2 scale);
+	Transform& rotate(float radians);
+	Transform& translate(vec2 offset);
 };
 
 bool gl_has_errors();
