@@ -292,7 +292,8 @@ void WorldSystem::handle_collisions() {
                 } else if (direction.x < 0 && thisMotion.velocity.x < 0) {
                     thisMotion.position.x += overlap.x;
                 }
-            } else {
+            } 
+            if (direction.y != 0) {
                 if (direction.y > 0 && thisMotion.velocity.y > 0) {
                     // Downward collision
                     thisMotion.position.y -= overlap.y;
