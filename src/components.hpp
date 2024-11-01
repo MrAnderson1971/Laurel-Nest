@@ -337,3 +337,10 @@ struct Room {
         return entities.count(entity) > 0;
     }
 };
+
+struct Connection {
+    vec2 doorLocation;
+    vec2 doorScale;
+    Room nextRoom;
+    vec2 nextSpawn;
+};

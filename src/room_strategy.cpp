@@ -3,6 +3,7 @@
 #include "render_system.hpp"
 #include "enemy.hpp"
 
+//TODO: adjustments
 Entity EntranceRoomStrategy::execute() {
     // for handling transitions
     Entity m_entrance_room;
@@ -101,6 +102,7 @@ Entity Room1Strategy::execute() {
     return m_room1;
 }
 
+//TODO: adjustments
 Entity Room2Strategy::execute() {
     // for handling transitions
     Entity m_room2;
@@ -145,6 +147,7 @@ Entity Room2Strategy::execute() {
     return m_room2;
 }
 
+//TODO: adjust ceiling
 Entity Room3Strategy::execute() {
     // for handling transitions
     Entity m_room3;
@@ -195,6 +198,7 @@ Entity Room3Strategy::execute() {
     return m_room3;
 }
 
+//TODO: adjustments: add 2 platforms to ceiling
 Entity Room4Strategy::execute() {
     // for handling transitions
     Entity m_room4;
