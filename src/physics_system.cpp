@@ -183,7 +183,7 @@ bool playerMeshCollide(Entity player, Entity other, vec2& direction, vec2& overl
 
     bool collisionDetected = false;
     float minOverlap = FLT_MAX;
-    vec2 minOverlapDirection = { 0, 0 };
+    vec2 minOverlapAxis = vec2(0, 0);
 
     for (const auto& v : mesh.vertices) {
         vec3 vertex = trans.mat * vec3(v.position.x, v.position.y, 1.0f);
@@ -196,20 +196,38 @@ bool playerMeshCollide(Entity player, Entity other, vec2& direction, vec2& overl
             float overlapX = std::min(maxbb.x - vertex.x, vertex.x - minbb.x);
             float overlapY = std::min(maxbb.y - vertex.y, vertex.y - minbb.y);
 
-            if (overlapX < minOverlap) {
-                minOverlap = overlapX;
-                minOverlapDirection = vec2((vertex.x - (minbb.x + maxbb.x) / 2) > 0 ? 1 : -1, 0);
+            float dx = motion1.position.x - motion.position.x;
+            float dy = motion1.position.y - motion.position.y;
+            vec2 dirX = vec2((dx > 0) ? 1 : -1, 0);
+            vec2 dirY = vec2(0, (dy > 0) ? 1 : -1);
+
+            overlap.x = overlapX;
+            overlap.y = overlapY;
+            direction = vec2(0, 0);
+
+            if (overlapX < overlapY) {
+                if (overlapX < minOverlap) {
+                    minOverlap = overlapX;
+                    minOverlapAxis = dirX;
+                }
             }
-            if (overlapY < minOverlap) {
-                minOverlap = overlapY;
-                minOverlapDirection = vec2(0, (vertex.y - (minbb.y + maxbb.y) / 2) > 0 ? 1 : -1);
+            else {
+                if (overlapY < minOverlap) {
+                    minOverlap = overlapY;
+                    minOverlapAxis = dirY;
+                }
             }
         }
     }
 
     if (collisionDetected) {
-        overlap = vec2(minOverlap, minOverlap);
-        direction = minOverlapDirection;
+        direction = minOverlapAxis;
+        if (direction.x != 0) {
+            overlap = vec2(overlap.x, 0);
+        }
+        else if (direction.y != 0) {
+            overlap = vec2(0, overlap.y);
+        }
     }
 
     return collisionDetected;
