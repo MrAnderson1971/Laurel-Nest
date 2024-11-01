@@ -23,6 +23,9 @@ public:
     }
     operator unsigned int() const { return id; } // this enables automatic casting to int
     bool operator==(const Entity& other) const { return id == other.id; } // this enables hash
+    bool operator<(const Entity& other) const {
+        return id < other.id;
+    }
 };
 
 // Common interface to refer to all containers in the ECS registry
