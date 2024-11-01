@@ -17,7 +17,6 @@ vec2 get_bounding_box(const Motion& motion)
     return { abs(motion.scale.x), abs(motion.scale.y) };
 }
 
-
 bool static checkForCollision(Entity e1, Entity e2, vec2& direction, vec2& overlap) {
     Motion motion1 = registry.motions.get(e1);
     Motion motion2 = registry.motions.get(e2);
@@ -27,13 +26,7 @@ bool static checkForCollision(Entity e1, Entity e2, vec2& direction, vec2& overl
     vec2 half_size1 = box1 / 2.f;
     vec2 half_size2 = box2 / 2.f;
 
-    vec2 dp;
-
-    if (registry.players.has(e1)) {
-        dp = motion1.position - motion2.position;
-    } else {
-        dp = motion2.position - motion1.position;
-    }
+    vec2 dp = motion1.position - motion2.position;
 
     float overlapX = half_size1.x + half_size2.x - abs(dp.x);
     float overlapY = half_size1.y + half_size2.y - abs(dp.y);
@@ -41,13 +34,11 @@ bool static checkForCollision(Entity e1, Entity e2, vec2& direction, vec2& overl
     if (overlapX > 0 && overlapY > 0) {
         vec2 collisionDirection;
         if (overlapX < overlapY) {
-            // collisionDirection = vec2((dp.x > 0) ? 1 : -1, (dp.y > 0) ? 1 : -1);
             collisionDirection = vec2((dp.x > 0) ? 1 : -1, 0);
         }
         else {
             collisionDirection = vec2(0, (dp.y > 0) ? 1 : -1);
         }
-        // collisionDirection = vec2((dp.x > 0) ? 1 : -1, (dp.y > 0) ? 1 : -1);
 
         direction = collisionDirection;
         overlap = vec2(overlapX, overlapY);
