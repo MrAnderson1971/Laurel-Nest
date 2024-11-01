@@ -27,7 +27,13 @@ bool static checkForCollision(Entity e1, Entity e2, vec2& direction, vec2& overl
     vec2 half_size1 = box1 / 2.f;
     vec2 half_size2 = box2 / 2.f;
 
-    vec2 dp = motion1.position - motion2.position;
+    vec2 dp;
+
+    if (registry.players.has(e1)) {
+        dp = motion1.position - motion2.position;
+    } else {
+        dp = motion2.position - motion1.position;
+    }
 
     float overlapX = half_size1.x + half_size2.x - abs(dp.x);
     float overlapY = half_size1.y + half_size2.y - abs(dp.y);
@@ -35,11 +41,13 @@ bool static checkForCollision(Entity e1, Entity e2, vec2& direction, vec2& overl
     if (overlapX > 0 && overlapY > 0) {
         vec2 collisionDirection;
         if (overlapX < overlapY) {
+            // collisionDirection = vec2((dp.x > 0) ? 1 : -1, (dp.y > 0) ? 1 : -1);
             collisionDirection = vec2((dp.x > 0) ? 1 : -1, 0);
         }
         else {
             collisionDirection = vec2(0, (dp.y > 0) ? 1 : -1);
         }
+        // collisionDirection = vec2((dp.x > 0) ? 1 : -1, (dp.y > 0) ? 1 : -1);
 
         direction = collisionDirection;
         overlap = vec2(overlapX, overlapY);
@@ -52,12 +60,16 @@ bool static checkForCollision(Entity e1, Entity e2, vec2& direction, vec2& overl
 
 // Transforms a vertex position based on the motion of the entity
 vec3 transformVertex(const vec3& vertex, const Motion& motion) {
-    vec3 transformed = vertex;
-    transformed.x *= motion.scale.x;
-    transformed.y *= motion.scale.y;
-    transformed.x += motion.position.x;
-    transformed.y += motion.position.y;
-    return transformed;
+//    vec3 transformed = vertex;
+//    transformed.x *= motion.scale.x;
+//    transformed.y *= motion.scale.y;
+//    transformed.x += motion.position.x;
+//    transformed.y += motion.position.y;
+//    return transformed;
+    vec3 scaledVertex = vec3(vertex.x * motion.scale.x, vertex.y * motion.scale.y, 1.0f);
+    vec3 transformedVertex = vec3(scaledVertex.x + motion.position.x, scaledVertex.y + motion.position.y, 0.0f);
+
+    return transformedVertex;
 }
 
 void projectOntoAxis(const vec3& v1, const vec3& v2, const vec3& v3, const vec3& axis, float& minProj, float& maxProj) {
@@ -98,8 +110,7 @@ bool triangleIntersectsAABB(const vec3& v1, const vec3& v2, const vec3& v3, cons
     return true;
 }
 
-bool playerMeshCollide(Entity player, Entity other) {
-    // Get the player's current state and retrieve the appropriate mesh
+bool playerMeshCollide(Entity player, Entity other, vec2& direction, vec2& overlap) {
     PlayerState state = registry.playerAnimations.get(player).currentState;
     const Mesh& playerMesh = registry.playerMeshes.get(player).stateMeshes[state];
 
@@ -110,23 +121,50 @@ bool playerMeshCollide(Entity player, Entity other) {
     Motion& playerMotion = registry.motions.get(player);
     Motion& otherMotion = registry.motions.get(other);
 
-    // Define bounding boxes for AABB collision check
+    // Define initial bounding boxes for AABB collision check
+    vec2 player_half_size = get_bounding_box(playerMotion) / 2.0f;
     vec2 other_half_size = get_bounding_box(otherMotion) / 2.0f;
+
+    vec2 player_min_bound = playerMotion.position - player_half_size;
+    vec2 player_max_bound = playerMotion.position + player_half_size;
     vec2 other_min_bound = otherMotion.position - other_half_size;
     vec2 other_max_bound = otherMotion.position + other_half_size;
 
-    // Iterate through triangles in the player mesh and check against AABB
-    for (size_t i = 0; i < playerMesh.vertices.size(); i += 3) {
-        vec3 v1 = transformVertex(playerMesh.vertices[i].position, playerMotion);
-        vec3 v2 = transformVertex(playerMesh.vertices[i + 1].position, playerMotion);
-        vec3 v3 = transformVertex(playerMesh.vertices[i + 2].position, playerMotion);
+    // Check if there's overlap in the X and Y directions independently
+    bool x_overlap = player_max_bound.x > other_min_bound.x && player_min_bound.x < other_max_bound.x;
+    bool y_overlap = player_max_bound.y > other_min_bound.y && player_min_bound.y < other_max_bound.y;
 
-        if (triangleIntersectsAABB(v1, v2, v3, other_min_bound, other_max_bound)) {
-            return true;  // A collision was found
+    if (!(x_overlap && y_overlap)) return false; // Exit early if no full overlap
+
+    // If both overlaps are present, perform mesh-to-bounding-box checks
+    bool foundCollision = false;
+    vec2 incrementalOverlap = overlap;
+
+    // Incrementally adjust overlap and check for intersections
+    while (!foundCollision && glm::length(incrementalOverlap) < glm::length(overlap) * 1.5f) {
+        for (size_t i = 0; i < playerMesh.vertices.size(); i += 3) {
+            vec3 v1 = transformVertex(playerMesh.vertices[i].position, playerMotion);
+            vec3 v2 = transformVertex(playerMesh.vertices[i + 1].position, playerMotion);
+            vec3 v3 = transformVertex(playerMesh.vertices[i + 2].position, playerMotion);
+
+            if (triangleIntersectsAABB(v1, v2, v3, other_min_bound - incrementalOverlap, other_max_bound + incrementalOverlap)) {
+                foundCollision = true;
+                overlap = incrementalOverlap;
+                break;
+            }
         }
+
+        incrementalOverlap += 0.1f * normalize(overlap);
     }
 
-    return false;
+    if (foundCollision) {
+        // Update direction based on the final overlap
+        vec2 dp = playerMotion.position - otherMotion.position;
+        direction = (glm::abs(dp.x) > glm::abs(dp.y)) ? vec2((dp.x > 0) ? 1 : -1, 0) : vec2(0, (dp.y > 0) ? 1 : -1);
+//        direction = vec2((dp.x > 0) ? 1 : -1, (dp.y > 0) ? 1 : -1);
+    }
+
+    return foundCollision;
 }
 
 
@@ -162,19 +200,19 @@ void PhysicsSystem::step(float elapsed_ms)
 
                 if (isActive_i && isActive_j) {
                     // Mesh Collision for player
-//                    if (registry.players.has(entity_i) || registry.players.has(entity_j)) {
-//                        Entity playerEntity = registry.players.has(entity_i) ? entity_i : entity_j;
-//                        Entity otherEntity = (playerEntity == entity_i) ? entity_j : entity_i;
-//
-//                        if (playerMeshCollide(playerEntity, otherEntity)) {
-//                            registry.collisions.emplace_with_duplicates(playerEntity, otherEntity, direction, overlap);
-//                            registry.collisions.emplace_with_duplicates(otherEntity, playerEntity, -direction, overlap);
-//                        }
-//                    } else {
+                    if (registry.players.has(entity_i) || registry.players.has(entity_j)) {
+                        Entity playerEntity = registry.players.has(entity_i) ? entity_i : entity_j;
+                        Entity otherEntity = (playerEntity == entity_i) ? entity_j : entity_i;
+
+                        if (playerMeshCollide(playerEntity, otherEntity, direction, overlap)) {
+                            registry.collisions.emplace_with_duplicates(playerEntity, otherEntity, -direction, overlap);
+                            registry.collisions.emplace_with_duplicates(otherEntity, playerEntity, direction, overlap);
+                        }
+                    } else {
                         // Non-player collision events directly with direction and overlap
                         registry.collisions.emplace_with_duplicates(entity_i, entity_j, -direction, overlap);
                         registry.collisions.emplace_with_duplicates(entity_j, entity_i, direction, overlap);
-//                    }
+                    }
                 }
 
                 // Create a collision event by inserting into the collisions container
