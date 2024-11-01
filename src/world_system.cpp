@@ -282,6 +282,9 @@ void WorldSystem::handle_collisions() {
         vec2 direction = collisionsRegistry.components[i].direction;
         vec2 overlap = collisionsRegistry.components[i].overlap;
 
+        if (!registry.motions.has(entity) || !registry.motions.has(entity_other)) {
+            continue;
+        }
         Motion& thisMotion = registry.motions.get(entity);
         Motion& otherMotion = registry.motions.get(entity_other);
 
