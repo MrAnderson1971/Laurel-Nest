@@ -683,7 +683,3 @@ void WorldSystem::updateBoundingBox(Entity e1) {
     bounding_box.p4.y = y_value_max;
 
 }
-
-
-
-
