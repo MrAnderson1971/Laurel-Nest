@@ -279,13 +279,20 @@ Entity ExitRoomStrategy::execute() {
     Entity m_platform1 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.3f, 0.5f);
 
     // platform 2
-    Entity m_platform2 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.5f, 0.7f);
+    Entity m_platform2 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.55f, 0.7f);
 
     // platform 3
-    Entity m_platform3 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.55f, 0.2f);
+    Entity m_platform3 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.5f, 0.23f);
 
-    // platform 3
-    Entity m_platform4 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.7f, 0.3f);
+    // platform 4
+    Entity m_platform4 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.7f, 0.4f);
+
+    // platform 5
+    Entity m_platform5 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.75f, 0.05f);
+
+    // platform 6
+    Entity m_platform6 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.25f, 0.05f);
+
 
     // note on bg: don't add motion
     registry.grounds.emplace(m_wall_left, std::move(Ground()));
@@ -295,6 +302,8 @@ Entity ExitRoomStrategy::execute() {
     registry.grounds.emplace(m_platform2, std::move(Ground()));
     registry.grounds.emplace(m_platform3, std::move(Ground()));
     registry.grounds.emplace(m_platform4, std::move(Ground()));
+    registry.grounds.emplace(m_platform5, std::move(Ground()));
+    registry.grounds.emplace(m_platform6, std::move(Ground()));
 
     room.insert(m_bg);
     room.insert(m_wall_left);
@@ -304,6 +313,8 @@ Entity ExitRoomStrategy::execute() {
     room.insert(m_platform2);
     room.insert(m_platform3);
     room.insert(m_platform4);
+    room.insert(m_platform5);
+    room.insert(m_platform6);
 
     registry.rooms.emplace(m_exit_room, std::move(room));
     return m_exit_room;

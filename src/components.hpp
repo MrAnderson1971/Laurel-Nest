@@ -211,6 +211,10 @@ struct Mesh
     std::vector<uint16_t> vertex_indices;
 };
 
+struct PlayerMeshes {
+    std::unordered_map<PlayerState, Mesh> stateMeshes;
+};
+
 // Sets the brightness of the screen
 struct ScreenState
 {
@@ -264,9 +268,11 @@ enum class EFFECT_ASSET_ID {
 const int effect_count = (int)EFFECT_ASSET_ID::EFFECT_COUNT;
 
 enum class GEOMETRY_BUFFER_ID {
-    BREAKABLE_ROCK = 0,
-    PLAYER_GEO = BREAKABLE_ROCK + 1,
-    SPRITE = PLAYER_GEO + 1,
+    PLAYER_IDLE_MESH = 0,
+    PLAYER_WALK_MESH = PLAYER_IDLE_MESH + 1,
+    PLAYER_JUMP_MESH = PLAYER_WALK_MESH + 1,
+    PLAYER_ATTACK_MESH = PLAYER_JUMP_MESH + 1,
+    SPRITE = PLAYER_ATTACK_MESH + 1,
     GEOMETRY_COUNT = SPRITE + 1
 };
 const int geometry_count = (int)GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
@@ -321,7 +327,7 @@ namespace std {
     };
 }
 struct Room {
-    std::unordered_set<Entity> entities;
+    std::set<Entity> entities;
 
     void insert(Entity entity) {
         if (!has(entity)) {
