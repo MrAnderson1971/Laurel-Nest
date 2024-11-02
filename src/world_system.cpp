@@ -531,8 +531,8 @@ void WorldSystem::on_mouse_click(int button, int action, const glm::vec2&, int) 
 }
 
 void WorldSystem::cleanup() {
-    // Remove all components of the player entity from the registry
-    registry.remove_all_components_of(m_player);
+    // Remove all components
+    registry.clear_all_components();
 }
 
 

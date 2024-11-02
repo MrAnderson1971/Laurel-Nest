@@ -89,6 +89,5 @@ void SplashScreenState::render()
 
 void SplashScreenState::cleanup()
 {
-    registry.sprites.remove(splashScreenEntity);
-    registry.transforms.remove(splashScreenEntity);
+    registry.remove_all_components_of(splashScreenEntity);
 }
