@@ -9,5 +9,4 @@ class AISystem
 {
 public:
     void static step(Entity player_entity);
-    void static ceiling_goomba_attack(Entity ceilingGoomba, Entity current_room);
 };
