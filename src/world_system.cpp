@@ -7,6 +7,7 @@
 #include "enemy.hpp"
 #include "cesspit_map.hpp"
 #include "collision_system.h"
+#include "goomba_logic.hpp"
 #include "ai_system.h"
 #include "region_factory.hpp"
 #include <game_over_screen.hpp>
@@ -115,7 +116,10 @@ void WorldSystem::init() {
     playerTransform.rotation = 0.0f;
     registry.transforms.emplace(m_player, playerTransform);
 
-    init_all_goomba_sprites();
+    // load mesh for player
+    renderSystem.loadPlayerMeshes(m_player);
+
+    GoombaLogic::init_all_goomba_sprites();
 
     init_status_bar();
      
@@ -130,8 +134,8 @@ void WorldSystem::update(float deltaTime) {
     handle_collisions();
     handle_invinciblity(deltaTime);
     handle_ai();
-    update_projectile_timer(deltaTime);
-    update_damaged_sprites(deltaTime);
+    GoombaLogic::update_goomba_projectile_timer(deltaTime, current_room);
+    GoombaLogic::update_damaged_goomba_sprites(deltaTime);
 
     // TODO: make this its own function too??
     //Update bounding boxes for all the entities
@@ -159,7 +163,7 @@ void WorldSystem::handle_motions(float deltaTime) {
             // Step 2: Update position based on velocity
             if (registry.players.has(entity)) {
                 // Make the player's position stop once its head reaches the top of the window
-                if ((m.position[1] + m.velocity[1]) > 150) {
+                if ((m.position[1] + m.velocity[1]) > 100) {
                     m.position += m.velocity;
                 }
                 else {
@@ -280,30 +284,41 @@ void WorldSystem::handle_collisions() {
         vec2 direction = collisionsRegistry.components[i].direction;
         vec2 overlap = collisionsRegistry.components[i].overlap;
 
-        if (registry.grounds.has(entity_other)) {
-            Motion& thisMotion = registry.motions.get(entity);
-            Motion& otherMotion = registry.motions.get(entity_other);
+        if (!registry.motions.has(entity) || !registry.motions.has(entity_other)) {
+            continue;
+        }
+        Motion& thisMotion = registry.motions.get(entity);
+        Motion& otherMotion = registry.motions.get(entity_other);
 
+        if (registry.grounds.has(entity_other)) {
             if (direction.x != 0) {
-                thisMotion.position.x -= overlap.x * direction.x;
-            }
-            else if (direction.y > 0 && thisMotion.velocity.y > 0) {
-                thisMotion.position.y -= overlap.y;
-                thisMotion.velocity.y = 0;
-                if (registry.players.has(entity)) {
-                    canJump = true;  // Allow player to jump again
-                    isGrounded = true;  // Player is grounded
+                if (direction.x > 0 && thisMotion.velocity.x > 0) {
+                    thisMotion.position.x -= overlap.x;
+                } else if (direction.x < 0 && thisMotion.velocity.x < 0) {
+                    thisMotion.position.x += overlap.x;
+                }
+            } 
+            if (direction.y != 0) {
+                if (direction.y > 0 && thisMotion.velocity.y > 0) {
+                    // Downward collision
+                    thisMotion.position.y -= overlap.y;
+                    thisMotion.velocity.y = 0;
+
+                    if (registry.players.has(entity)) {
+                        canJump = true;  // Allow player to jump again
+                        isGrounded = true;  // Player is grounded
+                    }
+                }
+                else if (direction.y < 0 && thisMotion.velocity.y < 0) {
+                    thisMotion.position.y += overlap.y;
+                    thisMotion.velocity.y = 0;
                 }
             }
-            else if (direction.y < 0 && thisMotion.velocity.y < 0) {
-                thisMotion.position.y += overlap.y;
-                thisMotion.velocity.y = 0;
-            }
-
         }
+
         if (registry.players.has(entity) && !registry.invinciblityTimers.has(entity) && registry.damages.has(entity_other)) {
             if(registry.players.get(m_player).attacking){
-                goomba_get_damaged(entity_other);
+                GoombaLogic::goomba_get_damaged(entity_other, m_sword);
                 registry.players.get(m_player).attacking = false;
             }else{
                 player_get_damaged(entity_other);
@@ -311,7 +326,7 @@ void WorldSystem::handle_collisions() {
         }
         if (registry.weapons.has(entity) && registry.healths.has(entity_other)) {
             if (registry.players.get(m_player).attacking) {
-                goomba_get_damaged(entity_other);
+                GoombaLogic::goomba_get_damaged(entity_other, m_sword);
             }
         }
 
@@ -320,6 +335,7 @@ void WorldSystem::handle_collisions() {
             registry.remove_all_components_of(entity);
         }
 
+        // Once the ceiling goomba is dead. change its sprite to the dead sprite
         if (registry.projectileTimers.has(entity) && registry.grounds.has(entity_other)) {
             std::vector<Sprite> goombaCeilingSprites = registry.goombaSprites.get(m_goombaCeiling);
             Sprite& goombaCeilingSprite = registry.sprites.get(entity);
@@ -429,6 +445,7 @@ void WorldSystem::render() {
         renderSystem.drawEntity(animation.getCurrentFrame(), transform);
     }
 
+    // Draw the hearts
     if (registry.transforms.has(m_hearts) && registry.heartSprites.has(m_hearts))
     {
         auto& health = registry.healths.get(m_player);
@@ -571,37 +588,6 @@ void WorldSystem::player_get_healed() {
     }
 }
 
-void WorldSystem::goomba_get_damaged(Entity hostile) {
-    if (registry.healths.has(hostile)) {
-        Health& hostile_health = registry.healths.get(hostile);
-        Damage sword_damage = registry.damages.get(m_sword);
-        hostile_health.current_health--;
-
-        // If the goomba isnt dead yet, change their current sprite to their hit sprite
-       if (hostile_health.current_health > 0) {
-           registry.recentDamageTimers.emplace(hostile, std::move(RecentlyDamagedTimer()));
-           std::vector<Sprite> goombaSprites;
-           // Change the ceilingGoombas sprite
-           if (registry.projectileTimers.has(hostile)) {
-               goombaSprites = registry.goombaSprites.get(m_goombaCeiling);
-           }
-           // Change the landGoombas sprite
-           else {
-               goombaSprites = registry.goombaSprites.get(m_goombaLand);
-           }
-           Sprite& goombaSprite = registry.sprites.get(hostile);
-           goombaSprite = goombaSprites[1];
-       }
-        else {
-            if (registry.projectileTimers.has(hostile)) {
-                goomba_ceiling_death(hostile);
-            }
-            else {
-                goomba_land_death(hostile);
-            }
-        }
-    } 
-}
 
 // Currently broken
 void WorldSystem::respawnGoomba() {
@@ -699,125 +685,6 @@ void WorldSystem::updateBoundingBox(Entity e1) {
 
 }
 
-void WorldSystem::init_all_goomba_sprites() {
-    // Create and initialize all goomba sprites
-    init_goomba_land_sprites();
-    init_goomba_ceiling_sprites();
-}
 
-void WorldSystem::init_goomba_land_sprites() {
-    std::vector<Sprite> goombaLandSprites;
-    std::vector<Motion> goombaLandScales;
-    int goombaLandWidth, goombaLandHeight;
 
-    init_goomba_sprite(goombaLandWidth, goombaLandHeight, "goomba_walk_idle.PNG", goombaLandSprites);
-    init_goomba_scale(goombaLandWidth, goombaLandHeight, 4, goombaLandScales);
 
-    init_goomba_sprite(goombaLandWidth, goombaLandHeight, "goomba_walk_hit.PNG", goombaLandSprites);
-    init_goomba_scale(goombaLandWidth, goombaLandHeight, 4, goombaLandScales);
-
-    init_goomba_sprite(goombaLandWidth, goombaLandHeight, "goomba_walk_notice.PNG", goombaLandSprites);
-    init_goomba_scale(goombaLandWidth, goombaLandHeight, 4, goombaLandScales);
-
-    init_goomba_sprite(goombaLandWidth, goombaLandHeight, "goomba_walk_attack.PNG", goombaLandSprites);
-    init_goomba_scale(goombaLandWidth, goombaLandHeight, 4, goombaLandScales);
-
-    init_goomba_sprite(goombaLandWidth, goombaLandHeight, "goomba_dead.PNG", goombaLandSprites);
-    init_goomba_scale(goombaLandWidth, goombaLandHeight, 4, goombaLandScales);
-
-    TransformComponent goombaTransform;
-    registry.transforms.emplace(m_goombaLand, std::move(goombaTransform));
-    registry.goombaSprites.emplace(m_goombaLand, std::move(goombaLandSprites));
-    registry.goombaScales.emplace(m_goombaLand, std::move(goombaLandScales));
-}
-
-void WorldSystem::init_goomba_ceiling_sprites() {
-    // Create and initialize the ceilingGoombaSprites
-    std::vector<Sprite> goombaCeilingSprites;
-    std::vector<Motion> goombaCeilingScales;
-    int goombaCeilingWidth, goombaCeilingHeight;
-
-    init_goomba_sprite(goombaCeilingWidth, goombaCeilingHeight, "ceiling_idle.png", goombaCeilingSprites);
-    init_goomba_scale(goombaCeilingWidth, goombaCeilingHeight, 4, goombaCeilingScales);
-
-    init_goomba_sprite(goombaCeilingWidth, goombaCeilingHeight, "ceiling_hit.png", goombaCeilingSprites);
-    init_goomba_scale(goombaCeilingWidth, goombaCeilingHeight, 4, goombaCeilingScales);
-
-    init_goomba_sprite(goombaCeilingWidth, goombaCeilingHeight, "ceiling_fall.png", goombaCeilingSprites);
-    init_goomba_scale(goombaCeilingWidth, goombaCeilingHeight, 4, goombaCeilingScales);
-
-    init_goomba_sprite(goombaCeilingWidth, goombaCeilingHeight, "goomba_dead.png", goombaCeilingSprites);
-    init_goomba_scale(goombaCeilingWidth, goombaCeilingHeight, 4, goombaCeilingScales);
-
-    TransformComponent goombaTransform;
-    registry.transforms.emplace(m_goombaCeiling, std::move(goombaTransform));
-    registry.goombaSprites.emplace(m_goombaCeiling, std::move(goombaCeilingSprites));
-    registry.goombaScales.emplace(m_goombaCeiling, std::move(goombaCeilingScales));
-}
-
-void WorldSystem::init_goomba_sprite(int& width, int& height, std::string path, std::vector<Sprite>& Sprites) {
-    GLuint goombaSpriteTextureId = renderSystem.loadTexture(path, width, height);
-    Sprite goombaSprite(goombaSpriteTextureId);
-    Sprites.push_back(goombaSprite);
-}
-
-void WorldSystem::init_goomba_scale(int width, int height, int factor, std::vector<Motion>& Motions) {
-    Motion goombaScale;
-    goombaScale.scale = { width / factor, height / factor };
-    Motions.push_back(goombaScale);
-}
-
-// Counts down to when the ceiling goomba can attack again
-void WorldSystem::update_projectile_timer(float delta_time) {
-    for (Entity entity : registry.projectileTimers.entities) {
-        ProjectileTimer& projectile_counter = registry.projectileTimers.get(entity);
-        projectile_counter.elapsed_time -= delta_time;
-        // TODO for Kuter: should this remain here?
-        if (projectile_counter.elapsed_time <= 0 && registry.rooms.get(current_room).has(entity)) {
-            AISystem::ceiling_goomba_attack(entity, current_room);
-            projectile_counter.elapsed_time = projectile_counter.max_time;
-        } 
-    }
-}
-
-// If the goomba is currently using its damaged sprite, revert it back to its idle sprite
-void WorldSystem::update_damaged_sprites(float delta_time) {
-    for (Entity entity : registry.recentDamageTimers.entities) {
-        RecentlyDamagedTimer& damaged_timer = registry.recentDamageTimers.get(entity);
-        damaged_timer.counter_ms -= delta_time;
-        if (damaged_timer.counter_ms <= 0) {
-            std::vector<Sprite> goombaSprites;
-            if (registry.projectileTimers.has(entity)) {
-                goombaSprites = registry.goombaSprites.get(m_goombaCeiling);
-            }
-            else {
-                goombaSprites = registry.goombaSprites.get(m_goombaLand);
-            }
-            Sprite& goombaSprite = registry.sprites.get(entity);
-            goombaSprite = goombaSprites[0];
-            registry.recentDamageTimers.remove(entity);
-        }
-    }
-}
-
-void WorldSystem::goomba_ceiling_death(Entity hostile) {
-    std::vector<Sprite> goombaCeilingSprites = registry.goombaSprites.get(m_goombaCeiling);
-    Sprite& goombaCeilingSprite = registry.sprites.get(hostile);
-    goombaCeilingSprite = goombaCeilingSprites[2];
-    registry.gravity.emplace(hostile, std::move(Gravity()));
-    registry.damages.remove(hostile);
-    registry.healths.remove(hostile);
-    registry.bounding_box.remove(hostile);
-}
-
-void WorldSystem::goomba_land_death(Entity hostile) {
-    registry.sprites.remove(hostile);
-    registry.bounding_box.remove(hostile);
-    Motion& hostile_motion = registry.motions.get(hostile);
-    hostile_motion.velocity = { 0,0 };
-    registry.patrol_ais.remove(hostile);
-    registry.damages.remove(hostile);
-    registry.healths.remove(hostile);
-    Sprite goombaSprite = registry.goombaSprites.get(m_goombaLand).back();
-    registry.sprites.emplace(hostile, goombaSprite);
-}
