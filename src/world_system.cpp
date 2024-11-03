@@ -222,9 +222,7 @@ void WorldSystem::handle_motions(float deltaTime) {
             if (registry.players.has(entity)) {
                 // Make the player's position stop once its head reaches the top of the window
                 if (m.velocity[0] != 0 && isGrounded) {
-                    if (Mix_PlayChannel(-1, footstep_sound, 0) == -1) {
-                        std::cerr << "Failed to play footstep sound." << std::endl;
-                    }
+                    Mix_PlayChannel(-1, footstep_sound, 0);
                 }
                 if ((m.position[1] + m.velocity[1] * deltaTime) > 100) {
                     m.position += m.velocity * deltaTime;
@@ -724,9 +722,7 @@ void WorldSystem::on_mouse_click(int button, int action, const glm::vec2&, int) 
                 if (canAttack) {  // Ensure the player can attack
                     // make a call to bounding boxes here
                     std::cout << "is attacking" << std::endl;
-                    if (Mix_PlayChannel(SWORD_CHANNEL, sword_sound, 0) == -1) {
-                        std::cerr << "Failed to play sword sound." << std::endl;
-                    }
+                    Mix_PlayChannel(SWORD_CHANNEL, sword_sound, 0);
                     canAttack = false;  // Prevent further attacks for a time
                     auto &c = registry.combat.get(m_player);
                     c.frames = c.max_frames;
