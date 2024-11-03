@@ -34,6 +34,14 @@ enum PlayerState {
     JUMPING,
 };
 
+enum ChickenState {
+    CHICKEN_IDLE,
+    CHICKEN_WALK,
+    CHICKEN_PECK,
+    CHICKEN_FLAME,
+    CHICKEN_DEATH
+};
+
 /* Template Animation component for animated sprites
 Each supports different animation states, such as walking, jumping, etc.
 */

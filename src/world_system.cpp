@@ -11,6 +11,8 @@
 #include "ai_system.h"
 #include "region_factory.hpp"
 
+#include "boss_ai.hpp"
+
 WorldSystem::WorldSystem() {
     regionManager = std::make_unique<RegionManager>();
 }
@@ -135,6 +137,8 @@ void WorldSystem::update(float deltaTime) {
     handle_ai();
     GoombaLogic::update_goomba_projectile_timer(deltaTime, current_room);
     GoombaLogic::update_damaged_goomba_sprites(deltaTime);
+
+    BossAISystem::step(m_player, deltaTime);
 
     // TODO: make this its own function too??
     //Update bounding boxes for all the entities
@@ -437,12 +441,13 @@ void WorldSystem::render() {
 
     // Draw the player entity if it exists and has the required components
     if (registry.playerAnimations.has(m_player) &&
-        registry.transforms.has(m_player))
+        registry.transforms.has(m_player) )
     {
         auto& animation = registry.playerAnimations.get(m_player);
         auto& transform = registry.transforms.get(m_player);
         renderSystem.drawEntity(animation.getCurrentFrame(), transform);
     }
+
 
     // Draw the hearts
     if (registry.transforms.has(m_hearts) && registry.heartSprites.has(m_hearts))
