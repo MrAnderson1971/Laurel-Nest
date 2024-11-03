@@ -288,8 +288,7 @@ enum class TEXTURE_ASSET_ID {
     CHICKEN_WALK4 = CHICKEN_WALK3 + 1,
     CHICKEN_WALK5 = CHICKEN_WALK4 + 1,
     CHICKEN_WALK6 = CHICKEN_WALK5 + 1,
-    CESSPIT_BOSS_BG = CHICKEN_WALK6 + 1,               // cesspit_boss_bg.PNG
-    FLAME_THROWER = CESSPIT_BOSS_BG + 1,       // flame_thrower.png
+    FLAME_THROWER = CHICKEN_WALK6 + 1,       // flame_thrower.png
     FIREBALL = FLAME_THROWER + 1,              // Fireball.png
     TEXTURE_COUNT = FIREBALL + 1        // Count of all textures
 };

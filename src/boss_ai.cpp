@@ -25,13 +25,14 @@ bool walkRight = false;
 bool canWalk(Motion& chickenMotion, Motion& playerMotion) {
 	if ((playerMotion.position.x <= renderSystem.getWindowWidth() / 3.f &&
 		playerMotion.position.x >= renderSystem.getWindowWidth() / 5.f &&
-		chickenMotion.position.x >= renderSystem.getWindowWidth() / 2.f)) {
+		chickenMotion.position.x >= renderSystem.getWindowWidth() / 2.5f) &&
+		playerMotion.position.x + 300 < chickenMotion.position.x) {
 		// move left
 		walkLeft = true;
 		return true;
 	}
 	if (chickenMotion.position.x <= renderSystem.getWindowWidth() / 2.f
-		&& playerMotion.position.x < renderSystem.getWindowWidth() / 8.f) {
+		&& playerMotion.position.x < renderSystem.getWindowWidth() / 10.f) {
 		// move right
 		walkRight = true;
 		return true;
@@ -139,7 +140,7 @@ Entity BossAISystem::init() {
 	chickenTransform.rotation = 0.0f;
 	registry.transforms.emplace(chicken, std::move(chickenTransform));
 
-	registry.healths.emplace(chicken, std::move(Health{ 20,20 }));
+	registry.healths.emplace(chicken, std::move(Health{ 10, 10 }));
 	registry.damages.emplace(chicken, std::move(Damage{ 1 }));
 	registry.bosses.emplace(chicken, Boss());
 
@@ -147,6 +148,9 @@ Entity BossAISystem::init() {
 };
 
 void BossAISystem::step(Entity player, float elapsed_time) {
+	if (!registry.chickenAnimations.has(chicken)) {
+		return;
+	}
 	auto& a = registry.chickenAnimations.get(chicken);
 	Motion& chickenMotion = registry.motions.get(chicken);
 	Motion& playerMotion = registry.motions.get(player);

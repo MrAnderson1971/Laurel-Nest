@@ -1,5 +1,6 @@
 // internal
 #include "ai_system.hpp"
+#include "world_system.hpp"
 bool gb = false;
 bool aim = false;
 void AISystem::step(Entity player_entity)
