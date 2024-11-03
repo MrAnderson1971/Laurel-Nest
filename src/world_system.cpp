@@ -6,7 +6,6 @@
 #include "pause_state.hpp"
 #include "enemy.hpp"
 #include "cesspit_map.hpp"
-#include "collision_system.h"
 #include "goomba_logic.hpp"
 #include "ai_system.h"
 #include "region_factory.hpp"
@@ -147,16 +146,19 @@ void WorldSystem::update(float deltaTime) {
 }
 
 void WorldSystem::handle_connections(float deltaTime) {
+    auto& playerMotion = registry.motions.get(m_player);
     if (registry.doorList.has(current_room)) {
         ConnectionList list = registry.doorList.get(current_room);
         vec2 dir;
         vec2 over;
         for (auto& connection : list.doors) {
             if (PhysicsSystem::checkForCollision(m_player, connection.door, dir, over)) {
+                // set next room
+                //
                 current_room = connection.nextRoom;
-
-                // current_room = registry.rooms.entities[1];
                 PhysicsSystem::setRoom(current_room);
+                // set spawn point of player in new room
+                playerMotion.position = connection.nextSpawn;
             }
         }
     }

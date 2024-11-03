@@ -5,6 +5,7 @@
 #include "components.hpp"
 
 Entity EntranceRoomStrategy::execute() {
+    Entity m_entrance_room;
     // for handling transitions
     Room room;
     ConnectionList doors;
@@ -60,6 +61,7 @@ Entity EntranceRoomStrategy::execute() {
 }
 
 Entity Room1Strategy::execute() {
+    Entity m_room1;
     // for handling transitions
     Room room;
 
@@ -97,12 +99,12 @@ Entity Room1Strategy::execute() {
     room.insert(m_platform2);
     room.insert(g1.entity);
     room.insert(g2.entity);
-
     registry.rooms.emplace(m_room1, std::move(room));
     return m_room1;
 }
 
 Entity Room2Strategy::execute() {
+    Entity m_room2;
     // for handling transitions
     Room room;
 
@@ -151,6 +153,7 @@ Entity Room2Strategy::execute() {
 }
 
 Entity Room3Strategy::execute() {
+    Entity m_room3;
     // for handling transitions
     Room room;
 
@@ -194,12 +197,12 @@ Entity Room3Strategy::execute() {
     room.insert(m_ground);
     room.insert(m_platform1);
     room.insert(m_platform2);
-    
     registry.rooms.emplace(m_room3, std::move(room));
     return m_room3;
 }
 
 Entity Room4Strategy::execute() {
+    Entity m_room4;
     // for handling transitions
     Room room;
 
@@ -240,6 +243,7 @@ Entity Room4Strategy::execute() {
 }
 
 Entity BossRoomStrategy::execute() {
+    Entity m_boss_room;
     // for handling transitions
     Room room;
 
@@ -258,13 +262,13 @@ Entity BossRoomStrategy::execute() {
     room.insert(m_bg);
     room.insert(m_ceiling);
     room.insert(m_ground);
-
     registry.rooms.emplace(m_boss_room, std::move(room));
 
     return m_boss_room;
 }
 
 Entity ExitRoomStrategy::execute() {
+    Entity m_exit_room;
     // for handling transitions
     Room room;
 
@@ -325,7 +329,6 @@ Entity ExitRoomStrategy::execute() {
     room.insert(m_platform5);
     room.insert(m_platform6);
     room.insert(m_platform7);
-
     registry.rooms.emplace(m_exit_room, std::move(room));
     return m_exit_room;
 }
