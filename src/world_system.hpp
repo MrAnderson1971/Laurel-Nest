@@ -28,6 +28,8 @@ constexpr float FIREBALL_HEIGHT = 0.4f * 339.f;
 constexpr int SWORD_CHANNEL = 0;
 constexpr int HURT_CHANNEL = 1;
 
+extern bool Show_FPS;
+
 class RegionManager;
 
 class WorldSystem : public GameState {

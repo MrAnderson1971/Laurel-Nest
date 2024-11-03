@@ -29,7 +29,7 @@ void GoombaLand::init_components(float x, float y) {
 	registry.gravity.emplace(entity, std::move(Gravity()));
 	registry.patrol_ais.emplace(entity, std::move(Patrol_AI()));
 	registry.damages.emplace(entity, std::move(Damage{ 1 }));
-	registry.healths.emplace(entity, std::move(Health{ 3,3 }));
+	registry.healths.emplace(entity, std::move(Health{ 2,2 }));
 	registry.hostiles.emplace(entity, std::move(Hostile()));
 }
 

@@ -1,4 +1,5 @@
 #include "goomba_logic.hpp"
+#include "ai_system.hpp"
 
 void GoombaLogic::spawn_ceiling_goomba_spit(Entity ceilingGoomba, Entity current_room) {
  
@@ -118,7 +119,7 @@ void GoombaLogic::update_goomba_projectile_timer(float delta_time, Entity curren
         projectile_counter.elapsed_time -= delta_time;
         // TODO for Kuter: should this remain here?
         if (projectile_counter.elapsed_time <= 0 && registry.rooms.get(current_room).has(entity)) {
-            GoombaLogic::spawn_ceiling_goomba_spit(entity, current_room);
+            AISystem::ceiling_goomba_attack(entity, current_room);
             projectile_counter.elapsed_time = projectile_counter.max_time;
         }
     }
