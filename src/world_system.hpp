@@ -7,23 +7,23 @@
 #include "region_manager.hpp"
 
 constexpr float player_speed = 1.0f * TPS;
-constexpr float player_jump_velocity = 3.f * TPS; // adjust so you can reach the test platform
+constexpr float player_jump_velocity = 3.7f * TPS; // adjust so you can reach the test platform
 
 // These are hardcoded to the dimensions of the entity texture
 // BB = bounding box
 
-const float WALKING_BB_WIDTH  = 1.2f * 399.f * 0.2f;
-const float WALKING_BB_HEIGHT = 1.2f * 712.f * 0.2f;
-const float JUMPING_BB_WIDTH  = 1.2f * 464.f * 0.2f;
-const float JUMPING_BB_HEIGHT = 1.2f * 714.f * 0.2f;
-const float ATTACKING_BB_WIDTH  = 1.2f * 816.f * 0.2f;
-const float ATTACKING_BB_HEIGHT = 1.2f * 714.f * 0.2f;
-const float HEARTS_WIDTH = 0.4f * 964.0f;
-const float HEARTS_HEIGHT = 0.4f * 366.0f;
-const float FLAME_THROWER_WIDTH = 0.2f * 418.f;
-const float FLAME_THROWER_HEIGHT = 0.2f * 272.f;
-const float FIREBALL_WIDTH = 0.4f * 422.f;
-const float FIREBALL_HEIGHT = 0.4f * 339.f;
+constexpr float WALKING_BB_WIDTH  = 1.2f * 399.f * 0.2f;
+constexpr float WALKING_BB_HEIGHT = 1.2f * 712.f * 0.2f;
+constexpr float JUMPING_BB_WIDTH  = 1.2f * 464.f * 0.2f;
+constexpr float JUMPING_BB_HEIGHT = 1.2f * 714.f * 0.2f;
+constexpr float ATTACKING_BB_WIDTH  = 1.2f * 816.f * 0.2f;
+constexpr float ATTACKING_BB_HEIGHT = 1.2f * 714.f * 0.2f;
+constexpr float HEARTS_WIDTH = 0.4f * 964.0f;
+constexpr float HEARTS_HEIGHT = 0.4f * 366.0f;
+constexpr float FLAME_THROWER_WIDTH = 0.2f * 418.f;
+constexpr float FLAME_THROWER_HEIGHT = 0.2f * 272.f;
+constexpr float FIREBALL_WIDTH = 0.4f * 422.f;
+constexpr float FIREBALL_HEIGHT = 0.4f * 339.f;
 
 class RegionManager;
 
