@@ -169,19 +169,19 @@ Entity Room3Strategy::execute() {
     Entity m_ceiling = SetCeiling("demo_ceiling.png", 0.3f);
 
     // pipe1
-    Entity m_pipe1 = SetPlatform("pipes.png", 0.6f, 0.6f, 0.1f, 0.6f);
+    Entity m_pipe1 = SetPlatform("pipes.png", 0.6f, 0.6f, 0.07f, 0.6f);
 
     // pipe2
     Entity m_pipe2 = SetPlatform("pipes.png", 0.6f, 0.6f, 0.3f, 0.8f);
 
     // pipe3
-    Entity m_pipe3 = SetPlatform("pipes.png", 0.6f, 0.6f, 0.5f, 1.0f);
+    Entity m_pipe3 = SetPlatform("pipes.png", 0.6f, 0.6f, 0.53f, 1.0f);
 
     // ground
     Entity m_ground = SetGround("demo_ground.png", 1.0f, 1.0f, 0.5f, 0.0f);
 
     // platform 1: top
-    Entity m_platform1 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.93f, 0.3f);
+    Entity m_platform1 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.95f, 0.3f);
 
     // platform 2: bottom
     Entity m_platform2 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.8f, 0.6f);
@@ -290,7 +290,7 @@ Entity ExitRoomStrategy::execute() {
     Entity m_platform3 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.5f, 0.28f);
 
     // platform 4: mid right
-    Entity m_platform4 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.7f, 0.52f);
+    Entity m_platform4 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.72f, 0.52f);
 
     // platform 5: mid left top
     Entity m_platform5 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.38f, 0.4f);
