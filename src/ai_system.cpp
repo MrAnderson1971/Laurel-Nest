@@ -80,7 +80,7 @@ void AISystem::ceiling_goomba_attack(Entity ceilingGoomba, Entity current_room) 
     TransformComponent spit_transform = registry.transforms.get(m_goombaCeiling);
     registry.transforms.emplace(spit, std::move(spit_transform));
 
-    registry.projectiles.emplace(spit, std::move(Projectile()));
+    registry.projectiles.emplace(spit, std::move(Projectile{ ProjectileType::SPIT }));
     registry.gravity.emplace(spit, std::move(Gravity()));
     registry.damages.emplace(spit, std::move(Damage{ 1 }));
     registry.hostiles.emplace(spit, std::move(Hostile()));
