@@ -21,6 +21,7 @@ void Cesspit::init() {
     //currentRoom->execute();
     m_room1 = currentRoom->execute();
 
+
     setRoomStrategy(std::make_unique<Room2Strategy>());
     m_room2 = currentRoom->execute();
     // start_room = currentRoom->execute();

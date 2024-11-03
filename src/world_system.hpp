@@ -51,27 +51,20 @@ private:
 
 	std::unordered_map<int, std::function<void()>> keyPressActions;
 	std::unordered_map<int, std::function<void()>> keyReleaseActions;
+
 	void player_get_damaged(Entity hostile);
 	void player_get_healed();
-	void goomba_get_damaged(Entity hostile);
-	void update_status_bar(int num_hearts);
     bool checkPlayerGroundCollision();
-	void init_all_goomba_sprites();
-	void init_goomba_land_sprites();
-	void init_goomba_sprite(int& width, int& height, std::string path, std::vector<Sprite>& Sprites);
-	void init_goomba_scale(int width, int height, int factor, std::vector<Motion>& Motions);
-	void init_goomba_ceiling_sprites();
+
 	void init_status_bar();
-	void update_projectile_timer(float delta_time);
-	void update_damaged_sprites(float delta_time);
+
+	void update_status_bar(int num_hearts);
+
     void respawnGoomba();
     bool canJump = false;
     bool isGrounded = false;
 	bool canAttack = true;
 
     void updateBoundingBox(Entity entity);
-
-	void goomba_ceiling_death(Entity hostile);
-	void goomba_land_death(Entity hostile);
 };
 
