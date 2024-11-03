@@ -129,9 +129,14 @@ void WorldSystem::init() {
     current_room = regionManager->setRegion(makeRegion<Cesspit>);
     PhysicsSystem::setRoom(current_room);
 
+    Mix_ReserveChannels(1);
     footstep_sound = Mix_LoadWAV(audio_path("footstep.wav").c_str());
-    Mix_VolumeChunk(footstep_sound, MIX_MAX_VOLUME / 10);
+    Mix_VolumeChunk(footstep_sound, MIX_MAX_VOLUME / 5);
     if (!footstep_sound) {
+        std::cerr << "Failed to load WAV file: " << Mix_GetError() << std::endl;
+    }
+    sword_sound = Mix_LoadWAV(audio_path("sword.wav").c_str());
+    if (!sword_sound) {
         std::cerr << "Failed to load WAV file: " << Mix_GetError() << std::endl;
     }
 }
@@ -219,7 +224,9 @@ void WorldSystem::handle_motions(float deltaTime) {
             if (registry.players.has(entity)) {
                 // Make the player's position stop once its head reaches the top of the window
                 if (m.velocity[0] != 0 && isGrounded) {
-                    Mix_PlayChannel(-1, footstep_sound, 0);
+                    if (Mix_PlayChannel(-1, footstep_sound, 0) == -1) {
+                        std::cerr << "Failed to play footstep sound." << std::endl;
+                    }
                 }
                 if ((m.position[1] + m.velocity[1] * deltaTime) > 100) {
                     m.position += m.velocity * deltaTime;
@@ -719,6 +726,9 @@ void WorldSystem::on_mouse_click(int button, int action, const glm::vec2&, int) 
                 if (canAttack) {  // Ensure the player can attack
                     // make a call to bounding boxes here
                     std::cout << "is attacking" << std::endl;
+                    if (Mix_PlayChannel(0, sword_sound, 0) == -1) {
+                        std::cerr << "Failed to play sword sound." << std::endl;
+                    }
                     canAttack = false;  // Prevent further attacks for a time
                     auto &c = registry.combat.get(m_player);
                     c.frames = c.max_frames;
@@ -733,6 +743,7 @@ void WorldSystem::cleanup() {
     // Remove all components of the player entity from the registry
     Mix_HaltMusic();
     Mix_FreeChunk(footstep_sound);
+    Mix_FreeChunk(sword_sound);
     registry.clear_all_components();
 }
 
@@ -857,7 +868,7 @@ void WorldSystem::init_flame_thrower() {
         flameThrowerSpriteTransform.scale = glm::vec3(FLAME_THROWER_WIDTH, FLAME_THROWER_HEIGHT, 1.0);
         flameThrowerSpriteTransform.rotation = M_PI;
     }
-    registry.transforms.emplace(m_flameThrower, std::move(flameThrowerSpriteTransform));
+    registry.transforms.emplace(m_flameThrower, flameThrowerSpriteTransform);
 
     Motion flameThrowerMotion;
     flameThrowerMotion.position = flameThrowerSpriteTransform.position;

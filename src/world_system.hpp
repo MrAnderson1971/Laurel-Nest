@@ -75,5 +75,6 @@ private:
     void updateBoundingBox(Entity entity);
 
 	Mix_Chunk* footstep_sound;
+	Mix_Chunk* sword_sound;
 };
 

@@ -137,6 +137,7 @@ bool RenderSystem::initOpenGL(int width, int height, const std::string& title)
         std::cerr << "Error: SDL_mixer initialization failed (" << Mix_GetError() << ")" << std::endl;
         return false;
     }
+    std::cout << "Audio channels: " << Mix_AllocateChannels(-1) << std::endl;
 
     return true;
 }
