@@ -26,6 +26,7 @@ public:
     ComponentContainer<Hostile> hostiles;
     ComponentContainer<TransformComponent> transforms;
     ComponentContainer<Sprite> sprites;
+    ComponentContainer<PlayerMeshes> playerMeshes;
     ComponentContainer<Mesh*> meshPtrs;
     ComponentContainer<std::vector<Sprite>> heartSprites;
     ComponentContainer<std::vector<Sprite>> goombaSprites;
@@ -42,6 +43,8 @@ public:
     ComponentContainer<Patrol_AI> patrol_ais;
 
     ComponentContainer<Room> rooms;
+    ComponentContainer<Connection> doors;
+    ComponentContainer<ConnectionList> doorList;
 
     // constructor that adds all containers for looping over them
     // IMPORTANT: Don't forget to add any newly added containers!
@@ -62,6 +65,7 @@ public:
         registry_list.push_back(&hostiles);
         registry_list.push_back(&transforms);
         registry_list.push_back(&sprites);
+        registry_list.push_back(&playerMeshes);
         registry_list.push_back(&meshPtrs);
         registry_list.push_back(&heartSprites);
         registry_list.push_back(&goombaSprites);
@@ -76,6 +80,8 @@ public:
         registry_list.push_back(&combat);
         registry_list.push_back(&grounds);
         registry_list.push_back(&patrol_ais);
+        registry_list.push_back(&doors);
+        registry_list.push_back(&doorList);
     }
 
     void clear_all_components() {

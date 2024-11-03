@@ -38,15 +38,7 @@ if (IS_OS_MAC)
     link_directories(/opt/homebrew/lib)
 endif()
 
-add_executable(${PROJECT_NAME} ${SOURCE_FILES}
-        src/ai_system.h
-        src/ai_system.cpp
-        src/collision_system.h
-        src/collision_system.cpp
-        src/cesspit_map.cpp
-        src/cesspit_map.hpp
-                             "src/enemy.cpp"
-        src/components.cpp)
+add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC src/)
 
 # Added this so policy CMP0065 doesn't scream
@@ -157,10 +149,49 @@ if (NOT GLFW_FOUND OR NOT SDL2_FOUND)
     endif()
 endif()
 
+# Add FreeType - Windows-specific; not tested on Linux or macOS
+# Include FreeType library
+if (IS_OS_WINDOWS)
+    set(FREETYPE_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/ext/freetype/include")
+    set(FREETYPE_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/ext/freetype/release static/vs2015-2022/win64/freetype.lib")
+
+    # Create an imported target for FreeType
+    add_library(Freetype::Freetype STATIC IMPORTED)
+    set_target_properties(Freetype::Freetype PROPERTIES
+        IMPORTED_LOCATION "${FREETYPE_LIBRARIES}"
+        INTERFACE_INCLUDE_DIRECTORIES "${FREETYPE_INCLUDE_DIRS}"
+    )
+
+    # Link the FreeType target
+    target_link_libraries(${PROJECT_NAME} PUBLIC Freetype::Freetype)
+elseif (IS_OS_MAC)
+  find_package(Freetype REQUIRED)
+  if(Freetype_FOUND)
+    include_directories(${FREETYPE_INCLUDE_DIRS})
+    target_link_libraries(${PROJECT_NAME} PUBLIC Freetype::Freetype)
+  else()
+    message(FATAL_ERROR "FreeType not found")
+  endif()
+endif()
+
+if(TARGET Freetype AND NOT TARGET Freetype::Freetype)
+     add_library(Freetype::Freetype ALIAS freetype) # target freetype is defined by freetype-targets.cmake
+     # might need to add freetype to global scope if cmake errors here
+     # alternativly if the above does not work for you you can use
+     # add_library(Freetype::Freetype INTERFACE IMPORTED)
+     # target_link_libraries(Freetype::Freetype INTERFACE freetype)
+ endif()
+ if(NOT TARGET Freetype::Freetype)
+     # insert error here
+     # or create the target correctly (see cmakes newer FindFreetype.cmake)
+     message(FATAL_ERROR "Can't find FreeType (fonts)." )
+ endif()
+ #target_link_libraries(mylib PRIVATE Freetype::Freetype)
+
 target_include_directories(${PROJECT_NAME} PUBLIC ${GLFW_INCLUDE_DIRS})
 target_include_directories(${PROJECT_NAME} PUBLIC ${SDL2_INCLUDE_DIRS})
 
-target_link_libraries(${PROJECT_NAME} PUBLIC ${GLFW_LIBRARIES} ${SDL2_LIBRARIES} ${SDL2MIXER_LIBRARIES} glm::glm)
+target_link_libraries(${PROJECT_NAME} PUBLIC ${GLFW_LIBRARIES} ${SDL2_LIBRARIES} ${SDL2MIXER_LIBRARIES} glm::glm ${FREETYPE_LIBRARY})
 
 # Needed to add this
 if(IS_OS_LINUX)

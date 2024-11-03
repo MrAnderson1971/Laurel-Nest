@@ -36,8 +36,10 @@ inline std::string textures_path(const std::string& name) { return data_path() +
 inline std::string audio_path(const std::string& name) { return data_path() + "/audio/" + std::string(name); };
 inline std::string mesh_path(const std::string& name) { return data_path() + "/meshes/" + std::string(name); };
 
-const int window_width_px = 1920;
-const int window_height_px = 1080;
+constexpr int window_width_px = 1920;
+constexpr int window_height_px = 1080;
+constexpr float TPS = 500.f;
+constexpr float max_delta_time = 1 / 250.f;
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846f
@@ -48,9 +50,9 @@ const int window_height_px = 1080;
 // We recomment making all components non-copyable by derving from ComponentNonCopyable
 struct Transform {
 	mat3 mat = { { 1.f, 0.f, 0.f }, { 0.f, 1.f, 0.f}, { 0.f, 0.f, 1.f} }; // start with the identity
-	void scale(vec2 scale);
-	void rotate(float radians);
-	void translate(vec2 offset);
+	Transform& scale(vec2 scale);
+	Transform& rotate(float radians);
+	Transform& translate(vec2 offset);
 };
 
 bool gl_has_errors();

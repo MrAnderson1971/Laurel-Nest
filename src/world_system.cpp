@@ -4,11 +4,11 @@
 #include <iomanip>
 
 #include "pause_state.hpp"
-#include "enemy.hpp"
 #include "cesspit_map.hpp"
-#include "collision_system.h"
+#include "goomba_logic.hpp"
 #include "ai_system.h"
 #include "region_factory.hpp"
+#include <game_over_screen.hpp>
 
 WorldSystem::WorldSystem() {
     regionManager = std::make_unique<RegionManager>();
@@ -24,13 +24,13 @@ void WorldSystem::init() {
     m_sword = Entity();
     m_goombaLand = Entity();
     m_goombaCeiling = Entity();
+    m_flameThrower = Entity();
+    isBossDead = false;
  
     // Player
 
     // Add the Player component to the player entity
     registry.players.emplace(m_player, Player());
-    bool gb = false;
-
 
     // Create and initialize a Motion component for the player
     Motion playerMotion;
@@ -116,9 +116,13 @@ void WorldSystem::init() {
     playerTransform.rotation = 0.0f;
     registry.transforms.emplace(m_player, playerTransform);
 
-    init_all_goomba_sprites();
+    // load mesh for player
+    renderSystem.loadPlayerMeshes(m_player);
+
+    GoombaLogic::init_all_goomba_sprites();
 
     init_status_bar();
+    init_flame_thrower();
      
     // Initialize the region
     regionManager->init();
@@ -127,12 +131,24 @@ void WorldSystem::init() {
 }
 
 void WorldSystem::update(float deltaTime) {
+    deltaTime = min(deltaTime, max_delta_time); // so if there's a lag spike the movement doesn't become so large you phase through walls
+    handle_connections(deltaTime);
     handle_motions(deltaTime);
     handle_collisions();
     handle_invinciblity(deltaTime);
     handle_ai();
-    update_projectile_timer(deltaTime);
-    update_damaged_sprites(deltaTime);
+
+    if (registry.weapons.has(m_flameThrower)) {
+        auto& weapon = registry.weapons.get(m_flameThrower);
+        if (weapon.cooldown <= 0) {
+            flameThrower_enabled = true;
+        } else {
+            weapon.cooldown -= deltaTime;
+        }
+    }
+
+    GoombaLogic::update_goomba_projectile_timer(deltaTime, current_room);
+    GoombaLogic::update_damaged_goomba_sprites(deltaTime);
 
     // TODO: make this its own function too??
     //Update bounding boxes for all the entities
@@ -140,6 +156,25 @@ void WorldSystem::update(float deltaTime) {
     for(int i = 0; i < bounding_boxes.size(); i++){
         Entity e1 = bounding_boxes.entities[i];
         updateBoundingBox(e1);
+    }
+}
+
+void WorldSystem::handle_connections(float deltaTime) {
+    auto& playerMotion = registry.motions.get(m_player);
+    if (registry.doorList.has(current_room)) {
+        ConnectionList list = registry.doorList.get(current_room);
+        vec2 dir;
+        vec2 over;
+        for (auto& connection : list.doors) {
+            if (PhysicsSystem::checkForCollision(m_player, connection.door, dir, over)) {
+                // set next room
+                //
+                current_room = connection.nextRoom;
+                PhysicsSystem::setRoom(current_room);
+                // set spawn point of player in new room
+                playerMotion.position = connection.nextSpawn;
+            }
+        }
     }
 }
 
@@ -152,16 +187,27 @@ void WorldSystem::handle_motions(float deltaTime) {
             auto& m = registry.motions.get(entity);
 
             // Step 1: Apply gravity if not grounded
-            if (registry.gravity.has(entity) && ( registry.players.has(entity) || registry.rooms.get(current_room).has(entity))) {
+            if (registry.gravity.has(entity) && ( registry.players.has(entity) || (registry.rooms.has(current_room) && registry.rooms.get(current_room).has(entity)))) {
                 auto& g = registry.gravity.get(entity);
-                m.velocity.y += g.accleration;
+                m.velocity.y += g.acceleration * deltaTime;
+            }
+
+            // Handle fireball motion
+            if (registry.projectiles.has(entity) && registry.projectiles.get(entity).type == ProjectileType::FIREBALL) {
+                // Update fireball position
+                m.position += m.velocity * deltaTime;
+
+                // Remove fireball if it goes out of screen bounds
+                if (m.position.x < 0 || m.position.x > window_width_px) {
+                    registry.remove_all_components_of(entity);
+                }
             }
 
             // Step 2: Update position based on velocity
             if (registry.players.has(entity)) {
                 // Make the player's position stop once its head reaches the top of the window
-                if ((m.position[1] + m.velocity[1]) > 100) {
-                    m.position += m.velocity;
+                if ((m.position[1] + m.velocity[1] * deltaTime) > 100) {
+                    m.position += m.velocity * deltaTime;
                 }
                 else {
                     // Makes sure the player starts to drop immiediately cuz of gravity
@@ -169,8 +215,8 @@ void WorldSystem::handle_motions(float deltaTime) {
                 }
             }
             else {
-                if (registry.rooms.get(current_room).has(entity)) {
-                    m.position += m.velocity;
+                if (registry.rooms.has(current_room) && registry.rooms.get(current_room).has(entity)) {
+                    m.position += m.velocity * deltaTime;
                 }
             }
 
@@ -265,13 +311,27 @@ void WorldSystem::handle_motions(float deltaTime) {
                     a.setState(currentState);  // Update animation state
                     registry.players.get(m_player).attacking = false;
                 }
+
+                if (registry.motions.has(m_flameThrower) && registry.transforms.has(m_flameThrower)) {
+                    auto& flameThrowerMotion = registry.motions.get(m_flameThrower);
+                    auto& flameThrowerTransform = registry.transforms.get(m_flameThrower);
+                    auto& playerMotion = registry.motions.get(m_player);
+
+                    if (playerMotion.scale.x > 0) {
+                        flameThrowerMotion.position = playerMotion.position + glm::vec2(std::abs(playerMotion.scale.x) / 2, 0);
+                        flameThrowerTransform.rotation = 0.0f;
+                    } else {
+                        flameThrowerMotion.position = playerMotion.position - glm::vec2(std::abs(playerMotion.scale.x) / 2, 0);
+                        flameThrowerTransform.rotation = M_PI;
+                    }
+
+                    flameThrowerMotion.velocity = m.velocity;
+                }
             }
-            // Step 5: Update the transform component for all entities
             t = m;
         }
     }
 }
-
 
 void WorldSystem::handle_collisions() {
     auto& collisionsRegistry = registry.collisions;
@@ -281,46 +341,93 @@ void WorldSystem::handle_collisions() {
         vec2 direction = collisionsRegistry.components[i].direction;
         vec2 overlap = collisionsRegistry.components[i].overlap;
 
-        if (registry.grounds.has(entity_other)) {
-            Motion& thisMotion = registry.motions.get(entity);
-            Motion& otherMotion = registry.motions.get(entity_other);
+        if (!registry.motions.has(entity) || !registry.motions.has(entity_other)) {
+            continue;
+        }
+        Motion& thisMotion = registry.motions.get(entity);
+        Motion& otherMotion = registry.motions.get(entity_other);
 
-            if (direction.x != 0) {
-                thisMotion.position.x -= overlap.x * direction.x;
+        // Check first - Skip handling collision if it's between spit and fireball projectiles
+        if (registry.projectiles.has(entity) && registry.projectiles.has(entity_other)) {
+            auto projectileType1 = registry.projectiles.get(entity).type;
+            auto projectileType2 = registry.projectiles.get(entity_other).type;
+
+            if ((projectileType1 == ProjectileType::SPIT && projectileType2 == ProjectileType::FIREBALL) ||
+                (projectileType1 == ProjectileType::FIREBALL && projectileType2 == ProjectileType::SPIT)) {
+                continue;
             }
-            else if (direction.y > 0 && thisMotion.velocity.y > 0) {
-                thisMotion.position.y -= overlap.y;
-                thisMotion.velocity.y = 0;
-                if (registry.players.has(entity)) {
-                    canJump = true;  // Allow player to jump again
-                    isGrounded = true;  // Player is grounded
+        }
+
+        if (registry.grounds.has(entity_other)) {
+            if (direction.x != 0) {
+                if (direction.x > 0 && thisMotion.velocity.x > 0) {
+                    thisMotion.position.x -= overlap.x;
+                } else if (direction.x < 0 && thisMotion.velocity.x < 0) {
+                    thisMotion.position.x += overlap.x;
+                }
+            } 
+            if (direction.y != 0) {
+                if (direction.y > 0 && thisMotion.velocity.y > 0) {
+                    // Downward collision
+                    thisMotion.position.y -= overlap.y;
+                    thisMotion.velocity.y = 0;
+
+                    if (registry.players.has(entity)) {
+                        canJump = true;  // Allow player to jump again
+                        isGrounded = true;  // Player is grounded
+                    }
+                }
+                else if (direction.y < 0 && thisMotion.velocity.y < 0) {
+                    thisMotion.position.y += overlap.y;
+                    thisMotion.velocity.y = 0;
                 }
             }
-            else if (direction.y < 0 && thisMotion.velocity.y < 0) {
-                thisMotion.position.y += overlap.y;
-                thisMotion.velocity.y = 0;
-            }
-
         }
+
         if (registry.players.has(entity) && !registry.invinciblityTimers.has(entity) && registry.damages.has(entity_other)) {
+            if (registry.projectiles.has(entity_other) && registry.projectiles.get(entity_other).type == ProjectileType::FIREBALL) {
+                continue;
+            }
             if(registry.players.get(m_player).attacking){
-                goomba_get_damaged(entity_other);
+                GoombaLogic::goomba_get_damaged(entity_other, m_sword);
                 registry.players.get(m_player).attacking = false;
             }else{
                 player_get_damaged(entity_other);
             }
         }
+
         if (registry.weapons.has(entity) && registry.healths.has(entity_other)) {
             if (registry.players.get(m_player).attacking) {
-                goomba_get_damaged(entity_other);
+                GoombaLogic::goomba_get_damaged(entity_other, m_sword);
+            }
+        }
+
+        // Handle damage from fireball if flame thrower is equipped
+        if (registry.projectiles.has(entity) && registry.projectiles.get(entity).type == ProjectileType::FIREBALL && isFlameThrowerEquipped) {
+            if (registry.hostiles.has(entity_other) && registry.damages.has(entity)) {
+                if (registry.healths.has(entity_other) && registry.healths.get(entity_other).current_health > 0) {
+                    GoombaLogic::goomba_get_damaged(entity_other, entity);
+                    registry.remove_all_components_of(entity);  // Remove fireball upon hit
+                }
             }
         }
 
         // Remove the spit attack from ceiling goomba after it has hit the player or the ground
-        if (registry.projectiles.has(entity) && (registry.players.has(entity_other) || registry.grounds.has(entity_other))) {
+        if (registry.projectiles.has(entity) && registry.projectiles.get(entity).type == ProjectileType::SPIT
+        && (registry.players.has(entity_other) || registry.grounds.has(entity_other))) {
             registry.remove_all_components_of(entity);
         }
 
+        // TODO: Remove the fireball after it has hit the breakable door
+        if (registry.projectiles.has(entity) && registry.projectiles.get(entity).type == ProjectileType::FIREBALL
+            && registry.grounds.has(entity_other)) {
+            if (registry.projectiles.has(entity_other) && registry.projectiles.get(entity).type == ProjectileType::SPIT) {
+                continue;
+            }
+            registry.remove_all_components_of(entity);
+        }
+
+        // Once the ceiling goomba is dead. change its sprite to the dead sprite
         if (registry.projectileTimers.has(entity) && registry.grounds.has(entity_other)) {
             std::vector<Sprite> goombaCeilingSprites = registry.goombaSprites.get(m_goombaCeiling);
             Sprite& goombaCeilingSprite = registry.sprites.get(entity);
@@ -330,22 +437,6 @@ void WorldSystem::handle_collisions() {
 
     }
     registry.collisions.clear();
-}
-
-bool WorldSystem::checkPlayerGroundCollision() {
-    auto& playerMotion = registry.motions.get(m_player);
-    for (auto& groundEntity : registry.collisions.entities) {
-        auto& groundMotion = registry.motions.get(groundEntity);
-        // Assuming Y direction is down, check if player is at or below ground level
-        if (playerMotion.position[1] >= groundMotion.position[1]) {
-            isGrounded = true;
-            canJump = true;  // Allow player to jump after landing
-            return true;
-        }
-    }
-    isGrounded = false;
-    canJump = false;  // Prevent jumping mid-air
-    return false;
 }
 
 void WorldSystem::handle_invinciblity(float deltaTime) {
@@ -379,18 +470,18 @@ void WorldSystem::handle_ai() {
             }
             if (p.movingRight) {
                 if (p.chasing) {
-                    m.velocity.x = 3;
+                    m.velocity.x = 3 * TPS;
                 }
                 else {
-                    m.velocity.x = 1;
+                    m.velocity.x = 1 * TPS;
                 }
             }
             else {
                 if (p.chasing) {
-                    m.velocity.x = -3;
+                    m.velocity.x = -3 * TPS;
                 }
                 else {
-                    m.velocity.x = -1;
+                    m.velocity.x = -1 * TPS;
                 }
             }
         }
@@ -403,21 +494,23 @@ void WorldSystem::render() {
 
     // Draw the entity if it exists and has the required components
     // also check if it is in the current room
-    Room& room = registry.rooms.get(current_room);
-    for (auto& obj : room.entities) {
-        // Draw Objects
-        if (registry.envObject.has(obj) && registry.transforms.has(obj) && registry.sprites.has(obj))
-        {
-            auto& transform = registry.transforms.get(obj);
-            auto& sprite = registry.sprites.get(obj);
-            renderSystem.drawEntity(sprite, transform);
-        }
-        // Draw the goombas
-        if (registry.hostiles.has(obj) && registry.transforms.has(obj) && registry.sprites.has(obj))
-        {
-            auto& transform = registry.transforms.get(obj);
-            auto& sprite = registry.sprites.get(obj);
-            renderSystem.drawEntity(sprite, transform);
+    if (registry.rooms.has(current_room)) {
+        Room& room = registry.rooms.get(current_room);
+        for (auto& obj : room.entities) {
+            // Draw Objects
+            if (registry.envObject.has(obj) && registry.transforms.has(obj) && registry.sprites.has(obj))
+            {
+                auto& transform = registry.transforms.get(obj);
+                auto& sprite = registry.sprites.get(obj);
+                renderSystem.drawEntity(sprite, transform);
+            }
+            // Draw the goombas
+            if (registry.hostiles.has(obj) && registry.transforms.has(obj) && registry.sprites.has(obj))
+            {
+                auto& transform = registry.transforms.get(obj);
+                auto& sprite = registry.sprites.get(obj);
+                renderSystem.drawEntity(sprite, transform);
+            }
         }
     }
 
@@ -430,10 +523,33 @@ void WorldSystem::render() {
         renderSystem.drawEntity(animation.getCurrentFrame(), transform);
     }
 
+    // Draw the hearts
     if (registry.transforms.has(m_hearts) && registry.heartSprites.has(m_hearts))
     {
         auto& health = registry.healths.get(m_player);
         update_status_bar(health.current_health);
+    }
+
+    // Draw the flame thrower if the boss is killed
+    if (registry.transforms.has(m_flameThrower) && registry.sprites.has(m_flameThrower))
+    {
+        if (isBossDead && isFlameThrowerEquipped) {
+            auto &flameThrowerTransform = registry.transforms.get(m_flameThrower);
+            auto &flameThrowerSprite = registry.sprites.get(m_flameThrower);
+            renderSystem.drawEntity(flameThrowerSprite, flameThrowerTransform);
+        }
+    }
+
+    for (const auto& entity : registry.projectiles.entities) {
+        if (registry.projectiles.get(entity).type == ProjectileType::FIREBALL) {
+            if (registry.sprites.has(entity) && registry.transforms.has(entity)) {
+                if (isBossDead && isFlameThrowerEquipped) {
+                    auto &fireballSprite = registry.sprites.get(entity);
+                    auto &fireballTransform = registry.transforms.get(entity);
+                    renderSystem.drawEntity(fireballSprite, fireballTransform);
+                }
+            }
+        }
     }
 }
 
@@ -507,6 +623,72 @@ void WorldSystem::processPlayerInput(int key, int action) {
         respawnGoomba();
     }
 
+    // Toggle E to use the flame thrower
+    if (action == GLFW_PRESS && key == GLFW_KEY_E) {
+        isBossDead = true;
+        if (isBossDead) {
+            if (!registry.players.get(m_player).attacking) {
+                isFlameThrowerEquipped = true;
+                if (isFlameThrowerEquipped && flameThrower_enabled) {
+                    useFlameThrower();
+                }
+            }
+        }
+    }
+
+    if (action == GLFW_PRESS && key == GLFW_KEY_Q) {
+        isBossDead = true;
+        if (isBossDead) {
+            isFlameThrowerEquipped = false;
+        }
+    }
+}
+
+void WorldSystem::useFlameThrower() {
+    auto& weapon = registry.weapons.get(m_flameThrower);
+
+    Entity m_fireball = Entity();
+
+    int fireballWidth, fireballHeight;
+    GLuint fireballTextureID = renderSystem.loadTexture("Fireball.png", fireballWidth, fireballHeight);
+    Sprite fireballSprite(fireballTextureID);
+
+    registry.sprites.emplace(m_fireball, std::move(fireballSprite));
+
+   Motion playerMotion = registry.motions.get(m_player);
+   Motion fireballMotion;
+   TransformComponent fireballTransform;
+
+   float offsetDistance = 100.f;
+   if (playerMotion.scale.x > 0) {
+       fireballMotion.position = playerMotion.position + glm::vec2(offsetDistance, 0);
+       fireballMotion.velocity = glm::vec2(2.f * TPS, 0.f);
+       fireballMotion.scale = glm::vec2(FIREBALL_WIDTH, FIREBALL_HEIGHT);
+   }
+   else {
+       fireballMotion.position = playerMotion.position - glm::vec2(offsetDistance, 0);
+       fireballMotion.velocity = glm::vec2(-2.f * TPS, 0.f);
+       fireballMotion.scale = glm::vec2(-FIREBALL_WIDTH, FIREBALL_HEIGHT);
+   }
+
+   registry.motions.emplace(m_fireball, fireballMotion);
+   fireballTransform = fireballMotion;
+   registry.transforms.emplace(m_fireball, std::move(fireballTransform));
+
+   Damage fireballDamage;
+   fireballDamage.damage_dealt = 10;
+   registry.damages.emplace(m_fireball, fireballDamage);
+
+   BoundingBox fireballBB;
+   fireballBB.width = FIREBALL_WIDTH;
+   fireballBB.height = FIREBALL_HEIGHT;
+   registry.bounding_box.emplace(m_fireball, std::move(fireballBB));
+
+   // Set fireball to expire at window edges
+   registry.projectiles.emplace(m_fireball, std::move(Projectile{ProjectileType::FIREBALL}));
+
+   weapon.cooldown = 3.0f;
+   flameThrower_enabled = false;
 }
 
 void WorldSystem::on_key(int key, int, int action, int) {
@@ -519,21 +701,23 @@ void WorldSystem::on_mouse_move(const glm::vec2&) {
 void WorldSystem::on_mouse_click(int button, int action, const glm::vec2&, int) {
     if (action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_LEFT) {
         if (registry.combat.has(m_player)) {
-            if (canAttack) {  // Ensure the player can attack
-                // make a call to bounding boxes here
-                std::cout << "is attacking" << std::endl;
-                canAttack = false;  // Prevent further attacks for a time
-                auto& c = registry.combat.get(m_player);
-                c.frames = c.max_frames;
-                registry.players.get(m_player).attacking = true;
+            if (!isFlameThrowerEquipped) {
+                if (canAttack) {  // Ensure the player can attack
+                    // make a call to bounding boxes here
+                    std::cout << "is attacking" << std::endl;
+                    canAttack = false;  // Prevent further attacks for a time
+                    auto &c = registry.combat.get(m_player);
+                    c.frames = c.max_frames;
+                    registry.players.get(m_player).attacking = true;
+                }
             }
         }
     }
 }
 
 void WorldSystem::cleanup() {
-    // Remove all components of the player entity from the registry
-    registry.remove_all_components_of(m_player);
+    // Remove all components
+    registry.clear_all_components();
 }
 
 
@@ -549,7 +733,7 @@ void WorldSystem::player_get_damaged(Entity hostile) {
         player_health.current_health -= hostile_damage.damage_dealt;
         update_status_bar(player_health.current_health);
         if (player_health.current_health == 0) {
-
+            renderSystem.getGameStateManager()->changeState(std::make_unique<GameOverScreen>());
         }
     }
 }
@@ -572,37 +756,6 @@ void WorldSystem::player_get_healed() {
     }
 }
 
-void WorldSystem::goomba_get_damaged(Entity hostile) {
-    if (registry.healths.has(hostile)) {
-        Health& hostile_health = registry.healths.get(hostile);
-        Damage sword_damage = registry.damages.get(m_sword);
-        hostile_health.current_health--;
-
-        // If the goomba isnt dead yet, change their current sprite to their hit sprite
-       if (hostile_health.current_health > 0) {
-           registry.recentDamageTimers.emplace(hostile, std::move(RecentlyDamagedTimer()));
-           std::vector<Sprite> goombaSprites;
-           // Change the ceilingGoombas sprite
-           if (registry.projectileTimers.has(hostile)) {
-               goombaSprites = registry.goombaSprites.get(m_goombaCeiling);
-           }
-           // Change the landGoombas sprite
-           else {
-               goombaSprites = registry.goombaSprites.get(m_goombaLand);
-           }
-           Sprite& goombaSprite = registry.sprites.get(hostile);
-           goombaSprite = goombaSprites[1];
-       }
-        else {
-            if (registry.projectileTimers.has(hostile)) {
-                goomba_ceiling_death(hostile);
-            }
-            else {
-                goomba_land_death(hostile);
-            }
-        }
-    } 
-}
 
 // Currently broken
 void WorldSystem::respawnGoomba() {
@@ -672,6 +825,34 @@ void WorldSystem::update_status_bar(int num_hearts) {
     renderSystem.drawEntity(heartSprite, transform);
 }
 
+void WorldSystem::init_flame_thrower() {
+    int flameThrowerWidth, flameThrowerHeight;
+    GLuint flameThrowerTextureID = renderSystem.loadTexture("flame_thrower.png", flameThrowerWidth, flameThrowerHeight);
+    Sprite flameThrowerSprite(flameThrowerTextureID);
+    registry.sprites.emplace(m_flameThrower, std::move(flameThrowerSprite));
+
+    TransformComponent flameThrowerSpriteTransform;
+    auto& motion = registry.motions.get(m_player);
+    if (motion.scale.x > 0) {
+        flameThrowerSpriteTransform.position = glm::vec3(motion.position.x + motion.scale.x / 2, motion.position.y, 0.0);
+        flameThrowerSpriteTransform.scale = glm::vec3(FLAME_THROWER_WIDTH, FLAME_THROWER_HEIGHT, 1.0);
+        flameThrowerSpriteTransform.rotation = 0.0f;
+    } else {
+        flameThrowerSpriteTransform.position = glm::vec3(motion.position.x - motion.scale.x / 2, motion.position.y, 0.0);
+        flameThrowerSpriteTransform.scale = glm::vec3(FLAME_THROWER_WIDTH, FLAME_THROWER_HEIGHT, 1.0);
+        flameThrowerSpriteTransform.rotation = M_PI;
+    }
+    registry.transforms.emplace(m_flameThrower, std::move(flameThrowerSpriteTransform));
+
+    Motion flameThrowerMotion;
+    flameThrowerMotion.position = flameThrowerSpriteTransform.position;
+    flameThrowerMotion.velocity = motion.velocity;
+    flameThrowerMotion.scale = glm::vec2(FLAME_THROWER_WIDTH, FLAME_THROWER_HEIGHT);
+    registry.motions.emplace(m_flameThrower, std::move(flameThrowerMotion));
+
+    registry.weapons.emplace(m_flameThrower, Weapon());
+}
+
 void WorldSystem::updateBoundingBox(Entity e1) {
     Motion& player_motion = registry.motions.get(e1);
     float box_height = player_motion.scale.y * registry.bounding_box.get(e1).height;
@@ -698,129 +879,4 @@ void WorldSystem::updateBoundingBox(Entity e1) {
     bounding_box.p4.x = x_value_max;
     bounding_box.p4.y = y_value_max;
 
-}
-
-void WorldSystem::init_all_goomba_sprites() {
-    // Create and initialize all goomba sprites
-    init_goomba_land_sprites();
-    init_goomba_ceiling_sprites();
-}
-
-void WorldSystem::init_goomba_land_sprites() {
-    std::vector<Sprite> goombaLandSprites;
-    std::vector<Motion> goombaLandScales;
-    int goombaLandWidth, goombaLandHeight;
-
-    init_goomba_sprite(goombaLandWidth, goombaLandHeight, "goomba_walk_idle.PNG", goombaLandSprites);
-    init_goomba_scale(goombaLandWidth, goombaLandHeight, 4, goombaLandScales);
-
-    init_goomba_sprite(goombaLandWidth, goombaLandHeight, "goomba_walk_hit.PNG", goombaLandSprites);
-    init_goomba_scale(goombaLandWidth, goombaLandHeight, 4, goombaLandScales);
-
-    init_goomba_sprite(goombaLandWidth, goombaLandHeight, "goomba_walk_notice.PNG", goombaLandSprites);
-    init_goomba_scale(goombaLandWidth, goombaLandHeight, 4, goombaLandScales);
-
-    init_goomba_sprite(goombaLandWidth, goombaLandHeight, "goomba_walk_attack.PNG", goombaLandSprites);
-    init_goomba_scale(goombaLandWidth, goombaLandHeight, 4, goombaLandScales);
-
-    init_goomba_sprite(goombaLandWidth, goombaLandHeight, "goomba_dead.PNG", goombaLandSprites);
-    init_goomba_scale(goombaLandWidth, goombaLandHeight, 4, goombaLandScales);
-
-    TransformComponent goombaTransform;
-    registry.transforms.emplace(m_goombaLand, std::move(goombaTransform));
-    registry.goombaSprites.emplace(m_goombaLand, std::move(goombaLandSprites));
-    registry.goombaScales.emplace(m_goombaLand, std::move(goombaLandScales));
-}
-
-void WorldSystem::init_goomba_ceiling_sprites() {
-    // Create and initialize the ceilingGoombaSprites
-    std::vector<Sprite> goombaCeilingSprites;
-    std::vector<Motion> goombaCeilingScales;
-    int goombaCeilingWidth, goombaCeilingHeight;
-
-    init_goomba_sprite(goombaCeilingWidth, goombaCeilingHeight, "ceiling_idle.png", goombaCeilingSprites);
-    init_goomba_scale(goombaCeilingWidth, goombaCeilingHeight, 4, goombaCeilingScales);
-
-    init_goomba_sprite(goombaCeilingWidth, goombaCeilingHeight, "ceiling_hit.png", goombaCeilingSprites);
-    init_goomba_scale(goombaCeilingWidth, goombaCeilingHeight, 4, goombaCeilingScales);
-
-    init_goomba_sprite(goombaCeilingWidth, goombaCeilingHeight, "ceiling_fall.png", goombaCeilingSprites);
-    init_goomba_scale(goombaCeilingWidth, goombaCeilingHeight, 4, goombaCeilingScales);
-
-    init_goomba_sprite(goombaCeilingWidth, goombaCeilingHeight, "goomba_dead.png", goombaCeilingSprites);
-    init_goomba_scale(goombaCeilingWidth, goombaCeilingHeight, 4, goombaCeilingScales);
-
-    TransformComponent goombaTransform;
-    registry.transforms.emplace(m_goombaCeiling, std::move(goombaTransform));
-    registry.goombaSprites.emplace(m_goombaCeiling, std::move(goombaCeilingSprites));
-    registry.goombaScales.emplace(m_goombaCeiling, std::move(goombaCeilingScales));
-}
-
-void WorldSystem::init_goomba_sprite(int& width, int& height, std::string path, std::vector<Sprite>& Sprites) {
-    GLuint goombaSpriteTextureId = renderSystem.loadTexture(path, width, height);
-    Sprite goombaSprite(goombaSpriteTextureId);
-    Sprites.push_back(goombaSprite);
-}
-
-void WorldSystem::init_goomba_scale(int width, int height, int factor, std::vector<Motion>& Motions) {
-    Motion goombaScale;
-    goombaScale.scale = { width / factor, height / factor };
-    Motions.push_back(goombaScale);
-}
-
-// Counts down to when the ceiling goomba can attack again
-void WorldSystem::update_projectile_timer(float delta_time) {
-    for (Entity entity : registry.projectileTimers.entities) {
-        ProjectileTimer& projectile_counter = registry.projectileTimers.get(entity);
-        projectile_counter.elapsed_time -= delta_time;
-        // TODO for Kuter: should this remain here?
-        if (projectile_counter.elapsed_time <= 0 && registry.rooms.get(current_room).has(entity)) {
-            AISystem::ceiling_goomba_attack(entity, current_room);
-            projectile_counter.elapsed_time = projectile_counter.max_time;
-        } 
-    }
-}
-
-
-
-// If the goomba is currently using its damaged sprite, revert it back to its idle sprite
-void WorldSystem::update_damaged_sprites(float delta_time) {
-    for (Entity entity : registry.recentDamageTimers.entities) {
-        RecentlyDamagedTimer& damaged_timer = registry.recentDamageTimers.get(entity);
-        damaged_timer.counter_ms -= delta_time;
-        if (damaged_timer.counter_ms <= 0) {
-            std::vector<Sprite> goombaSprites;
-            if (registry.projectileTimers.has(entity)) {
-                goombaSprites = registry.goombaSprites.get(m_goombaCeiling);
-            }
-            else {
-                goombaSprites = registry.goombaSprites.get(m_goombaLand);
-            }
-            Sprite& goombaSprite = registry.sprites.get(entity);
-            goombaSprite = goombaSprites[0];
-            registry.recentDamageTimers.remove(entity);
-        }
-    }
-}
-
-void WorldSystem::goomba_ceiling_death(Entity hostile) {
-    std::vector<Sprite> goombaCeilingSprites = registry.goombaSprites.get(m_goombaCeiling);
-    Sprite& goombaCeilingSprite = registry.sprites.get(hostile);
-    goombaCeilingSprite = goombaCeilingSprites[2];
-    registry.gravity.emplace(hostile, std::move(Gravity()));
-    registry.damages.remove(hostile);
-    registry.healths.remove(hostile);
-    registry.bounding_box.remove(hostile);
-}
-
-void WorldSystem::goomba_land_death(Entity hostile) {
-    registry.sprites.remove(hostile);
-    registry.bounding_box.remove(hostile);
-    Motion& hostile_motion = registry.motions.get(hostile);
-    hostile_motion.velocity = { 0,0 };
-    registry.patrol_ais.remove(hostile);
-    registry.damages.remove(hostile);
-    registry.healths.remove(hostile);
-    Sprite goombaSprite = registry.goombaSprites.get(m_goombaLand).back();
-    registry.sprites.emplace(hostile, goombaSprite);
 }
