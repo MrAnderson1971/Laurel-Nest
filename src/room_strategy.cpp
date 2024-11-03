@@ -2,6 +2,7 @@
 #include "ecs.hpp"
 #include "render_system.hpp"
 #include "enemy.hpp"
+#include "boss_ai.hpp"
 #include "components.hpp"
 
 #pragma warning(disable: 4244)
@@ -264,9 +265,12 @@ Entity BossRoomStrategy::execute() {
     // note on bg: don't add motion
     registry.grounds.emplace(m_ground, std::move(Ground()));
 
+    Entity chicken = BossAISystem::init();
+
     room.insert(m_bg);
     room.insert(m_ceiling);
     room.insert(m_ground);
+    room.insert(chicken);
     room.setMusic(Mix_LoadMUS(audio_path("music.wav").c_str()));
     registry.rooms.emplace(m_boss_room, std::move(room));
 
@@ -323,6 +327,7 @@ Entity ExitRoomStrategy::execute() {
     registry.grounds.emplace(m_platform5, std::move(Ground()));
     registry.grounds.emplace(m_platform6, std::move(Ground()));
     registry.grounds.emplace(m_platform7, std::move(Ground()));
+
 
     room.insert(m_bg);
     room.insert(m_wall_left);

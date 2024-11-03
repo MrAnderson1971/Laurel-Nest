@@ -12,6 +12,8 @@
 
 bool Show_FPS = true;
 
+#include "boss_ai.hpp"
+
 WorldSystem::WorldSystem() {
     regionManager = std::make_unique<RegionManager>();
 }
@@ -160,6 +162,7 @@ void WorldSystem::update(float deltaTime) {
 
     GoombaLogic::update_goomba_projectile_timer(deltaTime, current_room);
     GoombaLogic::update_damaged_goomba_sprites(deltaTime);
+    BossAISystem::step(m_player, deltaTime);
 
     // TODO: make this its own function too??
     //Update bounding boxes for all the entities
@@ -409,7 +412,12 @@ void WorldSystem::handle_collisions() {
                 continue;
             }
             if(registry.players.get(m_player).attacking){
-                GoombaLogic::goomba_get_damaged(entity_other, m_sword);
+                if (registry.bosses.has(entity_other)) {
+                    BossAISystem::chicken_get_damaged(m_sword);
+                }
+                else {
+                    GoombaLogic::goomba_get_damaged(entity_other, m_sword);
+                }
                 registry.players.get(m_player).attacking = false;
             }else{
                 player_get_damaged(entity_other);
@@ -418,7 +426,12 @@ void WorldSystem::handle_collisions() {
 
         if (registry.weapons.has(entity) && registry.healths.has(entity_other)) {
             if (registry.players.get(m_player).attacking) {
-                GoombaLogic::goomba_get_damaged(entity_other, m_sword);
+                if (registry.bosses.has(entity_other)) {
+                    BossAISystem::chicken_get_damaged(m_sword);
+                }
+                else {
+                    GoombaLogic::goomba_get_damaged(entity_other, m_sword);
+                }
             }
         }
 
@@ -514,34 +527,42 @@ void WorldSystem::render() {
 
     // Draw the entity if it exists and has the required components
     // also check if it is in the current room
-    if (registry.rooms.has(current_room)) {
-        Room& room = registry.rooms.get(current_room);
-        for (auto& obj : room.entities) {
-            // Draw Objects
-            if (registry.envObject.has(obj) && registry.transforms.has(obj) && registry.sprites.has(obj))
-            {
-                auto& transform = registry.transforms.get(obj);
-                auto& sprite = registry.sprites.get(obj);
-                renderSystem.drawEntity(sprite, transform);
-            }
-            // Draw the goombas
-            if (registry.hostiles.has(obj) && registry.transforms.has(obj) && registry.sprites.has(obj))
-            {
-                auto& transform = registry.transforms.get(obj);
-                auto& sprite = registry.sprites.get(obj);
-                renderSystem.drawEntity(sprite, transform);
-            }
+    // Loop twice to ensure the background gets rendered first
+
+    Room& room = registry.rooms.get(current_room);
+    for (auto& obj : room.entities) {
+        // Draw Objects
+        if (registry.envObject.has(obj) && registry.transforms.has(obj) && registry.sprites.has(obj))
+        {
+            auto& transform = registry.transforms.get(obj);
+            auto& sprite = registry.sprites.get(obj);
+            renderSystem.drawEntity(sprite, transform);
+        }
+    }
+    for (auto& obj : room.entities) {
+        // Draw the goombas
+        if (registry.hostiles.has(obj) && registry.transforms.has(obj) && registry.sprites.has(obj))
+        {
+            auto& transform = registry.transforms.get(obj);
+            auto& sprite = registry.sprites.get(obj);
+            renderSystem.drawEntity(sprite, transform);
+
+        }
+        // Draw Bosses
+        if (registry.bosses.has(obj)) {
+            BossAISystem::render();
         }
     }
 
     // Draw the player entity if it exists and has the required components
     if (registry.playerAnimations.has(m_player) &&
-        registry.transforms.has(m_player))
+        registry.transforms.has(m_player) )
     {
         auto& animation = registry.playerAnimations.get(m_player);
         auto& transform = registry.transforms.get(m_player);
         renderSystem.drawEntity(animation.getCurrentFrame(), transform);
     }
+
 
     // Draw the hearts
     if (registry.transforms.has(m_hearts) && registry.heartSprites.has(m_hearts))
