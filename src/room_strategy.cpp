@@ -15,8 +15,7 @@ Entity EntranceRoomStrategy::execute() {
     // spaceship
     Entity m_spaceship;
     int spaceshipWidth, spaceshipHeight;
-    GLuint spaceshipTexture = renderSystem.loadTexture("spaceship.png", spaceshipWidth, spaceshipHeight);
-    Sprite spaceshipSprite(spaceshipTexture);
+    Sprite spaceshipSprite(renderSystem.loadTexture("spaceship.png", spaceshipWidth, spaceshipHeight));
     spaceshipWidth /= 2;
     spaceshipHeight /= 2;
     registry.sprites.emplace(m_spaceship, std::move(spaceshipSprite));
