@@ -646,7 +646,7 @@ void WorldSystem::useFlameThrower() {
        fireballMotion.scale = glm::vec2(-FIREBALL_WIDTH, FIREBALL_HEIGHT);
    }
 
-   registry.motions.emplace(m_fireball, std::move(fireballMotion));
+   registry.motions.emplace(m_fireball, fireballMotion);
    fireballTransform.position = glm::vec3(fireballMotion.position.x, fireballMotion.position.y, 0.0f);
    fireballTransform.scale = glm::vec3(FIREBALL_WIDTH, FIREBALL_HEIGHT, 1.0f);
    registry.transforms.emplace(m_fireball, std::move(fireballTransform));
@@ -677,13 +677,15 @@ void WorldSystem::on_mouse_move(const glm::vec2&) {
 void WorldSystem::on_mouse_click(int button, int action, const glm::vec2&, int) {
     if (action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_LEFT) {
         if (registry.combat.has(m_player)) {
-            if (canAttack) {  // Ensure the player can attack
-                // make a call to bounding boxes here
-                std::cout << "is attacking" << std::endl;
-                canAttack = false;  // Prevent further attacks for a time
-                auto& c = registry.combat.get(m_player);
-                c.frames = c.max_frames;
-                registry.players.get(m_player).attacking = true;
+            if (!isFlameThrowerEquipped) {
+                if (canAttack) {  // Ensure the player can attack
+                    // make a call to bounding boxes here
+                    std::cout << "is attacking" << std::endl;
+                    canAttack = false;  // Prevent further attacks for a time
+                    auto &c = registry.combat.get(m_player);
+                    c.frames = c.max_frames;
+                    registry.players.get(m_player).attacking = true;
+                }
             }
         }
     }
