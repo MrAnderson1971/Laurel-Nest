@@ -23,18 +23,17 @@ bool walkLeft = false;
 bool walkRight = false;
 
 bool canWalk(Motion& chickenMotion, Motion& playerMotion) {
-
-	if (chickenMotion.position.x < renderSystem.getWindowWidth() / 2.f) {
-		// move right
-		walkLeft = false;
-		walkRight = true;
-		return true;
-	}
-	// check player zone
-	if (playerMotion.position.x < renderSystem.getWindowWidth() / 4.f) {
+	if ((playerMotion.position.x <= renderSystem.getWindowWidth() / 3.f &&
+		playerMotion.position.x >= renderSystem.getWindowWidth() / 5.f &&
+		chickenMotion.position.x >= renderSystem.getWindowWidth() / 2.f)) {
 		// move left
 		walkLeft = true;
-		walkRight = false;
+		return true;
+	}
+	if (chickenMotion.position.x <= renderSystem.getWindowWidth() / 2.f
+		&& playerMotion.position.x < renderSystem.getWindowWidth() / 8.f) {
+		// move right
+		walkRight = true;
 		return true;
 	}
 
@@ -51,7 +50,8 @@ void walk(Motion& chickenMotion, Motion& playerMotion) {
 }
 
 bool canPeck(Motion chickenMotion, Motion playerMotion) {
-	if (chickenMotion.position.x < playerMotion.position.x + 300.f) {
+	if (chickenMotion.position.x < playerMotion.position.x + 300.f &&
+		chickenMotion.position.x > playerMotion.position.x) {
 		return true;
 	}
 	return false;
@@ -187,6 +187,8 @@ void BossAISystem::step(Entity player, float elapsed_time) {
 			}
 		}
 		else if (current_state == STATE::WALK) {
+			walkRight = false;
+			walkLeft = false;
 			if (canPeck(chickenMotion, playerMotion)) {
 				current_state = STATE::PECK;
 				a.setState(CHICKEN_PECK);
@@ -216,7 +218,7 @@ void BossAISystem::step(Entity player, float elapsed_time) {
 		animationDone = true;
 	}
 	else {
-		if (current_state == STATE::WALK && canWalk(chickenMotion, playerMotion)) {
+		if (current_state == STATE::WALK) {
 			walk(chickenMotion, playerMotion);
 		}
 		a.next(elapsed_time);
