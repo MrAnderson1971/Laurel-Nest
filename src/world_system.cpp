@@ -4,7 +4,6 @@
 #include <iomanip>
 
 #include "pause_state.hpp"
-#include "enemy.hpp"
 #include "cesspit_map.hpp"
 #include "collision_system.h"
 #include "goomba_logic.hpp"
@@ -25,6 +24,8 @@ void WorldSystem::init() {
     m_sword = Entity();
     m_goombaLand = Entity();
     m_goombaCeiling = Entity();
+    m_flameThrower = Entity();
+    isBossDead = false;
  
     // Player
 
@@ -121,6 +122,7 @@ void WorldSystem::init() {
     GoombaLogic::init_all_goomba_sprites();
 
     init_status_bar();
+    init_flame_thrower();
      
     // Initialize the region
     regionManager->init();
@@ -133,6 +135,16 @@ void WorldSystem::update(float deltaTime) {
     handle_collisions();
     handle_invinciblity(deltaTime);
     handle_ai();
+
+    if (registry.weapons.has(m_flameThrower)) {
+        auto& weapon = registry.weapons.get(m_flameThrower);
+        if (weapon.cooldown <= 0) {
+            flameThrower_enabled = true;
+        } else {
+            weapon.cooldown -= deltaTime;
+        }
+    }
+
     GoombaLogic::update_goomba_projectile_timer(deltaTime, current_room);
     GoombaLogic::update_damaged_goomba_sprites(deltaTime);
 
@@ -157,6 +169,17 @@ void WorldSystem::handle_motions(float deltaTime) {
             if (registry.gravity.has(entity) && ( registry.players.has(entity) || registry.rooms.get(current_room).has(entity))) {
                 auto& g = registry.gravity.get(entity);
                 m.velocity.y += g.accleration;
+            }
+
+            // Handle fireball motion
+            if (registry.projectiles.has(entity) && registry.projectiles.get(entity).type == ProjectileType::FIREBALL) {
+                // Update fireball position
+                m.position += m.velocity;
+
+                // Remove fireball if it goes out of screen bounds
+                if (m.position.x < 0 || m.position.x > window_width_px) {
+                    registry.remove_all_components_of(entity);
+                }
             }
 
             // Step 2: Update position based on velocity
@@ -267,13 +290,27 @@ void WorldSystem::handle_motions(float deltaTime) {
                     a.setState(currentState);  // Update animation state
                     registry.players.get(m_player).attacking = false;
                 }
+
+                if (registry.motions.has(m_flameThrower) && registry.transforms.has(m_flameThrower)) {
+                    auto& flameThrowerMotion = registry.motions.get(m_flameThrower);
+                    auto& flameThrowerTransform = registry.transforms.get(m_flameThrower);
+                    auto& playerMotion = registry.motions.get(m_player);
+
+                    if (playerMotion.scale.x > 0) {
+                        flameThrowerMotion.position = playerMotion.position + glm::vec2(std::abs(playerMotion.scale.x) / 2, 0);
+                        flameThrowerTransform.rotation = 0.0f;
+                    } else {
+                        flameThrowerMotion.position = playerMotion.position - glm::vec2(std::abs(playerMotion.scale.x) / 2, 0);
+                        flameThrowerTransform.rotation = M_PI;
+                    }
+
+                    flameThrowerMotion.velocity = m.velocity;
+                }
             }
-            // Step 5: Update the transform component for all entities
             t = m;
         }
     }
 }
-
 
 void WorldSystem::handle_collisions() {
     auto& collisionsRegistry = registry.collisions;
@@ -288,6 +325,17 @@ void WorldSystem::handle_collisions() {
         }
         Motion& thisMotion = registry.motions.get(entity);
         Motion& otherMotion = registry.motions.get(entity_other);
+
+        // Check first - Skip handling collision if it's between spit and fireball projectiles
+        if (registry.projectiles.has(entity) && registry.projectiles.has(entity_other)) {
+            auto projectileType1 = registry.projectiles.get(entity).type;
+            auto projectileType2 = registry.projectiles.get(entity_other).type;
+
+            if ((projectileType1 == ProjectileType::SPIT && projectileType2 == ProjectileType::FIREBALL) ||
+                (projectileType1 == ProjectileType::FIREBALL && projectileType2 == ProjectileType::SPIT)) {
+                continue;
+            }
+        }
 
         if (registry.grounds.has(entity_other)) {
             if (direction.x != 0) {
@@ -316,6 +364,9 @@ void WorldSystem::handle_collisions() {
         }
 
         if (registry.players.has(entity) && !registry.invinciblityTimers.has(entity) && registry.damages.has(entity_other)) {
+            if (registry.projectiles.has(entity_other) && registry.projectiles.get(entity_other).type == ProjectileType::FIREBALL) {
+                continue;
+            }
             if(registry.players.get(m_player).attacking){
                 GoombaLogic::goomba_get_damaged(entity_other, m_sword);
                 registry.players.get(m_player).attacking = false;
@@ -323,14 +374,35 @@ void WorldSystem::handle_collisions() {
                 player_get_damaged(entity_other);
             }
         }
+
         if (registry.weapons.has(entity) && registry.healths.has(entity_other)) {
             if (registry.players.get(m_player).attacking) {
                 GoombaLogic::goomba_get_damaged(entity_other, m_sword);
             }
         }
 
+        // Handle damage from fireball if flame thrower is equipped
+        if (registry.projectiles.has(entity) && registry.projectiles.get(entity).type == ProjectileType::FIREBALL && isFlameThrowerEquipped) {
+            if (registry.hostiles.has(entity_other) && registry.damages.has(entity)) {
+                if (registry.healths.has(entity_other) && registry.healths.get(entity_other).current_health > 0) {
+                    GoombaLogic::goomba_get_damaged(entity_other, entity);
+                    registry.remove_all_components_of(entity);  // Remove fireball upon hit
+                }
+            }
+        }
+
         // Remove the spit attack from ceiling goomba after it has hit the player or the ground
-        if (registry.projectiles.has(entity) && (registry.players.has(entity_other) || registry.grounds.has(entity_other))) {
+        if (registry.projectiles.has(entity) && registry.projectiles.get(entity).type == ProjectileType::SPIT
+        && (registry.players.has(entity_other) || registry.grounds.has(entity_other))) {
+            registry.remove_all_components_of(entity);
+        }
+
+        // TODO: Remove the fireball after it has hit the breakable door
+        if (registry.projectiles.has(entity) && registry.projectiles.get(entity).type == ProjectileType::FIREBALL
+            && registry.grounds.has(entity_other)) {
+            if (registry.projectiles.has(entity_other) && registry.projectiles.get(entity).type == ProjectileType::SPIT) {
+                continue;
+            }
             registry.remove_all_components_of(entity);
         }
 
@@ -344,22 +416,6 @@ void WorldSystem::handle_collisions() {
 
     }
     registry.collisions.clear();
-}
-
-bool WorldSystem::checkPlayerGroundCollision() {
-    auto& playerMotion = registry.motions.get(m_player);
-    for (auto& groundEntity : registry.collisions.entities) {
-        auto& groundMotion = registry.motions.get(groundEntity);
-        // Assuming Y direction is down, check if player is at or below ground level
-        if (playerMotion.position[1] >= groundMotion.position[1]) {
-            isGrounded = true;
-            canJump = true;  // Allow player to jump after landing
-            return true;
-        }
-    }
-    isGrounded = false;
-    canJump = false;  // Prevent jumping mid-air
-    return false;
 }
 
 void WorldSystem::handle_invinciblity(float deltaTime) {
@@ -450,6 +506,28 @@ void WorldSystem::render() {
         auto& health = registry.healths.get(m_player);
         update_status_bar(health.current_health);
     }
+
+    // Draw the flame thrower if the boss is killed
+    if (registry.transforms.has(m_flameThrower) && registry.sprites.has(m_flameThrower))
+    {
+        if (isBossDead && isFlameThrowerEquipped) {
+            auto &flameThrowerTransform = registry.transforms.get(m_flameThrower);
+            auto &flameThrowerSprite = registry.sprites.get(m_flameThrower);
+            renderSystem.drawEntity(flameThrowerSprite, flameThrowerTransform);
+        }
+    }
+
+    for (const auto& entity : registry.projectiles.entities) {
+        if (registry.projectiles.get(entity).type == ProjectileType::FIREBALL) {
+            if (registry.sprites.has(entity) && registry.transforms.has(entity)) {
+                if (isBossDead && isFlameThrowerEquipped) {
+                    auto &fireballSprite = registry.sprites.get(entity);
+                    auto &fireballTransform = registry.transforms.get(entity);
+                    renderSystem.drawEntity(fireballSprite, fireballTransform);
+                }
+            }
+        }
+    }
 }
 
 void WorldSystem::processPlayerInput(int key, int action) {
@@ -522,6 +600,70 @@ void WorldSystem::processPlayerInput(int key, int action) {
         respawnGoomba();
     }
 
+    // Toggle E to use the flame thrower
+    if (action == GLFW_PRESS && key == GLFW_KEY_E) {
+        isBossDead = true;
+        if (isBossDead) {
+            isFlameThrowerEquipped = true;
+            if (isFlameThrowerEquipped && flameThrower_enabled) {
+                useFlameThrower();
+            }
+        }
+    }
+
+    if (action == GLFW_PRESS && key == GLFW_KEY_Q) {
+        isBossDead = true;
+        if (isBossDead) {
+            isFlameThrowerEquipped = false;
+        }
+    }
+}
+
+void WorldSystem::useFlameThrower() {
+    auto& weapon = registry.weapons.get(m_flameThrower);
+
+    Entity m_fireball = Entity();
+
+    int fireballWidth, fireballHeight;
+    GLuint fireballTextureID = renderSystem.loadTexture("Fireball.png", fireballWidth, fireballHeight);
+    Sprite fireballSprite(fireballTextureID);
+
+    registry.sprites.emplace(m_fireball, std::move(fireballSprite));
+
+   Motion playerMotion = registry.motions.get(m_player);
+   Motion fireballMotion;
+   TransformComponent fireballTransform;
+
+   if (playerMotion.scale.x > 0) {
+       fireballMotion.position = playerMotion.position + glm::vec2(playerMotion.scale.x / 2, 0);
+       fireballMotion.velocity = glm::vec2(5.f, 0.f);
+       fireballMotion.scale = glm::vec2(FIREBALL_WIDTH, FIREBALL_HEIGHT);
+   }
+   else {
+       fireballMotion.position = playerMotion.position - glm::vec2(playerMotion.scale.x / 2, 0);
+       fireballMotion.velocity = glm::vec2(-5.0f, 0.f);
+       fireballMotion.scale = glm::vec2(-FIREBALL_WIDTH, FIREBALL_HEIGHT);
+   }
+
+   registry.motions.emplace(m_fireball, std::move(fireballMotion));
+   fireballTransform.position = glm::vec3(fireballMotion.position.x, fireballMotion.position.y, 0.0f);
+   fireballTransform.scale = glm::vec3(FIREBALL_WIDTH, FIREBALL_HEIGHT, 1.0f);
+   registry.transforms.emplace(m_fireball, std::move(fireballTransform));
+
+   Damage fireballDamage;
+   fireballDamage.damage_dealt = 10;
+   registry.damages.emplace(m_fireball, fireballDamage);
+
+   BoundingBox fireballBB;
+   fireballBB.width = FIREBALL_WIDTH;
+   fireballBB.height = FIREBALL_HEIGHT;
+   registry.bounding_box.emplace(m_fireball, std::move(fireballBB));
+
+   // Set fireball to expire at window edges
+   registry.projectiles.emplace(m_fireball, std::move(Projectile{ProjectileType::FIREBALL}));
+
+   weapon.cooldown = 3.0f;
+   flameThrower_enabled = false;
 }
 
 void WorldSystem::on_key(int key, int, int action, int) {
@@ -654,6 +796,34 @@ void WorldSystem::update_status_bar(int num_hearts) {
     num_hearts = clamp(num_hearts, 0, static_cast<int>(heartSprites.size()));
     Sprite heartSprite = heartSprites[num_hearts];
     renderSystem.drawEntity(heartSprite, transform);
+}
+
+void WorldSystem::init_flame_thrower() {
+    int flameThrowerWidth, flameThrowerHeight;
+    GLuint flameThrowerTextureID = renderSystem.loadTexture("flame_thrower.png", flameThrowerWidth, flameThrowerHeight);
+    Sprite flameThrowerSprite(flameThrowerTextureID);
+    registry.sprites.emplace(m_flameThrower, std::move(flameThrowerSprite));
+
+    TransformComponent flameThrowerSpriteTransform;
+    auto& motion = registry.motions.get(m_player);
+    if (motion.scale.x > 0) {
+        flameThrowerSpriteTransform.position = glm::vec3(motion.position.x + motion.scale.x / 2, motion.position.y, 0.0);
+        flameThrowerSpriteTransform.scale = glm::vec3(FLAME_THROWER_WIDTH, FLAME_THROWER_HEIGHT, 1.0);
+        flameThrowerSpriteTransform.rotation = 0.0f;
+    } else {
+        flameThrowerSpriteTransform.position = glm::vec3(motion.position.x - motion.scale.x / 2, motion.position.y, 0.0);
+        flameThrowerSpriteTransform.scale = glm::vec3(FLAME_THROWER_WIDTH, FLAME_THROWER_HEIGHT, 1.0);
+        flameThrowerSpriteTransform.rotation = M_PI;
+    }
+    registry.transforms.emplace(m_flameThrower, std::move(flameThrowerSpriteTransform));
+
+    Motion flameThrowerMotion;
+    flameThrowerMotion.position = flameThrowerSpriteTransform.position;
+    flameThrowerMotion.velocity = motion.velocity;
+    flameThrowerMotion.scale = glm::vec2(FLAME_THROWER_WIDTH, FLAME_THROWER_HEIGHT);
+    registry.motions.emplace(m_flameThrower, std::move(flameThrowerMotion));
+
+    registry.weapons.emplace(m_flameThrower, Weapon());
 }
 
 void WorldSystem::updateBoundingBox(Entity e1) {

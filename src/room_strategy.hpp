@@ -2,10 +2,21 @@
 #include "ecs.hpp"
 #include "render_system.hpp"
 
+enum class RoomType {
+    ENTRANCE_ROOM,
+    ROOM1,
+    ROOM2,
+    ROOM3,
+    ROOM4,
+    BOSS_ROOM,
+    EXIT_ROOM
+};
+
 class RoomStrategy {
 public:
 	virtual Entity execute() = 0;
 	virtual ~RoomStrategy() = default;
+    virtual RoomType getRoomType() const = 0;
 
 	Entity SetBG(const std::string& bg) {
         Entity m_bg;
@@ -132,28 +143,35 @@ public:
 
 class EntranceRoomStrategy : public RoomStrategy {
 	Entity execute() override;
+    RoomType getRoomType() const override { return RoomType::ENTRANCE_ROOM; }
 };
 
 class Room1Strategy : public RoomStrategy {
 	Entity execute() override;
+    RoomType getRoomType() const override { return RoomType::ROOM1; }
 };
 
 class Room2Strategy : public RoomStrategy {
 	Entity execute() override;
+    RoomType getRoomType() const override { return RoomType::ROOM2; }
 };
 
 class Room3Strategy : public RoomStrategy {
 	Entity execute() override;
+    RoomType getRoomType() const override { return RoomType::ROOM3; }
 };
 
 class Room4Strategy : public RoomStrategy {
 	Entity execute() override;
+    RoomType getRoomType() const override { return RoomType::ROOM4; }
 };
 
 class BossRoomStrategy : public RoomStrategy {
 	Entity execute() override;
+    RoomType getRoomType() const override { return RoomType::BOSS_ROOM; }
 };
 
 class ExitRoomStrategy : public RoomStrategy {
 	Entity execute() override;
+    RoomType getRoomType() const override { return RoomType::EXIT_ROOM; }
 };

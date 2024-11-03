@@ -3,6 +3,7 @@
 #include "render_system.hpp"
 #include "enemy.hpp"
 
+
 Entity EntranceRoomStrategy::execute() {
     // for handling transitions
     Entity m_entrance_room;
@@ -14,7 +15,8 @@ Entity EntranceRoomStrategy::execute() {
     // spaceship
     Entity m_spaceship;
     int spaceshipWidth, spaceshipHeight;
-    Sprite spaceshipSprite(renderSystem.loadTexture("spaceship.png", spaceshipWidth, spaceshipHeight));
+    GLuint spaceshipTexture = renderSystem.loadTexture("spaceship.png", spaceshipWidth, spaceshipHeight);
+    Sprite spaceshipSprite(spaceshipTexture);
     spaceshipWidth /= 2;
     spaceshipHeight /= 2;
     registry.sprites.emplace(m_spaceship, std::move(spaceshipSprite));

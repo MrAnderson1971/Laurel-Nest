@@ -17,7 +17,8 @@ void GoombaLogic::spawn_ceiling_goomba_spit(Entity ceilingGoomba, Entity current
     TransformComponent spit_transform = registry.transforms.get(m_goombaCeiling);
     registry.transforms.emplace(spit, std::move(spit_transform));
 
-    registry.projectiles.emplace(spit, std::move(Projectile()));
+    // registry.projectiles.emplace(spit, std::move(Projectile()));
+    registry.projectiles.emplace(spit, std::move(Projectile{ProjectileType::SPIT}));
     registry.gravity.emplace(spit, std::move(Gravity()));
     registry.damages.emplace(spit, std::move(Damage{ 1 }));
     registry.hostiles.emplace(spit, std::move(Hostile()));
@@ -48,11 +49,11 @@ void GoombaLogic::goomba_land_death(Entity hostile) {
     registry.sprites.emplace(hostile, goombaSprite);
 }
 
-void GoombaLogic::goomba_get_damaged(Entity hostile, Entity m_sword) {
+void GoombaLogic::goomba_get_damaged(Entity hostile, Entity m_weapon) {
     if (registry.healths.has(hostile)) {
         Health& hostile_health = registry.healths.get(hostile);
-        Damage sword_damage = registry.damages.get(m_sword);
-        hostile_health.current_health--;
+        Damage damage = registry.damages.get(m_weapon);
+        hostile_health.current_health -= damage.damage_dealt;
 
         // If the goomba isnt dead yet, change their current sprite to their hit sprite
         if (hostile_health.current_health > 0) {

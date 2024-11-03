@@ -144,9 +144,14 @@ struct ProjectileTimer
     float elapsed_time;
 };
 
+enum class ProjectileType {
+    FIREBALL,
+    SPIT
+};
+
 struct Projectile
 {
-
+    ProjectileType type;
 };
 
 struct HealthFlask
@@ -156,7 +161,7 @@ struct HealthFlask
 
 struct Weapon
 {
-    
+    float cooldown = 0.0f;
 };
 
 
@@ -258,7 +263,8 @@ enum class TEXTURE_ASSET_ID {
     PIPES = SPACESHIP + 1,                     // pipes.png
     CESSPIT_BOSS_BG = PIPES + 1,               // cesspit_boss_bg.PNG
     FLAME_THROWER = CESSPIT_BOSS_BG + 1,       // flame_thrower.png
-    TEXTURE_COUNT = FLAME_THROWER + 1        // Count of all textures
+    FIREBALL = FLAME_THROWER + 1,              // Fireball.png
+    TEXTURE_COUNT = FIREBALL + 1        // Count of all textures
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
