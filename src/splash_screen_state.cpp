@@ -29,6 +29,17 @@ void SplashScreenState::init()
 
     // splashScreenEntity.addComponent<Sprite>(std::move(splashSprite));
     registry.sprites.emplace(splashScreenEntity, std::move(splashSprite));
+
+    int namesWidth, namesHeight;
+    GLuint namesTextureID = renderSystem.loadTexture("names.png", namesWidth, namesHeight);
+
+    TransformComponent namesTransform;
+    namesTransform.position = vec3(renderSystem.getWindowWidth() / 2.f, renderSystem.getWindowHeight() - 100.f, 0.f);
+    namesTransform.scale = vec3(namesWidth / 2.f, namesHeight / 2.f, 1.f);
+    namesTransform.rotation = 0.f;
+    registry.transforms.emplace(namesEntity, namesTransform);
+    Sprite namesSprite(namesTextureID);
+    registry.sprites.emplace(namesEntity, namesSprite);
 }
 
 void SplashScreenState::on_key(int key, int, int action, int)
@@ -85,10 +96,22 @@ void SplashScreenState::render()
         // Use the render system to draw the entity
         renderSystem.drawEntity(sprite, transform);
     }
+    if (registry.sprites.has(namesEntity) &&
+        registry.transforms.has(namesEntity))
+    {
+        // Retrieve the Sprite and TransformComponent using the registry
+        auto& sprite = registry.sprites.get(namesEntity);
+        auto& transform = registry.transforms.get(namesEntity);
+
+        // Use the render system to draw the entity
+        renderSystem.drawEntity(sprite, transform);
+    }
 }
 
 void SplashScreenState::cleanup()
 {
     registry.sprites.remove(splashScreenEntity);
     registry.transforms.remove(splashScreenEntity);
+    registry.sprites.remove(namesEntity);
+    registry.transforms.remove(namesEntity);
 }

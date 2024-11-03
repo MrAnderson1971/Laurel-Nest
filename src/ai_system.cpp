@@ -49,28 +49,3 @@ void AISystem::step(Entity player_entity)
     }
 }
 
-
-void AISystem::ceiling_goomba_attack(Entity ceilingGoomba, Entity current_room) {
-    Entity spit = Entity();
-
-    // GIVE IT A PROPER SPRITE AT SOME POINT
-    std::vector<Sprite> goombaCeilingSprites = registry.goombaSprites.get(m_goombaCeiling);
-    registry.sprites.emplace(spit, std::move(goombaCeilingSprites[1]));
-
-    Motion ceilingGoombaMotion = registry.motions.get(ceilingGoomba);
-    Motion goombaMotion;
-    goombaMotion.position = ceilingGoombaMotion.position;
-    goombaMotion.scale = registry.goombaScales.get(m_goombaCeiling)[1].scale;
-    registry.motions.emplace(spit, std::move(goombaMotion));
-
-    TransformComponent spit_transform = registry.transforms.get(m_goombaCeiling);
-    registry.transforms.emplace(spit, std::move(spit_transform));
-
-    registry.projectiles.emplace(spit, std::move(Projectile()));
-    registry.gravity.emplace(spit, std::move(Gravity()));
-    registry.damages.emplace(spit, std::move(Damage{ 1 }));
-    registry.hostiles.emplace(spit, std::move(Hostile()));
-    
-    // TODO: maybe do this differently
-    registry.rooms.get(current_room).insert(spit);
-}

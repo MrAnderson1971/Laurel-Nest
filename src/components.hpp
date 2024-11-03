@@ -90,6 +90,7 @@ struct Motion {
     vec2 velocity = { 0, 0 };
     vec2 scale = { 0, 0 };
     vec2 acceleration = { 0, 0 };
+    vec2 spawn_position = position;
 };
 
 struct TransformComponent {
@@ -210,6 +211,10 @@ struct Mesh
     std::vector<uint16_t> vertex_indices;
 };
 
+struct PlayerMeshes {
+    std::unordered_map<PlayerState, Mesh> stateMeshes;
+};
+
 // Sets the brightness of the screen
 struct ScreenState
 {
@@ -239,7 +244,8 @@ enum class TEXTURE_ASSET_ID {
     CEILING_FALL = GOOMBA_DEAD + 1,            // ceiling_fall.png
     CEILING_HIT = CEILING_FALL + 1,            // ceiling_hit.png
     CEILING_IDLE = CEILING_HIT + 1,            // ceiling_idle.png
-    SPLASH_SCREEN = CEILING_IDLE + 1,          // splash_screen.png
+    CEILING_SPIT = CEILING_IDLE + 1,           // ceiling_spit.png 
+    SPLASH_SCREEN = CEILING_SPIT + 1,          // splash_screen.png
     DEMO_GROUND = SPLASH_SCREEN + 1,           // demo_ground.png
     DEMO_CEILING = DEMO_GROUND + 1,            // demo_ceiling.png
     HEART_3 = DEMO_CEILING + 1,                 // heart_3.png
@@ -262,9 +268,11 @@ enum class EFFECT_ASSET_ID {
 const int effect_count = (int)EFFECT_ASSET_ID::EFFECT_COUNT;
 
 enum class GEOMETRY_BUFFER_ID {
-    BREAKABLE_ROCK = 0,
-    PLAYER_GEO = BREAKABLE_ROCK + 1,
-    SPRITE = PLAYER_GEO + 1,
+    PLAYER_IDLE_MESH = 0,
+    PLAYER_WALK_MESH = PLAYER_IDLE_MESH + 1,
+    PLAYER_JUMP_MESH = PLAYER_WALK_MESH + 1,
+    PLAYER_ATTACK_MESH = PLAYER_JUMP_MESH + 1,
+    SPRITE = PLAYER_ATTACK_MESH + 1,
     GEOMETRY_COUNT = SPRITE + 1
 };
 const int geometry_count = (int)GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
@@ -319,7 +327,7 @@ namespace std {
     };
 }
 struct Room {
-    std::unordered_set<Entity> entities;
+    std::set<Entity> entities;
 
     void insert(Entity entity) {
         if (!has(entity)) {
@@ -330,4 +338,25 @@ struct Room {
     bool has(Entity entity) {
         return entities.count(entity) > 0;
     }
+};
+
+struct Connection {
+    Entity door;
+    /*vec2 doorLocation;
+    vec2 doorScale;*/
+    Entity nextRoom;
+    vec2 nextSpawn;
+};
+
+struct ConnectionList {
+    std::vector<Connection> doors;
+};    
+
+// font character structure
+struct Character {
+    unsigned int TextureID;  // ID handle of the glyph texture
+    glm::ivec2   Size;       // Size of glyph
+    glm::ivec2   Bearing;    // Offset from baseline to left/top of glyph
+    unsigned int Advance;    // Offset to advance to next glyph
+    char character;
 };

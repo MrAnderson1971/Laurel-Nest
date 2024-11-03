@@ -5,9 +5,10 @@
 #include "ecs.hpp"
 #include "components.hpp"
 #include "game_state_manager.hpp"
-#include <array>
+#include <array>	
 #include "physics_system.hpp"
-//#include "world_system.hpp"
+#include <map>				// map of character textures
+
 
 class RenderSystem
 {
@@ -16,7 +17,10 @@ class RenderSystem
 
     const std::vector < std::pair<GEOMETRY_BUFFER_ID, std::string>> mesh_paths =
             {
-                    std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::BREAKABLE_ROCK, mesh_path("rock-b.obj"))
+                    std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::PLAYER_IDLE_MESH, mesh_path("mesh_walk_3.obj")),
+                    std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::PLAYER_WALK_MESH, mesh_path("mesh_walk_3.obj")),
+                    std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::PLAYER_JUMP_MESH, mesh_path("mesh_jump_3.obj")),
+                    std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::PLAYER_ATTACK_MESH, mesh_path("mesh_attack_3.obj"))
             };
 
     // Make sure these paths remain in sync with the associated enumerators.
@@ -80,15 +84,14 @@ public:
     GLFWwindow* getWindow() const;
     int getWindowWidth() const;
     int getWindowHeight() const;
-
-    template <class T>
-    void bindVBOandIBO(GEOMETRY_BUFFER_ID gid, std::vector<T> vertices, std::vector<uint16_t> indices);
-    void initializeGlMeshes();
-    void initializeGlGeometryBuffers();
+    void loadPlayerMeshes(Entity playerEntity);
+    const Mesh& getPlayerMesh(Entity playerEntity, PlayerState state);
 
     void cleanup();
     GLuint loadTexture(const std::string& filePath, int& outWidth, int& outHeight);
     void drawEntity(const Sprite& sprite, const TransformComponent& transform);
+    bool fontInit(const std::string& font_filename, unsigned int font_default_size);
+    void renderText(std::string text, float x, float y, float scale, const glm::vec3& color, const glm::mat4& trans);
 
 private:
     RenderSystem();
@@ -102,6 +105,12 @@ private:
     GLuint VAO, VBO, EBO;
     glm::mat4 projection;
     GLuint projectionLoc;
+
+    // font elements
+    std::map<char, Character> m_ftCharacters;
+    GLuint m_font_shaderProgram;
+    GLuint m_font_VAO;
+    GLuint m_font_VBO;
 
     int windowWidth;
     int windowHeight;
