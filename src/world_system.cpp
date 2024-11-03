@@ -634,13 +634,14 @@ void WorldSystem::useFlameThrower() {
    Motion fireballMotion;
    TransformComponent fireballTransform;
 
+   float offsetDistance = 100.f;
    if (playerMotion.scale.x > 0) {
-       fireballMotion.position = playerMotion.position + glm::vec2(playerMotion.scale.x / 2, 0);
+       fireballMotion.position = playerMotion.position + glm::vec2(offsetDistance, 0);
        fireballMotion.velocity = glm::vec2(5.f, 0.f);
        fireballMotion.scale = glm::vec2(FIREBALL_WIDTH, FIREBALL_HEIGHT);
    }
    else {
-       fireballMotion.position = playerMotion.position - glm::vec2(playerMotion.scale.x / 2, 0);
+       fireballMotion.position = playerMotion.position - glm::vec2(offsetDistance, 0);
        fireballMotion.velocity = glm::vec2(-5.0f, 0.f);
        fireballMotion.scale = glm::vec2(-FIREBALL_WIDTH, FIREBALL_HEIGHT);
    }
