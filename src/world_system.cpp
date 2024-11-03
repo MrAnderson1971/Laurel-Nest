@@ -8,6 +8,7 @@
 #include "goomba_logic.hpp"
 #include "ai_system.h"
 #include "region_factory.hpp"
+#include <game_over_screen.hpp>
 
 WorldSystem::WorldSystem() {
     regionManager = std::make_unique<RegionManager>();
@@ -715,8 +716,8 @@ void WorldSystem::on_mouse_click(int button, int action, const glm::vec2&, int) 
 }
 
 void WorldSystem::cleanup() {
-    // Remove all components of the player entity from the registry
-    registry.remove_all_components_of(m_player);
+    // Remove all components
+    registry.clear_all_components();
 }
 
 
@@ -732,7 +733,7 @@ void WorldSystem::player_get_damaged(Entity hostile) {
         player_health.current_health -= hostile_damage.damage_dealt;
         update_status_bar(player_health.current_health);
         if (player_health.current_health == 0) {
-
+            renderSystem.getGameStateManager()->changeState(std::make_unique<GameOverScreen>());
         }
     }
 }

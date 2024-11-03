@@ -38,8 +38,7 @@ void PauseState::update(float deltaTime) {
 }
 
 void PauseState::cleanup() {
-    registry.sprites.remove(pauseScreenEntity);
-    registry.transforms.remove(pauseScreenEntity);
+    registry.remove_all_components_of(pauseScreenEntity);
 }
 
 void PauseState::render() {
