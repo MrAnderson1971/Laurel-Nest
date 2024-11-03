@@ -43,6 +43,8 @@ public:
     ComponentContainer<Patrol_AI> patrol_ais;
 
     ComponentContainer<Room> rooms;
+    ComponentContainer<Connection> doors;
+    ComponentContainer<ConnectionList> doorList;
 
     // constructor that adds all containers for looping over them
     // IMPORTANT: Don't forget to add any newly added containers!
@@ -78,6 +80,8 @@ public:
         registry_list.push_back(&combat);
         registry_list.push_back(&grounds);
         registry_list.push_back(&patrol_ais);
+        registry_list.push_back(&doors);
+        registry_list.push_back(&doorList);
     }
 
     void clear_all_components() {

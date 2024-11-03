@@ -130,6 +130,7 @@ void WorldSystem::init() {
 }
 
 void WorldSystem::update(float deltaTime) {
+    handle_connections(deltaTime);
     handle_motions(deltaTime);
     handle_collisions();
     handle_invinciblity(deltaTime);
@@ -146,6 +147,22 @@ void WorldSystem::update(float deltaTime) {
     }
 }
 
+void WorldSystem::handle_connections(float deltaTime) {
+    if (registry.doorList.has(current_room)) {
+        ConnectionList list = registry.doorList.get(current_room);
+        vec2 dir;
+        vec2 over;
+        for (auto& connection : list.doors) {
+            if (PhysicsSystem::checkForCollision(m_player, connection.door, dir, over)) {
+                current_room = connection.nextRoom;
+
+                // current_room = registry.rooms.entities[1];
+                PhysicsSystem::setRoom(current_room);
+            }
+        }
+    }
+}
+
 void WorldSystem::handle_motions(float deltaTime) {
     static PlayerState lastState = PlayerState::WALKING; // Track the player's last state
     // Loop through all entities that have motion components
@@ -155,7 +172,7 @@ void WorldSystem::handle_motions(float deltaTime) {
             auto& m = registry.motions.get(entity);
 
             // Step 1: Apply gravity if not grounded
-            if (registry.gravity.has(entity) && ( registry.players.has(entity) || registry.rooms.get(current_room).has(entity))) {
+            if (registry.gravity.has(entity) && ( registry.players.has(entity) || (registry.rooms.has(current_room) && registry.rooms.get(current_room).has(entity)))) {
                 auto& g = registry.gravity.get(entity);
                 m.velocity.y += g.accleration;
             }
@@ -172,7 +189,7 @@ void WorldSystem::handle_motions(float deltaTime) {
                 }
             }
             else {
-                if (registry.rooms.get(current_room).has(entity)) {
+                if (registry.rooms.has(current_room) && registry.rooms.get(current_room).has(entity)) {
                     m.position += m.velocity;
                 }
             }
@@ -418,21 +435,23 @@ void WorldSystem::render() {
 
     // Draw the entity if it exists and has the required components
     // also check if it is in the current room
-    Room& room = registry.rooms.get(current_room);
-    for (auto& obj : room.entities) {
-        // Draw Objects
-        if (registry.envObject.has(obj) && registry.transforms.has(obj) && registry.sprites.has(obj))
-        {
-            auto& transform = registry.transforms.get(obj);
-            auto& sprite = registry.sprites.get(obj);
-            renderSystem.drawEntity(sprite, transform);
-        }
-        // Draw the goombas
-        if (registry.hostiles.has(obj) && registry.transforms.has(obj) && registry.sprites.has(obj))
-        {
-            auto& transform = registry.transforms.get(obj);
-            auto& sprite = registry.sprites.get(obj);
-            renderSystem.drawEntity(sprite, transform);
+    if (registry.rooms.has(current_room)) {
+        Room& room = registry.rooms.get(current_room);
+        for (auto& obj : room.entities) {
+            // Draw Objects
+            if (registry.envObject.has(obj) && registry.transforms.has(obj) && registry.sprites.has(obj))
+            {
+                auto& transform = registry.transforms.get(obj);
+                auto& sprite = registry.sprites.get(obj);
+                renderSystem.drawEntity(sprite, transform);
+            }
+            // Draw the goombas
+            if (registry.hostiles.has(obj) && registry.transforms.has(obj) && registry.sprites.has(obj))
+            {
+                auto& transform = registry.transforms.get(obj);
+                auto& sprite = registry.sprites.get(obj);
+                renderSystem.drawEntity(sprite, transform);
+            }
         }
     }
 
@@ -684,7 +703,6 @@ void WorldSystem::updateBoundingBox(Entity e1) {
     bounding_box.p4.y = y_value_max;
 
 }
-
 
 
 
