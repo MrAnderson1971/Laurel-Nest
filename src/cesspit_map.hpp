@@ -18,8 +18,9 @@ public:
     Entity m_boss_room;
     Entity m_exit_room;
 
-    Entity SetDoor(float width, float height, float xPos, float yPos) {
+    Connection SetDoor(float width, float height, float xPos, float yPos, Entity connectNextRoom, vec2 connectNextSpawn) {
         //Connection connectingDoor;
+        Connection doorConnection;
         Entity m_door = Entity();
         int doorWidth, doorHeight;
         Sprite doorSprite(renderSystem.loadTexture("door.PNG", doorWidth, doorHeight));
@@ -43,7 +44,12 @@ public:
         bb.height = doorSprite.height;
         bb.width = doorSprite.width;
 
-        return m_door;
+        // set up doors
+        doorConnection.door = m_door;
+        doorConnection.nextRoom = connectNextRoom;
+        doorConnection.nextSpawn = connectNextSpawn;
+
+        return doorConnection;
     }
 
 private:
