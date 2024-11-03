@@ -191,7 +191,7 @@ void WorldSystem::handle_motions(float deltaTime) {
             // Handle fireball motion
             if (registry.projectiles.has(entity) && registry.projectiles.get(entity).type == ProjectileType::FIREBALL) {
                 // Update fireball position
-                m.position += m.velocity;
+                m.position += m.velocity * deltaTime;
 
                 // Remove fireball if it goes out of screen bounds
                 if (m.position.x < 0 || m.position.x > window_width_px) {
@@ -623,9 +623,11 @@ void WorldSystem::processPlayerInput(int key, int action) {
     if (action == GLFW_PRESS && key == GLFW_KEY_E) {
         isBossDead = true;
         if (isBossDead) {
-            isFlameThrowerEquipped = true;
-            if (isFlameThrowerEquipped && flameThrower_enabled) {
-                useFlameThrower();
+            if (!registry.players.get(m_player).attacking) {
+                isFlameThrowerEquipped = true;
+                if (isFlameThrowerEquipped && flameThrower_enabled) {
+                    useFlameThrower();
+                }
             }
         }
     }
@@ -656,12 +658,12 @@ void WorldSystem::useFlameThrower() {
    float offsetDistance = 100.f;
    if (playerMotion.scale.x > 0) {
        fireballMotion.position = playerMotion.position + glm::vec2(offsetDistance, 0);
-       fireballMotion.velocity = glm::vec2(5.f, 0.f);
+       fireballMotion.velocity = glm::vec2(2.f * TPS, 0.f);
        fireballMotion.scale = glm::vec2(FIREBALL_WIDTH, FIREBALL_HEIGHT);
    }
    else {
        fireballMotion.position = playerMotion.position - glm::vec2(offsetDistance, 0);
-       fireballMotion.velocity = glm::vec2(-5.0f, 0.f);
+       fireballMotion.velocity = glm::vec2(-2.f * TPS, 0.f);
        fireballMotion.scale = glm::vec2(-FIREBALL_WIDTH, FIREBALL_HEIGHT);
    }
 
