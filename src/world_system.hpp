@@ -6,11 +6,12 @@
 #include "render_system.hpp"
 #include "region_manager.hpp"
 
-constexpr float player_speed = 1.0f;
-constexpr float player_jump_velocity = 2.6f; // just high enough to reach the test platform
+constexpr float player_speed = 1.0f * TPS;
+constexpr float player_jump_velocity = 3.f * TPS; // adjust so you can reach the test platform
 
 // These are hardcoded to the dimensions of the entity texture
 // BB = bounding box
+
 const float WALKING_BB_WIDTH  = 1.2f * 399.f * 0.2f;
 const float WALKING_BB_HEIGHT = 1.2f * 712.f * 0.2f;
 const float JUMPING_BB_WIDTH  = 1.2f * 464.f * 0.2f;
@@ -42,6 +43,7 @@ public:
     void useFlameThrower();
 
 	void handle_motions(float deltaTime);
+	void handle_connections(float deltaTime);
 	void handle_collisions();
 	void handle_invinciblity(float deltaTime);
 	void handle_ai();
