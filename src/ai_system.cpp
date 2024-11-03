@@ -1,5 +1,5 @@
 // internal
-#include "ai_system.h"
+#include "ai_system.hpp"
 bool gb = false;
 bool aim = false;
 void AISystem::step(Entity player_entity)
@@ -68,9 +68,9 @@ void AISystem::ceiling_goomba_attack(Entity ceilingGoomba, Entity current_room) 
 
         goombaMotion.angle = get_angle(player, ceilingGoomba);
         if(goombaMotion.position.x < registry.motions.get(player).position.x){
-            goombaMotion.velocity.x += 5 * dif.x/window_width_px;
+            goombaMotion.velocity.x += 5 * dif.x/window_width_px * TPS;
         } else{
-            goombaMotion.velocity.x += -5 * dif.x/window_width_px;
+            goombaMotion.velocity.x += -5 * dif.x/window_width_px * TPS;
         }
     }
     registry.motions.emplace(spit, std::move(goombaMotion));
