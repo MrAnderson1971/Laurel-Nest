@@ -9,7 +9,6 @@
 #include "physics_system.hpp"
 #include <map>				// map of character textures
 
-
 class RenderSystem
 {
     std::array<GLuint, texture_count> texture_gl_handles;

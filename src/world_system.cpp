@@ -130,6 +130,15 @@ void WorldSystem::init() {
     regionManager->init();
     current_room = regionManager->setRegion(makeRegion<Cesspit>);
     PhysicsSystem::setRoom(current_room);
+
+    Mix_ReserveChannels(2);
+    footstep_sound = Mix_LoadWAV(audio_path("footstep.wav").c_str());
+    Mix_VolumeChunk(footstep_sound, MIX_MAX_VOLUME / 5);
+    sword_sound = Mix_LoadWAV(audio_path("sword.wav").c_str());
+    hurt_sound = Mix_LoadWAV(audio_path("hurt.wav").c_str());
+    if (!(footstep_sound && sword_sound && hurt_sound)) {
+        std::cerr << "Failed to load WAV file: " << Mix_GetError() << std::endl;
+    }
 }
 
 void WorldSystem::update(float deltaTime) {
@@ -175,6 +184,12 @@ void WorldSystem::handle_connections(float deltaTime) {
                 PhysicsSystem::setRoom(current_room);
                 // set spawn point of player in new room
                 playerMotion.position = connection.nextSpawn;
+                std::shared_ptr<Mix_Music> music = registry.rooms.get(current_room).music;
+                if (music != nullptr) {
+                    Mix_PlayMusic(music.get(), -1);
+                } else {
+                    Mix_HaltMusic();
+                }
             }
         }
     }
@@ -208,6 +223,9 @@ void WorldSystem::handle_motions(float deltaTime) {
             // Step 2: Update position based on velocity
             if (registry.players.has(entity)) {
                 // Make the player's position stop once its head reaches the top of the window
+                if (m.velocity[0] != 0 && isGrounded) {
+                    Mix_PlayChannel(-1, footstep_sound, 0);
+                }
                 if ((m.position[1] + m.velocity[1] * deltaTime) > 100) {
                     m.position += m.velocity * deltaTime;
                 }
@@ -565,7 +583,6 @@ void WorldSystem::processPlayerInput(int key, int action) {
     if (action == GLFW_PRESS && key == GLFW_KEY_A) {
         if (registry.motions.has(m_player)) {
             registry.motions.get(m_player).velocity[0] = -player_speed;
-
         }
     }
 
@@ -712,6 +729,7 @@ void WorldSystem::on_mouse_click(int button, int action, const glm::vec2&, int) 
                 if (canAttack) {  // Ensure the player can attack
                     // make a call to bounding boxes here
                     std::cout << "is attacking" << std::endl;
+                    Mix_PlayChannel(SWORD_CHANNEL, sword_sound, 0);
                     canAttack = false;  // Prevent further attacks for a time
                     auto &c = registry.combat.get(m_player);
                     c.frames = c.max_frames;
@@ -723,14 +741,18 @@ void WorldSystem::on_mouse_click(int button, int action, const glm::vec2&, int) 
 }
 
 void WorldSystem::cleanup() {
-    // Remove all components
+    // Remove all components of the player entity from the registry
+    Mix_HaltMusic();
+    Mix_FreeChunk(footstep_sound);
+    Mix_FreeChunk(sword_sound);
+    Mix_FreeChunk(hurt_sound);
     registry.clear_all_components();
 }
-
 
 // TODO: move the functions below to their own classes
 
 void WorldSystem::player_get_damaged(Entity hostile) {
+    Mix_PlayChannel(HURT_CHANNEL, hurt_sound, 0);
     Health& player_health = registry.healths.get(m_player);
     Damage hostile_damage = registry.damages.get(hostile);
     // Make sure to give the player i-frames so that they dont just die from walking into a goomba
@@ -849,7 +871,7 @@ void WorldSystem::init_flame_thrower() {
         flameThrowerSpriteTransform.scale = glm::vec3(FLAME_THROWER_WIDTH, FLAME_THROWER_HEIGHT, 1.0);
         flameThrowerSpriteTransform.rotation = M_PI;
     }
-    registry.transforms.emplace(m_flameThrower, std::move(flameThrowerSpriteTransform));
+    registry.transforms.emplace(m_flameThrower, flameThrowerSpriteTransform);
 
     Motion flameThrowerMotion;
     flameThrowerMotion.position = flameThrowerSpriteTransform.position;

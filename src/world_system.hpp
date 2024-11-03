@@ -25,6 +25,9 @@ constexpr float FLAME_THROWER_HEIGHT = 0.2f * 272.f;
 constexpr float FIREBALL_WIDTH = 0.4f * 422.f;
 constexpr float FIREBALL_HEIGHT = 0.4f * 339.f;
 
+constexpr int SWORD_CHANNEL = 0;
+constexpr int HURT_CHANNEL = 1;
+
 extern bool Show_FPS;
 
 class RegionManager;
@@ -58,9 +61,6 @@ private:
 	Entity current_room;
 	std::unique_ptr<RegionManager> regionManager;
 
-	std::unordered_map<int, std::function<void()>> keyPressActions;
-	std::unordered_map<int, std::function<void()>> keyReleaseActions;
-
 	void player_get_damaged(Entity hostile);
 	void player_get_healed();
 
@@ -78,5 +78,9 @@ private:
     bool flameThrower_enabled = false;
 
     void updateBoundingBox(Entity entity);
+
+	Mix_Chunk* footstep_sound;
+	Mix_Chunk* sword_sound;
+	Mix_Chunk* hurt_sound;
 };
 

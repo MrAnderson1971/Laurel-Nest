@@ -68,7 +68,7 @@ bool RenderSystem::initOpenGL(int width, int height, const std::string& title)
 
     // Make the window's OpenGL context current
     glfwMakeContextCurrent(window);
-# if defined(__APPLE__)
+# ifdef __APPLE__
     glfwSwapInterval(0);  // Disable vsync on macOS for better performance
 # endif
 
@@ -125,6 +125,21 @@ bool RenderSystem::initOpenGL(int width, int height, const std::string& title)
         // Set the updated projection matrix (bind shader program and set it here)
         // glUniformMatrix4fv(projection_location, 1, GL_FALSE, &projection[0][0]);
     });
+
+    // Initialize SDL audio subsystem
+    if (SDL_Init(SDL_INIT_AUDIO) < 0)
+    {
+        std::cerr << "Error: SDL initialization failed (" << SDL_GetError() << ")" << std::endl;
+        return false;
+    }
+
+    // Initialize SDL_mixer
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) == -1)
+    {
+        std::cerr << "Error: SDL_mixer initialization failed (" << Mix_GetError() << ")" << std::endl;
+        return false;
+    }
+    std::cout << "Audio channels: " << Mix_AllocateChannels(-1) << std::endl;
 
     return true;
 }
