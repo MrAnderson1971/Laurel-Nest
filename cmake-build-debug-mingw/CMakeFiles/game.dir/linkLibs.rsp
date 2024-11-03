@@ -1,1 +1,0 @@
- -lopengl32 "C:/Users/kapur/Documents/UBC/5th Year/CPSC427/M2/Team13/ext/glfw/lib/glfw3dll-x64.lib" "C:/Users/kapur/Documents/UBC/5th Year/CPSC427/M2/Team13/ext/sdl/lib/SDL2-x64.lib" "C:/Users/kapur/Documents/UBC/5th Year/CPSC427/M2/Team13/ext/sdl/lib/SDL2_mixer-x64.lib" -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32 
