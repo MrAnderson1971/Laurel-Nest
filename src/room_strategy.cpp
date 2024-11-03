@@ -263,6 +263,7 @@ Entity BossRoomStrategy::execute() {
     room.insert(m_bg);
     room.insert(m_ceiling);
     room.insert(m_ground);
+    room.setMusic(Mix_LoadMUS(audio_path("music.wav").c_str()));
     registry.rooms.emplace(m_boss_room, std::move(room));
 
     return m_boss_room;

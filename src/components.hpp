@@ -7,6 +7,10 @@
 #include <memory>
 #include <unordered_set>
 
+#define SDL_MAIN_HANDLED
+#include <SDL.h>
+#include <SDL_mixer.h>
+
 struct Sprite {
     std::shared_ptr<GLuint> textureID;
     const float width = 1.0f;
@@ -335,6 +339,15 @@ namespace std {
 }
 struct Room {
     std::set<Entity> entities;
+    std::shared_ptr<Mix_Music> music;
+
+    void setMusic(Mix_Music* m) {
+        music = std::shared_ptr<Mix_Music>(m, [](Mix_Music* music) {
+            if (music != nullptr) {
+                Mix_FreeMusic(music);
+            }
+        });
+    }
 
     void insert(Entity entity) {
         if (!has(entity)) {

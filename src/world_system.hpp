@@ -56,9 +56,6 @@ private:
 	Entity current_room;
 	std::unique_ptr<RegionManager> regionManager;
 
-	std::unordered_map<int, std::function<void()>> keyPressActions;
-	std::unordered_map<int, std::function<void()>> keyReleaseActions;
-
 	void player_get_damaged(Entity hostile);
 	void player_get_healed();
 

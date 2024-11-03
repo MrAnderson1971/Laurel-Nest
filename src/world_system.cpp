@@ -172,6 +172,12 @@ void WorldSystem::handle_connections(float deltaTime) {
                 PhysicsSystem::setRoom(current_room);
                 // set spawn point of player in new room
                 playerMotion.position = connection.nextSpawn;
+                std::shared_ptr<Mix_Music> music = registry.rooms.get(current_room).music;
+                if (music != nullptr) {
+                    Mix_PlayMusic(music.get(), -1);
+                } else {
+                    Mix_HaltMusic();
+                }
             }
         }
     }
@@ -716,9 +722,9 @@ void WorldSystem::on_mouse_click(int button, int action, const glm::vec2&, int) 
 
 void WorldSystem::cleanup() {
     // Remove all components of the player entity from the registry
+    Mix_HaltMusic();
     registry.remove_all_components_of(m_player);
 }
-
 
 // TODO: move the functions below to their own classes
 
