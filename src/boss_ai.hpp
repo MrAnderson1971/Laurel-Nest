@@ -12,4 +12,5 @@ class BossAISystem
 public:
     static Entity init();
     void static step(Entity player,  float elapsed_time);
+    void static render();
 };

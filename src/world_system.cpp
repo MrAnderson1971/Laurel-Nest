@@ -137,7 +137,6 @@ void WorldSystem::update(float deltaTime) {
     handle_ai();
     GoombaLogic::update_goomba_projectile_timer(deltaTime, current_room);
     GoombaLogic::update_damaged_goomba_sprites(deltaTime);
-
     BossAISystem::step(m_player, deltaTime);
 
     // TODO: make this its own function too??
@@ -421,6 +420,9 @@ void WorldSystem::render() {
 
     // Draw the entity if it exists and has the required components
     // also check if it is in the current room
+
+    // Loop twice to ensure the background gets rendered first
+
     Room& room = registry.rooms.get(current_room);
     for (auto& obj : room.entities) {
         // Draw Objects
@@ -430,12 +432,18 @@ void WorldSystem::render() {
             auto& sprite = registry.sprites.get(obj);
             renderSystem.drawEntity(sprite, transform);
         }
+    }
+    for (auto& obj : room.entities) {
         // Draw the goombas
         if (registry.hostiles.has(obj) && registry.transforms.has(obj) && registry.sprites.has(obj))
         {
             auto& transform = registry.transforms.get(obj);
             auto& sprite = registry.sprites.get(obj);
             renderSystem.drawEntity(sprite, transform);
+        }
+        // Draw Bosses
+        if (registry.bosses.has(obj)) {
+            BossAISystem::render();
         }
     }
 
@@ -455,6 +463,7 @@ void WorldSystem::render() {
         auto& health = registry.healths.get(m_player);
         update_status_bar(health.current_health);
     }
+
 }
 
 void WorldSystem::processPlayerInput(int key, int action) {

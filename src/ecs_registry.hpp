@@ -24,6 +24,7 @@ public:
     ComponentContainer<DeathTimer> deathTimers;
     ComponentContainer<Player> players;
     ComponentContainer<Hostile> hostiles;
+    ComponentContainer<Boss> bosses;
     ComponentContainer<TransformComponent> transforms;
     ComponentContainer<Sprite> sprites;
     ComponentContainer<PlayerMeshes> playerMeshes;
@@ -62,6 +63,7 @@ public:
         registry_list.push_back(&collisions);
         registry_list.push_back(&players);
         registry_list.push_back(&hostiles);
+        registry_list.push_back(&bosses);
         registry_list.push_back(&transforms);
         registry_list.push_back(&sprites);
         registry_list.push_back(&playerMeshes);

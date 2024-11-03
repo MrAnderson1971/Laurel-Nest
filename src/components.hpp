@@ -174,6 +174,11 @@ struct Hostile
 
 };
 
+struct Boss
+{
+
+};
+
 // struct for attacking
 struct Combat
 {
@@ -264,7 +269,16 @@ enum class TEXTURE_ASSET_ID {
     ENTRANCE_BG = CESSPIT_BG + 1,              // entrance_bg.png
     SPACESHIP = ENTRANCE_BG + 1,               // spaceship.png
     PIPES = SPACESHIP + 1,                     // pipes.png
-    CESSPIT_BOSS_BG = PIPES + 1,               // cesspit_boss_bg.PNG
+    CESSPIT_BOSS_BG = PIPES + 1,               // cesspit_boss_bg
+    CHICKEN_FIRE = CESSPIT_BOSS_BG + 1,
+    CHICKEN_IDLE = CHICKEN_FIRE + 1,
+    CHICKEN_PECK = CHICKEN_IDLE + 1,
+    CHICKEN_WALK1 = CHICKEN_PECK + 1,
+    CHICKEN_WALK2 = CHICKEN_WALK1 + 1,
+    CHICKEN_WALK3 = CHICKEN_WALK2 + 1,
+    CHICKEN_WALK4 = CHICKEN_WALK3 + 1,
+    CHICKEN_WALK5 = CHICKEN_WALK4 + 1,
+    CHICKEN_WALK6 = CHICKEN_WALK5 + 1,
     TEXTURE_COUNT = CESSPIT_BOSS_BG + 1        // Count of all textures
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
