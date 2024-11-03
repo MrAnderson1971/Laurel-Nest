@@ -1,5 +1,6 @@
 // internal
 #include "ai_system.hpp"
+#include "world_system.hpp"
 bool gb = false;
 bool aim = false;
 void AISystem::step(Entity player_entity)
@@ -53,13 +54,13 @@ void AISystem::ceiling_goomba_attack(Entity ceilingGoomba, Entity current_room) 
 
     // GIVE IT A PROPER SPRITE AT SOME POINT
     std::vector<Sprite> goombaCeilingSprites = registry.goombaSprites.get(m_goombaCeiling);
-    registry.sprites.emplace(spit, std::move(goombaCeilingSprites[1]));
+    registry.sprites.emplace(spit, std::move(goombaCeilingSprites[3]));
 
 
     Motion ceilingGoombaMotion = registry.motions.get(ceilingGoomba);
     Motion goombaMotion;
     goombaMotion.position = ceilingGoombaMotion.position;
-    goombaMotion.scale = registry.goombaScales.get(m_goombaCeiling)[1].scale;
+    goombaMotion.scale = registry.goombaScales.get(m_goombaCeiling)[3].scale;
 
     if(aim){
         Entity player = registry.players.entities[0];

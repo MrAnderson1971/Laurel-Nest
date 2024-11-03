@@ -88,14 +88,9 @@ Entity Room1Strategy::execute() {
     registry.grounds.emplace(m_platform1, std::move(Ground()));
     registry.grounds.emplace(m_platform2, std::move(Ground()));
     
-    // Ceiling Goomba
-    GoombaCeiling g1 = GoombaCeiling();
-    g1.init(renderSystem.getWindowWidth() / 2.0f, g1.bottom_edge);
 
-    GoombaLand g2 = GoombaLand();
-    g2.init(renderSystem.getWindowWidth() / 2.0f, 50.f);
-    GoombaLand g3 = GoombaLand();
-    g3.init(renderSystem.getWindowWidth(), 50.f);
+    GoombaLand g1 = GoombaLand();
+    g1.init(renderSystem.getWindowWidth() / 2.0f, 50.f);
 
     room.insert(m_bg);
     room.insert(m_ceiling);
@@ -103,8 +98,6 @@ Entity Room1Strategy::execute() {
     room.insert(m_platform1);
     room.insert(m_platform2);
     room.insert(g1.entity);
-    room.insert(g2.entity);
-    room.insert(g3.entity);
     registry.rooms.emplace(m_room1, std::move(room));
     return m_room1;
 }
@@ -146,6 +139,10 @@ Entity Room2Strategy::execute() {
     registry.grounds.emplace(m_platform3, std::move(Ground()));
     registry.grounds.emplace(m_platform4, std::move(Ground()));
 
+    // Ceiling Goomba
+    GoombaCeiling g1 = GoombaCeiling();
+    g1.init(renderSystem.getWindowWidth() / 2.0f, g1.bottom_edge);
+
     room.insert(m_bg);
     room.insert(m_ceiling);
     room.insert(m_ground_left);
@@ -154,6 +151,7 @@ Entity Room2Strategy::execute() {
     room.insert(m_platform2);
     room.insert(m_platform3);
     room.insert(m_platform4);
+    room.insert(g1.entity);
     registry.rooms.emplace(m_room2, std::move(room));
     return m_room2;
 }
@@ -235,6 +233,11 @@ Entity Room4Strategy::execute() {
     // Goombas
     GoombaCeiling g = GoombaCeiling();
     g.init(renderSystem.getWindowWidth() / 2.0f, g.bottom_edge);
+    GoombaLand g2 = GoombaLand();
+    g2.init(renderSystem.getWindowWidth() / 2.0f, 50.f);
+    GoombaLand g3 = GoombaLand();
+    g3.init(renderSystem.getWindowWidth(), 50.f);
+
 
     room.insert(m_bg);
     room.insert(m_ceiling);
@@ -242,6 +245,8 @@ Entity Room4Strategy::execute() {
     room.insert(m_platform1);
     room.insert(m_platform2);
     room.insert(g.entity);
+    room.insert(g2.entity);
+    room.insert(g3.entity);
     registry.rooms.emplace(m_room4, std::move(room)); 
 
     return m_room4;
