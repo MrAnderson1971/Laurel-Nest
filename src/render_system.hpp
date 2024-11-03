@@ -57,7 +57,9 @@ class RenderSystem
             textures_path("entrance_bg.PNG"),         // ENTRANCE_BG
             textures_path("spaceship.PNG"),           // SPACESHIP
             textures_path("pipes.PNG"),               // PIPES
-            textures_path("cesspit_boss_bg.PNG")      // CESSPIT_BOSS_BG
+            textures_path("cesspit_boss_bg.PNG"),     // CESSPIT_BOSS_BG
+            textures_path("flame_thrower.png"),        // FLAME_THROWER
+            textures_path("Fireball.png")             // FIREBALL
     };
 
     std::array<GLuint, geometry_count> vertex_buffers;

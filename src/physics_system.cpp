@@ -246,11 +246,13 @@ void PhysicsSystem::step(float elapsed_ms)
 
                 Room& room = registry.rooms.get(currentRoom);
 
-                if (registry.players.has(entity_i) || room.has(entity_i)) {
+                if (registry.players.has(entity_i) || room.has(entity_i)
+                || (registry.projectiles.has(entity_i) && registry.projectiles.get(entity_i).type == ProjectileType::FIREBALL)) {
                     isActive_i = true;
                 }
 
-                if (registry.players.has(entity_j) || room.has(entity_j)) {
+                if (registry.players.has(entity_j) || room.has(entity_j)
+                || (registry.projectiles.has(entity_j) && registry.projectiles.get(entity_j).type == ProjectileType::FIREBALL)) {
                     isActive_j = true;
                 }
 
@@ -269,14 +271,6 @@ void PhysicsSystem::step(float elapsed_ms)
                         registry.collisions.emplace_with_duplicates(entity_j, entity_i, direction, overlap);
                     }
                 }
-
-                // Create a collision event by inserting into the collisions container
-                // This potentially inserts multiple collisions for the same entity
-
-//                if (isActive_i && isActive_j) {
-//                    registry.collisions.emplace_with_duplicates(entity_i, entity_j, -direction, overlap);
-//                    registry.collisions.emplace_with_duplicates(entity_j, entity_i, direction, overlap);
-//                }
             }
         }
     }
