@@ -4,6 +4,7 @@
 #include "enemy.hpp"
 #include "components.hpp"
 
+
 Entity EntranceRoomStrategy::execute() {
     // for handling transitions
     Room room;
