@@ -320,7 +320,12 @@ void WorldSystem::handle_collisions() {
 
         if (registry.players.has(entity) && !registry.invinciblityTimers.has(entity) && registry.damages.has(entity_other)) {
             if(registry.players.get(m_player).attacking){
-                GoombaLogic::goomba_get_damaged(entity_other, m_sword);
+                if (registry.bosses.has(entity_other)) {
+                    BossAISystem::chicken_get_damaged(m_sword);
+                }
+                else {
+                    GoombaLogic::goomba_get_damaged(entity_other, m_sword);
+                }
                 registry.players.get(m_player).attacking = false;
             }else{
                 player_get_damaged(entity_other);
@@ -328,7 +333,12 @@ void WorldSystem::handle_collisions() {
         }
         if (registry.weapons.has(entity) && registry.healths.has(entity_other)) {
             if (registry.players.get(m_player).attacking) {
-                GoombaLogic::goomba_get_damaged(entity_other, m_sword);
+                if (registry.bosses.has(entity_other)) {
+                    BossAISystem::chicken_get_damaged(m_sword);
+                }
+                else {
+                    GoombaLogic::goomba_get_damaged(entity_other, m_sword);
+                }
             }
         }
 

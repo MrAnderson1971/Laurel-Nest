@@ -13,4 +13,5 @@ public:
     static Entity init();
     void static step(Entity player,  float elapsed_time);
     void static render();
+    void static chicken_get_damaged(Entity weapon);
 };

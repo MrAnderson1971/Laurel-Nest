@@ -233,3 +233,16 @@ void BossAISystem::render() {
 		renderSystem.drawEntity(animation.getCurrentFrame(), transform);
 	}
 }
+
+void BossAISystem::chicken_get_damaged(Entity weapon) {
+	Health& chicken_health = registry.healths.get(chicken);
+	Damage weapon_damage = registry.damages.get(weapon);
+	if (chicken_health.current_health - weapon_damage.damage_dealt >= 0) {
+		chicken_health.current_health -= weapon_damage.damage_dealt;
+		printf("Chicken now has %d hearts\n", chicken_health.current_health);
+		if (chicken_health.current_health <= 0) {
+			registry.damages.remove(chicken);
+			// TODO: SOMEHOW REMOVE THE MUSIC I (JETT) DONT KNOW HOW TO DO THAT
+		}
+	}
+}
