@@ -2,13 +2,13 @@
 #include "ecs.hpp"
 #include "render_system.hpp"
 #include "enemy.hpp"
+#include "components.hpp"
 
 
 Entity EntranceRoomStrategy::execute() {
     // for handling transitions
-    Entity m_entrance_room;
     Room room;
-
+    ConnectionList doors;
     // background
     Entity m_bg = SetBG("entrance_bg.png");
 
@@ -31,17 +31,17 @@ Entity EntranceRoomStrategy::execute() {
     Environment spaceshipObg;
     registry.envObject.emplace(m_spaceship, std::move(spaceshipObg));
 
+    // platform 1: upper left
+    Entity m_platform1 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.6f, 0.65f);
+
+    // platform 2: lower right
+    Entity m_platform2 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.75f, 0.9f);
+
     // ground left
     Entity m_ground_left = SetGround("demo_ground.png", 1.0f, 1.6f, 1.0f/30.0f, 200.0f);
 
     // ground right
-    Entity m_ground_right = SetGround("demo_ground.png", 0.4f, 1.6f, 1.0f, 200.0f);
-
-    // platform 1
-    Entity m_platform1 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.6f, 0.6f);
-
-    // platform 2
-    Entity m_platform2 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.8f, 0.9f);
+    Entity m_ground_right = SetGround("demo_ground.png", 0.4f, 1.6f, 1.0f, 300.0f);
 
     // note on bg: don't add motion
     registry.grounds.emplace(m_ground_left, std::move(Ground()));
@@ -56,12 +56,12 @@ Entity EntranceRoomStrategy::execute() {
     room.insert(m_platform1);
     room.insert(m_platform2);
     registry.rooms.emplace(m_entrance_room, std::move(room));
+
     return m_entrance_room;
 }
 
 Entity Room1Strategy::execute() {
     // for handling transitions
-    Entity m_room1;
     Room room;
 
     // background
@@ -98,13 +98,13 @@ Entity Room1Strategy::execute() {
     room.insert(m_platform2);
     room.insert(g1.entity);
     room.insert(g2.entity);
+
     registry.rooms.emplace(m_room1, std::move(room));
     return m_room1;
 }
 
 Entity Room2Strategy::execute() {
     // for handling transitions
-    Entity m_room2;
     Room room;
 
     // background
@@ -119,14 +119,17 @@ Entity Room2Strategy::execute() {
     // ground right
     Entity m_ground_right = SetGround("demo_ground.png", 0.5f, 2.0f, 1.0f, 300.0f);
 
-    // platform 1
-    Entity m_platform1 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.3f, 0.5f);
+    // platform 1: left
+    Entity m_platform1 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.35f, 0.5f);
 
-    // platform 2
-    Entity m_platform2 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.65f, 0.7f);
+    // platform 2: right
+    Entity m_platform2 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.68f, 0.65f);
 
-    // platform 3
-    Entity m_platform3 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.5f, 0.9f);
+    // platform 3: bottom left
+    Entity m_platform3 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.45f, 0.78f);
+
+    // platform 4: bottom right
+    Entity m_platform4 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.58f, 0.95f);
 
     // note on bg: don't add motion
     registry.grounds.emplace(m_ground_left, std::move(Ground()));
@@ -134,6 +137,7 @@ Entity Room2Strategy::execute() {
     registry.grounds.emplace(m_platform1, std::move(Ground()));
     registry.grounds.emplace(m_platform2, std::move(Ground()));
     registry.grounds.emplace(m_platform3, std::move(Ground()));
+    registry.grounds.emplace(m_platform4, std::move(Ground()));
 
     room.insert(m_bg);
     room.insert(m_ceiling);
@@ -142,20 +146,20 @@ Entity Room2Strategy::execute() {
     room.insert(m_platform1);
     room.insert(m_platform2);
     room.insert(m_platform3);
+    room.insert(m_platform4);
     registry.rooms.emplace(m_room2, std::move(room));
     return m_room2;
 }
 
 Entity Room3Strategy::execute() {
     // for handling transitions
-    Entity m_room3;
     Room room;
 
     // background
     Entity m_bg = SetBG("cesspit_bg.png");
 
     // ceiling
-    Entity m_ceiling = SetCeiling("demo_ceiling.png", 0.5f);
+    Entity m_ceiling = SetCeiling("demo_ceiling.png", 0.3f);
 
     // pipe1
     Entity m_pipe1 = SetPlatform("pipes.png", 0.6f, 0.6f, 0.1f, 0.6f);
@@ -169,10 +173,10 @@ Entity Room3Strategy::execute() {
     // ground
     Entity m_ground = SetGround("demo_ground.png", 1.0f, 1.0f, 0.5f, 0.0f);
 
-    // platform 1
+    // platform 1: top
     Entity m_platform1 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.93f, 0.3f);
 
-    // platform 2
+    // platform 2: bottom
     Entity m_platform2 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.8f, 0.6f);
 
     // note on bg: don't add motion
@@ -198,7 +202,6 @@ Entity Room3Strategy::execute() {
 
 Entity Room4Strategy::execute() {
     // for handling transitions
-    Entity m_room4;
     Room room;
 
     // background
@@ -210,12 +213,16 @@ Entity Room4Strategy::execute() {
     // ground
     Entity m_ground = SetGround("demo_ground.png", 1.0f, 1.0f, 0.5f, 20.0f);
 
-    // platform
-    Entity m_platform = SetPlatform("demo_ground.png", 0.2f, 0.2f, 0.33f, 0.45f);
+    // platform 1: top
+    Entity m_platform1 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.4f, 0.35f);
+
+    // platform 2: bottom
+    Entity m_platform2 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.2f, 0.6f);
 
     // note on bg: don't add motion
     registry.grounds.emplace(m_ground, std::move(Ground()));
-    registry.grounds.emplace(m_platform, std::move(Ground()));
+    registry.grounds.emplace(m_platform1, std::move(Ground()));
+    registry.grounds.emplace(m_platform2, std::move(Ground()));
     
     // Goombas
     GoombaCeiling g = GoombaCeiling();
@@ -224,7 +231,8 @@ Entity Room4Strategy::execute() {
     room.insert(m_bg);
     room.insert(m_ceiling);
     room.insert(m_ground);
-    room.insert(m_platform);
+    room.insert(m_platform1);
+    room.insert(m_platform2);
     room.insert(g.entity);
     registry.rooms.emplace(m_room4, std::move(room)); 
 
@@ -234,7 +242,6 @@ Entity Room4Strategy::execute() {
 
 Entity BossRoomStrategy::execute() {
     // for handling transitions
-    Entity m_boss_room;
     Room room;
 
     // background
@@ -260,40 +267,41 @@ Entity BossRoomStrategy::execute() {
 
 Entity ExitRoomStrategy::execute() {
     // for handling transitions
-    Entity m_exit_room;
     Room room;
 
     // background
     Entity m_bg = SetBG("entrance_bg.PNG");
 
+    // platform 1: mid left bottom
+    Entity m_platform1 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.28f, 0.65f);
+
+    // platform 2: bottom
+    Entity m_platform2 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.55f, 0.8f);
+
+    // platform 3: top
+    Entity m_platform3 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.5f, 0.28f);
+
+    // platform 4: mid right
+    Entity m_platform4 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.7f, 0.52f);
+
+    // platform 5: mid left top
+    Entity m_platform5 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.38f, 0.4f);
+
+    // platform 6: top right barrier
+    Entity m_platform6 = SetPlatform("demo_ground.png", 0.3f, 0.2f, 0.75f, 0.f);
+
+    // platform 7: top left barrier
+    Entity m_platform7 = SetPlatform("demo_ground.png", 0.3f, 0.2f, 0.25f, 0.f);
+
     // left wall
     int yPos = renderSystem.getWindowHeight();
-    Entity m_wall_left = SetGround("demo_ground.png", 0.4f, 2.3f, 1.0f, yPos/2.f + 100.f);
+    Entity m_wall_left = SetGround("demo_ground.png", 0.4f, 2.8f, 0.0f, yPos / 2.f + 300.f);
 
     // right right
-    Entity m_wall_right = SetGround("demo_ground.png", 0.4f, 2.3f, 0.0f, yPos/2.f + 300.f);
-    
+    Entity m_wall_right = SetGround("demo_ground.png", 0.4f, 2.8f, 1.0f, yPos / 2.f);
+
     // ground
-    Entity m_ground = SetGround("demo_ground.png", 1.0f, 1.0f, 0.5f, 20.0f);
-
-    // platform 1
-    Entity m_platform1 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.3f, 0.5f);
-
-    // platform 2
-    Entity m_platform2 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.55f, 0.7f);
-
-    // platform 3
-    Entity m_platform3 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.5f, 0.23f);
-
-    // platform 4
-    Entity m_platform4 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.7f, 0.4f);
-
-    // platform 5
-    Entity m_platform5 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.75f, 0.05f);
-
-    // platform 6
-    Entity m_platform6 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.25f, 0.05f);
-
+    Entity m_ground = SetGround("demo_ground.png", 1.0f, 0.5f, 0.5f, 0.f);
 
     // note on bg: don't add motion
     registry.grounds.emplace(m_wall_left, std::move(Ground()));
@@ -305,6 +313,7 @@ Entity ExitRoomStrategy::execute() {
     registry.grounds.emplace(m_platform4, std::move(Ground()));
     registry.grounds.emplace(m_platform5, std::move(Ground()));
     registry.grounds.emplace(m_platform6, std::move(Ground()));
+    registry.grounds.emplace(m_platform7, std::move(Ground()));
 
     room.insert(m_bg);
     room.insert(m_wall_left);
@@ -316,6 +325,7 @@ Entity ExitRoomStrategy::execute() {
     room.insert(m_platform4);
     room.insert(m_platform5);
     room.insert(m_platform6);
+    room.insert(m_platform7);
 
     registry.rooms.emplace(m_exit_room, std::move(room));
     return m_exit_room;

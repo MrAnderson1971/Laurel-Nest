@@ -36,8 +36,10 @@ inline std::string textures_path(const std::string& name) { return data_path() +
 inline std::string audio_path(const std::string& name) { return data_path() + "/audio/" + std::string(name); };
 inline std::string mesh_path(const std::string& name) { return data_path() + "/meshes/" + std::string(name); };
 
-const int window_width_px = 1920;
-const int window_height_px = 1080;
+constexpr int window_width_px = 1920;
+constexpr int window_height_px = 1080;
+constexpr float TPS = 500.f;
+constexpr float max_delta_time = 1 / 250.f;
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846f
