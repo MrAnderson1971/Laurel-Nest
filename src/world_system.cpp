@@ -10,6 +10,8 @@
 #include "region_factory.hpp"
 #include <game_over_screen.hpp>
 
+bool Show_FPS = true;
+
 WorldSystem::WorldSystem() {
     regionManager = std::make_unique<RegionManager>();
 }
@@ -641,6 +643,11 @@ void WorldSystem::processPlayerInput(int key, int action) {
         if (isBossDead) {
             isFlameThrowerEquipped = false;
         }
+    }
+
+    // Hide/Show FPS Counter (F key)
+    if (action == GLFW_PRESS && key == GLFW_KEY_F) {
+        Show_FPS = !Show_FPS;
     }
 }
 

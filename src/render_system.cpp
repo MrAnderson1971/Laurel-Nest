@@ -21,6 +21,8 @@
 #include <fstream>			// for ifstream
 #include <sstream>			// for ostringstream
 
+#include "world_system.hpp"
+
 RenderSystem& renderSystem = RenderSystem::instance();
 
 
@@ -467,10 +469,14 @@ void RenderSystem::renderLoop()
             prev_FPS_string = FPS_String;
             FPS_Last_Time = currentTime;
             frames = 0;
-            renderText(FPS_String, static_cast<float>(getWindowWidth() * 1.85), static_cast<float>(getWindowHeight() * 1.95), 1.0f, font_color, font_trans);
+            if (Show_FPS) {
+                renderText(FPS_String, static_cast<float>(getWindowWidth() * 1.85), static_cast<float>(getWindowHeight() * 1.95), 1.0f, font_color, font_trans);
+            }
         }
         else {
-            renderText(prev_FPS_string, static_cast<float>(getWindowWidth()*1.85), static_cast<float>(getWindowHeight() * 1.95), 1.0f, font_color, font_trans);
+            if (Show_FPS) {
+                renderText(prev_FPS_string, static_cast<float>(getWindowWidth() * 1.85), static_cast<float>(getWindowHeight() * 1.95), 1.0f, font_color, font_trans);
+            }
         }
         
 
