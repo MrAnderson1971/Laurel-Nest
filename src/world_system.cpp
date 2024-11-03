@@ -647,8 +647,7 @@ void WorldSystem::useFlameThrower() {
    }
 
    registry.motions.emplace(m_fireball, fireballMotion);
-   fireballTransform.position = glm::vec3(fireballMotion.position.x, fireballMotion.position.y, 0.0f);
-   fireballTransform.scale = glm::vec3(FIREBALL_WIDTH, FIREBALL_HEIGHT, 1.0f);
+   fireballTransform = fireballMotion;
    registry.transforms.emplace(m_fireball, std::move(fireballTransform));
 
    Damage fireballDamage;
