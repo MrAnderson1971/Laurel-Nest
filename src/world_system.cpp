@@ -6,7 +6,6 @@
 #include "pause_state.hpp"
 #include "enemy.hpp"
 #include "cesspit_map.hpp"
-#include "collision_system.h"
 #include "goomba_logic.hpp"
 #include "ai_system.h"
 #include "region_factory.hpp"
