@@ -2,12 +2,12 @@
 #include "ecs.hpp"
 #include "render_system.hpp"
 #include "enemy.hpp"
+#include "components.hpp"
 
 Entity EntranceRoomStrategy::execute() {
     // for handling transitions
-    Entity m_entrance_room;
     Room room;
-
+    ConnectionList doors;
     // background
     Entity m_bg = SetBG("entrance_bg.png");
 
@@ -55,12 +55,12 @@ Entity EntranceRoomStrategy::execute() {
     room.insert(m_platform1);
     room.insert(m_platform2);
     registry.rooms.emplace(m_entrance_room, std::move(room));
+
     return m_entrance_room;
 }
 
 Entity Room1Strategy::execute() {
     // for handling transitions
-    Entity m_room1;
     Room room;
 
     // background
@@ -97,13 +97,13 @@ Entity Room1Strategy::execute() {
     room.insert(m_platform2);
     room.insert(g1.entity);
     room.insert(g2.entity);
+
     registry.rooms.emplace(m_room1, std::move(room));
     return m_room1;
 }
 
 Entity Room2Strategy::execute() {
     // for handling transitions
-    Entity m_room2;
     Room room;
 
     // background
@@ -152,7 +152,6 @@ Entity Room2Strategy::execute() {
 
 Entity Room3Strategy::execute() {
     // for handling transitions
-    Entity m_room3;
     Room room;
 
     // background
@@ -202,7 +201,6 @@ Entity Room3Strategy::execute() {
 
 Entity Room4Strategy::execute() {
     // for handling transitions
-    Entity m_room4;
     Room room;
 
     // background
@@ -243,7 +241,6 @@ Entity Room4Strategy::execute() {
 
 Entity BossRoomStrategy::execute() {
     // for handling transitions
-    Entity m_boss_room;
     Room room;
 
     // background
@@ -269,7 +266,6 @@ Entity BossRoomStrategy::execute() {
 
 Entity ExitRoomStrategy::execute() {
     // for handling transitions
-    Entity m_exit_room;
     Room room;
 
     // background

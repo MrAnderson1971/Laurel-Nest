@@ -339,8 +339,13 @@ struct Room {
 };
 
 struct Connection {
-    vec2 doorLocation;
-    vec2 doorScale;
-    Room nextRoom;
+    Entity door;
+    /*vec2 doorLocation;
+    vec2 doorScale;*/
+    Entity nextRoom;
     vec2 nextSpawn;
+};
+
+struct ConnectionList {
+    std::vector<Connection> doors;
 };
