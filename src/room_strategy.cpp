@@ -4,6 +4,7 @@
 #include "enemy.hpp"
 #include "components.hpp"
 
+#pragma warning(disable: 4244)
 
 Entity EntranceRoomStrategy::execute() {
     Entity m_entrance_room;
@@ -92,6 +93,8 @@ Entity Room1Strategy::execute() {
 
     GoombaLand g2 = GoombaLand();
     g2.init(renderSystem.getWindowWidth() / 2.0f, 50.f);
+    GoombaLand g3 = GoombaLand();
+    g3.init(renderSystem.getWindowWidth(), 50.f);
 
     room.insert(m_bg);
     room.insert(m_ceiling);
@@ -100,6 +103,7 @@ Entity Room1Strategy::execute() {
     room.insert(m_platform2);
     room.insert(g1.entity);
     room.insert(g2.entity);
+    room.insert(g3.entity);
     registry.rooms.emplace(m_room1, std::move(room));
     return m_room1;
 }
