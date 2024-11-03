@@ -129,14 +129,12 @@ void WorldSystem::init() {
     current_room = regionManager->setRegion(makeRegion<Cesspit>);
     PhysicsSystem::setRoom(current_room);
 
-    Mix_ReserveChannels(1);
+    Mix_ReserveChannels(2);
     footstep_sound = Mix_LoadWAV(audio_path("footstep.wav").c_str());
     Mix_VolumeChunk(footstep_sound, MIX_MAX_VOLUME / 5);
-    if (!footstep_sound) {
-        std::cerr << "Failed to load WAV file: " << Mix_GetError() << std::endl;
-    }
     sword_sound = Mix_LoadWAV(audio_path("sword.wav").c_str());
-    if (!sword_sound) {
+    hurt_sound = Mix_LoadWAV(audio_path("hurt.wav").c_str());
+    if (!(footstep_sound && sword_sound && hurt_sound)) {
         std::cerr << "Failed to load WAV file: " << Mix_GetError() << std::endl;
     }
 }
@@ -726,7 +724,7 @@ void WorldSystem::on_mouse_click(int button, int action, const glm::vec2&, int) 
                 if (canAttack) {  // Ensure the player can attack
                     // make a call to bounding boxes here
                     std::cout << "is attacking" << std::endl;
-                    if (Mix_PlayChannel(0, sword_sound, 0) == -1) {
+                    if (Mix_PlayChannel(SWORD_CHANNEL, sword_sound, 0) == -1) {
                         std::cerr << "Failed to play sword sound." << std::endl;
                     }
                     canAttack = false;  // Prevent further attacks for a time
@@ -744,12 +742,14 @@ void WorldSystem::cleanup() {
     Mix_HaltMusic();
     Mix_FreeChunk(footstep_sound);
     Mix_FreeChunk(sword_sound);
+    Mix_FreeChunk(hurt_sound);
     registry.clear_all_components();
 }
 
 // TODO: move the functions below to their own classes
 
 void WorldSystem::player_get_damaged(Entity hostile) {
+    Mix_PlayChannel(HURT_CHANNEL, hurt_sound, 0);
     Health& player_health = registry.healths.get(m_player);
     Damage hostile_damage = registry.damages.get(hostile);
     // Make sure to give the player i-frames so that they dont just die from walking into a goomba
