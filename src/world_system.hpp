@@ -37,6 +37,7 @@ public:
     void processPlayerInput(int key, int action);
 
 	void handle_motions(float deltaTime);
+	void handle_connections(float deltaTime);
 	void handle_collisions();
 	void handle_invinciblity(float deltaTime);
 	void handle_ai();

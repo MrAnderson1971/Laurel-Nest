@@ -7,6 +7,14 @@ public:
 	virtual Entity execute() = 0;
 	virtual ~RoomStrategy() = default;
 
+    Entity m_entrance_room;
+    Entity m_room1;
+    Entity m_room2;
+    Entity m_room3;
+    Entity m_room4;
+    Entity m_boss_room;
+    Entity m_exit_room;
+
 	Entity SetBG(const std::string& bg) {
         Entity m_bg;
         int bgWidth, bgHeight;
