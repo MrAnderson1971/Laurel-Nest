@@ -2,6 +2,7 @@
 #include "ecs.hpp"
 #include "render_system.hpp"
 #include "enemy.hpp"
+#pragma warning(disable: 4244)
 
 Entity EntranceRoomStrategy::execute() {
     // for handling transitions
