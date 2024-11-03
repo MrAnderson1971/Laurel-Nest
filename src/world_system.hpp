@@ -73,5 +73,7 @@ private:
     bool flameThrower_enabled = false;
 
     void updateBoundingBox(Entity entity);
+
+	Mix_Chunk* footstep_sound;
 };
 

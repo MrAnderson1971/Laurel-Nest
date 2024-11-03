@@ -128,6 +128,12 @@ void WorldSystem::init() {
     regionManager->init();
     current_room = regionManager->setRegion(makeRegion<Cesspit>);
     PhysicsSystem::setRoom(current_room);
+
+    footstep_sound = Mix_LoadWAV(audio_path("footstep.wav").c_str());
+    Mix_VolumeChunk(footstep_sound, MIX_MAX_VOLUME / 10);
+    if (!footstep_sound) {
+        std::cerr << "Failed to load WAV file: " << Mix_GetError() << std::endl;
+    }
 }
 
 void WorldSystem::update(float deltaTime) {
@@ -212,6 +218,9 @@ void WorldSystem::handle_motions(float deltaTime) {
             // Step 2: Update position based on velocity
             if (registry.players.has(entity)) {
                 // Make the player's position stop once its head reaches the top of the window
+                if (m.velocity[0] != 0 && isGrounded) {
+                    Mix_PlayChannel(-1, footstep_sound, 0);
+                }
                 if ((m.position[1] + m.velocity[1] * deltaTime) > 100) {
                     m.position += m.velocity * deltaTime;
                 }
@@ -569,7 +578,6 @@ void WorldSystem::processPlayerInput(int key, int action) {
     if (action == GLFW_PRESS && key == GLFW_KEY_A) {
         if (registry.motions.has(m_player)) {
             registry.motions.get(m_player).velocity[0] = -player_speed;
-
         }
     }
 
@@ -724,6 +732,7 @@ void WorldSystem::on_mouse_click(int button, int action, const glm::vec2&, int) 
 void WorldSystem::cleanup() {
     // Remove all components of the player entity from the registry
     Mix_HaltMusic();
+    Mix_FreeChunk(footstep_sound);
     registry.clear_all_components();
 }
 
