@@ -1,0 +1,3 @@
+C:/Users/kapur/Documents/UBC/5th Year/CPSC427/M2/Team13/cmake-build-debug-mingw/CMakeFiles/game.dir
+C:/Users/kapur/Documents/UBC/5th Year/CPSC427/M2/Team13/cmake-build-debug-mingw/CMakeFiles/edit_cache.dir
+C:/Users/kapur/Documents/UBC/5th Year/CPSC427/M2/Team13/cmake-build-debug-mingw/CMakeFiles/rebuild_cache.dir

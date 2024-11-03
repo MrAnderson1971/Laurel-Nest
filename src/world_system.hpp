@@ -69,8 +69,8 @@ private:
 	bool canAttack = true;
 
     void updateBoundingBox(Entity entity);
-
 	void goomba_ceiling_death(Entity hostile);
 	void goomba_land_death(Entity hostile);
+    void group_behaviour(Entity player);
 };
 

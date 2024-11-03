@@ -29,6 +29,8 @@ void WorldSystem::init() {
 
     // Add the Player component to the player entity
     registry.players.emplace(m_player, Player());
+    bool gb = false;
+
 
     // Create and initialize a Motion component for the player
     Motion playerMotion;
@@ -778,6 +780,8 @@ void WorldSystem::update_projectile_timer(float delta_time) {
         } 
     }
 }
+
+
 
 // If the goomba is currently using its damaged sprite, revert it back to its idle sprite
 void WorldSystem::update_damaged_sprites(float delta_time) {
