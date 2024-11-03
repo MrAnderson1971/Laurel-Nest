@@ -21,6 +21,8 @@
 #include <fstream>			// for ifstream
 #include <sstream>			// for ostringstream
 
+#include "world_system.hpp"
+
 RenderSystem& renderSystem = RenderSystem::instance();
 
 
@@ -66,7 +68,7 @@ bool RenderSystem::initOpenGL(int width, int height, const std::string& title)
 
     // Make the window's OpenGL context current
     glfwMakeContextCurrent(window);
-# if defined(__APPLE__)
+# ifdef __APPLE__
     glfwSwapInterval(0);  // Disable vsync on macOS for better performance
 # endif
 
@@ -123,6 +125,21 @@ bool RenderSystem::initOpenGL(int width, int height, const std::string& title)
         // Set the updated projection matrix (bind shader program and set it here)
         // glUniformMatrix4fv(projection_location, 1, GL_FALSE, &projection[0][0]);
     });
+
+    // Initialize SDL audio subsystem
+    if (SDL_Init(SDL_INIT_AUDIO) < 0)
+    {
+        std::cerr << "Error: SDL initialization failed (" << SDL_GetError() << ")" << std::endl;
+        return false;
+    }
+
+    // Initialize SDL_mixer
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) == -1)
+    {
+        std::cerr << "Error: SDL_mixer initialization failed (" << Mix_GetError() << ")" << std::endl;
+        return false;
+    }
+    std::cout << "Audio channels: " << Mix_AllocateChannels(-1) << std::endl;
 
     return true;
 }
@@ -467,10 +484,14 @@ void RenderSystem::renderLoop()
             prev_FPS_string = FPS_String;
             FPS_Last_Time = currentTime;
             frames = 0;
-            renderText(FPS_String, static_cast<float>(getWindowWidth() * 1.85), static_cast<float>(getWindowHeight() * 1.95), 1.0f, font_color, font_trans);
+            if (Show_FPS) {
+                renderText(FPS_String, static_cast<float>(getWindowWidth() * 1.85), static_cast<float>(getWindowHeight() * 1.95), 1.0f, font_color, font_trans);
+            }
         }
         else {
-            renderText(prev_FPS_string, static_cast<float>(getWindowWidth()*1.85), static_cast<float>(getWindowHeight() * 1.95), 1.0f, font_color, font_trans);
+            if (Show_FPS) {
+                renderText(prev_FPS_string, static_cast<float>(getWindowWidth() * 1.85), static_cast<float>(getWindowHeight() * 1.95), 1.0f, font_color, font_trans);
+            }
         }
         
 
@@ -499,7 +520,7 @@ void RenderSystem::drawEntity(const Sprite& sprite, const TransformComponent& tr
     glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
     GLuint modelLoc = glGetUniformLocation(shaderProgram, "model");
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        
+
     // Bind texture
     glBindTexture(GL_TEXTURE_2D, *sprite.textureID.get());
 

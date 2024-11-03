@@ -10,7 +10,7 @@ int main()
     GameStateManager gameStateManager;
     renderSystem.setGameStateManager(&gameStateManager);
 
-    if (!renderSystem.initOpenGL(1920, 1080, "Game"))
+    if (!renderSystem.initOpenGL(window_width_px, window_height_px, "Game"))
     {
         std::cerr << "Failed to initialize RenderSystem." << std::endl;
         return -1;

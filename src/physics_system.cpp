@@ -2,7 +2,7 @@
 #include <iostream>
 #include "physics_system.hpp"
 #include "ecs.hpp"
-#include "collision_system.h"
+
 // Returns the local bounding coordinates scaled by the current size of the entity
 
 Entity currentRoom;
@@ -17,7 +17,7 @@ vec2 get_bounding_box(const Motion& motion)
     return { abs(motion.scale.x), abs(motion.scale.y) };
 }
 
-bool static checkForCollision(Entity e1, Entity e2, vec2& direction, vec2& overlap) {
+bool PhysicsSystem::checkForCollision(Entity e1, Entity e2, vec2& direction, vec2& overlap) {
     Motion motion1 = registry.motions.get(e1);
     Motion motion2 = registry.motions.get(e2);
     vec2 box1 = get_bounding_box(motion1);
@@ -239,18 +239,20 @@ void PhysicsSystem::step(float elapsed_ms)
             vec2 direction;
             vec2 overlap;
 
-            if (checkForCollision(entity_i, entity_j, direction, overlap)) {
+            if (registry.rooms.has(currentRoom) && checkForCollision(entity_i, entity_j, direction, overlap)) {
                 // TODO for Kuter: there is an even better optimization, only loop the room entity list
                 bool isActive_i = false;
                 bool isActive_j = false;
 
                 Room& room = registry.rooms.get(currentRoom);
 
-                if (registry.players.has(entity_i) || room.has(entity_i)) {
+                if (registry.players.has(entity_i) || room.has(entity_i)
+                || (registry.projectiles.has(entity_i) && registry.projectiles.get(entity_i).type == ProjectileType::FIREBALL)) {
                     isActive_i = true;
                 }
 
-                if (registry.players.has(entity_j) || room.has(entity_j)) {
+                if (registry.players.has(entity_j) || room.has(entity_j)
+                || (registry.projectiles.has(entity_j) && registry.projectiles.get(entity_j).type == ProjectileType::FIREBALL)) {
                     isActive_j = true;
                 }
 
@@ -269,14 +271,6 @@ void PhysicsSystem::step(float elapsed_ms)
                         registry.collisions.emplace_with_duplicates(entity_j, entity_i, direction, overlap);
                     }
                 }
-
-                // Create a collision event by inserting into the collisions container
-                // This potentially inserts multiple collisions for the same entity
-
-//                if (isActive_i && isActive_j) {
-//                    registry.collisions.emplace_with_duplicates(entity_i, entity_j, -direction, overlap);
-//                    registry.collisions.emplace_with_duplicates(entity_j, entity_i, direction, overlap);
-//                }
             }
         }
     }

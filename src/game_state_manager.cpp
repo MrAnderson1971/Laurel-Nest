@@ -2,10 +2,6 @@
 
 void GameStateManager::changeState(std::unique_ptr<GameState> newState)
 {
-    if (currentState)
-    {
-        currentState->cleanup();
-    }
     currentState = std::move(newState);
     if (currentState)
     {
@@ -25,9 +21,6 @@ void GameStateManager::pauseState(std::unique_ptr<GameState> newState) {
 }
 
 void GameStateManager::resumeState() {
-    if (currentState) {
-        currentState->cleanup();
-    }
     if (pausedState) {
         currentState = std::move(pausedState); // do not init
     }

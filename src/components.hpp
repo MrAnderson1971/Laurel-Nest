@@ -7,6 +7,10 @@
 #include <memory>
 #include <unordered_set>
 
+#define SDL_MAIN_HANDLED
+#include <SDL.h>
+#include <SDL_mixer.h>
+
 struct Sprite {
     std::shared_ptr<GLuint> textureID;
     const float width = 1.0f;
@@ -152,9 +156,14 @@ struct ProjectileTimer
     float elapsed_time;
 };
 
+enum class ProjectileType {
+    FIREBALL,
+    SPIT
+};
+
 struct Projectile
 {
-
+    ProjectileType type;
 };
 
 struct HealthFlask
@@ -164,7 +173,7 @@ struct HealthFlask
 
 struct Weapon
 {
-    
+    float cooldown = 0.0f;
 };
 
 
@@ -279,7 +288,10 @@ enum class TEXTURE_ASSET_ID {
     CHICKEN_WALK4 = CHICKEN_WALK3 + 1,
     CHICKEN_WALK5 = CHICKEN_WALK4 + 1,
     CHICKEN_WALK6 = CHICKEN_WALK5 + 1,
-    TEXTURE_COUNT = CESSPIT_BOSS_BG + 1        // Count of all textures
+    CESSPIT_BOSS_BG = CHICKEN_WALK6 + 1,               // cesspit_boss_bg.PNG
+    FLAME_THROWER = CESSPIT_BOSS_BG + 1,       // flame_thrower.png
+    FIREBALL = FLAME_THROWER + 1,              // Fireball.png
+    TEXTURE_COUNT = FIREBALL + 1        // Count of all textures
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
@@ -306,7 +318,7 @@ struct RenderRequest {
 };
 
 struct Gravity {
-    float accleration = 0.01f;
+    float acceleration = 9.8f * TPS;
 };
 
 
@@ -350,6 +362,15 @@ namespace std {
 }
 struct Room {
     std::set<Entity> entities;
+    std::shared_ptr<Mix_Music> music;
+
+    void setMusic(Mix_Music* m) {
+        music = std::shared_ptr<Mix_Music>(m, [](Mix_Music* music) {
+            if (music != nullptr) {
+                Mix_FreeMusic(music);
+            }
+        });
+    }
 
     void insert(Entity entity) {
         if (!has(entity)) {
@@ -361,7 +382,18 @@ struct Room {
         return entities.count(entity) > 0;
     }
 };
-    
+
+struct Connection {
+    Entity door;
+    /*vec2 doorLocation;
+    vec2 doorScale;*/
+    Entity nextRoom;
+    vec2 nextSpawn;
+};
+
+struct ConnectionList {
+    std::vector<Connection> doors;
+};    
 
 // font character structure
 struct Character {
