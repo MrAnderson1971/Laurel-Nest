@@ -6,7 +6,7 @@
 #include "pause_state.hpp"
 #include "cesspit_map.hpp"
 #include "goomba_logic.hpp"
-#include "ai_system.h"
+#include "ai_system.hpp"
 #include "region_factory.hpp"
 #include <game_over_screen.hpp>
 
