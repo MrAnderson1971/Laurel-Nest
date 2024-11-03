@@ -25,6 +25,8 @@ constexpr float FLAME_THROWER_HEIGHT = 0.2f * 272.f;
 constexpr float FIREBALL_WIDTH = 0.4f * 422.f;
 constexpr float FIREBALL_HEIGHT = 0.4f * 339.f;
 
+extern bool Show_FPS;
+
 class RegionManager;
 
 class WorldSystem : public GameState {
