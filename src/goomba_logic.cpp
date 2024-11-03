@@ -5,7 +5,6 @@ void GoombaLogic::spawn_ceiling_goomba_spit(Entity ceilingGoomba, Entity current
  
     Entity spit = Entity();
 
-    // GIVE IT A PROPER SPRITE AT SOME POINT
     std::vector<Sprite> goombaCeilingSprites = registry.goombaSprites.get(m_goombaCeiling);
     registry.sprites.emplace(spit, std::move(goombaCeilingSprites[3]));
 
