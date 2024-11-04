@@ -58,6 +58,27 @@ Entity EntranceRoomStrategy::execute() {
     room.insert(m_ground_right);
     room.insert(m_platform1);
     room.insert(m_platform2);
+
+    Entity m_tutorial;
+    int tutorialWidth, tutorialHeight;
+    Sprite tutorialSprite(renderSystem.loadTexture("temp_tutorial.PNG", tutorialWidth, tutorialHeight));
+    tutorialWidth *= 0.15f;
+    tutorialHeight *= 0.15f;
+    registry.sprites.emplace(m_tutorial, std::move(tutorialSprite));
+
+    // Create and initialize a TransformComponent for the tutorial
+    TransformComponent tutorialTransform;
+    tutorialTransform.position = glm::vec3(renderSystem.getWindowWidth() * 0.9f, renderSystem.getWindowHeight() * 0.5f, 0.0);
+    tutorialTransform.scale = glm::vec3(tutorialWidth, tutorialHeight, 1.0);
+    tutorialTransform.rotation = 0.0f;
+    registry.transforms.emplace(m_tutorial, std::move(tutorialTransform));
+
+    // add tutorial to environment to render out later
+    Environment tutorialObjg;
+    registry.envObject.emplace(m_tutorial, std::move(tutorialObjg));
+
+
+
     registry.rooms.emplace(m_entrance_room, std::move(room));
 
     return m_entrance_room;
