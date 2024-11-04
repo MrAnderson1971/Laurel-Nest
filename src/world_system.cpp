@@ -190,7 +190,7 @@ void WorldSystem::update(float deltaTime) {
 void WorldSystem::handle_connections(float deltaTime) {
     auto& playerMotion = registry.motions.get(m_player);
     if (registry.doorList.has(current_room)) {
-        ConnectionList list = registry.doorList.get(current_room);
+        ConnectionList& list = registry.doorList.get(current_room);
         vec2 dir;
         vec2 over;
         for (auto& connection : list.doors) {
