@@ -177,6 +177,7 @@ void WorldSystem::update(float deltaTime) {
     GoombaLogic::update_goomba_projectile_timer(deltaTime, current_room);
     GoombaLogic::update_damaged_goomba_sprites(deltaTime);
     BossAISystem::step(m_player, deltaTime);
+    BossAISystem::update_damaged_chicken_sprites(deltaTime);
 
     // TODO: make this its own function too??
     //Update bounding boxes for all the entities

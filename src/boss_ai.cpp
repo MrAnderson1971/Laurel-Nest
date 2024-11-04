@@ -10,14 +10,25 @@ enum class STATE {
 	WALK = IDLE + 1,
 	PECK = WALK + 1,
 	FLAME = PECK + 1,
-	DEATH = FLAME + 1
+    HIT = FLAME + 1,
+	DEATH = HIT + 1
 };
 
 STATE current_state;
 
 Entity chicken;
-float WALKING_CHICKEN_WIDTH = 500.f;
-float WALKING_CHICKEN_HEIGHT = 500.f;
+//float WALKING_CHICKEN_WIDTH = 500.f;
+//float WALKING_CHICKEN_HEIGHT = 500.f;
+constexpr float WALKING_CHICKEN_WIDTH = 0.58f * 866.f;
+constexpr float WALKING_CHICKEN_HEIGHT = 0.58f * 867.f;
+constexpr float IDLE_CHICKEN_WIDTH = 0.58f * 1059.f;
+constexpr float IDLE_CHICKEN_HEIGHT = 0.58f * 866.f;
+constexpr float PECK_CHICKEN_WIDTH = 0.58f * 1059.f;
+constexpr float PECK_CHICKEN_HEIGHT = 0.58f * 866.f;
+constexpr float HIT_CHICKEN_WIDTH = 0.59f * 786.f;
+constexpr float HIT_CHICKEN_HEIGHT = 0.59f * 846.f;
+constexpr float DEATH_CHICKEN_WIDTH = 0.6f * 960.f;
+constexpr float DEATH_CHICKEN_HEIGHT = 0.6f * 565.f;
 
 bool walkLeft = false;
 bool walkRight = false;
@@ -80,6 +91,7 @@ Entity BossAISystem::init() {
 	std::vector<Sprite> walkingSprites;
 	std::vector<Sprite> peckingSprites;
 	std::vector<Sprite> flameSprite;
+    std::vector<Sprite> hitSprite;
 	std::vector<Sprite> deathSprite;
 
 	// Idle
@@ -120,9 +132,15 @@ Entity BossAISystem::init() {
 	flameSprite.push_back(flame_sprite);
 	flameSprite.push_back(flame_sprite);
 
+    // Hit
+    int hit_chickenWidth, hit_chickenHeight;
+    GLuint hit_chickenTextureID = renderSystem.loadTexture("ChickenHit.png", hit_chickenWidth, hit_chickenHeight);
+    Sprite hit_sprite(hit_chickenTextureID);
+    hitSprite.push_back(hit_sprite);
+
 	// Death
 	int death_chickenWidth, death_chickenHeight;
-	GLuint death_chickenTextureID = renderSystem.loadTexture("goomba_dead.png", death_chickenWidth, death_chickenHeight);
+	GLuint death_chickenTextureID = renderSystem.loadTexture("ChickenDead.png", death_chickenWidth, death_chickenHeight);
 	Sprite death_sprite(death_chickenTextureID);
 	deathSprite.push_back(death_sprite);
 
@@ -130,6 +148,7 @@ Entity BossAISystem::init() {
 	chickenAnimations.addState(ChickenState::CHICKEN_WALK, std::move(walkingSprites));
 	chickenAnimations.addState(ChickenState::CHICKEN_PECK, std::move(peckingSprites));
 	chickenAnimations.addState(ChickenState::CHICKEN_FLAME, std::move(flameSprite));
+    chickenAnimations.addState(ChickenState::CHICKEN_HIT, std::move(hitSprite));
 	chickenAnimations.addState(ChickenState::CHICKEN_DEATH, std::move(deathSprite));
 
 	registry.chickenAnimations.emplace(chicken, std::move(chickenAnimations));
@@ -154,6 +173,27 @@ void BossAISystem::step(Entity player, float elapsed_time) {
 	auto& a = registry.chickenAnimations.get(chicken);
 	Motion& chickenMotion = registry.motions.get(chicken);
 	Motion& playerMotion = registry.motions.get(player);
+
+    switch (current_state) {
+        case STATE::IDLE:
+            chickenMotion.scale = { IDLE_CHICKEN_WIDTH, IDLE_CHICKEN_HEIGHT };
+            break;
+        case STATE::WALK:
+            chickenMotion.scale = { WALKING_CHICKEN_WIDTH, WALKING_CHICKEN_HEIGHT };
+            break;
+        case STATE::PECK:
+            chickenMotion.scale = { PECK_CHICKEN_WIDTH, PECK_CHICKEN_HEIGHT };
+            break;
+        case STATE::FLAME:
+            chickenMotion.scale = { WALKING_CHICKEN_WIDTH, WALKING_CHICKEN_HEIGHT };
+            break;
+        case STATE::HIT:
+            chickenMotion.scale = { HIT_CHICKEN_WIDTH, HIT_CHICKEN_HEIGHT };
+            break;
+        case STATE::DEATH:
+            chickenMotion.scale = { DEATH_CHICKEN_WIDTH, DEATH_CHICKEN_HEIGHT };
+            break;
+    }
 
 	// check for death
 	if (registry.healths.get(chicken).current_health <= 0) {
@@ -241,7 +281,14 @@ void BossAISystem::render() {
 void BossAISystem::chicken_get_damaged(Entity weapon, bool& isDead) {
 	Health& chicken_health = registry.healths.get(chicken);
 	Damage& weapon_damage = registry.damages.get(weapon);
-	if (chicken_health.current_health - weapon_damage.damage_dealt >= 0) {
+	// if (chicken_health.current_health - weapon_damage.damage_dealt >= 0) {
+    if (chicken_health.current_health > 0) {
+        if (chicken_health.current_health - weapon_damage.damage_dealt > 0) {
+            registry.recentDamageTimers.emplace(chicken, RecentlyDamagedTimer());
+            registry.chickenAnimations.get(chicken).setState(CHICKEN_HIT);
+            current_state = STATE::HIT;
+        }
+
 		chicken_health.current_health -= weapon_damage.damage_dealt;
 		printf("Chicken now has %d hearts\n", chicken_health.current_health);
 		if (chicken_health.current_health <= 0) {
@@ -249,6 +296,23 @@ void BossAISystem::chicken_get_damaged(Entity weapon, bool& isDead) {
 			isDead = true;
 			// TODO: SOMEHOW REMOVE THE MUSIC I (JETT) DONT KNOW HOW TO DO THAT
 			Mix_HaltMusic();
+			registry.gravity.emplace(chicken, Gravity());
 		}
 	}
+}
+
+// Add this function to manage the chicken’s transition back to WALK after HIT
+void BossAISystem::update_damaged_chicken_sprites(float delta_time) {
+    for (Entity entity : registry.recentDamageTimers.entities) {
+        if (registry.chickenAnimations.has(entity)) {
+            RecentlyDamagedTimer& damaged_timer = registry.recentDamageTimers.get(entity);
+            damaged_timer.counter_ms -= delta_time;
+            if (damaged_timer.counter_ms <= 0) {
+                registry.chickenAnimations.get(entity).setState(CHICKEN_WALK);
+                current_state = STATE::WALK;
+                registry.motions.get(entity).scale = { WALKING_CHICKEN_WIDTH, WALKING_CHICKEN_HEIGHT };
+                registry.recentDamageTimers.remove(entity);
+            }
+        }
+    }
 }
