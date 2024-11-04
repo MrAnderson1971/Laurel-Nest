@@ -89,6 +89,9 @@ void GoombaLogic::goomba_get_damaged(Entity hostile, Entity m_weapon) {
 // If the goomba is currently using its damaged sprite, revert it back to its idle sprite
 void GoombaLogic::update_damaged_goomba_sprites(float delta_time) {
     for (Entity entity : registry.recentDamageTimers.entities) {
+        if (!registry.sprites.has(entity)) {
+            continue;
+        }
         RecentlyDamagedTimer& damaged_timer = registry.recentDamageTimers.get(entity);
         damaged_timer.counter_ms -= delta_time;
         if (damaged_timer.counter_ms <= 0) {
