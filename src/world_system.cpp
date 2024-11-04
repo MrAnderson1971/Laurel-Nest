@@ -714,9 +714,7 @@ void WorldSystem::processPlayerInput(int key, int action) {
 
     // Escape n to close the tutorial
     if (action == GLFW_RELEASE && key == GLFW_KEY_N) {
-        if (tutorialOpen) tutorialOpen = false;
-        else tutorialOpen = true;
-        
+        tutorialOpen = !tutorialOpen;
     }
 }
 
