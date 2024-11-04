@@ -29,15 +29,15 @@ void GameOverScreen::cleanup() {
     registry.remove_all_components_of(gameOverEntity);
 }
 
-void GameOverScreen::on_key(int, int, int, int) {}
-
-void GameOverScreen::on_mouse_move(const vec2&) {}
-
-void GameOverScreen::on_mouse_click(int button, int action, const vec2&, int) {
-    if (action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_LEFT) {
+void GameOverScreen::on_key(int key, int, int action, int) {
+    if (action == GLFW_PRESS) {
         renderSystem.getGameStateManager()->changeState(std::make_unique<SplashScreenState>());
     }
 }
+
+void GameOverScreen::on_mouse_move(const vec2&) {}
+
+void GameOverScreen::on_mouse_click(int button, int action, const vec2&, int) {}
 
 void GameOverScreen::render()
 {
