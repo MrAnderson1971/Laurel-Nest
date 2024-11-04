@@ -284,7 +284,9 @@ void BossAISystem::chicken_get_damaged(Entity weapon, bool& isDead) {
 	// if (chicken_health.current_health - weapon_damage.damage_dealt >= 0) {
     if (chicken_health.current_health > 0) {
         if (chicken_health.current_health - weapon_damage.damage_dealt > 0) {
-            registry.recentDamageTimers.emplace(chicken, RecentlyDamagedTimer());
+			if (!registry.recentDamageTimers.has(chicken)) {
+				registry.recentDamageTimers.emplace(chicken, RecentlyDamagedTimer());
+			}
             registry.chickenAnimations.get(chicken).setState(CHICKEN_HIT);
             current_state = STATE::HIT;
         }
