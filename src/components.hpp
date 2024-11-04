@@ -43,6 +43,7 @@ enum ChickenState {
     CHICKEN_WALK,
     CHICKEN_PECK,
     CHICKEN_FLAME,
+    CHICKEN_HIT,
     CHICKEN_DEATH
 };
 
