@@ -167,14 +167,17 @@ Entity Room3Strategy::execute() {
     // ceiling
     Entity m_ceiling = SetCeiling("demo_ceiling.png", 0.3f);
 
-    // pipe1
+    // pipe1: left
     Entity m_pipe1 = SetPlatform("pipes.png", 0.6f, 0.6f, 0.07f, 0.6f);
 
-    // pipe2
+    // pipe2: middle
     Entity m_pipe2 = SetPlatform("pipes.png", 0.6f, 0.6f, 0.3f, 0.8f);
 
-    // pipe3
+    // pipe3: right
     Entity m_pipe3 = SetPlatform("pipes.png", 0.6f, 0.6f, 0.53f, 1.0f);
+
+    // heart powerUp
+    Entity m_heart = SetPlatform("extra_heart.png", 0.2f, 0.2f, 0.07f, 0.25f);
 
     // ground
     Entity m_ground = SetGround("demo_ground.png", 1.0f, 1.0f, 0.5f, 0.0f);
@@ -193,6 +196,9 @@ Entity Room3Strategy::execute() {
     registry.grounds.emplace(m_pipe2, std::move(Ground()));
     registry.grounds.emplace(m_pipe3, std::move(Ground()));
 
+    // add heart
+    registry.heartPowerUp.emplace(m_heart, std::move(HeartPowerUp()));
+
     room.insert(m_bg);
     room.insert(m_ceiling);
     room.insert(m_pipe1);
@@ -201,6 +207,7 @@ Entity Room3Strategy::execute() {
     room.insert(m_ground);
     room.insert(m_platform1);
     room.insert(m_platform2);
+    room.insert(m_heart);
     registry.rooms.emplace(m_room3, std::move(room));
     return m_room3;
 }

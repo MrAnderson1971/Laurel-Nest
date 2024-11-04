@@ -401,3 +401,6 @@ struct Character {
     unsigned int Advance;    // Offset to advance to next glyph
     char character;
 };
+
+struct HeartPowerUp {
+};
