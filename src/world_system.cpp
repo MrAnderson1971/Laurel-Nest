@@ -431,7 +431,7 @@ void WorldSystem::handle_collisions() {
             }
             if (registry.players.get(m_player).attacking) {
                 if (registry.bosses.has(entity_other)) {
-                    BossAISystem::chicken_get_damaged(m_sword);
+                    BossAISystem::chicken_get_damaged(m_sword, isBossDead);
                 } else {
                     GoombaLogic::goomba_get_damaged(entity_other, m_sword);
                 }
@@ -686,7 +686,6 @@ void WorldSystem::processPlayerInput(int key, int action) {
 
     // Toggle E to use the flame thrower
     if (action == GLFW_PRESS && key == GLFW_KEY_E) {
-        isBossDead = true;
         if (isBossDead) {
             if (!registry.players.get(m_player).attacking) {
                 isFlameThrowerEquipped = true;
@@ -698,7 +697,6 @@ void WorldSystem::processPlayerInput(int key, int action) {
     }
 
     if (action == GLFW_PRESS && key == GLFW_KEY_Q) {
-        isBossDead = true;
         if (isBossDead) {
             isFlameThrowerEquipped = false;
         }
