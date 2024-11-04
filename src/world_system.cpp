@@ -399,7 +399,9 @@ void WorldSystem::handle_collisions() {
             }
         }
 
-        if (registry.grounds.has(entity_other) || registry.bosses.has(entity_other)) {
+        if (registry.grounds.has(entity_other) ||
+                (registry.bosses.has(entity_other) &&
+                registry.chickenAnimations.get(entity_other).currentState != CHICKEN_DEATH)) {
             if (direction.x != 0) {
                 if (direction.x > 0 && thisMotion.velocity.x > 0) {
                     thisMotion.position.x -= overlap.x;
