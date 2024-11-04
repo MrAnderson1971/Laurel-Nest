@@ -384,10 +384,9 @@ struct Room {
 
 struct Connection {
     Entity door;
-    /*vec2 doorLocation;
-    vec2 doorScale;*/
     Entity nextRoom;
     vec2 nextSpawn;
+    bool limit;
 };
 
 struct ConnectionList {

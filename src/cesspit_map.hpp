@@ -18,7 +18,7 @@ public:
     Entity m_boss_room;
     Entity m_exit_room;
 
-    Connection SetDoor(float width, float height, float xPos, float yPos, Entity connectNextRoom, vec2 connectNextSpawn) {
+    Connection SetDoor(float width, float height, float xPos, float yPos, Entity connectNextRoom, vec2 connectNextSpawn, bool isLimited) {
         //Connection connectingDoor;
         Connection doorConnection;
         Entity m_door = Entity();
@@ -48,6 +48,7 @@ public:
         doorConnection.door = m_door;
         doorConnection.nextRoom = connectNextRoom;
         doorConnection.nextSpawn = connectNextSpawn;
+        doorConnection.limit = isLimited;
 
         return doorConnection;
     }
