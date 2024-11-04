@@ -15,8 +15,9 @@ enum class STATE {
 };
 
 STATE current_state;
-
+Entity boss_room;
 Entity chicken;
+int flame_cooldown = 0;
 //float WALKING_CHICKEN_WIDTH = 500.f;
 //float WALKING_CHICKEN_HEIGHT = 500.f;
 constexpr float WALKING_CHICKEN_WIDTH = 0.58f * 866.f;
@@ -69,16 +70,18 @@ bool canPeck(Motion chickenMotion, Motion playerMotion) {
 	return false;
 }
 
-bool canFlame() {
-	// TODO: M3
+bool canFlame(Motion chickenMotion, Motion playerMotion) {
+	if (flame_cooldown <= 0 && chickenMotion.position.x > playerMotion.position.x + 700.f) {
+		return true;
+	}
 	return false;
 }
 
 bool animationDone = false;
 
-Entity BossAISystem::init() {
+Entity BossAISystem::init(Entity bossRoom) {
 	current_state = STATE::IDLE;
-
+	boss_room = bossRoom;
 	// create and place chicken
 	Motion chickenMotion;
 	chickenMotion.position = glm::vec2(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() / 2.0f + 90.f);
@@ -174,27 +177,7 @@ void BossAISystem::step(Entity player, float elapsed_time) {
 	Motion& chickenMotion = registry.motions.get(chicken);
 	Motion& playerMotion = registry.motions.get(player);
 
-    switch (current_state) {
-        case STATE::IDLE:
-            chickenMotion.scale = { IDLE_CHICKEN_WIDTH, IDLE_CHICKEN_HEIGHT };
-            break;
-        case STATE::WALK:
-            chickenMotion.scale = { WALKING_CHICKEN_WIDTH, WALKING_CHICKEN_HEIGHT };
-            break;
-        case STATE::PECK:
-            chickenMotion.scale = { PECK_CHICKEN_WIDTH, PECK_CHICKEN_HEIGHT };
-            break;
-        case STATE::FLAME:
-            chickenMotion.scale = { WALKING_CHICKEN_WIDTH, WALKING_CHICKEN_HEIGHT };
-            break;
-        case STATE::HIT:
-            chickenMotion.scale = { HIT_CHICKEN_WIDTH, HIT_CHICKEN_HEIGHT };
-            break;
-        case STATE::DEATH:
-            chickenMotion.scale = { DEATH_CHICKEN_WIDTH, DEATH_CHICKEN_HEIGHT };
-            break;
-    }
-
+	// check for death
 	// check for death
 	if (registry.healths.get(chicken).current_health <= 0) {
 		current_state = STATE::DEATH;
@@ -207,23 +190,34 @@ void BossAISystem::step(Entity player, float elapsed_time) {
 				current_state = STATE::PECK;
 				a.setState(CHICKEN_PECK);
 			}
-			else if (canFlame()) {
-				current_state = STATE::FLAME;
-				a.setState(CHICKEN_FLAME);
-			}
 			else if (canWalk(chickenMotion, playerMotion)) {
 				current_state = STATE::WALK;
 				a.setState(CHICKEN_WALK);
 			}
+			else if (canFlame(chickenMotion, playerMotion)) {
+				current_state = STATE::FLAME;
+				a.setState(CHICKEN_FLAME);
+				flame_cooldown = 1050;
+				flame_attack(renderSystem.getWindowWidth() / 6.f);
+				flame_attack(renderSystem.getWindowWidth() / 3.f);
+				// flame_attack(renderSystem.getWindowWidth() * (2.f/3.f));
+				flame_attack(renderSystem.getWindowWidth() * (5.f / 6.f));
+			}
+
 		}
 		else if (current_state == STATE::PECK) {
 			if (canWalk(chickenMotion, playerMotion)) {
 				current_state = STATE::WALK;
 				a.setState(CHICKEN_WALK);
 			}
-			else if (canFlame()) {
+			else if (canFlame(chickenMotion, playerMotion)) {
 				current_state = STATE::FLAME;
 				a.setState(CHICKEN_FLAME);
+				flame_cooldown = 1050;
+				flame_attack(renderSystem.getWindowWidth() / 6.f);
+				flame_attack(renderSystem.getWindowWidth() / 3.f);
+				// flame_attack(renderSystem.getWindowWidth() * (2.f / 3.f));
+				flame_attack(renderSystem.getWindowWidth() * (5.f / 6.f));
 			}
 			else {
 				current_state = STATE::IDLE;
@@ -241,22 +235,23 @@ void BossAISystem::step(Entity player, float elapsed_time) {
 				current_state = STATE::WALK;
 				a.setState(CHICKEN_WALK);
 			}
-			else if (canFlame()) {
-				current_state = STATE::FLAME;
-				a.setState(CHICKEN_FLAME);
-			}
 			else {
 				current_state = STATE::IDLE;
 				a.setState(CHICKEN_IDLE);
 			}
 		}
 		else if (current_state == STATE::FLAME) {
-			// TODO: M3
-			// if should peck, peck
-			// if should walk, walk
-			// if not stay idle
+			if (canWalk(chickenMotion, playerMotion)) {
+				current_state = STATE::WALK;
+				a.setState(CHICKEN_WALK);
+			}
+			else {
+				current_state = STATE::IDLE;
+				a.setState(CHICKEN_IDLE);
+			}
 		}
 	}
+
 
 	if (a.isAnimationComplete()) {
 		animationDone = true;
@@ -266,6 +261,31 @@ void BossAISystem::step(Entity player, float elapsed_time) {
 			walk(chickenMotion, playerMotion);
 		}
 		a.next(elapsed_time);
+	}
+
+	if (flame_cooldown > 0) {
+		flame_cooldown--;
+	}
+
+	switch (current_state) {
+	case STATE::IDLE:
+		chickenMotion.scale = { IDLE_CHICKEN_WIDTH, IDLE_CHICKEN_HEIGHT };
+		break;
+	case STATE::WALK:
+		chickenMotion.scale = { WALKING_CHICKEN_WIDTH, WALKING_CHICKEN_HEIGHT };
+		break;
+	case STATE::PECK:
+		chickenMotion.scale = { PECK_CHICKEN_WIDTH, PECK_CHICKEN_HEIGHT };
+		break;
+	case STATE::FLAME:
+		chickenMotion.scale = { WALKING_CHICKEN_WIDTH, WALKING_CHICKEN_HEIGHT };
+		break;
+	case STATE::HIT:
+		chickenMotion.scale = { HIT_CHICKEN_WIDTH, HIT_CHICKEN_HEIGHT };
+		break;
+	case STATE::DEATH:
+		chickenMotion.scale = { DEATH_CHICKEN_WIDTH, DEATH_CHICKEN_HEIGHT };
+		break;
 	}
 };
 
@@ -316,3 +336,32 @@ void BossAISystem::update_damaged_chicken_sprites(float delta_time) {
         }
     }
 }
+
+void BossAISystem::flame_attack(float x_pos) {
+	Entity flame = Entity();
+
+	int flameWidth, flameHeight;
+	Sprite flameSprite(renderSystem.loadTexture("ChickenFireball.png", flameWidth, flameHeight));
+	registry.sprites.emplace(flame, std::move(flameSprite));
+
+	Motion motion;
+	motion.position = { x_pos, 0.0f };
+	motion.scale = { flameWidth / 4.f, flameHeight / 4.f };
+	registry.motions.emplace(flame, std::move(motion));
+
+	// Create and initialize a TransformComponent for the background
+	TransformComponent flameTransform;
+	flameTransform.position = glm::vec3(x_pos, 0.0, 0.0);
+	flameTransform.scale = glm::vec3(flameWidth / 4.f, flameHeight / 4.f, 1.0);
+	flameTransform.rotation = 3.14f + 3.14f / 2.f;
+	registry.transforms.emplace(flame, std::move(flameTransform));
+
+	registry.projectiles.emplace(flame, std::move(Projectile{ ProjectileType::SPIT }));
+	registry.gravity.emplace(flame, std::move(Gravity()));
+	registry.damages.emplace(flame, std::move(Damage{ 1 }));
+	registry.hostiles.emplace(flame, std::move(Hostile()));
+
+	registry.rooms.get(boss_room).insert(flame);
+}
+
+
