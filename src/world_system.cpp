@@ -196,17 +196,20 @@ void WorldSystem::handle_connections(float deltaTime) {
         vec2 over;
         for (auto& connection : list.doors) {
             if (PhysicsSystem::checkForCollision(m_player, connection.door, dir, over)) {
-                // set next room
-                //
-                current_room = connection.nextRoom;
-                PhysicsSystem::setRoom(current_room);
-                // set spawn point of player in new room
-                playerMotion.position = connection.nextSpawn;
-                std::shared_ptr<Mix_Music> music = registry.rooms.get(current_room).music;
-                if (music != nullptr) {
-                    Mix_PlayMusic(music.get(), -1);
-                } else {
-                    Mix_HaltMusic();
+                // check if in boss room and if boss is dead
+                if (!connection.limit || isBossDead) {
+                    // set next room
+                    current_room = connection.nextRoom;
+                    PhysicsSystem::setRoom(current_room);
+                    // set spawn point of player in new room
+                    playerMotion.position = connection.nextSpawn;
+                    std::shared_ptr<Mix_Music> music = registry.rooms.get(current_room).music;
+                    if (music != nullptr) {
+                        Mix_PlayMusic(music.get(), -1);
+                    }
+                    else {
+                        Mix_HaltMusic();
+                    }
                 }
             }
         }
