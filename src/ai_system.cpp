@@ -124,3 +124,7 @@ float AISystem::get_angle(Entity e1, Entity e2){
     float y = abs(m1.position.y - m2.position.y);
     return atan(x/y);
 }
+
+void AISystem::init_aim(){
+    aim = false;
+}

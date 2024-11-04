@@ -184,6 +184,7 @@ void WorldSystem::handle_connections(float deltaTime) {
                 // set next room
                 //
                 current_room = connection.nextRoom;
+                AISystem::init_aim();
                 PhysicsSystem::setRoom(current_room);
                 // set spawn point of player in new room
                 playerMotion.position = connection.nextSpawn;
