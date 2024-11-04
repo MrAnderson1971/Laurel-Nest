@@ -57,7 +57,9 @@ void GoombaLogic::goomba_get_damaged(Entity hostile, Entity m_weapon) {
 
         // If the goomba isnt dead yet, change their current sprite to their hit sprite
         if (hostile_health.current_health > 0) {
-            registry.recentDamageTimers.emplace(hostile, std::move(RecentlyDamagedTimer()));
+            if (!registry.recentDamageTimers.has(hostile)) {
+                registry.recentDamageTimers.emplace(hostile, std::move(RecentlyDamagedTimer()));
+            }
             std::vector<Sprite> goombaSprites;
             // Change the ceilingGoombas sprite
             Motion& goombaMotion = registry.motions.get(hostile);
