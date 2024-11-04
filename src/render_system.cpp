@@ -498,12 +498,6 @@ void RenderSystem::renderLoop()
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-
-    // Cleanup after loop exits
-    if (gameStateManager && gameStateManager->getCurrentState())
-    {
-        gameStateManager->getCurrentState()->cleanup();
-    }
 }
 
 void RenderSystem::drawEntity(const Sprite& sprite, const TransformComponent& transform)
