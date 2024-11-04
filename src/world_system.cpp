@@ -204,8 +204,8 @@ void WorldSystem::handle_connections(float deltaTime) {
                     // set spawn point of player in new room
                     playerMotion.position = connection.nextSpawn;
                     std::shared_ptr<Mix_Music> music = registry.rooms.get(current_room).music;
-                    if (music != nullptr) {
-                        Mix_PlayMusic(music.get(), 1);
+                    if (music != nullptr && !isBossDead) { // Begrudgingly putting this condition here so it only plays when the boss isn't dead.
+                        Mix_PlayMusic(music.get(), 1); // TODO: make it more scalable in the future because we can't keep this up.
                     }
                     else {
                         Mix_HaltMusic();
