@@ -454,6 +454,10 @@ void WorldSystem::handle_collisions() {
                     registry.remove_all_components_of(entity);  // Remove fireball upon hit
                 }
             }
+            if (registry.bosses.has(entity_other)) {
+                BossAISystem::chicken_get_damaged(entity, isBossDead);
+                registry.remove_all_components_of(entity);
+            }
         }
 
         // Remove the spit attack from ceiling goomba after it has hit the player or the ground
@@ -695,6 +699,7 @@ void WorldSystem::processPlayerInput(int key, int action) {
 
     // Toggle E to use the flame thrower
     if (action == GLFW_PRESS && key == GLFW_KEY_E) {
+        isBossDead = true;
         if (isBossDead) {
             if (!registry.players.get(m_player).attacking) {
                 isFlameThrowerEquipped = true;
@@ -706,6 +711,7 @@ void WorldSystem::processPlayerInput(int key, int action) {
     }
 
     if (action == GLFW_PRESS && key == GLFW_KEY_Q) {
+        isBossDead = true;
         if (isBossDead) {
             isFlameThrowerEquipped = false;
         }
@@ -754,7 +760,7 @@ void WorldSystem::useFlameThrower() {
    registry.transforms.emplace(m_fireball, std::move(fireballTransform));
 
    Damage fireballDamage;
-   fireballDamage.damage_dealt = 10;
+   fireballDamage.damage_dealt = 5;
    registry.damages.emplace(m_fireball, fireballDamage);
 
    BoundingBox fireballBB;
