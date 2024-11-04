@@ -30,6 +30,7 @@ void WorldSystem::init() {
     m_goombaCeiling = Entity();
     m_flameThrower = Entity();
     isBossDead = false;
+    m_tutorial = Entity();
  
     // Player
 
@@ -133,6 +134,19 @@ void WorldSystem::init() {
     current_room = regionManager->setRegion(makeRegion<Cesspit>);
     PhysicsSystem::setRoom(current_room);
 
+    // init tutorial (temp)
+    int tutorialWidth, tutorialHeight;
+    Sprite tutorialSprite(renderSystem.loadTexture("temp_tutorial.PNG", tutorialWidth, tutorialHeight));
+    tutorialWidth = static_cast<int> (tutorialWidth * 0.15f);
+    tutorialHeight = static_cast<int> (tutorialHeight * 0.15f);
+    registry.sprites.emplace(m_tutorial, std::move(tutorialSprite));
+    // Create and initialize a TransformComponent for the tutorial
+    TransformComponent tutorialTransform;
+    tutorialTransform.position = glm::vec3(renderSystem.getWindowWidth() * 0.9f, renderSystem.getWindowHeight() * 0.5f, 0.0);
+    tutorialTransform.scale = glm::vec3(tutorialWidth, tutorialHeight, 1.0);
+    tutorialTransform.rotation = 0.0f;
+    registry.transforms.emplace(m_tutorial, std::move(tutorialTransform));
+
     Mix_ReserveChannels(2);
     footstep_sound = Mix_LoadWAV(audio_path("footstep.wav").c_str());
     Mix_VolumeChunk(footstep_sound, MIX_MAX_VOLUME / 5);
@@ -181,18 +195,21 @@ void WorldSystem::handle_connections(float deltaTime) {
         vec2 over;
         for (auto& connection : list.doors) {
             if (PhysicsSystem::checkForCollision(m_player, connection.door, dir, over)) {
-                // set next room
-                //
-                current_room = connection.nextRoom;
-                AISystem::init_aim();
-                PhysicsSystem::setRoom(current_room);
-                // set spawn point of player in new room
-                playerMotion.position = connection.nextSpawn;
-                std::shared_ptr<Mix_Music> music = registry.rooms.get(current_room).music;
-                if (music != nullptr) {
-                    Mix_PlayMusic(music.get(), -1);
-                } else {
-                    Mix_HaltMusic();
+                // check if in boss room and if boss is dead
+                if (!connection.limit || isBossDead) {
+                    // set next room
+                    current_room = connection.nextRoom;
+                    AISystem::init_aim();
+                    PhysicsSystem::setRoom(current_room);
+                    // set spawn point of player in new room
+                    playerMotion.position = connection.nextSpawn;
+                    std::shared_ptr<Mix_Music> music = registry.rooms.get(current_room).music;
+                    if (music != nullptr && !isBossDead) { // Begrudgingly putting this condition here so it only plays when the boss isn't dead.
+                        Mix_PlayMusic(music.get(), 1); // TODO: make it more scalable in the future because we can't keep this up.
+                    }
+                    else {
+                        Mix_HaltMusic();
+                    }
                 }
             }
         }
@@ -408,30 +425,24 @@ void WorldSystem::handle_collisions() {
             }
         }
 
-        if (registry.players.has(entity) && !registry.invinciblityTimers.has(entity) && registry.damages.has(entity_other)) {
+        if (registry.players.has(entity) && registry.damages.has(entity_other)) {
             if (registry.projectiles.has(entity_other) && registry.projectiles.get(entity_other).type == ProjectileType::FIREBALL) {
                 continue;
             }
-            if(registry.players.get(m_player).attacking){
-                if (registry.bosses.has(entity_other)) {
-                    BossAISystem::chicken_get_damaged(m_sword);
-                }
-                else {
-                    GoombaLogic::goomba_get_damaged(entity_other, m_sword);
-                }
-                registry.players.get(m_player).attacking = false;
-            }else{
-                player_get_damaged(entity_other);
-            }
-        }
-
-        if (registry.weapons.has(entity) && registry.healths.has(entity_other)) {
             if (registry.players.get(m_player).attacking) {
                 if (registry.bosses.has(entity_other)) {
-                    BossAISystem::chicken_get_damaged(m_sword);
-                }
-                else {
+                    BossAISystem::chicken_get_damaged(m_sword, isBossDead);
+                } else {
                     GoombaLogic::goomba_get_damaged(entity_other, m_sword);
+                }
+                if (!registry.invinciblityTimers.has(m_player)) {
+                    InvincibilityTimer& timer = registry.invinciblityTimers.emplace(m_player);
+                    timer.counter_ms = 250.f;
+                }
+                registry.players.get(m_player).attacking = false;
+            } else {
+                if (!registry.invinciblityTimers.has(entity)) {
+                    player_get_damaged(entity_other);
                 }
             }
         }
@@ -467,6 +478,16 @@ void WorldSystem::handle_collisions() {
             Sprite& goombaCeilingSprite = registry.sprites.get(entity);
             goombaCeilingSprite = goombaCeilingSprites.back();
             registry.projectileTimers.remove(entity);
+        }
+
+        // handle extra heart powerup, restore all health and remove heart entity
+        // TODO: add extra heart life
+        if (registry.players.has(entity) && registry.heartPowerUp.has(entity_other)) {
+            heartPowerUp = true;
+            registry.remove_all_components_of(entity_other);
+            // reset health to full
+            Health& player_health = registry.healths.get(m_player);
+            player_health.current_health = player_health.max_health;
         }
 
     }
@@ -593,6 +614,15 @@ void WorldSystem::render() {
             }
         }
     }
+
+    if (tutorialOpen) {
+        // tutorial side bar
+        Sprite tutorialSprite = registry.sprites.get(m_tutorial); 
+        TransformComponent tutorialTransform = registry.transforms.get(m_tutorial);
+
+        renderSystem.drawEntity(tutorialSprite, tutorialTransform);
+    }
+    
 }
 
 void WorldSystem::processPlayerInput(int key, int action) {
@@ -666,7 +696,6 @@ void WorldSystem::processPlayerInput(int key, int action) {
 
     // Toggle E to use the flame thrower
     if (action == GLFW_PRESS && key == GLFW_KEY_E) {
-        isBossDead = true;
         if (isBossDead) {
             if (!registry.players.get(m_player).attacking) {
                 isFlameThrowerEquipped = true;
@@ -678,7 +707,6 @@ void WorldSystem::processPlayerInput(int key, int action) {
     }
 
     if (action == GLFW_PRESS && key == GLFW_KEY_Q) {
-        isBossDead = true;
         if (isBossDead) {
             isFlameThrowerEquipped = false;
         }
@@ -687,6 +715,11 @@ void WorldSystem::processPlayerInput(int key, int action) {
     // Hide/Show FPS Counter (F key)
     if (action == GLFW_PRESS && key == GLFW_KEY_F) {
         Show_FPS = !Show_FPS;
+    }
+
+    // Escape n to close the tutorial
+    if (action == GLFW_RELEASE && key == GLFW_KEY_N) {
+        tutorialOpen = !tutorialOpen;
     }
 }
 

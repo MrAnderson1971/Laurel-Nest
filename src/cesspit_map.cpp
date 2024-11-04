@@ -15,13 +15,12 @@ void Cesspit::init() {
 
     setRoomStrategy(std::make_unique<EntranceRoomStrategy>());
     m_entrance_room = currentRoom->execute();
-    start_room = m_entrance_room;
+     start_room = m_entrance_room;
     // start coords = (0.1f, 0.4f)
 
     setRoomStrategy(std::make_unique<Room1Strategy>());
     m_room1 = currentRoom->execute();
     // start_room = m_room1;
-
 
     setRoomStrategy(std::make_unique<Room2Strategy>());
     m_room2 = currentRoom->execute();
@@ -47,57 +46,57 @@ void Cesspit::init() {
     // entrance to npc coords = (0.03f, 0.42f, 1.f, 0.21f), entrance spawn = (0.9f, 0.3f)
     // entrance to room1
     ConnectionList list_en;
-    Connection door_en_to_1 = SetDoor(0.39f, 0.04f, 0.672f, 1.f, m_room1, vec2(renderSystem.getWindowWidth() * 0.07f, renderSystem.getWindowHeight() * 0.23f));
+    Connection door_en_to_1 = SetDoor(0.39f, 0.04f, 0.672f, 1.f, m_room1, vec2(renderSystem.getWindowWidth() * 0.07f, renderSystem.getWindowHeight() * 0.23f), false);
     list_en.doors.push_back(door_en_to_1);
     
     // room1 to entrance
     ConnectionList list_1;
-    Connection door_1_to_en = SetDoor(0.2f, 0.04f, 0.05f, 0.f, m_entrance_room, vec2(renderSystem.getWindowWidth() * 0.75f, renderSystem.getWindowHeight() * 0.75f));
+    Connection door_1_to_en = SetDoor(0.2f, 0.04f, 0.05f, 0.f, m_entrance_room, vec2(renderSystem.getWindowWidth() * 0.75f, renderSystem.getWindowHeight() * 0.75f), false);
     list_1.doors.push_back(door_1_to_en);
     
     // room1 to room2
-    Connection door_1_to_2 = SetDoor(0.03f, 0.8f, 1.f, 0.4f, m_room2, vec2(renderSystem.getWindowWidth() * 0.07f, renderSystem.getWindowHeight() * 0.25f));
+    Connection door_1_to_2 = SetDoor(0.03f, 0.8f, 1.f, 0.4f, m_room2, vec2(renderSystem.getWindowWidth() * 0.07f, renderSystem.getWindowHeight() * 0.25f), false);
     list_1.doors.push_back(door_1_to_2);
 
     // room2 to room1
     ConnectionList list_2;
-    Connection door_2_to_1 = SetDoor(0.03f, 0.35f, 0.f, 0.18f, m_room1, vec2(renderSystem.getWindowWidth() * 0.93f, renderSystem.getWindowHeight() * 0.7f));
+    Connection door_2_to_1 = SetDoor(0.03f, 0.35f, 0.f, 0.18f, m_room1, vec2(renderSystem.getWindowWidth() * 0.93f, renderSystem.getWindowHeight() * 0.7f), false);
     list_2.doors.push_back(door_2_to_1);
     
     // room2 to room3
-    Connection door_2_to_3 = SetDoor(0.72f, 0.04f, 0.517f, 1.0f, m_room3, vec2(renderSystem.getWindowWidth() * 0.93f, renderSystem.getWindowHeight() * 0.2f));
+    Connection door_2_to_3 = SetDoor(0.72f, 0.04f, 0.517f, 1.0f, m_room3, vec2(renderSystem.getWindowWidth() * 0.93f, renderSystem.getWindowHeight() * 0.2f), false);
     list_2.doors.push_back(door_2_to_3);
 
     // room3 to room2
     ConnectionList list_3;
-    Connection door_3_to_2 = SetDoor(0.3f, 0.04f, 0.92f, 0.f, m_room2, vec2(renderSystem.getWindowWidth() * 0.58f, renderSystem.getWindowHeight() * 0.8f));
+    Connection door_3_to_2 = SetDoor(0.3f, 0.04f, 0.92f, 0.f, m_room2, vec2(renderSystem.getWindowWidth() * 0.58f, renderSystem.getWindowHeight() * 0.8f), false);
     list_3.doors.push_back(door_3_to_2);
 
     // room2 to room4
-    Connection door_2_to_4 = SetDoor(0.03f, 0.35f, 1.f, 0.18f, m_room4, vec2(renderSystem.getWindowWidth() * 0.07f, renderSystem.getWindowHeight() * 0.7f));
+    Connection door_2_to_4 = SetDoor(0.03f, 0.35f, 1.f, 0.18f, m_room4, vec2(renderSystem.getWindowWidth() * 0.07f, renderSystem.getWindowHeight() * 0.7f), false);
     list_2.doors.push_back(door_2_to_4);
 
     // room4 to room2
     ConnectionList list_4;
-    Connection door_4_to_2 = SetDoor(0.03f, 0.8f, 0.f, 0.4f, m_room2, vec2(renderSystem.getWindowWidth() * 0.93f, renderSystem.getWindowHeight() * 0.25f));
+    Connection door_4_to_2 = SetDoor(0.03f, 0.8f, 0.f, 0.4f, m_room2, vec2(renderSystem.getWindowWidth() * 0.93f, renderSystem.getWindowHeight() * 0.25f), false);
     list_4.doors.push_back(door_4_to_2);
 
     // room4 to bossRoom
-    Connection door_4_to_boss = SetDoor(0.03f, 0.8f, 1.f, 0.4f, m_boss_room, vec2(renderSystem.getWindowWidth() * 0.07f, renderSystem.getWindowHeight() * 0.7f));
+    Connection door_4_to_boss = SetDoor(0.03f, 0.8f, 1.f, 0.4f, m_boss_room, vec2(renderSystem.getWindowWidth() * 0.07f, renderSystem.getWindowHeight() * 0.7f), false);
     list_4.doors.push_back(door_4_to_boss);
 
     // bossRoom to room4
     ConnectionList list_boss;
-    Connection door_boss_to_4 = SetDoor(0.03f, 0.8f, 0.f, 0.4f, m_room4, vec2(renderSystem.getWindowWidth() * 0.93f, renderSystem.getWindowHeight() * 0.7f));
+    Connection door_boss_to_4 = SetDoor(0.03f, 0.8f, 0.f, 0.4f, m_room4, vec2(renderSystem.getWindowWidth() * 0.93f, renderSystem.getWindowHeight() * 0.7f), true);
     list_boss.doors.push_back(door_boss_to_4);
 
     // bossRoom to exitRoom
-    Connection door_boss_to_ex = SetDoor(0.03f, 0.8f, 1.f, 0.4f, m_exit_room, vec2(renderSystem.getWindowWidth() * 0.07f, renderSystem.getWindowHeight() * 0.82f));
+    Connection door_boss_to_ex = SetDoor(0.03f, 0.8f, 1.f, 0.4f, m_exit_room, vec2(renderSystem.getWindowWidth() * 0.07f, renderSystem.getWindowHeight() * 0.82f), true);
     list_boss.doors.push_back(door_boss_to_ex);
 
     // exitRoom to bossRoom
     ConnectionList list_ex;
-    Connection door_ex_to_boss = SetDoor(0.03f, 0.18f, 0.f, 0.815f, m_boss_room, vec2(renderSystem.getWindowWidth() * 0.93f, renderSystem.getWindowHeight() * 0.7f));
+    Connection door_ex_to_boss = SetDoor(0.03f, 0.18f, 0.f, 0.815f, m_boss_room, vec2(renderSystem.getWindowWidth() * 0.93f, renderSystem.getWindowHeight() * 0.7f), false);
     list_ex.doors.push_back(door_ex_to_boss);
 
     // exitRoom to next map

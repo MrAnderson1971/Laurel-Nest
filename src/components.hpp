@@ -384,10 +384,9 @@ struct Room {
 
 struct Connection {
     Entity door;
-    /*vec2 doorLocation;
-    vec2 doorScale;*/
     Entity nextRoom;
     vec2 nextSpawn;
+    bool limit;
 };
 
 struct ConnectionList {
@@ -401,4 +400,7 @@ struct Character {
     glm::ivec2   Bearing;    // Offset from baseline to left/top of glyph
     unsigned int Advance;    // Offset to advance to next glyph
     char character;
+};
+
+struct HeartPowerUp {
 };
