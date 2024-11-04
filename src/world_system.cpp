@@ -695,6 +695,7 @@ void WorldSystem::processPlayerInput(int key, int action) {
 
     // Toggle E to use the flame thrower
     if (action == GLFW_PRESS && key == GLFW_KEY_E) {
+        isBossDead = true;
         if (isBossDead) {
             if (!registry.players.get(m_player).attacking) {
                 isFlameThrowerEquipped = true;
@@ -706,6 +707,7 @@ void WorldSystem::processPlayerInput(int key, int action) {
     }
 
     if (action == GLFW_PRESS && key == GLFW_KEY_Q) {
+        isBossDead = true;
         if (isBossDead) {
             isFlameThrowerEquipped = false;
         }
