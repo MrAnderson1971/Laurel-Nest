@@ -15,13 +15,12 @@ void Cesspit::init() {
 
     setRoomStrategy(std::make_unique<EntranceRoomStrategy>());
     m_entrance_room = currentRoom->execute();
-    start_room = m_entrance_room;
+     start_room = m_entrance_room;
     // start coords = (0.1f, 0.4f)
 
     setRoomStrategy(std::make_unique<Room1Strategy>());
     m_room1 = currentRoom->execute();
     // start_room = m_room1;
-
 
     setRoomStrategy(std::make_unique<Room2Strategy>());
     m_room2 = currentRoom->execute();

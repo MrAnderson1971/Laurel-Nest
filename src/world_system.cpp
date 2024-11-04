@@ -140,7 +140,6 @@ void WorldSystem::init() {
     tutorialWidth = static_cast<int> (tutorialWidth * 0.15f);
     tutorialHeight = static_cast<int> (tutorialHeight * 0.15f);
     registry.sprites.emplace(m_tutorial, std::move(tutorialSprite));
-
     // Create and initialize a TransformComponent for the tutorial
     TransformComponent tutorialTransform;
     tutorialTransform.position = glm::vec3(renderSystem.getWindowWidth() * 0.9f, renderSystem.getWindowHeight() * 0.5f, 0.0);
@@ -478,6 +477,16 @@ void WorldSystem::handle_collisions() {
             Sprite& goombaCeilingSprite = registry.sprites.get(entity);
             goombaCeilingSprite = goombaCeilingSprites.back();
             registry.projectileTimers.remove(entity);
+        }
+
+        // handle extra heart powerup, restore all health and remove heart entity
+        // TODO: add extra heart life
+        if (registry.players.has(entity) && registry.heartPowerUp.has(entity_other)) {
+            heartPowerUp = true;
+            registry.remove_all_components_of(entity_other);
+            // reset health to full
+            Health& player_health = registry.healths.get(m_player);
+            player_health.current_health = player_health.max_health;
         }
 
     }

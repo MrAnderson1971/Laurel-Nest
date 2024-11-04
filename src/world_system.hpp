@@ -78,6 +78,7 @@ private:
     bool isFlameThrowerEquipped = false;
     bool flameThrower_enabled = false;
 	bool tutorialOpen = true;
+	bool heartPowerUp = false;
 
     void updateBoundingBox(Entity entity);
 
