@@ -797,9 +797,18 @@ void WorldSystem::on_mouse_click(int button, int action, const glm::vec2&, int) 
 void WorldSystem::cleanup() {
     // Remove all components of the player entity from the registry
     Mix_HaltMusic();
-    Mix_FreeChunk(footstep_sound);
-    Mix_FreeChunk(sword_sound);
-    Mix_FreeChunk(hurt_sound);
+    if (footstep_sound != nullptr) {
+        Mix_FreeChunk(footstep_sound);
+        footstep_sound = nullptr;
+    }
+    if (sword_sound != nullptr) {
+        Mix_FreeChunk(sword_sound);
+        sword_sound = nullptr;
+    }
+    if (hurt_sound != nullptr) {
+        Mix_FreeChunk(hurt_sound);
+        hurt_sound = nullptr;
+    }
     registry.clear_all_components();
 }
 
