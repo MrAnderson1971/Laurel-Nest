@@ -205,7 +205,7 @@ void WorldSystem::handle_connections(float deltaTime) {
                     playerMotion.position = connection.nextSpawn;
                     std::shared_ptr<Mix_Music> music = registry.rooms.get(current_room).music;
                     if (music != nullptr) {
-                        Mix_PlayMusic(music.get(), -1);
+                        Mix_PlayMusic(music.get(), 1);
                     }
                     else {
                         Mix_HaltMusic();
