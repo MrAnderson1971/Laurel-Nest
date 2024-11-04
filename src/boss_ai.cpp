@@ -296,6 +296,7 @@ void BossAISystem::chicken_get_damaged(Entity weapon, bool& isDead) {
 			isDead = true;
 			// TODO: SOMEHOW REMOVE THE MUSIC I (JETT) DONT KNOW HOW TO DO THAT
 			Mix_HaltMusic();
+			registry.gravity.emplace(chicken, Gravity());
 		}
 	}
 }
