@@ -407,30 +407,24 @@ void WorldSystem::handle_collisions() {
             }
         }
 
-        if (registry.players.has(entity) && !registry.invinciblityTimers.has(entity) && registry.damages.has(entity_other)) {
+        if (registry.players.has(entity) && registry.damages.has(entity_other)) {
             if (registry.projectiles.has(entity_other) && registry.projectiles.get(entity_other).type == ProjectileType::FIREBALL) {
                 continue;
             }
-            if(registry.players.get(m_player).attacking){
-                if (registry.bosses.has(entity_other)) {
-                    BossAISystem::chicken_get_damaged(m_sword);
-                }
-                else {
-                    GoombaLogic::goomba_get_damaged(entity_other, m_sword);
-                }
-                registry.players.get(m_player).attacking = false;
-            }else{
-                player_get_damaged(entity_other);
-            }
-        }
-
-        if (registry.weapons.has(entity) && registry.healths.has(entity_other)) {
             if (registry.players.get(m_player).attacking) {
                 if (registry.bosses.has(entity_other)) {
                     BossAISystem::chicken_get_damaged(m_sword);
-                }
-                else {
+                } else {
                     GoombaLogic::goomba_get_damaged(entity_other, m_sword);
+                }
+                if (!registry.invinciblityTimers.has(m_player)) {
+                    InvincibilityTimer& timer = registry.invinciblityTimers.emplace(m_player);
+                    timer.counter_ms = 250.f;
+                }
+                registry.players.get(m_player).attacking = false;
+            } else {
+                if (!registry.invinciblityTimers.has(entity)) {
+                    player_get_damaged(entity_other);
                 }
             }
         }
