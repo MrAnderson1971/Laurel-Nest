@@ -13,4 +13,6 @@ public:
     void static group_behaviour(Entity player);
 
     static float get_angle(Entity e1, Entity e2);
+
+    static void init_aim();
 };

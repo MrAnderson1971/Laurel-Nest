@@ -190,7 +190,7 @@ void WorldSystem::update(float deltaTime) {
 void WorldSystem::handle_connections(float deltaTime) {
     auto& playerMotion = registry.motions.get(m_player);
     if (registry.doorList.has(current_room)) {
-        ConnectionList list = registry.doorList.get(current_room);
+        ConnectionList& list = registry.doorList.get(current_room);
         vec2 dir;
         vec2 over;
         for (auto& connection : list.doors) {
@@ -199,6 +199,7 @@ void WorldSystem::handle_connections(float deltaTime) {
                 if (!connection.limit || isBossDead) {
                     // set next room
                     current_room = connection.nextRoom;
+                    AISystem::init_aim();
                     PhysicsSystem::setRoom(current_room);
                     // set spawn point of player in new room
                     playerMotion.position = connection.nextSpawn;
