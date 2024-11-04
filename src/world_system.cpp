@@ -30,6 +30,7 @@ void WorldSystem::init() {
     m_goombaCeiling = Entity();
     m_flameThrower = Entity();
     isBossDead = false;
+    m_tutorial = Entity();
  
     // Player
 
@@ -132,6 +133,20 @@ void WorldSystem::init() {
     regionManager->init();
     current_room = regionManager->setRegion(makeRegion<Cesspit>);
     PhysicsSystem::setRoom(current_room);
+
+    // init tutorial (temp)
+    int tutorialWidth, tutorialHeight;
+    Sprite tutorialSprite(renderSystem.loadTexture("temp_tutorial.PNG", tutorialWidth, tutorialHeight));
+    tutorialWidth = static_cast<int> (tutorialWidth * 0.15f);
+    tutorialHeight = static_cast<int> (tutorialHeight * 0.15f);
+    registry.sprites.emplace(m_tutorial, std::move(tutorialSprite));
+
+    // Create and initialize a TransformComponent for the tutorial
+    TransformComponent tutorialTransform;
+    tutorialTransform.position = glm::vec3(renderSystem.getWindowWidth() * 0.9f, renderSystem.getWindowHeight() * 0.5f, 0.0);
+    tutorialTransform.scale = glm::vec3(tutorialWidth, tutorialHeight, 1.0);
+    tutorialTransform.rotation = 0.0f;
+    registry.transforms.emplace(m_tutorial, std::move(tutorialTransform));
 
     Mix_ReserveChannels(2);
     footstep_sound = Mix_LoadWAV(audio_path("footstep.wav").c_str());
@@ -586,6 +601,15 @@ void WorldSystem::render() {
             }
         }
     }
+
+    if (tutorialOpen) {
+        // tutorial side bar
+        Sprite tutorialSprite = registry.sprites.get(m_tutorial); 
+        TransformComponent tutorialTransform = registry.transforms.get(m_tutorial);
+
+        renderSystem.drawEntity(tutorialSprite, tutorialTransform);
+    }
+    
 }
 
 void WorldSystem::processPlayerInput(int key, int action) {
@@ -680,6 +704,11 @@ void WorldSystem::processPlayerInput(int key, int action) {
     // Hide/Show FPS Counter (F key)
     if (action == GLFW_PRESS && key == GLFW_KEY_F) {
         Show_FPS = !Show_FPS;
+    }
+
+    // Escape n to close the tutorial
+    if (action == GLFW_RELEASE && key == GLFW_KEY_N) {
+        tutorialOpen = !tutorialOpen;
     }
 }
 

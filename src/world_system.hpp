@@ -59,6 +59,7 @@ private:
 	Entity m_sword;
     Entity m_flameThrower;
 	Entity current_room;
+	Entity m_tutorial;
 	std::unique_ptr<RegionManager> regionManager;
 
 	void player_get_damaged(Entity hostile);
@@ -76,6 +77,7 @@ private:
     bool isBossDead = false;
     bool isFlameThrowerEquipped = false;
     bool flameThrower_enabled = false;
+	bool tutorialOpen = true;
 
     void updateBoundingBox(Entity entity);
 
