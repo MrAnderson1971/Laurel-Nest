@@ -277,7 +277,7 @@ Entity BossRoomStrategy::execute() {
     // note on bg: don't add motion
     registry.grounds.emplace(m_ground, std::move(Ground()));
 
-    Entity chicken = BossAISystem::init();
+    Entity chicken = BossAISystem::init(m_boss_room);
 
     room.insert(m_bg);
     room.insert(m_ceiling);
