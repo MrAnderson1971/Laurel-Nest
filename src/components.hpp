@@ -16,8 +16,6 @@ struct Sprite {
     float width;
     float height;
 
-    Sprite() = default;
-
     Sprite(GLuint id, float width, float height) : width(width), height(height) {
         textureID = std::shared_ptr<GLuint>(new GLuint(id), [](GLuint* id) {
             if (glIsTexture(*id)) {
