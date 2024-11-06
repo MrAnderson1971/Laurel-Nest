@@ -13,20 +13,17 @@ inline void PauseState::lerp(float start, float end, float t) const {
 }
 
 void PauseState::init() {
-    int pauseWidth, pauseHeight;
-    GLuint pauseTextureID = renderSystem.loadTexture("pause_screen.png", pauseWidth, pauseHeight);
+    Sprite pauseSprite = renderSystem.loadTexture("pause_screen.png");
 
     TransformComponent pauseTransform;
 
     pauseTransform.position = glm::vec3(renderSystem.getWindowWidth() / 2.0f, 0.0f, 0.0f);
 
-    pauseTransform.scale = glm::vec3(pauseWidth, pauseHeight, 1.0f);
+    pauseTransform.scale = glm::vec3(pauseSprite.width, pauseSprite.height, 1.0f);
     pauseTransform.rotation = 0.0f;
 
     // splashScreenEntity.addComponent<TransformComponent>(std::move(pauseTransform));
     registry.transforms.emplace(pauseScreenEntity, pauseTransform);
-
-    Sprite pauseSprite(pauseTextureID);
 
     // splashScreenEntity.addComponent<Sprite>(std::move(pauseSprite));
     registry.sprites.emplace(pauseScreenEntity, pauseSprite);

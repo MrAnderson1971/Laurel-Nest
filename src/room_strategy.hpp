@@ -9,15 +9,14 @@ public:
 
 	Entity SetBG(const std::string& bg) {
         Entity m_bg;
-        int bgWidth, bgHeight;
-        Sprite bgSprite(renderSystem.loadTexture(bg, bgWidth, bgHeight));
-        registry.sprites.emplace(m_bg, std::move(bgSprite));
+        Sprite bgSprite(renderSystem.loadTexture(bg));
 
         // Create and initialize a TransformComponent for the background
         TransformComponent bgTransform;
         bgTransform.position = glm::vec3(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() / 2.0f, 0.0);
-        bgTransform.scale = glm::vec3(bgWidth, bgHeight, 1.0);
+        bgTransform.scale = glm::vec3(bgSprite.width, bgSprite.height, 1.0);
         bgTransform.rotation = 0.0f;
+        registry.sprites.emplace(m_bg, bgSprite);
         registry.transforms.emplace(m_bg, std::move(bgTransform));
 
         Environment bgObj;
@@ -29,24 +28,23 @@ public:
 
     Entity SetCeiling(const std::string& ceiling, float xPos) {
         Entity m_ceiling;
-        int ceilingWidth, ceilingHeight;
-        Sprite ceilingSprite(renderSystem.loadTexture(ceiling, ceilingWidth, ceilingHeight));
-        ceilingHeight /= 2;
-        registry.sprites.emplace(m_ceiling, std::move(ceilingSprite));
+        Sprite ceilingSprite(renderSystem.loadTexture(ceiling));
+        ceilingSprite.height /= 2;
 
         // note: xpos of ceiling can be set through multiplication
         // Create and initialize a TransformComponent for the ceiling
         TransformComponent ceilingTransform;
         ceilingTransform.position = glm::vec3(renderSystem.getWindowWidth() * xPos, 100.0, 0.0);
-        ceilingTransform.scale = glm::vec3(ceilingWidth, ceilingHeight, 1.0);
+        ceilingTransform.scale = glm::vec3(ceilingSprite.width, ceilingSprite.height, 1.0);
         ceilingTransform.rotation = 0.0f;
-        registry.transforms.emplace(m_ceiling, std::move(ceilingTransform));
+        registry.sprites.emplace(m_ceiling, ceilingSprite);
+        registry.transforms.emplace(m_ceiling, ceilingTransform);
 
         // Create and initialize a Motion component for the ceiling
         Motion ceilingMotion;
         ceilingMotion.position = glm::vec2(renderSystem.getWindowWidth() * xPos, 100.0);
         ceilingMotion.velocity = glm::vec2(0, 0);
-        ceilingMotion.scale = { ceilingWidth, ceilingHeight };
+        ceilingMotion.scale = { ceilingSprite.width, ceilingSprite.height };
         registry.motions.emplace(m_ceiling, std::move(ceilingMotion));
 
         // add ceiling to environment to render out later
@@ -59,17 +57,16 @@ public:
 
     Entity SetGround(const std::string& ground, float width, float height, float xPos, float yPos) {
         Entity m_ground;
-        int groundWidth, groundHeight;
-        Sprite groundSprite(renderSystem.loadTexture(ground, groundWidth, groundHeight));
-        groundWidth = static_cast<int> (groundWidth * width);
-        groundHeight = static_cast<int> (groundHeight * height);
-        registry.sprites.emplace(m_ground, std::move(groundSprite));
+        Sprite groundSprite(renderSystem.loadTexture(ground));
+        registry.sprites.emplace(m_ground, groundSprite);
+        width *= groundSprite.width;
+        height *= groundSprite.height;
 
         // note: xPos is multiplicaiton of window width, yPos is subtracted from window height
         // Create and initialize a TransformComponent for the ground
         TransformComponent groundTransform;
         groundTransform.position = glm::vec3(renderSystem.getWindowWidth() * xPos, renderSystem.getWindowHeight() - yPos, 0.0);
-        groundTransform.scale = glm::vec3(groundWidth, groundHeight, 1.0);
+        groundTransform.scale = glm::vec3(width, height, 1.0);
         groundTransform.rotation = 0.0f;
         registry.transforms.emplace(m_ground, std::move(groundTransform));
 
@@ -77,7 +74,7 @@ public:
         Motion groundMotion;
         groundMotion.position = glm::vec2(renderSystem.getWindowWidth() * xPos, renderSystem.getWindowHeight() - yPos);
         groundMotion.velocity = glm::vec2(0, 0);
-        groundMotion.scale = { groundWidth, groundHeight };
+        groundMotion.scale = { width, height };
         registry.motions.emplace(m_ground, std::move(groundMotion));
 
         // add ground to environment to render out later
@@ -95,17 +92,16 @@ public:
 
     Entity SetPlatform(const std::string& tex, float width, float height, float xPos, float yPos) {
         Entity m_platform = Entity();
-        int platformWidth, platformHeight;
-        Sprite platformSprite(renderSystem.loadTexture(tex, platformWidth, platformHeight));
-        platformWidth = static_cast<int>(platformWidth * width);
-        platformHeight = static_cast<int> (platformHeight * height);
-        registry.sprites.emplace(m_platform, std::move(platformSprite));
+        Sprite platformSprite(renderSystem.loadTexture(tex));
+        registry.sprites.emplace(m_platform, platformSprite);
+        width *= platformSprite.width;
+        height *= platformSprite.height;
 
         // note: both xPos and yPos are multiplied to window width and height respectively
         // Create and initialize a TransformComponent for the platform
         TransformComponent platformTransform;
         platformTransform.position = glm::vec3(renderSystem.getWindowWidth() * xPos, renderSystem.getWindowHeight() * yPos, 0.0);
-        platformTransform.scale = glm::vec3(platformWidth, platformHeight, 1.0);
+        platformTransform.scale = glm::vec3(width, height, 1.0);
         platformTransform.rotation = 0.0f;
         registry.transforms.emplace(m_platform, std::move(platformTransform));
 
@@ -113,7 +109,7 @@ public:
         Motion platformMotion;
         platformMotion.position = glm::vec2(renderSystem.getWindowWidth() * xPos, renderSystem.getWindowHeight() * yPos);
         platformMotion.velocity = glm::vec2(0, 0);
-        platformMotion.scale = { platformWidth, platformHeight };
+        platformMotion.scale = { width, height };
         registry.motions.emplace(m_platform, std::move(platformMotion));
 
         // add platform to environment to render out later
@@ -133,15 +129,14 @@ public:
     Entity SetDoorEx(float width, float height, float xPos, float yPos) {
         //Connection connectingDoor;
         Entity m_door = Entity();
-        int doorWidth, doorHeight;
-        Sprite doorSprite(renderSystem.loadTexture("door.PNG", doorWidth, doorHeight));
-        doorWidth = static_cast<int>(doorWidth * width);
-        doorHeight = static_cast<int> (doorHeight * height);
-        registry.sprites.emplace(m_door, std::move(doorSprite));
+        Sprite doorSprite(renderSystem.loadTexture("door.PNG"));
+        registry.sprites.emplace(m_door, doorSprite);
+        width *= doorSprite.width;
+        height *= doorSprite.height;
 
         TransformComponent platformTransform;
         platformTransform.position = glm::vec3(renderSystem.getWindowWidth() * xPos, renderSystem.getWindowHeight() * yPos, 0.0);
-        platformTransform.scale = glm::vec3(doorWidth, doorHeight, 1.0);
+        platformTransform.scale = glm::vec3(width, height, 1.0);
         platformTransform.rotation = 0.0f;
         registry.transforms.emplace(m_door, std::move(platformTransform));
 
@@ -149,7 +144,7 @@ public:
         Motion doorMotion;
         doorMotion.position = glm::vec2(renderSystem.getWindowWidth() * xPos, renderSystem.getWindowHeight() * yPos);
         doorMotion.velocity = glm::vec2(0, 0);
-        doorMotion.scale = { doorWidth, doorHeight };
+        doorMotion.scale = { width, height };
         registry.motions.emplace(m_door, std::move(doorMotion));
 
         // add platform to environment to render out later

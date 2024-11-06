@@ -24,13 +24,7 @@ WorldSystem::~WorldSystem() {
 
 void WorldSystem::init() {
     // Create a new entity and register it in the ECSRegistry
-    m_player = Entity();
-    m_sword = Entity();
-    m_goombaLand = Entity();
-    m_goombaCeiling = Entity();
-    m_flameThrower = Entity();
     isBossDead = false;
-    m_tutorial = Entity();
  
     // Player
 
@@ -79,9 +73,7 @@ void WorldSystem::init() {
     registry.bounding_box.emplace(m_player);
 
     for (unsigned i = 1; i <= 4; i++) {
-        int playerWidth, playerHeight;
-        GLuint playerTextureID = renderSystem.loadTexture("walk_" + std::to_string(i) + ".png", playerWidth, playerHeight);
-        Sprite sprite(playerTextureID);
+        Sprite sprite = renderSystem.loadTexture("walk_" + std::to_string(i) + ".png");
         walkingSprites.push_back(sprite);
         if (i == 3) {
             idleSprite.push_back(sprite);
@@ -94,16 +86,12 @@ void WorldSystem::init() {
     }
 
     for (unsigned i = 1; i <= 4; i++) {
-        int playerWidth, playerHeight;
-        GLuint jumpTextureID = renderSystem.loadTexture("jump_" + std::to_string(i) + ".png", playerWidth, playerHeight);
-        Sprite jumpSprite(jumpTextureID);
+        Sprite jumpSprite = renderSystem.loadTexture("jump_" + std::to_string(i) + ".png");
         jumpingSprites.push_back(jumpSprite);
     }
 
     for (unsigned i = 1; i <= 5; i++) {
-        int playerWidth, playerHeight;
-        GLuint attackTextureID = renderSystem.loadTexture("attack_" + std::to_string(i) + ".png", playerWidth, playerHeight);
-        Sprite attackSprite(attackTextureID);
+        Sprite attackSprite = renderSystem.loadTexture("attack_" + std::to_string(i) + ".png");
         attackingSprites.push_back(attackSprite);
     }
 
@@ -135,15 +123,14 @@ void WorldSystem::init() {
     PhysicsSystem::setRoom(current_room);
 
     // init tutorial (temp)
-    int tutorialWidth, tutorialHeight;
-    Sprite tutorialSprite(renderSystem.loadTexture("temp_tutorial.PNG", tutorialWidth, tutorialHeight));
-    tutorialWidth = static_cast<int> (tutorialWidth * 0.15f);
-    tutorialHeight = static_cast<int> (tutorialHeight * 0.15f);
+    Sprite tutorialSprite(renderSystem.loadTexture("temp_tutorial.PNG"));
+    tutorialSprite.width *= 0.15f;
+    tutorialSprite.height *= 0.15f;
     registry.sprites.emplace(m_tutorial, std::move(tutorialSprite));
     // Create and initialize a TransformComponent for the tutorial
     TransformComponent tutorialTransform;
     tutorialTransform.position = glm::vec3(renderSystem.getWindowWidth() * 0.9f, renderSystem.getWindowHeight() * 0.5f, 0.0);
-    tutorialTransform.scale = glm::vec3(tutorialWidth, tutorialHeight, 1.0);
+    tutorialTransform.scale = glm::vec3(tutorialSprite.width, tutorialSprite.height, 1.0);
     tutorialTransform.rotation = 0.0f;
     registry.transforms.emplace(m_tutorial, std::move(tutorialTransform));
 
@@ -737,9 +724,7 @@ void WorldSystem::useFlameThrower() {
 
     Entity m_fireball = Entity();
 
-    int fireballWidth, fireballHeight;
-    GLuint fireballTextureID = renderSystem.loadTexture("Fireball.png", fireballWidth, fireballHeight);
-    Sprite fireballSprite(fireballTextureID);
+    Sprite fireballSprite = renderSystem.loadTexture("Fireball.png");
 
     registry.sprites.emplace(m_fireball, std::move(fireballSprite));
 
@@ -866,9 +851,8 @@ void WorldSystem::respawnGoomba() {
 
         registry.healths.emplace(m_goombaLand, Health{ 1, 1 }); // Goomba has 1 health
 
-        int goombaWidth, goombaHeight;
-        Sprite goombaSprite(renderSystem.loadTexture("goomba_walk_idle.PNG", goombaWidth, goombaHeight));
-        goombaWidth /= 4; goombaHeight /= 4;
+        Sprite goombaSprite(renderSystem.loadTexture("goomba_walk_idle.PNG"));
+        goombaSprite.width /= 4; goombaSprite.height /= 4;
         registry.sprites.get(m_goombaLand) = goombaSprite;
 
         auto& goombaMotion = registry.motions.get(m_goombaLand);
@@ -889,8 +873,8 @@ void WorldSystem::respawnGoomba() {
 
         if (!registry.bounding_box.has(m_goombaLand)) {
             BoundingBox goombaBoundingBox;
-            goombaBoundingBox.width = static_cast<float>(goombaWidth);
-            goombaBoundingBox.height = static_cast<float>(goombaHeight);
+            goombaBoundingBox.width = static_cast<float>(goombaSprite.width);
+            goombaBoundingBox.height = static_cast<float>(goombaSprite.height);
             registry.bounding_box.emplace(m_goombaLand, goombaBoundingBox);
         }
 
@@ -904,9 +888,7 @@ void WorldSystem::init_status_bar() {
 
     std::vector<Sprite> heartSprites;
     for (unsigned i = 0; i <= 3; i++) {
-        int heartWidth, heartHeight;
-        GLuint heartTextureID = renderSystem.loadTexture("heart_" + std::to_string(i) + ".png", heartWidth, heartHeight);
-        Sprite heartSprite(heartTextureID);      
+        Sprite heartSprite = renderSystem.loadTexture("heart_" + std::to_string(i) + ".png");
         heartSprites.push_back(heartSprite);
     }
     registry.heartSprites.emplace(m_hearts, std::move(heartSprites));
@@ -928,9 +910,7 @@ void WorldSystem::update_status_bar(int num_hearts) {
 }
 
 void WorldSystem::init_flame_thrower() {
-    int flameThrowerWidth, flameThrowerHeight;
-    GLuint flameThrowerTextureID = renderSystem.loadTexture("flame_thrower.png", flameThrowerWidth, flameThrowerHeight);
-    Sprite flameThrowerSprite(flameThrowerTextureID);
+    Sprite flameThrowerSprite = renderSystem.loadTexture("flame_thrower.png");
     registry.sprites.emplace(m_flameThrower, std::move(flameThrowerSprite));
 
     TransformComponent flameThrowerSpriteTransform;

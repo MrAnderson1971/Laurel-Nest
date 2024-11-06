@@ -13,21 +13,18 @@
 
 struct Sprite {
     std::shared_ptr<GLuint> textureID;
-    const float width = 1.0f;
-    const float height = 1.0f;
+    float width;
+    float height;
 
-    Sprite(GLuint id) {
+    Sprite() = default;
+
+    Sprite(GLuint id, float width = 1.f, float height = 1.f) : width(width), height(height) {
         textureID = std::shared_ptr<GLuint>(new GLuint(id), [](GLuint* id) {
             if (glIsTexture(*id)) {
                 glDeleteTextures(1, id);
             }
             delete id;
         });
-    }
-
-    Sprite& operator=(const Sprite& other) {
-        textureID = other.textureID;
-        return *this;
     }
 };
 

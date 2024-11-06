@@ -22,17 +22,16 @@ public:
         //Connection connectingDoor;
         Connection doorConnection;
         Entity m_door = Entity();
-        int doorWidth, doorHeight;
-        Sprite doorSprite(renderSystem.loadTexture("door.PNG", doorWidth, doorHeight));
-        doorWidth = static_cast<int>(doorWidth * width);
-        doorHeight = static_cast<int> (doorHeight * height);
-        registry.sprites.emplace(m_door, std::move(doorSprite));
+        Sprite doorSprite(renderSystem.loadTexture("door.PNG"));
+    	width *= doorSprite.width;
+    	height *= doorSprite.height;
+        registry.sprites.emplace(m_door, doorSprite);
 
         // Create and initialize a Motion component for the platform
         Motion doorMotion;
         doorMotion.position = glm::vec2(renderSystem.getWindowWidth() * xPos, renderSystem.getWindowHeight() * yPos);
         doorMotion.velocity = glm::vec2(0, 0);
-        doorMotion.scale = { doorWidth, doorHeight };
+        doorMotion.scale = { width, height };
         registry.motions.emplace(m_door, std::move(doorMotion));
 
         // add platform to environment to render out later

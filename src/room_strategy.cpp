@@ -17,16 +17,15 @@ Entity EntranceRoomStrategy::execute() {
 
     // spaceship
     Entity m_spaceship;
-    int spaceshipWidth, spaceshipHeight;
-    Sprite spaceshipSprite(renderSystem.loadTexture("spaceship.png", spaceshipWidth, spaceshipHeight));
-    spaceshipWidth /= 2;
-    spaceshipHeight /= 2;
+    Sprite spaceshipSprite(renderSystem.loadTexture("spaceship.png"));
+    spaceshipSprite.width /= 2;
+    spaceshipSprite.height /= 2;
     registry.sprites.emplace(m_spaceship, std::move(spaceshipSprite));
 
     // Create and initialize a TransformComponent for the spaceship
     TransformComponent spaceshipTransform;
     spaceshipTransform.position = glm::vec3(renderSystem.getWindowWidth() * 0.1f, renderSystem.getWindowHeight() * 0.38f, 0.0);
-    spaceshipTransform.scale = glm::vec3(spaceshipWidth, spaceshipHeight, 1.0);
+    spaceshipTransform.scale = glm::vec3(spaceshipSprite.width, spaceshipSprite.height, 1.0);
     spaceshipTransform.rotation = 0.0f;
     registry.transforms.emplace(m_spaceship, std::move(spaceshipTransform));
 

@@ -189,8 +189,9 @@ void GoombaLogic::init_goomba_ceiling_sprites() {
 }
 
 void GoombaLogic::init_goomba_sprite(int& width, int& height, std::string path, std::vector<Sprite>& Sprites) {
-    GLuint goombaSpriteTextureId = renderSystem.loadTexture(path, width, height);
-    Sprite goombaSprite(goombaSpriteTextureId);
+    Sprite goombaSprite(renderSystem.loadTexture(path));
+    width = static_cast<int>(goombaSprite.width);
+    height = static_cast<int>(goombaSprite.height);
     Sprites.push_back(goombaSprite);
 }
 
