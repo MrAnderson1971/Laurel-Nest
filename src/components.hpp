@@ -18,7 +18,7 @@ struct Sprite {
 
     Sprite() = default;
 
-    Sprite(GLuint id, float width = 1.f, float height = 1.f) : width(width), height(height) {
+    Sprite(GLuint id, float width, float height) : width(width), height(height) {
         textureID = std::shared_ptr<GLuint>(new GLuint(id), [](GLuint* id) {
             if (glIsTexture(*id)) {
                 glDeleteTextures(1, id);
