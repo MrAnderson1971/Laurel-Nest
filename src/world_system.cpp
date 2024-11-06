@@ -10,15 +10,70 @@
 #include "region_factory.hpp"
 #include <game_over_screen.hpp>
 
-bool Show_FPS = true;
-
 #include "boss_ai.hpp"
+
+bool Show_FPS = true;
+std::array<Sprite, texture_count>* g_texture_paths = nullptr;
 
 WorldSystem::WorldSystem() {
     regionManager = std::make_unique<RegionManager>();
+
+    // Initialize a temporary array with the initializer list
+    std::array<Sprite, static_cast<size_t>(TEXTURE_ASSET_ID::TEXTURE_COUNT)> temp_texture_paths = {
+        renderSystem.loadTexture("idle.png"),                // PLAYER_IDLE
+        renderSystem.loadTexture("walk_1.png"),              // PLAYER_WALK_1
+        renderSystem.loadTexture("walk_2.png"),              // PLAYER_WALK_2
+        renderSystem.loadTexture("walk_3.png"),              // PLAYER_WALK_3
+        renderSystem.loadTexture("walk_4.png"),              // PLAYER_WALK_4
+        renderSystem.loadTexture("jump_1.png"),              // PLAYER_JUMP_1
+        renderSystem.loadTexture("jump_2.png"),              // PLAYER_JUMP_2
+        renderSystem.loadTexture("jump_3.png"),              // PLAYER_JUMP_3
+        renderSystem.loadTexture("jump_4.png"),              // PLAYER_JUMP_4
+        renderSystem.loadTexture("attack_1.png"),            // PLAYER_ATTACK_1
+        renderSystem.loadTexture("attack_2.png"),            // PLAYER_ATTACK_2
+        renderSystem.loadTexture("attack_3.png"),            // PLAYER_ATTACK_3
+        renderSystem.loadTexture("attack_4.png"),            // PLAYER_ATTACK_4
+        renderSystem.loadTexture("attack_5.png"),            // PLAYER_ATTACK_5
+        renderSystem.loadTexture("goomba_walk_attack.PNG"),  // GOOMBA_WALK_ATTACK
+        renderSystem.loadTexture("goomba_walk_hit.PNG"),     // GOOMBA_WALK_HIT
+        renderSystem.loadTexture("goomba_walk_idle.PNG"),    // GOOMBA_WALK_IDLE
+        renderSystem.loadTexture("goomba_walk_notice.PNG"),  // GOOMBA_WALK_NOTICE
+        renderSystem.loadTexture("goomba_dead.PNG"),         // GOOMBA_DEAD
+        renderSystem.loadTexture("ceiling_fall.png"),        // CEILING_FALL
+        renderSystem.loadTexture("ceiling_hit.png"),         // CEILING_HIT
+        renderSystem.loadTexture("ceiling_idle.png"),        // CEILING_IDLE
+        renderSystem.loadTexture("ceiling_spit.png"),        // CEILING_SPIT
+        renderSystem.loadTexture("splash_screen.png"),       // SPLASH_SCREEN
+        renderSystem.loadTexture("demo_ground.png"),         // DEMO_GROUND
+        renderSystem.loadTexture("demo_ceiling.png"),        // DEMO_CEILING
+        renderSystem.loadTexture("heart_3.png"),             // HEART_3
+        renderSystem.loadTexture("heart_2.png"),             // HEART_2
+        renderSystem.loadTexture("heart_1.png"),             // HEART_1
+        renderSystem.loadTexture("heart_0.png"),             // HEART_0
+        renderSystem.loadTexture("cesspit_bg.png"),           // CESSPIT_BG
+        renderSystem.loadTexture("entrance_bg.PNG"),         // ENTRANCE_BG
+        renderSystem.loadTexture("spaceship.PNG"),           // SPACESHIP
+        renderSystem.loadTexture("pipes.PNG"),               // PIPES
+        renderSystem.loadTexture("cesspit_boss_bg.PNG"),     // CESSPIT_BOSS_BG
+        renderSystem.loadTexture("chicken_fire.png"),        // CHICKEN_FIRE
+        renderSystem.loadTexture("chicken_idle.png"),        // CHICKEN_IDLE
+        renderSystem.loadTexture("chicken_peck.png"),        // CHICKEN_PECK
+        renderSystem.loadTexture("chicken_walk1.png"),       // CHICKEN_WALK1
+        renderSystem.loadTexture("chicken_walk2.png"),       // CHICKEN_WALK2
+        renderSystem.loadTexture("chicken_walk3.png"),       // CHICKEN_WALK3
+        renderSystem.loadTexture("chicken_walk4.png"),       // CHICKEN_WALK4
+        renderSystem.loadTexture("chicken_walk5.png"),       // CHICKEN_WALK5
+        renderSystem.loadTexture("chicken_walk6.png"),       // CHICKEN_WALK6
+        renderSystem.loadTexture("flame_thrower.png"),       // FLAME_THROWER
+        renderSystem.loadTexture("Fireball.png")             // FIREBALL
+    };
+
+    texture_paths = std::make_unique<std::array<Sprite, texture_count>>(std::move(temp_texture_paths));
+    g_texture_paths = texture_paths.get();
 }
 
 WorldSystem::~WorldSystem() {
+    g_texture_paths = nullptr;
 	cleanup();
 }
 

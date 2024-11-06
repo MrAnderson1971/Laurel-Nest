@@ -7,9 +7,8 @@ public:
 	virtual Entity execute() = 0;
 	virtual ~RoomStrategy() = default;
 
-	Entity SetBG(const std::string& bg) {
+	Entity SetBG(Sprite bgSprite) {
         Entity m_bg;
-        Sprite bgSprite(renderSystem.loadTexture(bg));
 
         // Create and initialize a TransformComponent for the background
         TransformComponent bgTransform;
@@ -26,9 +25,8 @@ public:
         return m_bg;
 	}
 
-    Entity SetCeiling(const std::string& ceiling, float xPos) {
+    Entity SetCeiling(Sprite ceilingSprite, float xPos) {
         Entity m_ceiling;
-        Sprite ceilingSprite(renderSystem.loadTexture(ceiling));
         ceilingSprite.height /= 2;
 
         // note: xpos of ceiling can be set through multiplication
@@ -55,9 +53,8 @@ public:
         return m_ceiling;
     }
 
-    Entity SetGround(const std::string& ground, float width, float height, float xPos, float yPos) {
+    Entity SetGround(Sprite groundSprite, float width, float height, float xPos, float yPos) {
         Entity m_ground;
-        Sprite groundSprite(renderSystem.loadTexture(ground));
         registry.sprites.emplace(m_ground, groundSprite);
         width *= groundSprite.width;
         height *= groundSprite.height;
@@ -90,9 +87,8 @@ public:
         return m_ground;
     }
 
-    Entity SetPlatform(const std::string& tex, float width, float height, float xPos, float yPos) {
+    Entity SetPlatform(Sprite platformSprite, float width, float height, float xPos, float yPos) {
         Entity m_platform = Entity();
-        Sprite platformSprite(renderSystem.loadTexture(tex));
         registry.sprites.emplace(m_platform, platformSprite);
         width *= platformSprite.width;
         height *= platformSprite.height;
