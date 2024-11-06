@@ -66,6 +66,7 @@ WorldSystem::WorldSystem() {
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::CHICKEN_WALK6, renderSystem.loadTexture("chicken_walk6.png"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::FLAME_THROWER, renderSystem.loadTexture("flame_thrower.png"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::FIREBALL, renderSystem.loadTexture("Fireball.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::DOOR, renderSystem.loadTexture("door.PNG"));
 
     texture_paths = std::make_unique<std::unordered_map<TEXTURE_ASSET_ID, Sprite>>(std::move(temp_texture_paths));
     g_texture_paths = texture_paths.get();

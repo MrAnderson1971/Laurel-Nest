@@ -116,7 +116,7 @@ Connection Cesspit::SetDoor(float width, float height, float xPos, float yPos, E
     //Connection connectingDoor;
     Connection doorConnection;
     Entity m_door = Entity();
-    Sprite doorSprite(renderSystem.loadTexture("door.PNG"));
+    Sprite doorSprite(g_texture_paths->at(TEXTURE_ASSET_ID::DOOR));
     width *= doorSprite.width;
     height *= doorSprite.height;
     registry.sprites.emplace(m_door, doorSprite);
