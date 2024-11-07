@@ -508,7 +508,7 @@ void RenderSystem::drawEntity(const Sprite& sprite, const TransformComponent& tr
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, transform.position);
     model = glm::rotate(model, glm::radians(transform.rotation), glm::vec3(0.0f, 0.0f, 1.0f));
-    model = glm::scale(model, transform.scale * glm::vec3(sprite.width, sprite.height, 1.0f));
+    model = glm::scale(model, transform.scale * glm::vec3(1.f));
 
     // Set uniforms
     glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
@@ -516,14 +516,14 @@ void RenderSystem::drawEntity(const Sprite& sprite, const TransformComponent& tr
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
     // Bind texture
-    glBindTexture(GL_TEXTURE_2D, *sprite.textureID.get());
+    glBindTexture(GL_TEXTURE_2D, *sprite.textureID);
 
     // Bind VAO and draw
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
-GLuint RenderSystem::loadTexture(const std::string& filePath, int& outWidth, int& outHeight)
+Sprite RenderSystem::loadTexture(const std::string& filePath)
 {
     GLuint textureID;
     glGenTextures(1, &textureID);
@@ -552,8 +552,6 @@ GLuint RenderSystem::loadTexture(const std::string& filePath, int& outWidth, int
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        outWidth = width;
-        outHeight = height;
     }
     else
     {
@@ -563,7 +561,7 @@ GLuint RenderSystem::loadTexture(const std::string& filePath, int& outWidth, int
     }
     stbi_image_free(data);
 
-    return textureID;
+    return Sprite{textureID, static_cast<float>(width), static_cast<float>(height)};
 }
 
 void RenderSystem::loadPlayerMeshes(Entity playerEntity) {

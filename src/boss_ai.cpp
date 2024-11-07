@@ -98,54 +98,35 @@ Entity BossAISystem::init(Entity bossRoom) {
 	std::vector<Sprite> deathSprite;
 
 	// Idle
-	int idle_chickenWidth, idle_chickenHeight;
-	GLuint idle_chickenTextureID = renderSystem.loadTexture("ChickenIdle.png", idle_chickenWidth, idle_chickenHeight);
-	Sprite idle_sprite(idle_chickenTextureID);
-	idleSprite.push_back(idle_sprite);
+	idleSprite.push_back(renderSystem.loadTexture("ChickenIdle.png"));
 
 	// walking
 	for (unsigned i = 1; i <= 6; i++) {
-		int chickenWidth, chickenHeight;
-		GLuint chickenTextureID = renderSystem.loadTexture("ChickenWalk" + std::to_string(i) + ".png", chickenWidth, chickenHeight);
-		Sprite sprite(chickenTextureID);
-		walkingSprites.push_back(sprite);
+		walkingSprites.push_back(renderSystem.loadTexture("ChickenWalk" + std::to_string(i) + ".png"));
 	}
 
 	// Pecking
 	for (unsigned i = 1; i <= 2; i++) {
-		int chickenWidth, chickenHeight;
-		GLuint chickenTextureID = renderSystem.loadTexture("ChickenPeck" + std::to_string(i) + ".png", chickenWidth, chickenHeight);
-		Sprite sprite(chickenTextureID);
+		Sprite sprite(renderSystem.loadTexture("ChickenPeck" + std::to_string(i) + ".png"));
 		peckingSprites.push_back(sprite);
 	}
 
 	for (unsigned i = 1; i <= 2; i++) {
-		int chickenWidth, chickenHeight;
-		GLuint chickenTextureID = renderSystem.loadTexture("ChickenPeck" + std::to_string(3 - i) + ".png", chickenWidth, chickenHeight);
-		Sprite sprite(chickenTextureID);
-		peckingSprites.push_back(sprite);
+		peckingSprites.push_back(renderSystem.loadTexture("ChickenPeck" + std::to_string(3 - i) + ".png"));
 	}
 
 	// Flame
-	int flame_chickenWidth, flame_chickenHeight;
-	GLuint flame_chickenTextureID = renderSystem.loadTexture("ChickenFire.png", flame_chickenWidth, flame_chickenHeight);
-	Sprite flame_sprite(flame_chickenTextureID);
+	Sprite flame_sprite(renderSystem.loadTexture("ChickenFire.png"));
 	flameSprite.push_back(flame_sprite);
 	flameSprite.push_back(flame_sprite);
 	flameSprite.push_back(flame_sprite);
 	flameSprite.push_back(flame_sprite);
 
     // Hit
-    int hit_chickenWidth, hit_chickenHeight;
-    GLuint hit_chickenTextureID = renderSystem.loadTexture("ChickenHit.png", hit_chickenWidth, hit_chickenHeight);
-    Sprite hit_sprite(hit_chickenTextureID);
-    hitSprite.push_back(hit_sprite);
+    hitSprite.push_back(renderSystem.loadTexture("ChickenHit.png"));
 
 	// Death
-	int death_chickenWidth, death_chickenHeight;
-	GLuint death_chickenTextureID = renderSystem.loadTexture("ChickenDead.png", death_chickenWidth, death_chickenHeight);
-	Sprite death_sprite(death_chickenTextureID);
-	deathSprite.push_back(death_sprite);
+	deathSprite.push_back(renderSystem.loadTexture("ChickenDead.png"));
 
 	chickenAnimations.addState(ChickenState::CHICKEN_IDLE, std::move(idleSprite));
 	chickenAnimations.addState(ChickenState::CHICKEN_WALK, std::move(walkingSprites));
@@ -342,19 +323,18 @@ void BossAISystem::update_damaged_chicken_sprites(float delta_time) {
 void BossAISystem::flame_attack(float x_pos) {
 	Entity flame = Entity();
 
-	int flameWidth, flameHeight;
-	Sprite flameSprite(renderSystem.loadTexture("ChickenFireball.png", flameWidth, flameHeight));
-	registry.sprites.emplace(flame, std::move(flameSprite));
+	Sprite flameSprite = renderSystem.loadTexture("ChickenFireball.png");
+	registry.sprites.emplace(flame, renderSystem.loadTexture("ChickenFireball.png"));
 
 	Motion motion;
 	motion.position = { x_pos, 0.0f };
-	motion.scale = { flameWidth / 4.f, flameHeight / 4.f };
+	motion.scale = { flameSprite.width / 4.f, flameSprite.height / 4.f };
 	registry.motions.emplace(flame, std::move(motion));
 
 	// Create and initialize a TransformComponent for the background
 	TransformComponent flameTransform;
 	flameTransform.position = glm::vec3(x_pos, 0.0, 0.0);
-	flameTransform.scale = glm::vec3(flameWidth / 4.f, flameHeight / 4.f, 1.0);
+	flameTransform.scale = glm::vec3(flameSprite.width / 4.f, flameSprite.height / 4.f, 1.0);
 	flameTransform.rotation = 3.14f + 3.14f / 2.f;
 	registry.transforms.emplace(flame, std::move(flameTransform));
 

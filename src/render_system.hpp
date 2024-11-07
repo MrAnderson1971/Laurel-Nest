@@ -23,43 +23,6 @@ class RenderSystem
             };
 
     // Make sure these paths remain in sync with the associated enumerators.
-    const std::array<std::string, texture_count> texture_paths = {
-            textures_path("idle.png"),                // PLAYER_IDLE
-            textures_path("walk_1.png"),              // PLAYER_WALK_1
-            textures_path("walk_2.png"),              // PLAYER_WALK_2
-            textures_path("walk_3.png"),              // PLAYER_WALK_3
-            textures_path("walk_4.png"),              // PLAYER_WALK_4
-            textures_path("jump_1.png"),              // PLAYER_JUMP_1
-            textures_path("jump_2.png"),              // PLAYER_JUMP_2
-            textures_path("jump_3.png"),              // PLAYER_JUMP_3
-            textures_path("jump_4.png"),              // PLAYER_JUMP_4
-            textures_path("attack_1.png"),            // PLAYER_ATTACK_1
-            textures_path("attack_2.png"),            // PLAYER_ATTACK_2
-            textures_path("attack_3.png"),            // PLAYER_ATTACK_3
-            textures_path("attack_4.png"),            // PLAYER_ATTACK_4
-            textures_path("attack_5.png"),            // PLAYER_ATTACK_5
-            textures_path("goomba_walk_attack.PNG"),  // GOOMBA_WALK_ATTACK
-            textures_path("goomba_walk_hit.PNG"),     // GOOMBA_WALK_HIT
-            textures_path("goomba_walk_idle.PNG"),    // GOOMBA_WALK_IDLE
-            textures_path("goomba_walk_notice.PNG"),  // GOOMBA_WALK_NOTICE
-            textures_path("goomba_dead.PNG"),         // GOOMBA_DEAD
-            textures_path("ceiling_fall.png"),        // CEILING_FALL
-            textures_path("ceiling_hit.png"),         // CEILING_HIT
-            textures_path("ceiling_idle.png"),        // CEILING_IDLE
-            textures_path("splash_screen.png"),       // SPLASH_SCREEN
-            textures_path("demo_ground.png"),         // DEMO_GROUND
-            textures_path("demo_ceiling.png"),        // DEMO_CEILING
-            textures_path("heart_3.png"),             // HEART_3
-            textures_path("heart_2.png"),             // HEART_2
-            textures_path("heart_1.png"),             // HEART_1
-            textures_path("heart_0.png"),             // HEART_0
-            textures_path("entrance_bg.PNG"),         // ENTRANCE_BG
-            textures_path("spaceship.PNG"),           // SPACESHIP
-            textures_path("pipes.PNG"),               // PIPES
-            textures_path("cesspit_boss_bg.PNG"),     // CESSPIT_BOSS_BG
-            textures_path("flame_thrower.png"),        // FLAME_THROWER
-            textures_path("Fireball.png")             // FIREBALL
-    };
 
     std::array<GLuint, geometry_count> vertex_buffers;
     std::array<GLuint, geometry_count> index_buffers;
@@ -89,7 +52,7 @@ public:
     const Mesh& getPlayerMesh(Entity playerEntity, PlayerState state);
 
     void cleanup();
-    GLuint loadTexture(const std::string& filePath, int& outWidth, int& outHeight);
+    Sprite loadTexture(const std::string& filePath);
     void drawEntity(const Sprite& sprite, const TransformComponent& transform);
     bool fontInit(const std::string& font_filename, unsigned int font_default_size);
     void renderText(std::string text, float x, float y, float scale, const glm::vec3& color, const glm::mat4& trans);

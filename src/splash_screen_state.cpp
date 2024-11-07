@@ -13,32 +13,27 @@ SplashScreenState::~SplashScreenState() {
 
 void SplashScreenState::init()
 {
-    int splashWidth, splashHeight;
-    GLuint splashTextureID = renderSystem.loadTexture("splash_screen.png", splashWidth, splashHeight);
+    Sprite splashSprite = renderSystem.loadTexture("splash_screen.png");
 
     TransformComponent splashTransform;
     splashTransform.position = glm::vec3(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() / 2.0f, 0.0f);
 
-    splashTransform.scale = glm::vec3(splashWidth, splashHeight, 1.0f);
+    splashTransform.scale = glm::vec3(splashSprite.width, splashSprite.height, 1.0f);
     splashTransform.rotation = 0.0f;
 
     // splashScreenEntity.addComponent<TransformComponent>(std::move(splashTransform));
     registry.transforms.emplace(splashScreenEntity, std::move(splashTransform));
 
-    Sprite splashSprite(splashTextureID);
-
     // splashScreenEntity.addComponent<Sprite>(std::move(splashSprite));
     registry.sprites.emplace(splashScreenEntity, std::move(splashSprite));
 
-    int namesWidth, namesHeight;
-    GLuint namesTextureID = renderSystem.loadTexture("names.png", namesWidth, namesHeight);
+    Sprite namesSprite = renderSystem.loadTexture("names.png");
 
     TransformComponent namesTransform;
     namesTransform.position = vec3(renderSystem.getWindowWidth() / 2.f, renderSystem.getWindowHeight() - 100.f, 0.f);
-    namesTransform.scale = vec3(namesWidth / 2.f, namesHeight / 2.f, 1.f);
+    namesTransform.scale = vec3(namesSprite.width / 2.f, namesSprite.height / 2.f, 1.f);
     namesTransform.rotation = 0.f;
     registry.transforms.emplace(namesEntity, namesTransform);
-    Sprite namesSprite(namesTextureID);
     registry.sprites.emplace(namesEntity, namesSprite);
 }
 

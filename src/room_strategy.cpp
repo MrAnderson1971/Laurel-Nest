@@ -4,8 +4,7 @@
 #include "enemy.hpp"
 #include "boss_ai.hpp"
 #include "components.hpp"
-
-#pragma warning(disable: 4244)
+#include "world_system.hpp"
 
 Entity EntranceRoomStrategy::execute() {
     Entity m_entrance_room;
@@ -13,20 +12,19 @@ Entity EntranceRoomStrategy::execute() {
     Room room;
     ConnectionList doors;
     // background
-    Entity m_bg = SetBG("entrance_bg.png");
+    Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::ENTRANCE_BG));
 
     // spaceship
     Entity m_spaceship;
-    int spaceshipWidth, spaceshipHeight;
-    Sprite spaceshipSprite(renderSystem.loadTexture("spaceship.png", spaceshipWidth, spaceshipHeight));
-    spaceshipWidth /= 2;
-    spaceshipHeight /= 2;
+    Sprite spaceshipSprite(renderSystem.loadTexture("spaceship.png"));
+    spaceshipSprite.width /= 2;
+    spaceshipSprite.height /= 2;
     registry.sprites.emplace(m_spaceship, std::move(spaceshipSprite));
 
     // Create and initialize a TransformComponent for the spaceship
     TransformComponent spaceshipTransform;
     spaceshipTransform.position = glm::vec3(renderSystem.getWindowWidth() * 0.1f, renderSystem.getWindowHeight() * 0.38f, 0.0);
-    spaceshipTransform.scale = glm::vec3(spaceshipWidth, spaceshipHeight, 1.0);
+    spaceshipTransform.scale = glm::vec3(spaceshipSprite.width, spaceshipSprite.height, 1.0);
     spaceshipTransform.rotation = 0.0f;
     registry.transforms.emplace(m_spaceship, std::move(spaceshipTransform));
 
@@ -35,16 +33,16 @@ Entity EntranceRoomStrategy::execute() {
     registry.envObject.emplace(m_spaceship, std::move(spaceshipObg));
 
     // platform 1: upper left
-    Entity m_platform1 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.6f, 0.65f);
+    Entity m_platform1 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.6f, 0.65f);
 
     // platform 2: lower right
-    Entity m_platform2 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.75f, 0.9f);
+    Entity m_platform2 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.75f, 0.9f);
 
     // ground left
-    Entity m_ground_left = SetGround("demo_ground.png", 1.0f, 1.6f, 1.0f/30.0f, 200.0f);
+    Entity m_ground_left = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 1.6f, 1.0f/30.0f, 200.0f);
 
     // ground right
-    Entity m_ground_right = SetGround("demo_ground.png", 0.4f, 1.6f, 1.0f, 300.0f);
+    Entity m_ground_right = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.4f, 1.6f, 1.0f, 300.0f);
 
     // note on bg: don't add motion
     registry.grounds.emplace(m_ground_left, std::move(Ground()));
@@ -69,19 +67,19 @@ Entity Room1Strategy::execute() {
     Room room;
 
     // background
-    Entity m_bg = SetBG("cesspit_bg.png");
+    Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::CESSPIT_BG));
 
     // ceiling
-    Entity m_ceiling = SetCeiling("demo_ceiling.png", 0.66f);
+    Entity m_ceiling = SetCeiling(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_CEILING), 0.66f);
 
     // ground
-    Entity m_ground = SetGround("demo_ground.png", 1.0f, 1.0f, 0.5f, 20.0f);
+    Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 1.0f, 0.5f, 20.0f);
 
     // platform 1
-    Entity m_platform1 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.05f, 0.35f);
+    Entity m_platform1 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.05f, 0.35f);
 
     // platform 2
-    Entity m_platform2 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.18f, 0.65f);
+    Entity m_platform2 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.18f, 0.65f);
 
     // note on bg: don't add motion
     registry.grounds.emplace(m_ground, std::move(Ground()));
@@ -108,28 +106,28 @@ Entity Room2Strategy::execute() {
     Room room;
 
     // background
-    Entity m_bg = SetBG("cesspit_bg.png");
+    Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::CESSPIT_BG));
 
     // ceiling
-    Entity m_ceiling = SetCeiling("demo_ceiling.png", 0.5f);
+    Entity m_ceiling = SetCeiling(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_CEILING), 0.5f);
 
     // ground left
-    Entity m_ground_left = SetGround("demo_ground.png", 0.5f, 2.0f, 1.0f/30.0f, 300.0f);
+    Entity m_ground_left = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.5f, 2.0f, 1.0f/30.0f, 300.0f);
 
     // ground right
-    Entity m_ground_right = SetGround("demo_ground.png", 0.5f, 2.0f, 1.0f, 300.0f);
+    Entity m_ground_right = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.5f, 2.0f, 1.0f, 300.0f);
 
     // platform 1: left
-    Entity m_platform1 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.35f, 0.5f);
+    Entity m_platform1 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.35f, 0.5f);
 
     // platform 2: right
-    Entity m_platform2 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.68f, 0.65f);
+    Entity m_platform2 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.68f, 0.65f);
 
     // platform 3: bottom left
-    Entity m_platform3 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.45f, 0.78f);
+    Entity m_platform3 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.45f, 0.78f);
 
     // platform 4: bottom right
-    Entity m_platform4 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.58f, 0.95f);
+    Entity m_platform4 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.58f, 0.95f);
 
     // note on bg: don't add motion
     registry.grounds.emplace(m_ground_left, std::move(Ground()));
@@ -162,31 +160,32 @@ Entity Room3Strategy::execute() {
     Room room;
 
     // background
-    Entity m_bg = SetBG("cesspit_bg.png");
+    Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::CESSPIT_BG));
 
     // ceiling
-    Entity m_ceiling = SetCeiling("demo_ceiling.png", 0.3f);
+    Entity m_ceiling = SetCeiling(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_CEILING), 0.3f);
 
     // pipe1: left
-    Entity m_pipe1 = SetPlatform("pipes.png", 0.6f, 0.6f, 0.07f, 0.6f);
+    Entity m_pipe1 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::PIPES), 0.6f, 0.6f, 0.07f, 0.6f);
 
     // pipe2: middle
-    Entity m_pipe2 = SetPlatform("pipes.png", 0.6f, 0.6f, 0.3f, 0.8f);
+    Entity m_pipe2 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::PIPES), 0.6f, 0.6f, 0.3f, 0.8f);
 
     // pipe3: right
-    Entity m_pipe3 = SetPlatform("pipes.png", 0.6f, 0.6f, 0.53f, 1.0f);
+    Entity m_pipe3 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::PIPES), 0.6f, 0.6f, 0.53f, 1.0f);
 
     // heart powerUp
-    Entity m_heart = SetPlatform("extra_heart.png", 0.2f, 0.2f, 0.07f, 0.25f);
+    // TODO: add to texture_paths
+    Entity m_heart = SetPlatform(renderSystem.loadTexture("extra_heart.png"), 0.2f, 0.2f, 0.07f, 0.25f);
 
     // ground
-    Entity m_ground = SetGround("demo_ground.png", 1.0f, 1.0f, 0.5f, 0.0f);
+    Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 1.0f, 0.5f, 0.0f);
 
     // platform 1: top
-    Entity m_platform1 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.95f, 0.3f);
+    Entity m_platform1 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.95f, 0.3f);
 
     // platform 2: bottom
-    Entity m_platform2 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.8f, 0.6f);
+    Entity m_platform2 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.8f, 0.6f);
 
     // note on bg: don't add motion
     registry.grounds.emplace(m_ground, std::move(Ground()));
@@ -218,19 +217,19 @@ Entity Room4Strategy::execute() {
     Room room;
 
     // background
-    Entity m_bg = SetBG("cesspit_bg.png");
+    Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::CESSPIT_BG));
 
     // ceiling
-    Entity m_ceiling = SetCeiling("demo_ceiling.png", 0.5f);
+    Entity m_ceiling = SetCeiling(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_CEILING), 0.5f);
 
     // ground
-    Entity m_ground = SetGround("demo_ground.png", 1.0f, 1.0f, 0.5f, 20.0f);
+    Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 1.0f, 0.5f, 20.0f);
 
     // platform 1: top
-    Entity m_platform1 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.4f, 0.35f);
+    Entity m_platform1 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.4f, 0.35f);
 
     // platform 2: bottom
-    Entity m_platform2 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.2f, 0.6f);
+    Entity m_platform2 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.2f, 0.6f);
 
     // note on bg: don't add motion
     registry.grounds.emplace(m_ground, std::move(Ground()));
@@ -243,7 +242,7 @@ Entity Room4Strategy::execute() {
     GoombaLand g2 = GoombaLand();
     g2.init(renderSystem.getWindowWidth() / 2.0f, 50.f);
     GoombaLand g3 = GoombaLand();
-    g3.init(renderSystem.getWindowWidth(), 50.f);
+    g3.init(renderSystem.getWindowWidth() * 1.f, 50.f);
 
 
     room.insert(m_bg);
@@ -266,13 +265,13 @@ Entity BossRoomStrategy::execute() {
     Room room;
 
     // background
-    Entity m_bg = SetBG("cesspit_boss_bg.PNG");
+    Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::CESSPIT_BOSS_BG));
 
     // ceiling
-    Entity m_ceiling = SetCeiling("demo_ceiling.png", 0.5f);
+    Entity m_ceiling = SetCeiling(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_CEILING), 0.5f);
 
     // ground
-    Entity m_ground = SetGround("demo_ground.png", 1.0f, 1.0f, 0.5f, 20.0f);
+    Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 1.0f, 0.5f, 20.0f);
 
     // note on bg: don't add motion
     registry.grounds.emplace(m_ground, std::move(Ground()));
@@ -295,38 +294,38 @@ Entity ExitRoomStrategy::execute() {
     Room room;
 
     // background
-    Entity m_bg = SetBG("entrance_bg.PNG");
+    Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::ENTRANCE_BG));
 
     // platform 1: mid left bottom
-    Entity m_platform1 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.28f, 0.65f);
+    Entity m_platform1 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.28f, 0.65f);
 
     // platform 2: bottom
-    Entity m_platform2 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.55f, 0.8f);
+    Entity m_platform2 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.55f, 0.8f);
 
     // platform 3: top
-    Entity m_platform3 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.5f, 0.28f);
+    Entity m_platform3 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.5f, 0.28f);
 
     // platform 4: mid right
-    Entity m_platform4 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.72f, 0.52f);
+    Entity m_platform4 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.72f, 0.52f);
 
     // platform 5: mid left top
-    Entity m_platform5 = SetPlatform("demo_ground.png", 0.1f, 0.2f, 0.38f, 0.4f);
+    Entity m_platform5 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.38f, 0.4f);
 
     // platform 6: top right barrier
-    Entity m_platform6 = SetPlatform("demo_ground.png", 0.3f, 0.2f, 0.75f, 0.f);
+    Entity m_platform6 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.3f, 0.2f, 0.75f, 0.f);
 
     // platform 7: top left barrier
-    Entity m_platform7 = SetPlatform("demo_ground.png", 0.3f, 0.2f, 0.25f, 0.f);
+    Entity m_platform7 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.3f, 0.2f, 0.25f, 0.f);
 
     // left wall
     int yPos = renderSystem.getWindowHeight();
-    Entity m_wall_left = SetGround("demo_ground.png", 0.4f, 2.8f, 0.0f, yPos / 2.f + 300.f);
+    Entity m_wall_left = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.4f, 2.8f, 0.0f, yPos / 2.f + 300.f);
 
     // right right
-    Entity m_wall_right = SetGround("demo_ground.png", 0.4f, 2.8f, 1.0f, yPos / 2.f);
+    Entity m_wall_right = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.4f, 2.8f, 1.0f, yPos / 2.f);
 
     // ground
-    Entity m_ground = SetGround("demo_ground.png", 1.0f, 0.5f, 0.5f, 0.f);
+    Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 0.5f, 0.5f, 0.f);
 
     // note on bg: don't add motion
     registry.grounds.emplace(m_wall_left, std::move(Ground()));
@@ -354,4 +353,151 @@ Entity ExitRoomStrategy::execute() {
     room.insert(m_platform7);
     registry.rooms.emplace(m_exit_room, std::move(room));
     return m_exit_room;
+}
+
+Entity RoomStrategy::SetBG(Sprite bgSprite) {
+    Entity m_bg;
+
+    // Create and initialize a TransformComponent for the background
+    TransformComponent bgTransform;
+    bgTransform.position = glm::vec3(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() / 2.0f, 0.0);
+    bgTransform.scale = glm::vec3(bgSprite.width, bgSprite.height, 1.0);
+    bgTransform.rotation = 0.0f;
+    registry.sprites.emplace(m_bg, bgSprite);
+    registry.transforms.emplace(m_bg, std::move(bgTransform));
+
+    Environment bgObj;
+    registry.envObject.emplace(m_bg, std::move(bgObj));
+
+    // return bg
+    return m_bg;
+}
+
+Entity RoomStrategy::SetCeiling(Sprite ceilingSprite, float xPos) {
+    Entity m_ceiling;
+    ceilingSprite.height /= 2;
+
+    // note: xpos of ceiling can be set through multiplication
+    // Create and initialize a TransformComponent for the ceiling
+    TransformComponent ceilingTransform;
+    ceilingTransform.position = glm::vec3(renderSystem.getWindowWidth() * xPos, 100.0, 0.0);
+    ceilingTransform.scale = glm::vec3(ceilingSprite.width, ceilingSprite.height, 1.0);
+    ceilingTransform.rotation = 0.0f;
+    registry.sprites.emplace(m_ceiling, ceilingSprite);
+    registry.transforms.emplace(m_ceiling, ceilingTransform);
+
+    // Create and initialize a Motion component for the ceiling
+    Motion ceilingMotion;
+    ceilingMotion.position = glm::vec2(renderSystem.getWindowWidth() * xPos, 100.0);
+    ceilingMotion.velocity = glm::vec2(0, 0);
+    ceilingMotion.scale = { ceilingSprite.width, ceilingSprite.height };
+    registry.motions.emplace(m_ceiling, std::move(ceilingMotion));
+
+    // add ceiling to environment to render out later
+    Environment ceilingObj;
+    registry.envObject.emplace(m_ceiling, std::move(ceilingObj));
+
+    // return ceiling
+    return m_ceiling;
+}
+
+Entity RoomStrategy::SetGround(Sprite groundSprite, float width, float height, float xPos, float yPos) {
+    Entity m_ground;
+    registry.sprites.emplace(m_ground, groundSprite);
+    width *= groundSprite.width;
+    height *= groundSprite.height;
+
+    // note: xPos is multiplicaiton of window width, yPos is subtracted from window height
+    // Create and initialize a TransformComponent for the ground
+    TransformComponent groundTransform;
+    groundTransform.position = glm::vec3(renderSystem.getWindowWidth() * xPos, renderSystem.getWindowHeight() - yPos, 0.0);
+    groundTransform.scale = glm::vec3(width, height, 1.0);
+    groundTransform.rotation = 0.0f;
+    registry.transforms.emplace(m_ground, std::move(groundTransform));
+
+    // Create and initialize a Motion component for the ground
+    Motion groundMotion;
+    groundMotion.position = glm::vec2(renderSystem.getWindowWidth() * xPos, renderSystem.getWindowHeight() - yPos);
+    groundMotion.velocity = glm::vec2(0, 0);
+    groundMotion.scale = { width, height };
+    registry.motions.emplace(m_ground, std::move(groundMotion));
+
+    // add ground to environment to render out later
+    Environment groundObj;
+    registry.envObject.emplace(m_ground, std::move(groundObj));
+
+    registry.bounding_box.emplace(m_ground);
+    BoundingBox bb = registry.bounding_box.get(m_ground);
+    bb.height = groundSprite.height;
+    bb.width = groundSprite.width;
+
+    // return ground
+    return m_ground;
+}
+
+Entity RoomStrategy::SetPlatform(Sprite platformSprite, float width, float height, float xPos, float yPos) {
+    Entity m_platform = Entity();
+    registry.sprites.emplace(m_platform, platformSprite);
+    width *= platformSprite.width;
+    height *= platformSprite.height;
+
+    // note: both xPos and yPos are multiplied to window width and height respectively
+    // Create and initialize a TransformComponent for the platform
+    TransformComponent platformTransform;
+    platformTransform.position = glm::vec3(renderSystem.getWindowWidth() * xPos, renderSystem.getWindowHeight() * yPos, 0.0);
+    platformTransform.scale = glm::vec3(width, height, 1.0);
+    platformTransform.rotation = 0.0f;
+    registry.transforms.emplace(m_platform, std::move(platformTransform));
+
+    // Create and initialize a Motion component for the platform
+    Motion platformMotion;
+    platformMotion.position = glm::vec2(renderSystem.getWindowWidth() * xPos, renderSystem.getWindowHeight() * yPos);
+    platformMotion.velocity = glm::vec2(0, 0);
+    platformMotion.scale = { width, height };
+    registry.motions.emplace(m_platform, std::move(platformMotion));
+
+    // add platform to environment to render out later
+    Environment platformObj;
+    registry.envObject.emplace(m_platform, std::move(platformObj));
+
+    registry.bounding_box.emplace(m_platform);
+    BoundingBox bb = registry.bounding_box.get(m_platform);
+    bb.height = platformSprite.height;
+    bb.width = platformSprite.width;
+
+    // return ground
+    return m_platform;
+}
+
+Entity RoomStrategy::SetDoorEx(float width, float height, float xPos, float yPos) {
+    //Connection connectingDoor;
+    Entity m_door = Entity();
+    Sprite doorSprite(renderSystem.loadTexture("door.PNG"));
+    registry.sprites.emplace(m_door, doorSprite);
+    width *= doorSprite.width;
+    height *= doorSprite.height;
+
+    TransformComponent platformTransform;
+    platformTransform.position = glm::vec3(renderSystem.getWindowWidth() * xPos, renderSystem.getWindowHeight() * yPos, 0.0);
+    platformTransform.scale = glm::vec3(width, height, 1.0);
+    platformTransform.rotation = 0.0f;
+    registry.transforms.emplace(m_door, std::move(platformTransform));
+
+    // Create and initialize a Motion component for the platform
+    Motion doorMotion;
+    doorMotion.position = glm::vec2(renderSystem.getWindowWidth() * xPos, renderSystem.getWindowHeight() * yPos);
+    doorMotion.velocity = glm::vec2(0, 0);
+    doorMotion.scale = { width, height };
+    registry.motions.emplace(m_door, std::move(doorMotion));
+
+    // add platform to environment to render out later
+    Environment doorObj;
+    registry.envObject.emplace(m_door, std::move(doorObj));
+
+    registry.bounding_box.emplace(m_door);
+    BoundingBox bb = registry.bounding_box.get(m_door);
+    bb.height = doorSprite.height;
+    bb.width = doorSprite.width;
+
+    return m_door;
 }

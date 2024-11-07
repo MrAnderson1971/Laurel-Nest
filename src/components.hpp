@@ -13,21 +13,16 @@
 
 struct Sprite {
     std::shared_ptr<GLuint> textureID;
-    const float width = 1.0f;
-    const float height = 1.0f;
+    float width;
+    float height;
 
-    Sprite(GLuint id) {
+    Sprite(GLuint id, float width, float height) : width(width), height(height) {
         textureID = std::shared_ptr<GLuint>(new GLuint(id), [](GLuint* id) {
             if (glIsTexture(*id)) {
                 glDeleteTextures(1, id);
             }
             delete id;
         });
-    }
-
-    Sprite& operator=(const Sprite& other) {
-        textureID = other.textureID;
-        return *this;
     }
 };
 
@@ -246,54 +241,55 @@ struct ScreenState
 
 enum class TEXTURE_ASSET_ID {
     PLAYER_IDLE = 0,                      // idle.png
-    PLAYER_WALK_1 = PLAYER_IDLE + 1,      // walk_1.png
-    PLAYER_WALK_2 = PLAYER_WALK_1 + 1,    // walk_2.png
-    PLAYER_WALK_3 = PLAYER_WALK_2 + 1,    // walk_3.png
-    PLAYER_WALK_4 = PLAYER_WALK_3 + 1,    // walk_4.png
-    PLAYER_JUMP_1 = PLAYER_WALK_4 + 1,    // jump_1.png
-    PLAYER_JUMP_2 = PLAYER_JUMP_1 + 1,    // jump_2.png
-    PLAYER_JUMP_3 = PLAYER_JUMP_2 + 1,    // jump_3.png
-    PLAYER_JUMP_4 = PLAYER_JUMP_3 + 1,    // jump_4.png
-    PLAYER_ATTACK_1 = PLAYER_JUMP_4 + 1,  // attack_1.png
-    PLAYER_ATTACK_2 = PLAYER_ATTACK_1 + 1,// attack_2.png
-    PLAYER_ATTACK_3 = PLAYER_ATTACK_2 + 1,// attack_3.png
-    PLAYER_ATTACK_4 = PLAYER_ATTACK_3 + 1,// attack_4.png
-    PLAYER_ATTACK_5 = PLAYER_ATTACK_4 + 1,// attack_5.png
-    GOOMBA_WALK_ATTACK = PLAYER_ATTACK_5 + 1,  // goomba_walk_attack.PNG
-    GOOMBA_WALK_HIT = GOOMBA_WALK_ATTACK + 1,  // goomba_walk_hit.PNG
-    GOOMBA_WALK_IDLE = GOOMBA_WALK_HIT + 1,    // goomba_walk_idle.PNG
-    GOOMBA_WALK_NOTICE = GOOMBA_WALK_IDLE + 1, // goomba_walk_notice.PNG
-    GOOMBA_DEAD = GOOMBA_WALK_NOTICE + 1,      // goomba_dead.PNG
-    CEILING_FALL = GOOMBA_DEAD + 1,            // ceiling_fall.png
-    CEILING_HIT = CEILING_FALL + 1,            // ceiling_hit.png
-    CEILING_IDLE = CEILING_HIT + 1,            // ceiling_idle.png
-    CEILING_SPIT = CEILING_IDLE + 1,           // ceiling_spit.png 
-    SPLASH_SCREEN = CEILING_SPIT + 1,          // splash_screen.png
-    DEMO_GROUND = SPLASH_SCREEN + 1,           // demo_ground.png
-    DEMO_CEILING = DEMO_GROUND + 1,            // demo_ceiling.png
-    HEART_3 = DEMO_CEILING + 1,                 // heart_3.png
-    HEART_2 = HEART_3 + 1,                     // heart_2.png
-    HEART_1 = HEART_2 + 1,                     // heart_1.png
-    HEART_0 = HEART_1 + 1,                     // heart_0.png
-    CESSPIT_BG = HEART_0 + 1,                  // cesspit_bg.png
-    ENTRANCE_BG = CESSPIT_BG + 1,              // entrance_bg.png
-    SPACESHIP = ENTRANCE_BG + 1,               // spaceship.png
-    PIPES = SPACESHIP + 1,                     // pipes.png
-    CESSPIT_BOSS_BG = PIPES + 1,               // cesspit_boss_bg
-    CHICKEN_FIRE = CESSPIT_BOSS_BG + 1,
-    CHICKEN_IDLE = CHICKEN_FIRE + 1,
-    CHICKEN_PECK = CHICKEN_IDLE + 1,
-    CHICKEN_WALK1 = CHICKEN_PECK + 1,
-    CHICKEN_WALK2 = CHICKEN_WALK1 + 1,
-    CHICKEN_WALK3 = CHICKEN_WALK2 + 1,
-    CHICKEN_WALK4 = CHICKEN_WALK3 + 1,
-    CHICKEN_WALK5 = CHICKEN_WALK4 + 1,
-    CHICKEN_WALK6 = CHICKEN_WALK5 + 1,
-    FLAME_THROWER = CHICKEN_WALK6 + 1,       // flame_thrower.png
-    FIREBALL = FLAME_THROWER + 1,              // Fireball.png
-    TEXTURE_COUNT = FIREBALL + 1        // Count of all textures
+    PLAYER_WALK_1,                        // walk_1.png
+    PLAYER_WALK_2,                        // walk_2.png
+    PLAYER_WALK_3,                        // walk_3.png
+    PLAYER_WALK_4,                        // walk_4.png
+    PLAYER_JUMP_1,                        // jump_1.png
+    PLAYER_JUMP_2,                        // jump_2.png
+    PLAYER_JUMP_3,                        // jump_3.png
+    PLAYER_JUMP_4,                        // jump_4.png
+    PLAYER_ATTACK_1,                      // attack_1.png
+    PLAYER_ATTACK_2,                      // attack_2.png
+    PLAYER_ATTACK_3,                      // attack_3.png
+    PLAYER_ATTACK_4,                      // attack_4.png
+    PLAYER_ATTACK_5,                      // attack_5.png
+    GOOMBA_WALK_ATTACK,                   // goomba_walk_attack.PNG
+    GOOMBA_WALK_HIT,                      // goomba_walk_hit.PNG
+    GOOMBA_WALK_IDLE,                     // goomba_walk_idle.PNG
+    GOOMBA_WALK_NOTICE,                   // goomba_walk_notice.PNG
+    GOOMBA_DEAD,                          // goomba_dead.PNG
+    CEILING_FALL,                         // ceiling_fall.png
+    CEILING_HIT,                          // ceiling_hit.png
+    CEILING_IDLE,                         // ceiling_idle.png
+    CEILING_SPIT,                         // ceiling_spit.png 
+    SPLASH_SCREEN,                        // splash_screen.png
+    DEMO_GROUND,                          // demo_ground.png
+    DEMO_CEILING,                         // demo_ceiling.png
+    HEART_3,                              // heart_3.png
+    HEART_2,                              // heart_2.png
+    HEART_1,                              // heart_1.png
+    HEART_0,                              // heart_0.png
+    CESSPIT_BG,                           // cesspit_bg.png
+    ENTRANCE_BG,                          // entrance_bg.png
+    SPACESHIP,                            // spaceship.png
+    PIPES,                                // pipes.png
+    CESSPIT_BOSS_BG,                      // cesspit_boss_bg
+    CHICKEN_FIRE,                         // chicken_fire.png
+    CHICKEN_IDLE,                         // chicken_idle.png
+    CHICKEN_PECK,                         // chicken_peck.png
+    CHICKEN_WALK1,                        // chicken_walk1.png
+    CHICKEN_WALK2,                        // chicken_walk2.png
+    CHICKEN_WALK3,                        // chicken_walk3.png
+    CHICKEN_WALK4,                        // chicken_walk4.png
+    CHICKEN_WALK5,                        // chicken_walk5.png
+    CHICKEN_WALK6,                        // chicken_walk6.png
+    FLAME_THROWER,                        // flame_thrower.png
+    FIREBALL,                             // Fireball.png
+    DOOR,                                 // Door.PNG
+    TEXTURE_COUNT                         // Count of all textures
 };
-const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
+constexpr int texture_count = static_cast<int>(TEXTURE_ASSET_ID::TEXTURE_COUNT);
 
 enum class EFFECT_ASSET_ID {
     PLAYER_EFFECT = 0,

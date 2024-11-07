@@ -96,7 +96,7 @@ void GoombaLogic::update_damaged_goomba_sprites(float delta_time) {
         }
         RecentlyDamagedTimer& damaged_timer = registry.recentDamageTimers.get(entity);
         damaged_timer.counter_ms -= delta_time;
-        if (damaged_timer.counter_ms <= 0) {
+        if (damaged_timer.counter_ms <= 0 && registry.healths.has(entity)) {
             std::vector<Sprite> goombaSprites;
             Motion& goombaMotion = registry.motions.get(entity);
             Motion scale_;
@@ -189,8 +189,9 @@ void GoombaLogic::init_goomba_ceiling_sprites() {
 }
 
 void GoombaLogic::init_goomba_sprite(int& width, int& height, std::string path, std::vector<Sprite>& Sprites) {
-    GLuint goombaSpriteTextureId = renderSystem.loadTexture(path, width, height);
-    Sprite goombaSprite(goombaSpriteTextureId);
+    Sprite goombaSprite(renderSystem.loadTexture(path));
+    width = static_cast<int>(goombaSprite.width);
+    height = static_cast<int>(goombaSprite.height);
     Sprites.push_back(goombaSprite);
 }
 

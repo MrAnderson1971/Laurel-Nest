@@ -10,27 +10,76 @@
 #include "region_factory.hpp"
 #include <game_over_screen.hpp>
 
-bool Show_FPS = true;
-
 #include "boss_ai.hpp"
+
+bool Show_FPS = true;
+std::unordered_map<TEXTURE_ASSET_ID, Sprite>* g_texture_paths = nullptr;
 
 WorldSystem::WorldSystem() {
     regionManager = std::make_unique<RegionManager>();
+
+    std::unordered_map<TEXTURE_ASSET_ID, Sprite> temp_texture_paths;
+
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::PLAYER_IDLE, renderSystem.loadTexture("idle.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::PLAYER_WALK_1, renderSystem.loadTexture("walk_1.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::PLAYER_WALK_2, renderSystem.loadTexture("walk_2.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::PLAYER_WALK_3, renderSystem.loadTexture("walk_3.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::PLAYER_WALK_4, renderSystem.loadTexture("walk_4.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::PLAYER_JUMP_1, renderSystem.loadTexture("jump_1.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::PLAYER_JUMP_2, renderSystem.loadTexture("jump_2.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::PLAYER_JUMP_3, renderSystem.loadTexture("jump_3.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::PLAYER_JUMP_4, renderSystem.loadTexture("jump_4.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::PLAYER_ATTACK_1, renderSystem.loadTexture("attack_1.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::PLAYER_ATTACK_2, renderSystem.loadTexture("attack_2.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::PLAYER_ATTACK_3, renderSystem.loadTexture("attack_3.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::PLAYER_ATTACK_4, renderSystem.loadTexture("attack_4.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::PLAYER_ATTACK_5, renderSystem.loadTexture("attack_5.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::GOOMBA_WALK_ATTACK, renderSystem.loadTexture("goomba_walk_attack.PNG"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::GOOMBA_WALK_HIT, renderSystem.loadTexture("goomba_walk_hit.PNG"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::GOOMBA_WALK_IDLE, renderSystem.loadTexture("goomba_walk_idle.PNG"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::GOOMBA_WALK_NOTICE, renderSystem.loadTexture("goomba_walk_notice.PNG"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::GOOMBA_DEAD, renderSystem.loadTexture("goomba_dead.PNG"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::CEILING_FALL, renderSystem.loadTexture("ceiling_fall.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::CEILING_HIT, renderSystem.loadTexture("ceiling_hit.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::CEILING_IDLE, renderSystem.loadTexture("ceiling_idle.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::CEILING_SPIT, renderSystem.loadTexture("ceiling_spit.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::SPLASH_SCREEN, renderSystem.loadTexture("splash_screen.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::DEMO_GROUND, renderSystem.loadTexture("demo_ground.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::DEMO_CEILING, renderSystem.loadTexture("demo_ceiling.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::HEART_3, renderSystem.loadTexture("heart_3.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::HEART_2, renderSystem.loadTexture("heart_2.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::HEART_1, renderSystem.loadTexture("heart_1.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::HEART_0, renderSystem.loadTexture("heart_0.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::CESSPIT_BG, renderSystem.loadTexture("cesspit_bg.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::ENTRANCE_BG, renderSystem.loadTexture("entrance_bg.PNG"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::SPACESHIP, renderSystem.loadTexture("spaceship.PNG"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::PIPES, renderSystem.loadTexture("pipes.PNG"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::CESSPIT_BOSS_BG, renderSystem.loadTexture("cesspit_boss_bg.PNG"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::CHICKEN_FIRE, renderSystem.loadTexture("chicken_fire.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::CHICKEN_IDLE, renderSystem.loadTexture("chicken_idle.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::CHICKEN_PECK, renderSystem.loadTexture("chicken_peck.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::CHICKEN_WALK1, renderSystem.loadTexture("chicken_walk1.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::CHICKEN_WALK2, renderSystem.loadTexture("chicken_walk2.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::CHICKEN_WALK3, renderSystem.loadTexture("chicken_walk3.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::CHICKEN_WALK4, renderSystem.loadTexture("chicken_walk4.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::CHICKEN_WALK5, renderSystem.loadTexture("chicken_walk5.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::CHICKEN_WALK6, renderSystem.loadTexture("chicken_walk6.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::FLAME_THROWER, renderSystem.loadTexture("flame_thrower.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::FIREBALL, renderSystem.loadTexture("Fireball.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::DOOR, renderSystem.loadTexture("door.PNG"));
+
+    texture_paths = std::make_unique<std::unordered_map<TEXTURE_ASSET_ID, Sprite>>(std::move(temp_texture_paths));
+    g_texture_paths = texture_paths.get();
 }
 
 WorldSystem::~WorldSystem() {
+    g_texture_paths = nullptr;
 	cleanup();
 }
 
 void WorldSystem::init() {
     // Create a new entity and register it in the ECSRegistry
-    m_player = Entity();
-    m_sword = Entity();
-    m_goombaLand = Entity();
-    m_goombaCeiling = Entity();
-    m_flameThrower = Entity();
     isBossDead = false;
-    m_tutorial = Entity();
  
     // Player
 
@@ -71,46 +120,31 @@ void WorldSystem::init() {
     // Create and initialize the Animation component
 
     Animation<PlayerState> playerAnimations(IDLE);
-    std::vector<Sprite> idleSprite;
-    std::vector<Sprite> walkingSprites;
-    std::vector<Sprite> jumpingSprites;
-    std::vector<Sprite> attackingSprites;
 
     registry.bounding_box.emplace(m_player);
+      
+    Sprite idleSprite = g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_WALK_3);
 
-    for (unsigned i = 1; i <= 4; i++) {
-        int playerWidth, playerHeight;
-        GLuint playerTextureID = renderSystem.loadTexture("walk_" + std::to_string(i) + ".png", playerWidth, playerHeight);
-        Sprite sprite(playerTextureID);
-        walkingSprites.push_back(sprite);
-        if (i == 3) {
-            idleSprite.push_back(sprite);
-        }
-
-        //Adding Bounding Box to the entities
-        BoundingBox x = registry.bounding_box.get(m_player);
-        x.height = sprite.height;
-        x.width = sprite.width;
-    }
-
-    for (unsigned i = 1; i <= 4; i++) {
-        int playerWidth, playerHeight;
-        GLuint jumpTextureID = renderSystem.loadTexture("jump_" + std::to_string(i) + ".png", playerWidth, playerHeight);
-        Sprite jumpSprite(jumpTextureID);
-        jumpingSprites.push_back(jumpSprite);
-    }
-
-    for (unsigned i = 1; i <= 5; i++) {
-        int playerWidth, playerHeight;
-        GLuint attackTextureID = renderSystem.loadTexture("attack_" + std::to_string(i) + ".png", playerWidth, playerHeight);
-        Sprite attackSprite(attackTextureID);
-        attackingSprites.push_back(attackSprite);
-    }
-
-    playerAnimations.addState(PlayerState::WALKING, std::move(walkingSprites));
-    playerAnimations.addState(PlayerState::IDLE, std::move(idleSprite));
-    playerAnimations.addState(PlayerState::JUMPING, std::move(jumpingSprites));
-    playerAnimations.addState(PlayerState::ATTACKING, std::move(attackingSprites));
+    playerAnimations.addState(PlayerState::WALKING, std::vector<Sprite> {
+        g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_WALK_1),
+            g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_WALK_2),
+            g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_WALK_3),
+            g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_WALK_4),
+    });
+    playerAnimations.addState(PlayerState::IDLE, std::vector<Sprite>{idleSprite});
+    playerAnimations.addState(PlayerState::JUMPING, std::vector<Sprite> {
+        g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_JUMP_1),
+            g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_JUMP_2),
+            g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_JUMP_3),
+            g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_JUMP_4),
+    });
+    playerAnimations.addState(PlayerState::ATTACKING, std::vector<Sprite> {
+        g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_ATTACK_1),
+            g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_ATTACK_2),
+            g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_ATTACK_3),
+            g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_ATTACK_4),
+            g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_ATTACK_5),
+    });
     registry.playerAnimations.emplace(m_player, std::move(playerAnimations));
 
 
@@ -135,15 +169,14 @@ void WorldSystem::init() {
     PhysicsSystem::setRoom(current_room);
 
     // init tutorial (temp)
-    int tutorialWidth, tutorialHeight;
-    Sprite tutorialSprite(renderSystem.loadTexture("temp_tutorial.PNG", tutorialWidth, tutorialHeight));
-    tutorialWidth = static_cast<int> (tutorialWidth * 0.15f);
-    tutorialHeight = static_cast<int> (tutorialHeight * 0.15f);
+    Sprite tutorialSprite(renderSystem.loadTexture("temp_tutorial.PNG"));
+    tutorialSprite.width *= 0.15f;
+    tutorialSprite.height *= 0.15f;
     registry.sprites.emplace(m_tutorial, std::move(tutorialSprite));
     // Create and initialize a TransformComponent for the tutorial
     TransformComponent tutorialTransform;
     tutorialTransform.position = glm::vec3(renderSystem.getWindowWidth() * 0.9f, renderSystem.getWindowHeight() * 0.5f, 0.0);
-    tutorialTransform.scale = glm::vec3(tutorialWidth, tutorialHeight, 1.0);
+    tutorialTransform.scale = glm::vec3(tutorialSprite.width, tutorialSprite.height, 1.0);
     tutorialTransform.rotation = 0.0f;
     registry.transforms.emplace(m_tutorial, std::move(tutorialTransform));
 
@@ -737,9 +770,7 @@ void WorldSystem::useFlameThrower() {
 
     Entity m_fireball = Entity();
 
-    int fireballWidth, fireballHeight;
-    GLuint fireballTextureID = renderSystem.loadTexture("Fireball.png", fireballWidth, fireballHeight);
-    Sprite fireballSprite(fireballTextureID);
+    Sprite fireballSprite = g_texture_paths->at(TEXTURE_ASSET_ID::FIREBALL);
 
     registry.sprites.emplace(m_fireball, std::move(fireballSprite));
 
@@ -866,9 +897,8 @@ void WorldSystem::respawnGoomba() {
 
         registry.healths.emplace(m_goombaLand, Health{ 1, 1 }); // Goomba has 1 health
 
-        int goombaWidth, goombaHeight;
-        Sprite goombaSprite(renderSystem.loadTexture("goomba_walk_idle.PNG", goombaWidth, goombaHeight));
-        goombaWidth /= 4; goombaHeight /= 4;
+        Sprite goombaSprite = g_texture_paths->at(TEXTURE_ASSET_ID::GOOMBA_WALK_IDLE);
+        goombaSprite.width /= 4; goombaSprite.height /= 4;
         registry.sprites.get(m_goombaLand) = goombaSprite;
 
         auto& goombaMotion = registry.motions.get(m_goombaLand);
@@ -889,8 +919,8 @@ void WorldSystem::respawnGoomba() {
 
         if (!registry.bounding_box.has(m_goombaLand)) {
             BoundingBox goombaBoundingBox;
-            goombaBoundingBox.width = static_cast<float>(goombaWidth);
-            goombaBoundingBox.height = static_cast<float>(goombaHeight);
+            goombaBoundingBox.width = static_cast<float>(goombaSprite.width);
+            goombaBoundingBox.height = static_cast<float>(goombaSprite.height);
             registry.bounding_box.emplace(m_goombaLand, goombaBoundingBox);
         }
 
@@ -902,14 +932,12 @@ void WorldSystem::respawnGoomba() {
 void WorldSystem::init_status_bar() {
     // Create and initialize the Heart sprites
 
-    std::vector<Sprite> heartSprites;
-    for (unsigned i = 0; i <= 3; i++) {
-        int heartWidth, heartHeight;
-        GLuint heartTextureID = renderSystem.loadTexture("heart_" + std::to_string(i) + ".png", heartWidth, heartHeight);
-        Sprite heartSprite(heartTextureID);      
-        heartSprites.push_back(heartSprite);
-    }
-    registry.heartSprites.emplace(m_hearts, std::move(heartSprites));
+    registry.heartSprites.emplace(m_hearts, std::vector<Sprite> {
+        g_texture_paths->at(TEXTURE_ASSET_ID::HEART_0),
+        g_texture_paths->at(TEXTURE_ASSET_ID::HEART_1),
+        g_texture_paths->at(TEXTURE_ASSET_ID::HEART_2),
+        g_texture_paths->at(TEXTURE_ASSET_ID::HEART_3)
+        });
 
     // Create and initialize the a Transform component for the Heart sprites
     TransformComponent heartSpriteTransform;
@@ -928,9 +956,7 @@ void WorldSystem::update_status_bar(int num_hearts) {
 }
 
 void WorldSystem::init_flame_thrower() {
-    int flameThrowerWidth, flameThrowerHeight;
-    GLuint flameThrowerTextureID = renderSystem.loadTexture("flame_thrower.png", flameThrowerWidth, flameThrowerHeight);
-    Sprite flameThrowerSprite(flameThrowerTextureID);
+    Sprite flameThrowerSprite = g_texture_paths->at(TEXTURE_ASSET_ID::FLAME_THROWER);
     registry.sprites.emplace(m_flameThrower, std::move(flameThrowerSprite));
 
     TransformComponent flameThrowerSpriteTransform;

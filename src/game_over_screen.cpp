@@ -9,18 +9,15 @@ GameOverScreen::~GameOverScreen() {
 
 void GameOverScreen::init()
 {
-    int splashWidth, splashHeight;
-    GLuint splashTextureID = renderSystem.loadTexture("game_over.png", splashWidth, splashHeight);
+    Sprite splashSprite = renderSystem.loadTexture("game_over.png");
 
     TransformComponent splashTransform;
     splashTransform.position = glm::vec3(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() / 2.0f, 0.0f);
 
-    splashTransform.scale = glm::vec3(splashWidth, splashHeight, 1.0f);
+    splashTransform.scale = glm::vec3(splashSprite.width, splashSprite.height, 1.0f);
     splashTransform.rotation = 0.0f;
 
     registry.transforms.emplace(gameOverEntity, std::move(splashTransform));
-
-    Sprite splashSprite(splashTextureID);
 
     registry.sprites.emplace(gameOverEntity, std::move(splashSprite));
 }
