@@ -19,6 +19,7 @@ void OptionsMenu::init() {
 
 void OptionsMenu::cleanup() {
 	registry.remove_all_components_of(helpEntity);
+	registry.remove_all_components_of(tutorialEntity);
 }
 
 void OptionsMenu::update(float) {

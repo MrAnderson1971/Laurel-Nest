@@ -1,6 +1,7 @@
 #include "pause_state.hpp"
 #include "ecs_registry.hpp"
 #include "splash_screen_state.hpp"
+#include "options_menu.hpp"
 
 void MenuState::on_key(int key, int, int action, int) {
     if (action == GLFW_RELEASE && key == GLFW_KEY_ESCAPE) {
@@ -38,8 +39,11 @@ void PauseState::init() {
     });
     registry.sprites.emplace(pauseScreenEntity, pauseSprite);
 
+    MenuItem optionsComponent(renderSystem.loadTexture("menu/options_active.png"), renderSystem.loadTexture("menu/options_inactive.png"),
+        renderSystem.getWindowWidth() / 2.f, renderSystem.getWindowHeight() / 2.f + 150.f);
+    registry.menuItems.emplace(optionsEntity, optionsComponent);
     MenuItem quitComponent{renderSystem.loadTexture("menu/quit_active.png"), renderSystem.loadTexture("menu/quit_inactive.png"),
-    renderSystem.getWindowWidth() / 2.f, renderSystem.getWindowHeight() / 2.f + 200.f};
+    renderSystem.getWindowWidth() / 2.f, renderSystem.getWindowHeight() / 2.f + 300.f};
     registry.menuItems.emplace(quitEntity, quitComponent);
 }
 
@@ -51,6 +55,7 @@ void PauseState::update(float deltaTime) {
 void PauseState::cleanup() {
     registry.remove_all_components_of(pauseScreenEntity);
     registry.remove_all_components_of(quitEntity);
+    registry.remove_all_components_of(optionsEntity);
 }
 
 void PauseState::render() {
@@ -66,15 +71,16 @@ void PauseState::render() {
         // Use the render system to draw the entity
         renderSystem.drawEntity(sprite, transform);
     }
-    for (const auto& component : registry.menuItems.components) {
-        renderSystem.drawEntity(component.isPointWithin(mouse_pos) ? component.active : component.inactive,
-            component.isPointWithin(mouse_pos) ? component.transformActive : component.transformInactive);
-    }
+    renderMenuItem(registry.menuItems.get(optionsEntity), mouse_pos);
+    renderMenuItem(registry.menuItems.get(quitEntity), mouse_pos);
 }
 
 void PauseState::on_mouse_click(int button, int action, const glm::vec2& position, int mods) {
     if (action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_LEFT) {
-        if (registry.menuItems.get(quitEntity).isPointWithin(mouse_pos)) {
+        if (registry.menuItems.get(optionsEntity).isPointWithin(mouse_pos)) {
+            renderSystem.getGameStateManager()->pauseState<OptionsMenu>();
+        }
+        else if (registry.menuItems.get(quitEntity).isPointWithin(mouse_pos)) {
             renderSystem.getGameStateManager()->resetPausedStates<SplashScreenState>();
         }
     }

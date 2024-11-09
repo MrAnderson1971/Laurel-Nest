@@ -27,5 +27,6 @@ private:
     float timePassed;
     Entity pauseScreenEntity;
     Entity quitEntity;
+    Entity optionsEntity;
     inline void lerp(float start, float end, float t) const;
 };
