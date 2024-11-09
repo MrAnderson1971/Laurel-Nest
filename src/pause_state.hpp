@@ -4,14 +4,10 @@
 
 class MenuState : public GameState {
 public:
-    void on_key(int key, int, int action, int) override {
-        if (action == GLFW_RELEASE && key == GLFW_KEY_ESCAPE) {
-            renderSystem.getGameStateManager()->resumeState();
-        }
-    }
-    void on_mouse_move(const vec2& position) override {
-        mouse_pos = position;
-    }
+    void on_key(int key, int, int action, int) override;
+    void on_mouse_move(const vec2& position) override;
+    void render() override;
+
 protected:
     vec2 mouse_pos;
 };

@@ -1,6 +1,7 @@
 #include "splash_screen_state.hpp"
 #include "components.hpp"
 #include "world_system.hpp"
+#include "options_menu.hpp"
 #include <iostream>
 
 SplashScreenState::~SplashScreenState() {
@@ -12,7 +13,7 @@ void SplashScreenState::init()
     Sprite splashSprite = renderSystem.loadTexture("splash_screen.png");
 
     registry.transforms.emplace(splashScreenEntity, TransformComponent{
-        vec3(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() / 2.0f - 50.f, 0.0f),
+        vec3(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() / 2.0f - 100.f, 0.0f),
         vec3(splashSprite.width, splashSprite.height, 1.0f), 0.0
         });
     registry.sprites.emplace(splashScreenEntity, splashSprite);
@@ -24,8 +25,12 @@ void SplashScreenState::init()
         });
     registry.sprites.emplace(namesEntity, namesSprite);
 
+    MenuItem optionsComponent(renderSystem.loadTexture("menu/options_active.png"), renderSystem.loadTexture("menu/options_inactive.png"),
+        renderSystem.getWindowWidth() / 2.f, renderSystem.getWindowHeight() / 2.f + 150.f);
+    registry.menuItems.emplace(optionsEntity, optionsComponent);
+
     MenuItem quitComponent(renderSystem.loadTexture("menu/quit_active.png"), renderSystem.loadTexture("menu/quit_inactive.png"),
-        renderSystem.getWindowWidth() / 2.f, renderSystem.getWindowHeight() / 2.f + 200.f);
+        renderSystem.getWindowWidth() / 2.f, renderSystem.getWindowHeight() / 2.f + 300.f);
     registry.menuItems.emplace(quitEntity, quitComponent);
 }
 
@@ -51,34 +56,36 @@ void SplashScreenState::update(float )
 
 void SplashScreenState::on_mouse_click(int button, int action, const glm::vec2& position, int) {
     if (action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_LEFT) {
-        if (registry.menuItems.get(quitEntity).isPointWithin(mouse_pos)) {
+        if (registry.menuItems.get(optionsEntity).isPointWithin(mouse_pos)) {
+            renderSystem.getGameStateManager()->pauseState<OptionsMenu>();
+        }
+        else if (registry.menuItems.get(quitEntity).isPointWithin(mouse_pos)) {
             renderSystem.closeWindow();
         }
     }
 }
 
-void SplashScreenState::render()
-{
-    // Clear the screen
-    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+void SplashScreenState::render() {
+    MenuState::render();
 
-    for (const auto& entity : registry.sprites.entities) {
-        if (!registry.transforms.has(entity)) {
-            continue;
-        }
+    {
         // Retrieve the Sprite and TransformComponent using the registry
-        auto& sprite = registry.sprites.get(entity);
-        auto& transform = registry.transforms.get(entity);
+        auto& sprite = registry.sprites.get(splashScreenEntity);
+        auto& transform = registry.transforms.get(splashScreenEntity);
 
         // Use the render system to draw the entity
         renderSystem.drawEntity(sprite, transform);
     }
+    {
+        // Retrieve the Sprite and TransformComponent using the registry
+        auto& sprite = registry.sprites.get(namesEntity);
+        auto& transform = registry.transforms.get(namesEntity);
 
-    for (const auto& component : registry.menuItems.components) {
-        renderSystem.drawEntity(component.isPointWithin(mouse_pos) ? component.active : component.inactive,
-            component.isPointWithin(mouse_pos) ? component.transformActive : component.transformInactive);
+        // Use the render system to draw the entity
+        renderSystem.drawEntity(sprite, transform);
     }
+    renderMenuItem(registry.menuItems.get(optionsEntity), mouse_pos);
+    renderMenuItem(registry.menuItems.get(quitEntity), mouse_pos);
 }
 
 void SplashScreenState::cleanup() {

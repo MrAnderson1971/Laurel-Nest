@@ -19,4 +19,5 @@ private:
     Entity splashScreenEntity;
     Entity namesEntity;
     Entity quitEntity;
+    Entity optionsEntity;
 };

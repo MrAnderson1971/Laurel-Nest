@@ -88,3 +88,7 @@ private:
 };
 
 extern RenderSystem& renderSystem;
+inline void renderMenuItem(const MenuItem& component, const vec2& mouse_pos) {
+    renderSystem.drawEntity(component.isPointWithin(mouse_pos) ? component.active : component.inactive,
+        component.isPointWithin(mouse_pos) ? component.transformActive : component.transformInactive);
+}

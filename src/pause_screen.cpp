@@ -2,6 +2,22 @@
 #include "ecs_registry.hpp"
 #include "splash_screen_state.hpp"
 
+void MenuState::on_key(int key, int, int action, int) {
+    if (action == GLFW_RELEASE && key == GLFW_KEY_ESCAPE) {
+        renderSystem.getGameStateManager()->resumeState();
+    }
+}
+
+void MenuState::on_mouse_move(const vec2& position) {
+    mouse_pos = position;
+}
+
+void MenuState::render() {
+    // Clear the screen
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+}
+
 PauseState::PauseState(): timePassed(0) {}
 
 PauseState::~PauseState() {
@@ -38,8 +54,7 @@ void PauseState::cleanup() {
 }
 
 void PauseState::render() {
-    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    MenuState::render();
 
     if (registry.sprites.has(pauseScreenEntity) &&
         registry.transforms.has(pauseScreenEntity))

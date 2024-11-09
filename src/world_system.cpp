@@ -182,7 +182,6 @@ void WorldSystem::init() {
 
     Mix_ReserveChannels(2);
     footstep_sound = Mix_LoadWAV(audio_path("footstep.wav").c_str());
-    Mix_VolumeChunk(footstep_sound, MIX_MAX_VOLUME / 5);
     sword_sound = Mix_LoadWAV(audio_path("sword.wav").c_str());
     hurt_sound = Mix_LoadWAV(audio_path("hurt.wav").c_str());
     if (!(footstep_sound && sword_sound && hurt_sound)) {
