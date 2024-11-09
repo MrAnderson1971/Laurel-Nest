@@ -16,7 +16,7 @@ int main()
         return -1;
     }
 
-    gameStateManager.changeState(std::make_unique<SplashScreenState>());
+    gameStateManager.changeState<SplashScreenState>();
 
     renderSystem.renderLoop();
 

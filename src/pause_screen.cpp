@@ -1,10 +1,11 @@
 #include "pause_state.hpp"
 #include "ecs_registry.hpp"
+#include "splash_screen_state.hpp"
 
 PauseState::PauseState(): timePassed(0) {}
 
 PauseState::~PauseState() {
-    cleanup();
+    PauseState::cleanup();
 }
 
 inline void PauseState::lerp(float start, float end, float t) const {
@@ -15,18 +16,15 @@ inline void PauseState::lerp(float start, float end, float t) const {
 void PauseState::init() {
     Sprite pauseSprite = renderSystem.loadTexture("pause_screen.png");
 
-    TransformComponent pauseTransform;
-
-    pauseTransform.position = glm::vec3(renderSystem.getWindowWidth() / 2.0f, 0.0f, 0.0f);
-
-    pauseTransform.scale = glm::vec3(pauseSprite.width, pauseSprite.height, 1.0f);
-    pauseTransform.rotation = 0.0f;
-
-    // splashScreenEntity.addComponent<TransformComponent>(std::move(pauseTransform));
-    registry.transforms.emplace(pauseScreenEntity, pauseTransform);
-
-    // splashScreenEntity.addComponent<Sprite>(std::move(pauseSprite));
+    registry.transforms.emplace(pauseScreenEntity, TransformComponent{
+        vec3(renderSystem.getWindowWidth() / 2.0f, 0.0f, 0.0f),
+        vec3(pauseSprite.width, pauseSprite.height, 1.0f), 0.f
+    });
     registry.sprites.emplace(pauseScreenEntity, pauseSprite);
+
+    MenuItem quitComponent{renderSystem.loadTexture("menu/quit_active.png"), renderSystem.loadTexture("menu/quit_inactive.png"),
+    renderSystem.getWindowWidth() / 2.f, renderSystem.getWindowHeight() / 2.f + 200.f};
+    registry.menuItems.emplace(quitEntity, quitComponent);
 }
 
 void PauseState::update(float deltaTime) {
@@ -36,6 +34,7 @@ void PauseState::update(float deltaTime) {
 
 void PauseState::cleanup() {
     registry.remove_all_components_of(pauseScreenEntity);
+    registry.remove_all_components_of(quitEntity);
 }
 
 void PauseState::render() {
@@ -52,21 +51,16 @@ void PauseState::render() {
         // Use the render system to draw the entity
         renderSystem.drawEntity(sprite, transform);
     }
-}
-
-void PauseState::on_key(int button, int scancode, int action, int mods) {
-    (void)button; (void)scancode; (void)action; (void)mods;
-    if (action == GLFW_RELEASE && button == GLFW_KEY_ESCAPE) {
-        glfwSetWindowShouldClose(renderSystem.getWindow(), GLFW_TRUE);
+    for (const auto& component : registry.menuItems.components) {
+        renderSystem.drawEntity(component.isPointWithin(mouse_pos) ? component.active : component.inactive,
+            component.isPointWithin(mouse_pos) ? component.transformActive : component.transformInactive);
     }
-}
-
-void PauseState::on_mouse_move(const glm::vec2& position) {
-    (void)position;
 }
 
 void PauseState::on_mouse_click(int button, int action, const glm::vec2& position, int mods) {
     if (action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_LEFT) {
-            renderSystem.getGameStateManager()->resumeState();
+        if (registry.menuItems.get(quitEntity).isPointWithin(mouse_pos)) {
+            renderSystem.getGameStateManager()->resetPausedStates<SplashScreenState>();
+        }
     }
 }

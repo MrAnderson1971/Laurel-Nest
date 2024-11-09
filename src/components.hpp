@@ -401,3 +401,24 @@ struct Character {
 
 struct HeartPowerUp {
 };
+
+struct MenuItem {
+    Sprite active;
+    Sprite inactive;
+    TransformComponent transformActive;
+    TransformComponent transformInactive;
+
+    MenuItem(Sprite&& activeSprite, Sprite&& inactiveSprite, float x, float y) : active(activeSprite), inactive(inactiveSprite) {
+        transformActive = TransformComponent{ vec3(x, y, 0.f), vec3(active.width, active.height, 1.f), 0.f };
+        transformInactive = TransformComponent{vec3(x, y, 0.f), vec3(inactive.width, inactive.height, 1.f), 0.f};
+    }
+
+    bool isPointWithin(const vec2& pos) const {
+        vec2 halfbb = vec2( transformActive.scale.x, transformActive.scale.y ) / 2.f;
+        float minx = transformActive.position.x - halfbb.x;
+        float maxx = transformActive.position.x + halfbb.x;
+        float miny = transformActive.position.y - halfbb.y;
+        float maxy = transformActive.position.y + halfbb.y;
+        return minx <= pos.x && pos.x <= maxx && miny <= pos.y && pos.y <= maxy;
+    }
+};

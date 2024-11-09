@@ -28,7 +28,7 @@ void GameOverScreen::cleanup() {
 
 void GameOverScreen::on_key(int key, int, int action, int) {
     if (action == GLFW_PRESS) {
-        renderSystem.getGameStateManager()->changeState(std::make_unique<SplashScreenState>());
+        renderSystem.getGameStateManager()->changeState<SplashScreenState>();
     }
 }
 

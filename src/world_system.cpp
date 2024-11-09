@@ -668,7 +668,7 @@ void WorldSystem::render() {
 void WorldSystem::processPlayerInput(int key, int action) {
     // Escape key to close the window
     if (action == GLFW_RELEASE && key == GLFW_KEY_ESCAPE) {
-        renderSystem.getGameStateManager()->pauseState(std::make_unique<PauseState>());
+        renderSystem.getGameStateManager()->pauseState<PauseState>();
     }
 
     // Move left (A key)
@@ -866,7 +866,7 @@ void WorldSystem::player_get_damaged(Entity hostile) {
         player_health.current_health -= hostile_damage.damage_dealt;
         update_status_bar(player_health.current_health);
         if (player_health.current_health == 0) {
-            renderSystem.getGameStateManager()->changeState(std::make_unique<GameOverScreen>());
+            renderSystem.getGameStateManager()->changeState<GameOverScreen>();
         }
     }
 }
