@@ -61,7 +61,6 @@ bool Mesh::loadFromOBJFile(std::string obj_path, std::vector<ColoredVertex>& out
                 out_normal_indices.push_back((uint16_t)normalIndex[i] - 1);
             }
 
-            // Extract edges from the triangular face
             for (int i = 0; i < 3; i++) {
                 uint16_t v1 = (uint16_t)vertexIndex[i] - 1;
                 uint16_t v2 = (uint16_t)vertexIndex[(i + 1) % 3] - 1;
@@ -76,11 +75,7 @@ bool Mesh::loadFromOBJFile(std::string obj_path, std::vector<ColoredVertex>& out
     }
     fclose(file);
 
-    // Convert edge set to vector
-    out_edges.clear();
-    for (const auto& edge_pair : edge_set) {
-        out_edges.push_back({ edge_pair.first, edge_pair.second });
-    }
+    out_edges.assign(edge_set.begin(), edge_set.end());
 
     // Compute bounds of the mesh
     vec3 max_position = { -99999,-99999,-99999 };
