@@ -34,7 +34,7 @@ void PauseState::init() {
     Sprite pauseSprite = renderSystem.loadTexture("pause_screen.png");
 
     registry.transforms.emplace(pauseScreenEntity, TransformComponent{
-        vec3(renderSystem.getWindowWidth() / 2.0f, 0.0f, 0.0f),
+        vec3(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() / 2.f - 100, 0.0f),
         vec3(pauseSprite.width, pauseSprite.height, 1.0f), 0.f
     });
     registry.sprites.emplace(pauseScreenEntity, pauseSprite);
@@ -43,7 +43,7 @@ void PauseState::init() {
         renderSystem.getWindowWidth() / 2.f, renderSystem.getWindowHeight() / 2.f + 150.f);
     registry.menuItems.emplace(optionsEntity, optionsComponent);
     MenuItem quitComponent{renderSystem.loadTexture("menu/quit_active.png"), renderSystem.loadTexture("menu/quit_inactive.png"),
-    renderSystem.getWindowWidth() / 2.f, renderSystem.getWindowHeight() / 2.f + 300.f};
+    renderSystem.getWindowWidth() / 2.f, renderSystem.getWindowHeight() / 2.f + 150.f + optionsComponent.transformInactive.scale.y * 3};
     registry.menuItems.emplace(quitEntity, quitComponent);
 }
 

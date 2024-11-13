@@ -30,7 +30,7 @@ void SplashScreenState::init()
     registry.menuItems.emplace(optionsEntity, optionsComponent);
 
     MenuItem quitComponent(renderSystem.loadTexture("menu/quit_active.png"), renderSystem.loadTexture("menu/quit_inactive.png"),
-        renderSystem.getWindowWidth() / 2.f, renderSystem.getWindowHeight() / 2.f + 300.f);
+        renderSystem.getWindowWidth() / 2.f, renderSystem.getWindowHeight() / 2.f + 150.f + optionsComponent.transformInactive.scale.y * 3);
     registry.menuItems.emplace(quitEntity, quitComponent);
 }
 
