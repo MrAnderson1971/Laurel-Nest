@@ -10,9 +10,6 @@ Birdmantown::~Birdmantown() {
 }
 
 void Birdmantown::init() {
-	.hpp"
-#include "world_system.hpp"
-#include "enemy.hpp"
 
 }
 
