@@ -6,7 +6,7 @@
 #include "components.hpp"
 #include "world_system.hpp"
 
-Entity EntranceRoomStrategy::execute() {
+Entity CPEntranceRoomStrategy::execute() {
     Entity m_entrance_room;
     // for handling transitions
     Room room;
@@ -61,7 +61,7 @@ Entity EntranceRoomStrategy::execute() {
     return m_entrance_room;
 }
 
-Entity Room1Strategy::execute() {
+Entity CPRoom1Strategy::execute() {
     Entity m_room1;
     // for handling transitions
     Room room;
@@ -100,7 +100,7 @@ Entity Room1Strategy::execute() {
     return m_room1;
 }
 
-Entity Room2Strategy::execute() {
+Entity CPRoom2Strategy::execute() {
     Entity m_room2;
     // for handling transitions
     Room room;
@@ -154,7 +154,7 @@ Entity Room2Strategy::execute() {
     return m_room2;
 }
 
-Entity Room3Strategy::execute() {
+Entity CPRoom3Strategy::execute() {
     Entity m_room3;
     // for handling transitions
     Room room;
@@ -211,7 +211,7 @@ Entity Room3Strategy::execute() {
     return m_room3;
 }
 
-Entity Room4Strategy::execute() {
+Entity CPRoom4Strategy::execute() {
     Entity m_room4;
     // for handling transitions
     Room room;
@@ -259,7 +259,7 @@ Entity Room4Strategy::execute() {
 
 }
 
-Entity BossRoomStrategy::execute() {
+Entity CPBossRoomStrategy::execute() {
     Entity m_boss_room;
     // for handling transitions
     Room room;
@@ -288,7 +288,7 @@ Entity BossRoomStrategy::execute() {
     return m_boss_room;
 }
 
-Entity ExitRoomStrategy::execute() {
+Entity CPExitRoomStrategy::execute() {
     Entity m_exit_room;
     // for handling transitions
     Room room;

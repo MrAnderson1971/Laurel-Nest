@@ -20,30 +20,30 @@ public:
     //
 };
 
-class EntranceRoomStrategy : public RoomStrategy {
+class CPEntranceRoomStrategy : public RoomStrategy {
 	Entity execute() override;
 };
 
-class Room1Strategy : public RoomStrategy {
+class CPRoom1Strategy : public RoomStrategy {
 	Entity execute() override;
 };
 
-class Room2Strategy : public RoomStrategy {
+class CPRoom2Strategy : public RoomStrategy {
 	Entity execute() override;
 };
 
-class Room3Strategy : public RoomStrategy {
+class CPRoom3Strategy : public RoomStrategy {
 	Entity execute() override;
 };
 
-class Room4Strategy : public RoomStrategy {
+class CPRoom4Strategy : public RoomStrategy {
 	Entity execute() override;
 };
 
-class BossRoomStrategy : public RoomStrategy {
+class CPBossRoomStrategy : public RoomStrategy {
 	Entity execute() override;
 };
 
-class ExitRoomStrategy : public RoomStrategy {
+class CPExitRoomStrategy : public RoomStrategy {
 	Entity execute() override;
 };
