@@ -432,17 +432,14 @@ void WorldSystem::handle_collisions() {
                 continue;
             }
         }
-
-        if (registry.grounds.has(entity_other) ||
-                (registry.bosses.has(entity_other) &&
-                registry.chickenAnimations.get(entity_other).currentState != CHICKEN_DEATH)) {
+        if(registry.grounds.has(entity_other)){
             if (direction.x != 0) {
                 if (direction.x > 0 && thisMotion.velocity.x > 0) {
                     thisMotion.position.x -= overlap.x;
                 } else if (direction.x < 0 && thisMotion.velocity.x < 0) {
                     thisMotion.position.x += overlap.x;
                 }
-            } 
+            }
             if (direction.y != 0) {
                 if (direction.y > 0 && thisMotion.velocity.y > 0) {
                     // Downward collision
@@ -457,6 +454,17 @@ void WorldSystem::handle_collisions() {
                 else if (direction.y < 0 && thisMotion.velocity.y < 0) {
                     thisMotion.position.y += overlap.y;
                     thisMotion.velocity.y = 0;
+                }
+            }
+        }
+
+        if ((registry.bosses.has(entity_other) &&
+                registry.chickenAnimations.get(entity_other).currentState != CHICKEN_DEATH)) {
+            if (direction.x != 0) {
+                if (direction.x > 0 && thisMotion.velocity.x > 0) {
+                    thisMotion.position.x -= overlap.x;
+                } else if (direction.x < 0 && thisMotion.velocity.x < 0) {
+                    thisMotion.position.x += overlap.x;
                 }
             }
         }
