@@ -72,7 +72,7 @@ bool playerMeshCollide(Entity player, Entity other, vec2& direction, vec2& overl
 
     // Transform player's mesh vertices to world space
     Transform trans;
-    trans.translate(motion1.position).rotate(motion1.angle).scale(motion1.scale);
+    trans.translate(motion1.position).rotate(motion1.angle).scale(abs(motion1.scale));
 
     std::vector<vec2> transformedVertices;
     transformedVertices.reserve(mesh.vertices.size());
