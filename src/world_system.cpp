@@ -182,7 +182,6 @@ void WorldSystem::init() {
 
     Mix_ReserveChannels(2);
     footstep_sound = Mix_LoadWAV(audio_path("footstep.wav").c_str());
-    Mix_VolumeChunk(footstep_sound, MIX_MAX_VOLUME / 5);
     sword_sound = Mix_LoadWAV(audio_path("sword.wav").c_str());
     hurt_sound = Mix_LoadWAV(audio_path("hurt.wav").c_str());
     if (!(footstep_sound && sword_sound && hurt_sound)) {
@@ -676,7 +675,7 @@ void WorldSystem::render() {
 void WorldSystem::processPlayerInput(int key, int action) {
     // Escape key to close the window
     if (action == GLFW_RELEASE && key == GLFW_KEY_ESCAPE) {
-        renderSystem.getGameStateManager()->pauseState(std::make_unique<PauseState>());
+        renderSystem.getGameStateManager()->pauseState<PauseState>();
     }
 
     // Move left (A key)
@@ -874,7 +873,7 @@ void WorldSystem::player_get_damaged(Entity hostile) {
         player_health.current_health -= hostile_damage.damage_dealt;
         update_status_bar(player_health.current_health);
         if (player_health.current_health == 0) {
-            renderSystem.getGameStateManager()->changeState(std::make_unique<GameOverScreen>());
+            renderSystem.getGameStateManager()->changeState<GameOverScreen>();
         }
     }
 }

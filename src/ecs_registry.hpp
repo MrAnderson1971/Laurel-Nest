@@ -48,6 +48,7 @@ public:
     ComponentContainer<Connection> doors;
     ComponentContainer<ConnectionList> doorList;
     ComponentContainer<HeartPowerUp> heartPowerUp;
+    ComponentContainer<MenuItem> menuItems;
 
     // constructor that adds all containers for looping over them
     // IMPORTANT: Don't forget to add any newly added containers!
@@ -88,6 +89,7 @@ public:
         registry_list.push_back(&doors);
         registry_list.push_back(&doorList);
         registry_list.push_back(&heartPowerUp);
+        registry_list.push_back(&menuItems);
     }
 
     void clear_all_components() {
