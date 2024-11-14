@@ -13,32 +13,32 @@ void Cesspit::init() {
 
     // if you want to change the room, set start_room to a differnt currentRoom->exectue()
 
-    setRoomStrategy(std::make_unique<EntranceRoomStrategy>());
+    setRoomStrategy(std::make_unique<CPEntranceRoomStrategy>());
     m_entrance_room = currentRoom->execute();
      start_room = m_entrance_room;
     // start coords = (0.1f, 0.4f)
 
-    setRoomStrategy(std::make_unique<Room1Strategy>());
+    setRoomStrategy(std::make_unique<CPRoom1Strategy>());
     m_room1 = currentRoom->execute();
     // start_room = m_room1;
 
-    setRoomStrategy(std::make_unique<Room2Strategy>());
+    setRoomStrategy(std::make_unique<CPRoom2Strategy>());
     m_room2 = currentRoom->execute();
     // start_room = m_room2;
 
-    setRoomStrategy(std::make_unique<Room3Strategy>());
+    setRoomStrategy(std::make_unique<CPRoom3Strategy>());
     m_room3 = currentRoom->execute();
     // start_room = m_room3;
 
-    setRoomStrategy(std::make_unique<Room4Strategy>());
+    setRoomStrategy(std::make_unique<CPRoom4Strategy>());
     m_room4 = currentRoom->execute();
     // start_room = m_room4;
 
-    setRoomStrategy(std::make_unique<BossRoomStrategy>());
+    setRoomStrategy(std::make_unique<CPBossRoomStrategy>());
     m_boss_room = currentRoom->execute();
      //start_room = m_boss_room;
 
-    setRoomStrategy(std::make_unique<ExitRoomStrategy>());
+    setRoomStrategy(std::make_unique<CPExitRoomStrategy>());
     m_exit_room = currentRoom->execute();
     // start_room = m_exit_room;
 
