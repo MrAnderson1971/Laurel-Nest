@@ -36,7 +36,7 @@ void Cesspit::init() {
 
     setRoomStrategy(std::make_unique<BossRoomStrategy>());
     m_boss_room = currentRoom->execute();
-    // start_room = m_boss_room;
+     //start_room = m_boss_room;
 
     setRoomStrategy(std::make_unique<ExitRoomStrategy>());
     m_exit_room = currentRoom->execute();

@@ -9,3 +9,5 @@ CMakeCache.txt
 Makefile
 ext/project_path.hpp
 /cmake-build-debug-visual-studio
+/cmake-build-debug-mingw
+

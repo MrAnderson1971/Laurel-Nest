@@ -144,7 +144,7 @@ Entity BossAISystem::init(Entity bossRoom) {
 	registry.transforms.emplace(chicken, std::move(chickenTransform));
 
 	registry.healths.emplace(chicken, std::move(Health{ 10, 10 }));
-	registry.damages.emplace(chicken, std::move(Damage{ 1 }));
+	registry.damages.emplace(chicken, std::move(Damage{ 0 }));
 	registry.bosses.emplace(chicken, Boss());
 
 	return chicken;

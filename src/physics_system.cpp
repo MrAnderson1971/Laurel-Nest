@@ -23,13 +23,29 @@ bool PhysicsSystem::checkForCollision(Entity e1, Entity e2, vec2& direction, vec
     vec2 box1 = get_bounding_box(motion1);
     vec2 box2 = get_bounding_box(motion2);
 
-    vec2 half_size1 = box1 / 2.f;
-    vec2 half_size2 = box2 / 2.f;
+    vec2 half_size1;
+    vec2 half_size2;
+
+    if(registry.bosses.has(e1)){
+        half_size1 = (box1 / 2.f);
+        half_size1.y += 200.0f;
+        half_size2 = box2 / 2.f;
+    }else if(registry.bosses.has(e1)){
+        half_size1 = (box1 / 2.f);
+        half_size2 = box2 / 2.f;
+        half_size2.y += 200.0f;
+    }else{
+        half_size1 = (box1 / 2.f);
+        half_size2 = box2 / 2.f;
+    }
+
 
     vec2 dp = motion1.position - motion2.position;
 
     float overlapX = half_size1.x + half_size2.x - abs(dp.x);
     float overlapY = half_size1.y + half_size2.y - abs(dp.y);
+
+
 
     if (overlapX > 0 && overlapY > 0) {
         vec2 collisionDirection;
