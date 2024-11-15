@@ -1,28 +1,9 @@
 #include "game_state_manager.hpp"
 
-void GameStateManager::changeState(std::unique_ptr<GameState> newState)
-{
-    currentState = std::move(newState);
-    if (currentState)
-    {
-        currentState->init();
-    }
-}
-
-void GameStateManager::pauseState(std::unique_ptr<GameState> newState) {
-    if (currentState) {
-        currentState->pause();
-        pausedState = std::move(currentState);
-    }
-    currentState = std::move(newState);
-    if (currentState) {
-        currentState->init();
-    }
-}
-
 void GameStateManager::resumeState() {
-    if (pausedState) {
-        currentState = std::move(pausedState); // do not init
+    if (!pausedState.empty()) {
+        currentState = std::move(pausedState.top()); // do not init
+        pausedState.pop();
     }
 }
 

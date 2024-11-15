@@ -493,7 +493,6 @@ void RenderSystem::renderLoop()
                 renderText(prev_FPS_string, static_cast<float>(getWindowWidth() * 1.85), static_cast<float>(getWindowHeight() * 1.95), 1.0f, font_color, font_trans);
             }
         }
-        
 
         glfwSwapBuffers(window);
         glfwPollEvents();

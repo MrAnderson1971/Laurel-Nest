@@ -50,6 +50,11 @@ WorldSystem::WorldSystem() {
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::HEART_2, renderSystem.loadTexture("heart_2.png"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::HEART_1, renderSystem.loadTexture("heart_1.png"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::HEART_0, renderSystem.loadTexture("heart_0.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::HEART_4_4, renderSystem.loadTexture("heart_4_4.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::HEART_4_3, renderSystem.loadTexture("heart_4_3.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::HEART_4_2, renderSystem.loadTexture("heart_4_2.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::HEART_4_1, renderSystem.loadTexture("heart_4_1.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::HEART_4_0, renderSystem.loadTexture("heart_4_0.png"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::CESSPIT_BG, renderSystem.loadTexture("cesspit_bg.png"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::ENTRANCE_BG, renderSystem.loadTexture("entrance_bg.PNG"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::SPACESHIP, renderSystem.loadTexture("spaceship.PNG"));
@@ -182,7 +187,6 @@ void WorldSystem::init() {
 
     Mix_ReserveChannels(2);
     footstep_sound = Mix_LoadWAV(audio_path("footstep.wav").c_str());
-    Mix_VolumeChunk(footstep_sound, MIX_MAX_VOLUME / 5);
     sword_sound = Mix_LoadWAV(audio_path("sword.wav").c_str());
     hurt_sound = Mix_LoadWAV(audio_path("hurt.wav").c_str());
     if (!(footstep_sound && sword_sound && hurt_sound)) {
@@ -433,9 +437,7 @@ void WorldSystem::handle_collisions() {
             }
         }
 
-        if (registry.grounds.has(entity_other) ||
-                (registry.bosses.has(entity_other) &&
-                registry.chickenAnimations.get(entity_other).currentState != CHICKEN_DEATH)) {
+        if (registry.grounds.has(entity_other)) {
             if (direction.x != 0 && thisMotion.velocity.x != 0) {
                 thisMotion.position.x -= overlap.x;
             } 
@@ -453,6 +455,17 @@ void WorldSystem::handle_collisions() {
                 else if (direction.y < 0 && thisMotion.velocity.y < 0) {
                     thisMotion.position.y += overlap.y;
                     thisMotion.velocity.y = 0;
+                }
+            }
+        }
+
+        if ((registry.bosses.has(entity_other) &&
+                registry.chickenAnimations.get(entity_other).currentState != CHICKEN_DEATH)) {
+            if (direction.x != 0) {
+                if (direction.x > 0 && thisMotion.velocity.x > 0) {
+                    thisMotion.position.x -= overlap.x;
+                } else if (direction.x < 0 && thisMotion.velocity.x < 0) {
+                    thisMotion.position.x += overlap.x;
                 }
             }
         }
@@ -523,7 +536,11 @@ void WorldSystem::handle_collisions() {
             registry.remove_all_components_of(entity_other);
             // reset health to full
             Health& player_health = registry.healths.get(m_player);
+            player_health.max_health = 4;
             player_health.current_health = player_health.max_health;
+            HealthFlask& health_flask = registry.healthFlasks.get(m_player);
+            health_flask.num_uses = 3;
+            renew_status_bar();
         }
 
     }
@@ -629,6 +646,15 @@ void WorldSystem::render() {
         update_status_bar(health.current_health);
     }
 
+    glm::vec3 font_color = glm::vec3(1.0, 1.0, 1.0);
+    glm::mat4 font_trans = glm::mat4(1.0f);
+    font_trans = glm::scale(font_trans, glm::vec3(0.5, 0.5, 1.0));
+    HealthFlask& flask = registry.healthFlasks.get(m_player);
+    std::string num_uses = std::to_string(flask.num_uses);
+    std::string uses_string = "Health Flask uses: " + num_uses;
+    renderSystem.renderText(uses_string, static_cast<float>(window_width_px * 0.09), static_cast<float>(window_height_px * 1.60), 1.0f, font_color, font_trans);
+    
+
     // Draw the flame thrower if the boss is killed
     if (registry.transforms.has(m_flameThrower) && registry.sprites.has(m_flameThrower))
     {
@@ -664,7 +690,7 @@ void WorldSystem::render() {
 void WorldSystem::processPlayerInput(int key, int action) {
     // Escape key to close the window
     if (action == GLFW_RELEASE && key == GLFW_KEY_ESCAPE) {
-        renderSystem.getGameStateManager()->pauseState(std::make_unique<PauseState>());
+        renderSystem.getGameStateManager()->pauseState<PauseState>();
     }
 
     // Move left (A key)
@@ -862,7 +888,7 @@ void WorldSystem::player_get_damaged(Entity hostile) {
         player_health.current_health -= hostile_damage.damage_dealt;
         update_status_bar(player_health.current_health);
         if (player_health.current_health == 0) {
-            renderSystem.getGameStateManager()->changeState(std::make_unique<GameOverScreen>());
+            renderSystem.getGameStateManager()->changeState<GameOverScreen>();
         }
     }
 }
@@ -939,6 +965,32 @@ void WorldSystem::init_status_bar() {
     TransformComponent heartSpriteTransform;
     heartSpriteTransform.position = glm::vec3(250.0f, 120.0f, 0.0);
     heartSpriteTransform.scale = glm::vec3(HEARTS_WIDTH, HEARTS_HEIGHT, 1.0);
+    heartSpriteTransform.rotation = 0.0f;
+    registry.transforms.emplace(m_hearts, std::move(heartSpriteTransform));
+}
+
+void WorldSystem::renew_status_bar() {
+    // Update the Heart sprites
+    if (registry.heartSprites.has(m_hearts)) {
+        registry.heartSprites.remove(m_hearts);
+    }
+    if (registry.transforms.has(m_hearts)) {
+        registry.transforms.remove(m_hearts);
+    }
+
+    // Add new heart sprites (HEART_4_0 to HEART_4_4)
+    registry.heartSprites.emplace(m_hearts, std::vector<Sprite> {
+            g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_0),
+            g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_1),
+            g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_2),
+            g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_3),
+            g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_4)
+    });
+
+    // Create and initialize a Transform component for the new Heart sprites
+    TransformComponent heartSpriteTransform;
+    heartSpriteTransform.position = glm::vec3(250.0f, 120.0f, 0.0); // Position remains unchanged
+    heartSpriteTransform.scale = glm::vec3(0.4f * 1065.0f, HEARTS_HEIGHT, 1.0); // Updated width used
     heartSpriteTransform.rotation = 0.0f;
     registry.transforms.emplace(m_hearts, std::move(heartSpriteTransform));
 }
