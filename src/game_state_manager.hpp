@@ -35,7 +35,7 @@ public:
 
     template<typename NewState> // clear all paused states, go to new state
     void resetPausedStates() {
-        pausedState = std::stack<std::unique_ptr<GameState>>();
+        pausedState = decltype(pausedState)();
         currentState = std::make_unique<NewState>();
         currentState->init();
     }
