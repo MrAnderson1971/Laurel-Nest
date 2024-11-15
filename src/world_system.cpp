@@ -652,11 +652,11 @@ void WorldSystem::render() {
     glm::vec3 font_color = glm::vec3(1.0, 1.0, 1.0);
     glm::mat4 font_trans = glm::mat4(1.0f);
     font_trans = glm::scale(font_trans, glm::vec3(0.5, 0.5, 1.0));
-    for (HealthFlask flask : registry.healthFlasks.components) {
-        std::string num_uses = std::to_string(flask.num_uses);
-        std::string uses_string = "Health Flask uses: " + num_uses;
-        renderSystem.renderText(uses_string, static_cast<float>(window_width_px * 0.09), static_cast<float>(window_height_px * 1.60), 1.0f, font_color, font_trans);
-    }
+    HealthFlask& flask = registry.healthFlasks.get(m_player);
+    std::string num_uses = std::to_string(flask.num_uses);
+    std::string uses_string = "Health Flask uses: " + num_uses;
+    renderSystem.renderText(uses_string, static_cast<float>(window_width_px * 0.09), static_cast<float>(window_height_px * 1.60), 1.0f, font_color, font_trans);
+    
 
     // Draw the flame thrower if the boss is killed
     if (registry.transforms.has(m_flameThrower) && registry.sprites.has(m_flameThrower))
