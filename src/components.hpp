@@ -220,13 +220,16 @@ struct TexturedVertex
     vec2 texcoord;
 };
 
+using Edge = std::pair<uint16_t, uint16_t>; // Put the smaller index first!
+
 // Mesh data structure for storing vertex and index buffers
 struct Mesh
 {
-    static bool loadFromOBJFile(std::string obj_path, std::vector<ColoredVertex>& out_vertices, std::vector<uint16_t>& out_vertex_indices, vec2& out_size);
+    static bool loadFromOBJFile(std::string obj_path, std::vector<ColoredVertex>& out_vertices, std::vector<uint16_t>& out_vertex_indices, std::vector<Edge>& out_edges, vec2& out_size);
     vec2 original_size = {1,1};
     std::vector<ColoredVertex> vertices;
     std::vector<uint16_t> vertex_indices;
+    std::vector<Edge> edges;
 };
 
 struct PlayerMeshes {

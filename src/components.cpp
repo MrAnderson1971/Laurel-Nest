@@ -9,7 +9,8 @@
 
 // Very, VERY simple OBJ loader from https://github.com/opengl-tutorials/ogl tutorial 7
 // (modified to also read vertex color and omit uv and normals)
-bool Mesh::loadFromOBJFile(std::string obj_path, std::vector<ColoredVertex>& out_vertices, std::vector<uint16_t>& out_vertex_indices, vec2& out_size)
+bool Mesh::loadFromOBJFile(std::string obj_path, std::vector<ColoredVertex>& out_vertices,
+    std::vector<uint16_t>& out_vertex_indices, std::vector<Edge>& out_edges, vec2& out_size)
 {
     // disable warnings about fscanf and fopen on Windows
 #ifdef _MSC_VER
@@ -17,49 +18,36 @@ bool Mesh::loadFromOBJFile(std::string obj_path, std::vector<ColoredVertex>& out
 #endif
 
     printf("Loading OBJ file %s...\n", obj_path.c_str());
-    // Note, normal and UV indices are not loaded/used, but code is commented to do so
-    std::vector<uint16_t> out_uv_indices, out_normal_indices;
-    std::vector<glm::vec2> out_uvs;
-    std::vector<glm::vec3> out_normals;
+    std::vector<uint16_t> out_normal_indices;
+
+    // Set to keep track of unique edges (using pair with smaller index first to avoid duplicates)
+    std::set<std::pair<uint16_t, uint16_t>> edge_set;
 
     FILE* file = fopen(obj_path.c_str(), "r");
     if (file == NULL) {
-        std::cerr << "Impossible to open the file ! Are you in the right path ? See Tutorial 1 for details" << std::endl;
-        getchar();
+        std::cerr << "Impossible to open the file ! Are you in the right path ?" << std::endl;
         return false;
     }
 
     while (1) {
         char lineHeader[128];
-        // read the first word of the line
         int res = fscanf(file, "%s", lineHeader);
         if (res == EOF)
-            break; // EOF = End Of File. Quit the loop.
+            break;
 
         if (strcmp(lineHeader, "v") == 0) {
             ColoredVertex vertex;
             int matches = fscanf(file, "%f %f %f %f %f %f\n", &vertex.position.x, &vertex.position.y, &vertex.position.z,
-                                 &vertex.color.x, &vertex.color.y, &vertex.color.z);
+                &vertex.color.x, &vertex.color.y, &vertex.color.z);
             if (matches == 3)
                 vertex.color = { 1,1,1 };
             out_vertices.push_back(vertex);
-        }
-        else if (strcmp(lineHeader, "vt") == 0) {
-            glm::vec2 uv;
-            fscanf(file, "%f %f\n", &uv.x, &uv.y);
-            uv.y = -uv.y; // Invert V coordinate since we will only use DDS texture, which are inverted. Remove if you want to use TGA or BMP loaders.
-            out_uvs.push_back(uv);
-        }
-        else if (strcmp(lineHeader, "vn") == 0) {
-            glm::vec3 normal;
-            fscanf(file, "%f %f %f\n", &normal.x, &normal.y, &normal.z);
-            out_normals.push_back(normal);
         }
         else if (strcmp(lineHeader, "f") == 0) {
             unsigned int vertexIndex[3], normalIndex[3];
 
             int matches = fscanf(file, "%d//%d %d//%d %d//%d\n", &vertexIndex[0], &normalIndex[0],
-                                 &vertexIndex[1], &normalIndex[1], &vertexIndex[2], &normalIndex[2]);
+                &vertexIndex[1], &normalIndex[1], &vertexIndex[2], &normalIndex[2]);
 
             if (matches != 6) {
                 std::cerr << "File can't be read by this parser. Try exporting with different options." << std::endl;
@@ -67,12 +55,17 @@ bool Mesh::loadFromOBJFile(std::string obj_path, std::vector<ColoredVertex>& out
                 return false;
             }
 
-            out_vertex_indices.push_back((uint16_t)vertexIndex[0] - 1);
-            out_vertex_indices.push_back((uint16_t)vertexIndex[1] - 1);
-            out_vertex_indices.push_back((uint16_t)vertexIndex[2] - 1);
-            out_normal_indices.push_back((uint16_t)normalIndex[0] - 1);
-            out_normal_indices.push_back((uint16_t)normalIndex[1] - 1);
-            out_normal_indices.push_back((uint16_t)normalIndex[2] - 1);
+            // Add vertex indices for the face
+            for (int i = 0; i < 3; i++) {
+                out_vertex_indices.push_back((uint16_t)vertexIndex[i] - 1);
+                out_normal_indices.push_back((uint16_t)normalIndex[i] - 1);
+            }
+
+            for (int i = 0; i < 3; i++) {
+                uint16_t v1 = (uint16_t)vertexIndex[i] - 1;
+                uint16_t v2 = (uint16_t)vertexIndex[(i + 1) % 3] - 1;
+                edge_set.insert(std::minmax(v1, v2));
+            }
         }
         else {
             // Probably a comment, eat up the rest of the line
@@ -82,6 +75,8 @@ bool Mesh::loadFromOBJFile(std::string obj_path, std::vector<ColoredVertex>& out
     }
     fclose(file);
 
+    out_edges.assign(edge_set.begin(), edge_set.end());
+
     // Compute bounds of the mesh
     vec3 max_position = { -99999,-99999,-99999 };
     vec3 min_position = { 99999,99999,99999 };
@@ -90,8 +85,8 @@ bool Mesh::loadFromOBJFile(std::string obj_path, std::vector<ColoredVertex>& out
         max_position = glm::max(max_position, pos.position);
         min_position = glm::min(min_position, pos.position);
     }
-    if(abs(max_position.z - min_position.z)<0.001)
-        max_position.z = min_position.z+1; // don't scale z direction when everything is on one plane
+    if (abs(max_position.z - min_position.z) < 0.001)
+        max_position.z = min_position.z + 1;
 
     vec3 size3d = max_position - min_position;
     out_size = size3d;

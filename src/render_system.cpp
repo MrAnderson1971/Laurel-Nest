@@ -582,7 +582,7 @@ void RenderSystem::loadPlayerMeshes(Entity playerEntity) {
         PlayerState state = playerMeshPath.first;
         std::string path = playerMeshPath.second;
         Mesh mesh;
-        if (Mesh::loadFromOBJFile(path, mesh.vertices, mesh.vertex_indices, mesh.original_size)) {
+        if (Mesh::loadFromOBJFile(path, mesh.vertices, mesh.vertex_indices, mesh.edges, mesh.original_size)) {
             playerMeshesComponent.stateMeshes.emplace(state, std::move(mesh));
         } else {
             std::cerr << "Error: Failed to load mesh for state " << static_cast<int>(state) << " from " << path << std::endl;
