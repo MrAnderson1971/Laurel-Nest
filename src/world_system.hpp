@@ -66,6 +66,7 @@ private:
 	void player_get_healed();
 
 	void init_status_bar();
+    void renew_status_bar();
     void init_flame_thrower();
 
 	void update_status_bar(int num_hearts);

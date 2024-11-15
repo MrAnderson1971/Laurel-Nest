@@ -50,6 +50,11 @@ WorldSystem::WorldSystem() {
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::HEART_2, renderSystem.loadTexture("heart_2.png"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::HEART_1, renderSystem.loadTexture("heart_1.png"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::HEART_0, renderSystem.loadTexture("heart_0.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::HEART_4_4, renderSystem.loadTexture("heart_4_4.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::HEART_4_3, renderSystem.loadTexture("heart_4_3.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::HEART_4_2, renderSystem.loadTexture("heart_4_2.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::HEART_4_1, renderSystem.loadTexture("heart_4_1.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::HEART_4_0, renderSystem.loadTexture("heart_4_0.png"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::CESSPIT_BG, renderSystem.loadTexture("cesspit_bg.png"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::ENTRANCE_BG, renderSystem.loadTexture("entrance_bg.PNG"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::SPACESHIP, renderSystem.loadTexture("spaceship.PNG"));
@@ -534,7 +539,11 @@ void WorldSystem::handle_collisions() {
             registry.remove_all_components_of(entity_other);
             // reset health to full
             Health& player_health = registry.healths.get(m_player);
+            player_health.max_health = 4;
             player_health.current_health = player_health.max_health;
+            HealthFlask& health_flask = registry.healthFlasks.get(m_player);
+            health_flask.num_uses = 3;
+            renew_status_bar();
         }
 
     }
@@ -950,6 +959,32 @@ void WorldSystem::init_status_bar() {
     TransformComponent heartSpriteTransform;
     heartSpriteTransform.position = glm::vec3(250.0f, 120.0f, 0.0);
     heartSpriteTransform.scale = glm::vec3(HEARTS_WIDTH, HEARTS_HEIGHT, 1.0);
+    heartSpriteTransform.rotation = 0.0f;
+    registry.transforms.emplace(m_hearts, std::move(heartSpriteTransform));
+}
+
+void WorldSystem::renew_status_bar() {
+    // Update the Heart sprites
+    if (registry.heartSprites.has(m_hearts)) {
+        registry.heartSprites.remove(m_hearts);
+    }
+    if (registry.transforms.has(m_hearts)) {
+        registry.transforms.remove(m_hearts);
+    }
+
+    // Add new heart sprites (HEART_4_0 to HEART_4_4)
+    registry.heartSprites.emplace(m_hearts, std::vector<Sprite> {
+            g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_0),
+            g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_1),
+            g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_2),
+            g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_3),
+            g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_4)
+    });
+
+    // Create and initialize a Transform component for the new Heart sprites
+    TransformComponent heartSpriteTransform;
+    heartSpriteTransform.position = glm::vec3(250.0f, 120.0f, 0.0); // Position remains unchanged
+    heartSpriteTransform.scale = glm::vec3(0.4f * 1065.0f, HEARTS_HEIGHT, 1.0); // Updated width used
     heartSpriteTransform.rotation = 0.0f;
     registry.transforms.emplace(m_hearts, std::move(heartSpriteTransform));
 }

@@ -270,6 +270,11 @@ enum class TEXTURE_ASSET_ID {
     HEART_2,                              // heart_2.png
     HEART_1,                              // heart_1.png
     HEART_0,                              // heart_0.png
+    HEART_4_4,                            // heart_4_4.png
+    HEART_4_3,                            // heart_4_3.png
+    HEART_4_2,                            // heart_4_2.png
+    HEART_4_1,                            // heart_4_1.png
+    HEART_4_0,                            // heart_4_0.png
     CESSPIT_BG,                           // cesspit_bg.png
     ENTRANCE_BG,                          // entrance_bg.png
     SPACESHIP,                            // spaceship.png
