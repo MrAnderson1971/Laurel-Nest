@@ -10,6 +10,8 @@
 #include "region_factory.hpp"
 #include <game_over_screen.hpp>
 
+#include "birdmantown_map.hpp" //testing
+
 #include "boss_ai.hpp"
 
 bool Show_FPS = true;
@@ -72,6 +74,7 @@ WorldSystem::WorldSystem() {
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::FLAME_THROWER, renderSystem.loadTexture("flame_thrower.png"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::FIREBALL, renderSystem.loadTexture("Fireball.png"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::DOOR, renderSystem.loadTexture("door.PNG"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::BMT_BG, renderSystem.loadTexture("BMTown_bg.PNG"));
 
     texture_paths = std::make_unique<std::unordered_map<TEXTURE_ASSET_ID, Sprite>>(std::move(temp_texture_paths));
     g_texture_paths = texture_paths.get();
@@ -171,6 +174,8 @@ void WorldSystem::init() {
     // Initialize the region
     regionManager->init();
     current_room = regionManager->setRegion(makeRegion<Cesspit>);
+    // testing bmt
+    //current_room = regionManager->setRegion(makeRegion<Birdmantown>);
     PhysicsSystem::setRoom(current_room);
 
     // init tutorial (temp)

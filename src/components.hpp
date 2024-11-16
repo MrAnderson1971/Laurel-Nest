@@ -295,6 +295,7 @@ enum class TEXTURE_ASSET_ID {
     FLAME_THROWER,                        // flame_thrower.png
     FIREBALL,                             // Fireball.png
     DOOR,                                 // Door.PNG
+    BMT_BG,                               // BMTown_bg.PNG
     TEXTURE_COUNT                         // Count of all textures
 };
 constexpr int texture_count = static_cast<int>(TEXTURE_ASSET_ID::TEXTURE_COUNT);
