@@ -45,6 +45,9 @@ Entity CPEntranceRoomStrategy::execute() {
     Entity m_ground_right = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.f, 0.4f, 1.6f, 1.0f, 300.0f);
     //Entity m_ground_right = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 270.f, 0.65f, 1.04f, 0.9f, 0.f);
 
+    // savepoint 
+    Entity m_save_point = SetSavePoint(3.f/10.f, 5.f/10.f);
+
     // note on bg: don't add motion
     registry.grounds.emplace(m_ground_left, std::move(Ground()));
     registry.grounds.emplace(m_ground_right, std::move(Ground()));
@@ -57,6 +60,7 @@ Entity CPEntranceRoomStrategy::execute() {
     room.insert(m_ground_right);
     room.insert(m_platform1);
     room.insert(m_platform2);
+    room.insert(m_save_point);
     registry.rooms.emplace(m_entrance_room, std::move(room));
 
     return m_entrance_room;
@@ -820,6 +824,9 @@ Entity RoomStrategy::SetSavePoint(float xPos, float yPos) {
 
     Motion savePointMotion;
     savePointMotion.position = glm::vec2(renderSystem.getWindowWidth() * xPos, renderSystem.getWindowHeight() * yPos);
+    /*savePointMotion.position = glm::vec2(xPos, yPos);*/
+    // TODO GIVE IT A PROPER SCALE
+    savePointMotion.scale = {100, 100};
     registry.motions.emplace(savePoint, std::move(savePointMotion));
 
     registry.savePoints.emplace(savePoint, std::move(SavePoint()));
