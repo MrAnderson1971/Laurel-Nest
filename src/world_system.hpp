@@ -78,7 +78,7 @@ private:
     bool isBossDead = false;
     bool isFlameThrowerEquipped = false;
     bool flameThrower_enabled = false;
-	bool tutorialOpen = true;
+	bool tutorialOpen = false;
 	bool heartPowerUp = false;
 
     void updateBoundingBox(Entity entity);

@@ -11,7 +11,7 @@ public:
 
     Entity SetCeiling(Sprite ceilingSprite, float xPos);
 
-    Entity SetGround(Sprite groundSprite, float width, float height, float xPos, float yPos);
+    Entity SetGround(Sprite groundSprite, float rot, float width, float height, float xPos, float yPos);
 
     Entity SetPlatform(Sprite platformSprite, float width, float height, float xPos, float yPos);
 
@@ -20,6 +20,7 @@ public:
     //
 };
 
+// cesspit
 class CPEntranceRoomStrategy : public RoomStrategy {
 	Entity execute() override;
 };
@@ -47,3 +48,47 @@ class CPBossRoomStrategy : public RoomStrategy {
 class CPExitRoomStrategy : public RoomStrategy {
 	Entity execute() override;
 };
+
+// birdman town
+class BMTEntranceRoomStrategy : public RoomStrategy {
+	Entity execute() override;
+};
+
+class BMTRoom1Strategy : public RoomStrategy {
+	Entity execute() override;
+};
+
+class BMTRoom2Strategy : public RoomStrategy {
+	Entity execute() override;
+};
+
+class BMTRoom3Strategy : public RoomStrategy {
+	Entity execute() override;
+};
+
+class BMTRoom4Strategy : public RoomStrategy {
+	Entity execute() override;
+};
+
+// npc rooms
+class NPCRoom2Strategy : public RoomStrategy {
+	Entity execute() override;
+};
+
+class NPCRoom3Strategy : public RoomStrategy {
+	Entity execute() override;
+};
+
+class NPCRoom4Strategy : public RoomStrategy {
+	Entity execute() override;
+};
+
+// laurel nest
+class LNRoom1Strategy : public RoomStrategy {
+	Entity execute() override;
+};
+
+class LNBossRoomStrategy : public RoomStrategy {
+	Entity execute() override;
+};
+
