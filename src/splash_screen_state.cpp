@@ -86,6 +86,8 @@ void SplashScreenState::render() {
     }
     renderMenuItem(registry.menuItems.get(optionsEntity), mouse_pos);
     renderMenuItem(registry.menuItems.get(quitEntity), mouse_pos);
+
+    renderSystem.renderText("Press any button to start.", window_width_px * 0.29f, window_height_px * 0.80f, 1.0f, vec3(1), mat4(1));
 }
 
 void SplashScreenState::cleanup() {
