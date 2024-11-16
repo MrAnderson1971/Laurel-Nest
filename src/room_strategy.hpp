@@ -15,6 +15,8 @@ public:
 
     Entity SetPlatform(Sprite platformSprite, float width, float height, float xPos, float yPos);
 
+	Entity SetSavePoint(float xPos, float yPos);
+
     // for testing
 	Entity SetDoorEx(float width, float height, float xPos, float yPos);
     //

@@ -140,6 +140,11 @@ struct RecentlyDamagedTimer
     float counter_ms = 0.3f;
 };
 
+struct SavePoint
+{
+
+};
+
 // A timer that will be associated to when the player can get damaged again 
 struct InvincibilityTimer
 {

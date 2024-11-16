@@ -810,3 +810,19 @@ Entity RoomStrategy::SetDoorEx(float width, float height, float xPos, float yPos
 
     return m_door;
 }
+
+Entity RoomStrategy::SetSavePoint(float xPos, float yPos) {
+    Entity savePoint = Entity();
+    registry.sprites.emplace(savePoint, g_texture_paths->at(TEXTURE_ASSET_ID::GOOMBA_WALK_NOTICE));
+
+    TransformComponent savePointTransform;
+    registry.transforms.emplace(savePoint, std::move(savePointTransform));
+
+    Motion savePointMotion;
+    savePointMotion.position = glm::vec2(renderSystem.getWindowWidth() * xPos, renderSystem.getWindowHeight() * yPos);
+    registry.motions.emplace(savePoint, std::move(savePointMotion));
+
+    registry.savePoints.emplace(savePoint, std::move(SavePoint()));
+
+    return savePoint;
+}
