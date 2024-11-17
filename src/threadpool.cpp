@@ -54,3 +54,7 @@ void ThreadPool::waitForCompletion() {
     std::unique_lock<std::mutex> lock(queueMutex);
     done.wait(lock, [this]() { return tasks.empty() && activeTasks == 0; });
 }
+
+size_t ThreadPool::getNumThreads() {
+  return workers.size();
+}

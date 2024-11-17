@@ -170,7 +170,7 @@ void PhysicsSystem::step(float elapsed_ms) {
         }
     }
     size_t numEntities = roomEntities.size();
-    size_t numThreads = std::thread::hardware_concurrency();
+    size_t numThreads = threadPool.getNumThreads();
     size_t batchSize = (numEntities + numThreads - 1) / numThreads;
     std::mutex mutex;
     std::vector<std::tuple<Entity, Entity, vec2, vec2>> collisions;

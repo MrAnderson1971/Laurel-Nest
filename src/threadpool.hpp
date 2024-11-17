@@ -13,6 +13,7 @@ public:
     ~ThreadPool();
     void enqueue(std::function<void()> task);
     void waitForCompletion();
+    size_t getNumThreads();
 
 private:
     std::vector<std::thread> workers;
