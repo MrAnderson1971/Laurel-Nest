@@ -78,6 +78,8 @@ WorldSystem::WorldSystem() {
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::FIREBALL, renderSystem.loadTexture("Fireball.png"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::DOOR, renderSystem.loadTexture("door.PNG"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::BMT_BG, renderSystem.loadTexture("BMTown_bg.PNG"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::LN_THRONE_BG, renderSystem.loadTexture("LNThrone_bg.PNG"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::LN_BG, renderSystem.loadTexture("LN_bg.PNG"));
 
     texture_paths = std::make_unique<std::unordered_map<TEXTURE_ASSET_ID, Sprite>>(std::move(temp_texture_paths));
     g_texture_paths = texture_paths.get();
@@ -181,9 +183,8 @@ void WorldSystem::init() {
     regionManager->init();
     current_room = regionManager->setRegion(makeRegion<Cesspit>);
     //testing bmt
-    //current_room = regionManager->setRegion(makeRegion<Birdmantown>);
+    next_map = regionManager->setRegion(makeRegion<Birdmantown>);
     physics.setRoom(current_room);
-
 
     // init tutorial (temp)
     Sprite tutorialSprite(renderSystem.loadTexture("temp_tutorial.PNG"));
@@ -252,7 +253,15 @@ void WorldSystem::handle_connections(float deltaTime) {
                 // check if in boss room and if boss is dead
                 if (!connection.limit || isBossDead) {
                     // set next room
-                    current_room = connection.nextRoom;
+                    // check for switching map
+                    if (!connection.switchMap) {
+                        current_room = connection.nextRoom;
+                    }
+                    else {
+                        Entity next_room = next_map;
+                        next_map = current_room;
+                        current_room = next_room;
+                    }
                     AISystem::init_aim();
                     physics.setRoom(current_room);
                     // set spawn point of player in new room

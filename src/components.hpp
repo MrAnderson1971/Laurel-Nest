@@ -301,6 +301,8 @@ enum class TEXTURE_ASSET_ID {
     FIREBALL,                             // Fireball.png
     DOOR,                                 // Door.PNG
     BMT_BG,                               // BMTown_bg.PNG
+    LN_THRONE_BG,                         // LNThrone_bg.PNG
+    LN_BG,                                // LN_bg.PNG
     TEXTURE_COUNT                         // Count of all textures
 };
 constexpr int texture_count = static_cast<int>(TEXTURE_ASSET_ID::TEXTURE_COUNT);
@@ -398,6 +400,7 @@ struct Connection {
     Entity nextRoom;
     vec2 nextSpawn;
     bool limit;
+    bool switchMap;
 };
 
 struct ConnectionList {

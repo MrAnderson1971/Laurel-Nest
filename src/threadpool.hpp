@@ -1,4 +1,4 @@
-
+#pragma once
 #include <vector>
 #include <queue>
 #include <thread>
@@ -9,7 +9,7 @@
 
 class ThreadPool {
 public:
-    ThreadPool(size_t numThreads);
+    explicit ThreadPool(size_t numThreads);
     ~ThreadPool();
     void enqueue(std::function<void()> task);
     void waitForCompletion();

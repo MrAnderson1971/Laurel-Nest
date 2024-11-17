@@ -54,12 +54,15 @@ public:
 	void handle_ai();
 	void handle_saving();
 
+	Entity switch_map();
+
 private:
 	Entity m_player;
 	Entity m_hearts;
 	Entity m_sword;
     Entity m_flameThrower;
 	Entity current_room;
+	Entity next_map;
 	Entity m_tutorial;
 	std::unique_ptr<RegionManager> regionManager;
 
