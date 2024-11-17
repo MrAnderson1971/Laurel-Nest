@@ -181,9 +181,9 @@ void WorldSystem::init() {
      
     // Initialize the region
     regionManager->init();
-    //current_room = regionManager->setRegion(makeRegion<Cesspit>);
+    current_room = regionManager->setRegion(makeRegion<Cesspit>);
     //testing bmt
-    current_room = regionManager->setRegion(makeRegion<Birdmantown>);
+    next_map = regionManager->setRegion(makeRegion<Birdmantown>);
     physics.setRoom(current_room);
 
 
@@ -254,7 +254,15 @@ void WorldSystem::handle_connections(float deltaTime) {
                 // check if in boss room and if boss is dead
                 if (!connection.limit || isBossDead) {
                     // set next room
-                    current_room = connection.nextRoom;
+                    // check for switching map
+                    if (!connection.switchMap) {
+                        current_room = connection.nextRoom;
+                    }
+                    else {
+                        Entity next_room = next_map;
+                        next_map = current_room;
+                        current_room = next_room;
+                    }
                     AISystem::init_aim();
                     physics.setRoom(current_room);
                     // set spawn point of player in new room

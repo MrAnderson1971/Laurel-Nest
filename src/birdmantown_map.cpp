@@ -54,9 +54,12 @@ void Birdmantown::init() {
     // doors
 
     // bmt to cp = (0.32f, 0.04f, 0.09f, 1.f), spawn = (0.5f, 0.17f)
+    ConnectionList list_en;
+    Connection door_bmt_to_cp = SetDoor(0.32f, 0.04f, 0.09f, 1.f, m_entrance_room, vec2(renderSystem.getWindowWidth() * 0.5f, renderSystem.getWindowHeight() * 0.17f), false);
+    door_bmt_to_cp.switchMap = true;
+    list_en.doors.push_back(door_bmt_to_cp);
 
     // entrance to 1: (0.22f, 0.04f, 0.935f, 0.f), spawn = (0.77f, 0.8f)
-    ConnectionList list_en;
     Connection door_en_to_1 = SetDoor(0.22f, 0.04f, 0.935f, 0.f, m_room1, vec2(renderSystem.getWindowWidth() * 0.77f, renderSystem.getWindowHeight() * 0.8f), false);
     list_en.doors.push_back(door_en_to_1);
 
@@ -156,6 +159,7 @@ Connection Birdmantown::SetDoor(float width, float height, float xPos, float yPo
     doorConnection.nextRoom = connectNextRoom;
     doorConnection.nextSpawn = connectNextSpawn;
     doorConnection.limit = isLimited;
+    doorConnection.switchMap = false;
 
     return doorConnection;
 }

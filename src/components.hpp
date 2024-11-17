@@ -398,6 +398,7 @@ struct Connection {
     Entity nextRoom;
     vec2 nextSpawn;
     bool limit;
+    bool switchMap;
 };
 
 struct ConnectionList {
