@@ -8,10 +8,12 @@
 
 // Returns the local bounding coordinates scaled by the current size of the entity
 
-Entity currentRoom;
-
 void PhysicsSystem::setRoom(Entity newRoom) {
     currentRoom = newRoom;
+}
+
+void PhysicsSystem::setPlayer(const Entity& newPlayer) {
+    player = newPlayer;
 }
 
 vec2 get_bounding_box(const Motion& motion)
@@ -166,75 +168,72 @@ bool playerMeshCollide(Entity player, Entity other, vec2& direction, vec2& overl
     return false;
 }
 
-void PhysicsSystem::step(float elapsed_ms)
-{
+void PhysicsSystem::step(float elapsed_ms) {
     float step_seconds = elapsed_ms / 1000.f;
-    size_t numEntities = registry.motions.entities.size();
+
+    // Only load entities that are already in this room.
+    if (!registry.rooms.has(currentRoom)) {
+        return;
+    }
+    Room& room = registry.rooms.get(currentRoom);
+    std::vector<Entity> roomEntities{ player };
+    for (const auto& entity : registry.motions.entities) {
+        if (room.has(entity)) {
+            roomEntities.push_back(entity);
+        }
+    }
+    size_t numEntities = roomEntities.size();
     size_t numThreads = std::thread::hardware_concurrency();
     size_t batchSize = (numEntities + numThreads - 1) / numThreads;
     std::mutex mutex;
     std::vector<std::tuple<Entity, Entity, vec2, vec2>> collisions;
-    std::vector<std::thread> workers;
 
     for (size_t batch = 0; batch < numThreads; batch++) {
         size_t start = batch * batchSize;
-        size_t end = std::min(start + batchSize, numThreads);
+        size_t end = std::min(start + batchSize, numEntities);
 
-        workers.emplace_back([&, start, end]() {
+        threadPool.enqueue([&, start, end]() {
+            std::vector<std::tuple<Entity, Entity, vec2, vec2>> localCollisions;
             for (size_t i = start; i < end; i++) {
 
-                Entity entity_i = registry.motions.entities[i];
+                Entity entity_i = roomEntities[i];
 
                 // Compare each entity with all other entities (i, j) pairs only once
-                for (size_t j = i + 1; j < registry.motions.size(); j++) {
-                    Entity entity_j = registry.motions.entities[j];
+                for (size_t j = i + 1; j < numEntities; j++) {
+                    Entity entity_j = roomEntities[j];
 
                     vec2 direction;
                     vec2 overlap;
 
-                    if (registry.rooms.has(currentRoom) && checkForCollision(entity_i, entity_j, direction, overlap)) {
+                    if (checkForCollision(entity_i, entity_j, direction, overlap)) {
                         // TODO for Kuter: there is an even better optimization, only loop the room entity list
-                        bool isActive_i = false;
-                        bool isActive_j = false;
 
-                        Room& room = registry.rooms.get(currentRoom);
-
-                        if (registry.players.has(entity_i) || room.has(entity_i)
-                            || (registry.projectiles.has(entity_i) && registry.projectiles.get(entity_i).type == ProjectileType::FIREBALL)) {
-                            isActive_i = true;
-                        }
-
-                        if (registry.players.has(entity_j) || room.has(entity_j)
-                            || (registry.projectiles.has(entity_j) && registry.projectiles.get(entity_j).type == ProjectileType::FIREBALL)) {
-                            isActive_j = true;
-                        }
-
-                        if (isActive_i && isActive_j) {
                             // Mesh Collision for player
                             if (registry.players.has(entity_i)) {
                                 vec2 direction2;
                                 vec2 overlap2;
                                 if (playerMeshCollide(entity_i, entity_j, direction2, overlap2)) {
-                                    std::lock_guard<std::mutex> lock(mutex);
-                                    collisions.push_back({ entity_i, entity_j, direction2, overlap2 });
-                                    collisions.push_back({ entity_j, entity_i, -direction2, overlap2 });
+                                    localCollisions.push_back({ entity_i, entity_j, direction2, overlap2 });
+                                    localCollisions.push_back({ entity_j, entity_i, -direction2, overlap2 });
                                 }
                             }
                             else {
                                 // Non-player collision events directly with direction and overlap
-                                std::lock_guard<std::mutex> lock(mutex);
-                                collisions.push_back({ entity_i, entity_j, -direction, overlap });
-                                collisions.push_back({ entity_j, entity_i, direction, overlap });
+                                localCollisions.push_back({ entity_i, entity_j, -direction, overlap });
+                                localCollisions.push_back({ entity_j, entity_i, direction, overlap });
                             }
-                        }
+                        
                     }
                 }
             }
+            {
+                // Lock the thread while we push everything from local collision into our global collisions list.
+                std::lock_guard<std::mutex> lock(mutex);
+                collisions.insert(collisions.end(), localCollisions.begin(), localCollisions.end());
+            }
         });
     }
-    for (auto& worker : workers) {
-        worker.join();
-    }
+    threadPool.waitForCompletion();
 
     for (auto& c : collisions) {
         registry.collisions.emplace_with_duplicates(std::get<0>(c), std::get<1>(c), std::get<2>(c), std::get<3>(c));

@@ -87,6 +87,7 @@ private:
 	Mix_Chunk* sword_sound;
 	Mix_Chunk* hurt_sound;
     std::unique_ptr<std::unordered_map<TEXTURE_ASSET_ID, Sprite>> texture_paths;
+	PhysicsSystem physics; // remove when physics is move to GameState
 };
 
 extern std::unordered_map<TEXTURE_ASSET_ID, Sprite>* g_texture_paths;
