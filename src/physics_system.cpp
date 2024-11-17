@@ -3,6 +3,8 @@
 #include "physics_system.hpp"
 #include "ecs.hpp"
 #include <limits>
+#include <thread>
+#include <mutex>
 
 // Returns the local bounding coordinates scaled by the current size of the entity
 
@@ -31,7 +33,7 @@ bool PhysicsSystem::checkForCollision(Entity e1, Entity e2, vec2& direction, vec
         half_size1 = (box1 / 2.f);
         half_size1.y += 200.0f;
         half_size2 = box2 / 2.f;
-    }else if(registry.bosses.has(e1)){
+    }else if(registry.bosses.has(e2)){
         half_size1 = (box1 / 2.f);
         half_size2 = box2 / 2.f;
         half_size2.y += 200.0f;
@@ -167,51 +169,74 @@ bool playerMeshCollide(Entity player, Entity other, vec2& direction, vec2& overl
 void PhysicsSystem::step(float elapsed_ms)
 {
     float step_seconds = elapsed_ms / 1000.f;
+    size_t numEntities = registry.motions.entities.size();
+    size_t numThreads = std::thread::hardware_concurrency();
+    size_t batchSize = (numEntities + numThreads - 1) / numThreads;
+    std::mutex mutex;
+    std::vector<std::tuple<Entity, Entity, vec2, vec2>> collisions;
+    std::vector<std::thread> workers;
 
-    for (uint i = 0; i < registry.motions.size(); i++) {
+    for (size_t batch = 0; batch < numThreads; batch++) {
+        size_t start = batch * batchSize;
+        size_t end = std::min(start + batchSize, numThreads);
 
-        Entity entity_i = registry.motions.entities[i];
+        workers.emplace_back([&, start, end]() {
+            for (size_t i = start; i < end; i++) {
 
-        // Compare each entity with all other entities (i, j) pairs only once
-        for (uint j = i + 1; j < registry.motions.size(); j++) {
-            Entity entity_j = registry.motions.entities[j];
+                Entity entity_i = registry.motions.entities[i];
 
-            vec2 direction;
-            vec2 overlap;
+                // Compare each entity with all other entities (i, j) pairs only once
+                for (size_t j = i + 1; j < registry.motions.size(); j++) {
+                    Entity entity_j = registry.motions.entities[j];
 
-            if (registry.rooms.has(currentRoom) && checkForCollision(entity_i, entity_j, direction, overlap)) {
-                // TODO for Kuter: there is an even better optimization, only loop the room entity list
-                bool isActive_i = false;
-                bool isActive_j = false;
+                    vec2 direction;
+                    vec2 overlap;
 
-                Room& room = registry.rooms.get(currentRoom);
+                    if (registry.rooms.has(currentRoom) && checkForCollision(entity_i, entity_j, direction, overlap)) {
+                        // TODO for Kuter: there is an even better optimization, only loop the room entity list
+                        bool isActive_i = false;
+                        bool isActive_j = false;
 
-                if (registry.players.has(entity_i) || room.has(entity_i)
-                || (registry.projectiles.has(entity_i) && registry.projectiles.get(entity_i).type == ProjectileType::FIREBALL)) {
-                    isActive_i = true;
-                }
+                        Room& room = registry.rooms.get(currentRoom);
 
-                if (registry.players.has(entity_j) || room.has(entity_j)
-                || (registry.projectiles.has(entity_j) && registry.projectiles.get(entity_j).type == ProjectileType::FIREBALL)) {
-                    isActive_j = true;
-                }
-
-                if (isActive_i && isActive_j) {
-                    // Mesh Collision for player
-                    if (registry.players.has(entity_i)) {
-                        vec2 direction2;
-                        vec2 overlap2;
-                        if (playerMeshCollide(entity_i, entity_j, direction2, overlap2)) {
-                            registry.collisions.emplace_with_duplicates(entity_i, entity_j, direction2, overlap2);
-                            registry.collisions.emplace_with_duplicates(entity_j, entity_i, -direction2, overlap2);
+                        if (registry.players.has(entity_i) || room.has(entity_i)
+                            || (registry.projectiles.has(entity_i) && registry.projectiles.get(entity_i).type == ProjectileType::FIREBALL)) {
+                            isActive_i = true;
                         }
-                    } else {
-                        // Non-player collision events directly with direction and overlap
-                        registry.collisions.emplace_with_duplicates(entity_i, entity_j, -direction, overlap);
-                        registry.collisions.emplace_with_duplicates(entity_j, entity_i, direction, overlap);
+
+                        if (registry.players.has(entity_j) || room.has(entity_j)
+                            || (registry.projectiles.has(entity_j) && registry.projectiles.get(entity_j).type == ProjectileType::FIREBALL)) {
+                            isActive_j = true;
+                        }
+
+                        if (isActive_i && isActive_j) {
+                            // Mesh Collision for player
+                            if (registry.players.has(entity_i)) {
+                                vec2 direction2;
+                                vec2 overlap2;
+                                if (playerMeshCollide(entity_i, entity_j, direction2, overlap2)) {
+                                    std::lock_guard<std::mutex> lock(mutex);
+                                    collisions.push_back({ entity_i, entity_j, direction2, overlap2 });
+                                    collisions.push_back({ entity_j, entity_i, -direction2, overlap2 });
+                                }
+                            }
+                            else {
+                                // Non-player collision events directly with direction and overlap
+                                std::lock_guard<std::mutex> lock(mutex);
+                                collisions.push_back({ entity_i, entity_j, -direction, overlap });
+                                collisions.push_back({ entity_j, entity_i, direction, overlap });
+                            }
+                        }
                     }
                 }
             }
-        }
+        });
+    }
+    for (auto& worker : workers) {
+        worker.join();
+    }
+
+    for (auto& c : collisions) {
+        registry.collisions.emplace_with_duplicates(std::get<0>(c), std::get<1>(c), std::get<2>(c), std::get<3>(c));
     }
 }
