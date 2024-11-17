@@ -39,7 +39,7 @@ inline std::string mesh_path(const std::string& name) { return data_path() + "/m
 constexpr int window_width_px = 1920;
 constexpr int window_height_px = 1080;
 constexpr float TPS = 500.f;
-constexpr float max_delta_time = 1 / 250.f;
+constexpr float max_delta_time = 1 / 100.f;
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846f
