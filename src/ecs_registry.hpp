@@ -31,8 +31,6 @@ public:
     ComponentContainer<PlayerMeshes> playerMeshes;
     ComponentContainer<Mesh*> meshPtrs;
     ComponentContainer<std::vector<Sprite>> heartSprites;
-    ComponentContainer<std::vector<Sprite>> goombaSprites;
-    ComponentContainer<std::vector<Motion>> goombaScales;
     ComponentContainer<RenderRequest> renderRequests; 
     ComponentContainer<ScreenState> screenStates;
     ComponentContainer<Animation<PlayerState>> playerAnimations;
@@ -75,8 +73,6 @@ public:
         registry_list.push_back(&playerMeshes);
         registry_list.push_back(&meshPtrs);
         registry_list.push_back(&heartSprites);
-        registry_list.push_back(&goombaSprites);
-        registry_list.push_back(&goombaScales);
         registry_list.push_back(&renderRequests);
         registry_list.push_back(&screenStates);
         registry_list.push_back(&playerAnimations);
@@ -120,5 +116,3 @@ public:
 };
 
 extern ECSRegistry registry; // The global ECS registry
-extern Entity m_goombaLand;
-extern Entity m_goombaCeiling;

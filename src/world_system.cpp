@@ -181,14 +181,13 @@ void WorldSystem::init() {
     // load mesh for player
     renderSystem.loadPlayerMeshes(m_player);
 
-    GoombaLogic::init_all_goomba_sprites();
-
     if (playerHealth.max_health == 4) {
         renew_status_bar();
     }
     else {
         init_status_bar();
     }
+  
     init_flame_thrower();
      
     // Initialize the region
@@ -566,10 +565,7 @@ void WorldSystem::handle_collisions() {
 
         // Once the ceiling goomba is dead. change its sprite to the dead sprite
         if (registry.projectileTimers.has(entity) && registry.grounds.has(entity_other)) {
-            std::vector<Sprite> goombaCeilingSprites = registry.goombaSprites.get(m_goombaCeiling);
-            Sprite& goombaCeilingSprite = registry.sprites.get(entity);
-            goombaCeilingSprite = goombaCeilingSprites.back();
-            registry.projectileTimers.remove(entity);
+            GoombaLogic::goomba_ceiling_splat(entity);
         }
 
         // handle extra heart powerup, restore all health and remove heart entity
@@ -842,11 +838,6 @@ void WorldSystem::processPlayerInput(int key, int action) {
         player_get_healed();
     }
 
-    // Press P to respawn the goomba
-    if (action == GLFW_PRESS && key == GLFW_KEY_P) {
-        respawnGoomba();
-    }
-
     // Toggle E to use the flame thrower
     if (action == GLFW_PRESS && key == GLFW_KEY_E) {
         if (isChickenDead) {
@@ -1005,44 +996,6 @@ void WorldSystem::player_get_healed() {
     }
 }
 
-
-// Currently broken
-void WorldSystem::respawnGoomba() {
-    // Check if the Goomba has been killed
-    if (!registry.healths.has(m_goombaLand)) {
-
-        registry.healths.emplace(m_goombaLand, Health{ 1, 1 }); // Goomba has 1 health
-
-        Sprite goombaSprite = g_texture_paths->at(TEXTURE_ASSET_ID::GOOMBA_WALK_IDLE);
-        goombaSprite.width /= 4; goombaSprite.height /= 4;
-        registry.sprites.get(m_goombaLand) = goombaSprite;
-
-        auto& goombaMotion = registry.motions.get(m_goombaLand);
-        goombaMotion.position = glm::vec2(renderSystem.getWindowWidth() - 50, 0);
-        goombaMotion.velocity = glm::vec2(0, 0);
-
-        if (!registry.patrol_ais.has(m_goombaLand)) {
-            registry.patrol_ais.emplace(m_goombaLand, Patrol_AI());
-        }
-
-        if (!registry.damages.has(m_goombaLand)) {
-            registry.damages.emplace(m_goombaLand, Damage{ 1 });
-        }
-
-        if (!registry.gravity.has(m_goombaLand)) {
-            registry.gravity.emplace(m_goombaLand, Gravity());
-        }
-
-        if (!registry.bounding_box.has(m_goombaLand)) {
-            BoundingBox goombaBoundingBox;
-            goombaBoundingBox.width = static_cast<float>(goombaSprite.width);
-            goombaBoundingBox.height = static_cast<float>(goombaSprite.height);
-            registry.bounding_box.emplace(m_goombaLand, goombaBoundingBox);
-        }
-
-        std::cout << "Goomba has respawned" << std::endl;
-    }
-}
 
 
 void WorldSystem::init_status_bar() {

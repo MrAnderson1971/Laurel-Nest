@@ -77,7 +77,6 @@ private:
 
 	void update_status_bar(int num_hearts);
 
-    void respawnGoomba();
     bool canJump = false;
     bool isGrounded = false;
 	bool canAttack = true;
