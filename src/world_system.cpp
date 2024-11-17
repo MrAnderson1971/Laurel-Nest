@@ -999,15 +999,15 @@ void WorldSystem::player_get_damaged(Entity hostile) {
     Damage hostile_damage = registry.damages.get(hostile);
     // Make sure to give the player i-frames so that they dont just die from walking into a goomba
 
+    if (!registry.invinciblityTimers.has(m_player)) {
+        InvincibilityTimer& timer = registry.invinciblityTimers.emplace(m_player);
+    }
+
     if (player_health.current_health > 0) {
         player_health.current_health -= hostile_damage.damage_dealt;
         update_status_bar(player_health.current_health);
         if (!registry.recentDamageTimers.has(m_player)) {
             registry.recentDamageTimers.emplace(m_player, RecentlyDamagedTimer());
-        }
-        if (!registry.invinciblityTimers.has(m_player)) {
-            InvincibilityTimer& timer = registry.invinciblityTimers.emplace(m_player);
-            timer.counter_ms = 250.f;
         }
         if (player_health.current_health == 0) {
             renderSystem.getGameStateManager()->changeState<GameOverScreen>();
