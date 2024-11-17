@@ -177,11 +177,17 @@ struct Weapon
     float cooldown = 0.0f;
 };
 
+enum class HostileType {
+    GOOMBA_LAND,
+    GOOMBA_CEILING,
+    GOOMBA_FLYING,
+};
+
 
 // anything that is hostile to the player
 struct Hostile
 {
-
+    HostileType type;
 };
 
 struct Boss
@@ -303,11 +309,11 @@ enum class TEXTURE_ASSET_ID {
     BMT_BG,                               // BMTown_bg.PNG
     BIRDMAN_CHARGE,
     BIRDMAN_DEAD,
+    BIRDMAN_HIT,
     BIRDMAN_FLY1,
     BIRDMAN_FLY2,
     BIRDMAN_FLY3,
     BIRDMAN_FLY4,
-    BIRDMAN_HIT,
     CHECKPOINT,
     LN_THRONE_BG,                         // LNThrone_bg.PNG
     LN_BG,                                // LN_bg.PNG

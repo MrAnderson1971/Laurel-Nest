@@ -19,14 +19,13 @@ void GoombaLogic::goomba_ceiling_death(Entity hostile) {
     registry.damages.remove(hostile);
     registry.healths.remove(hostile);
     registry.bounding_box.remove(hostile);
+    registry.projectileTimers.remove(hostile);
 }
 
 // Update the ceiling goomba's falling sprite to its dead sprite
 void GoombaLogic::goomba_ceiling_splat(Entity hostile) {
     Sprite& goombaCeilingSprite = registry.sprites.get(hostile);
     goombaCeilingSprite = g_texture_paths->at(TEXTURE_ASSET_ID::GOOMBA_DEAD);
-
-    registry.projectileTimers.remove(hostile);
 }
 
 void GoombaLogic::goomba_land_death(Entity hostile) {
@@ -57,7 +56,7 @@ void GoombaLogic::goomba_get_damaged(Entity hostile, Entity m_weapon) {
             // Change the ceilingGoombas sprite
             Sprite& goombaSprite = registry.sprites.get(hostile);
             Motion& goombaMotion = registry.motions.get(hostile);
-            if (registry.projectileTimers.has(hostile)) {
+            if (registry.hostiles.get(hostile).type == HostileType::GOOMBA_CEILING) {
                 goombaSprite = g_texture_paths->at(TEXTURE_ASSET_ID::CEILING_HIT);
                 goombaMotion.scale = GOOMBA_CEILING_HIT_SCALE;
             }
@@ -68,7 +67,7 @@ void GoombaLogic::goomba_get_damaged(Entity hostile, Entity m_weapon) {
             }
         }
         else {
-            if (registry.projectileTimers.has(hostile)) {
+            if (registry.hostiles.get(hostile).type == HostileType::GOOMBA_CEILING) {
                 goomba_ceiling_death(hostile);
             }
             else {
@@ -89,7 +88,7 @@ void GoombaLogic::update_damaged_goomba_sprites(float delta_time) {
         if (damaged_timer.counter_ms <= 0 && registry.healths.has(entity)) {
             Sprite& goombaSprite = registry.sprites.get(entity);
             Motion& goombaMotion = registry.motions.get(entity);
-            if (registry.projectileTimers.has(entity)) {
+            if (registry.hostiles.get(entity).type == HostileType::GOOMBA_CEILING) {
                 goombaSprite = g_texture_paths->at(TEXTURE_ASSET_ID::CEILING_IDLE);
                 goombaMotion.scale = GOOMBA_CEILING_IDLE_SCALE;
             }
