@@ -18,7 +18,9 @@
 #include <fstream>
 #include <string>
 #include <algorithm>
+
 bool Show_FPS = true;
+bool isChickenDead = false;
 std::unordered_map<TEXTURE_ASSET_ID, Sprite>* g_texture_paths = nullptr;
 
 WorldSystem::WorldSystem() {
@@ -95,8 +97,8 @@ WorldSystem::~WorldSystem() {
 
 void WorldSystem::init() {
     // Create a new entity and register it in the ECSRegistry
-    isChickenDead = false;
-    
+    isChickenDead = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::IS_CHICKEN_DEAD), false);
+    heartPowerUp = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::HEART_POWER_UP), false);
     // Player
 
     // Add the Player component to the player entity
@@ -177,7 +179,12 @@ void WorldSystem::init() {
 
     GoombaLogic::init_all_goomba_sprites();
 
-    init_status_bar();
+    if (playerHealth.max_health == 4) {
+        renew_status_bar();
+    }
+    else {
+        init_status_bar();
+    }
     init_flame_thrower();
      
     // Initialize the region
@@ -186,6 +193,12 @@ void WorldSystem::init() {
     // testing bmt
     //current_room = regionManager->setRegion(makeRegion<Birdmantown>);
     PhysicsSystem::setRoom(current_room);
+
+    // TODO LATER: Somehow differentiate between heart power ups if we are going to have multiple
+    if (heartPowerUp) {
+       registry.remove_all_components_of(registry.heartPowerUp.entities[0]);
+    }
+    
 
     // init tutorial (temp)
     Sprite tutorialSprite(renderSystem.loadTexture("temp_tutorial.PNG"));
@@ -548,6 +561,7 @@ void WorldSystem::handle_collisions() {
         // handle extra heart powerup, restore all health and remove heart entity
         // TODO: add extra heart life
         if (registry.players.has(entity) && registry.heartPowerUp.has(entity_other)) {
+            if (!heartPowerUp) renew_status_bar();
             heartPowerUp = true;
             registry.remove_all_components_of(entity_other);
             // reset health to full
@@ -556,7 +570,7 @@ void WorldSystem::handle_collisions() {
             player_health.current_health = player_health.max_health;
             HealthFlask& health_flask = registry.healthFlasks.get(m_player);
             health_flask.num_uses = 3;
-            renew_status_bar();
+            
         }
 
     }
@@ -1131,23 +1145,25 @@ void WorldSystem::write_to_save_file() {
     std::fstream saveFile;
     saveFile.open(SAVE_FILE_PATH, std::ios::out); // writing
     if (saveFile.is_open()) {
-        //saveFile << BoolToString(isChickenDead) + "\n";
         //saveFile << BoolToString(isGreatBirdDead) + "\n";
         //saveFile << std::to_string(PelicanState) + "\n";
         //saveFile << std::to_string(current_room) + "\n";
         // MaxHealth
         Health player_health = registry.healths.get(m_player);
         // Line 0: player max health
-        saveFile << player_health.current_health << "\n";
-        // Line 1: player current health
         saveFile << player_health.max_health << "\n";
+        // Line 1: player current health
+        saveFile << player_health.current_health << "\n";
 
         // Line 2:
         HealthFlask health_flask = registry.healthFlasks.get(m_player);
         saveFile << health_flask.num_uses << "\n";
 
         // Line 3:
-        //saveFile << Serialize::BoolToString(isChickenDead) << "\n";
+        saveFile << BoolToString(heartPowerUp) << "\n";
+
+        // Line 4:
+        saveFile << BoolToString(isChickenDead) << "\n";
 
         saveFile.close();
         std::cout << "Saved \n";
@@ -1155,52 +1171,4 @@ void WorldSystem::write_to_save_file() {
     else {
         std::cout << "Couldnt write to save file \n";
     }
-}
-
-// (JETT) I don't know why, but it wont compile if tries to include from serialize.hpp. 
-int WorldSystem::readIntFromFile(const std::string& filePath, int lineNumber, int defaultValue) {
-    std::ifstream file(filePath);
-    if (!file.is_open()) {
-        return defaultValue;
-    }
-
-    std::string line;
-    int currentLine = 0;
-
-    while (std::getline(file, line)) {
-        if (currentLine == lineNumber) {
-            std::istringstream iss(line);
-            int value;
-            if (iss >> value) {
-                return value;
-            }
-            return defaultValue;
-        }
-        currentLine++;
-    }
-    return defaultValue;
-}
-
-
-bool WorldSystem::readBoolFromFile(const std::string& filePath, int lineNumber, bool defaultValue) {
-    std::ifstream file(filePath);
-    if (!file.is_open()) {
-        return defaultValue;
-    }
-
-    std::string line;
-    int currentLine = 0;
-
-    while (std::getline(file, line)) {
-        if (currentLine == lineNumber) {
-            std::istringstream iss(line);
-            bool value;
-            if (iss >> std::boolalpha >> value) {
-                return value;
-            }
-            return defaultValue;
-        }
-        currentLine++;
-    }
-    return defaultValue;
 }

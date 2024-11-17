@@ -301,6 +301,13 @@ enum class TEXTURE_ASSET_ID {
     FIREBALL,                             // Fireball.png
     DOOR,                                 // Door.PNG
     BMT_BG,                               // BMTown_bg.PNG
+    BIRDMAN_CHARGE,
+    BIRDMAN_DEAD,
+    BIRDMAN_FLY1,
+    BIRDMAN_FLY2,
+    BIRDMAN_FLY3,
+    BIRDMAN_FLY4,
+    BIRDMAN_HIT,
     TEXTURE_COUNT                         // Count of all textures
 };
 constexpr int texture_count = static_cast<int>(TEXTURE_ASSET_ID::TEXTURE_COUNT);
@@ -309,7 +316,9 @@ enum class SAVEFILE_LINES {
     PLAYER_MAX_HEALTH = 0,
     PLAYER_CURRENT_HEALTH = PLAYER_MAX_HEALTH + 1,
     HEALTH_FLASK_USES = PLAYER_CURRENT_HEALTH + 1,
-    SAVEFILE_LINES = HEALTH_FLASK_USES + 1
+    HEART_POWER_UP = HEALTH_FLASK_USES + 1,
+    IS_CHICKEN_DEAD = HEART_POWER_UP + 1,
+    SAVEFILE_LINES = IS_CHICKEN_DEAD + 1
 };
 constexpr int line_count = static_cast<int>(SAVEFILE_LINES::SAVEFILE_LINES);
 

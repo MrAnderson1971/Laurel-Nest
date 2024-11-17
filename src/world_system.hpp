@@ -30,6 +30,7 @@ constexpr int SWORD_CHANNEL = 0;
 constexpr int HURT_CHANNEL = 1;
 
 extern bool Show_FPS;
+extern bool isChickenDead;
 
 class RegionManager;
 
@@ -77,11 +78,13 @@ private:
     bool canJump = false;
     bool isGrounded = false;
 	bool canAttack = true;
-    bool isChickenDead = false;
     bool isFlameThrowerEquipped = false;
     bool flameThrower_enabled = false;
 	bool tutorialOpen = false;
-	bool heartPowerUp = false;
+
+	// saveables
+	
+	bool heartPowerUp;
 
 
     void updateBoundingBox(Entity entity);
@@ -98,11 +101,6 @@ private:
 	bool do_save = false;
 
 	void write_to_save_file();
-
-	int readIntFromFile(const std::string& filePath, int lineNumber, int defaultValue);
-	bool readBoolFromFile(const std::string& filePath, int lineNumber, bool defaultValue);
-
-
 };
 
 extern std::unordered_map<TEXTURE_ASSET_ID, Sprite>* g_texture_paths;
