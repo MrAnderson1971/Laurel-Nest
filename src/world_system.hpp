@@ -5,6 +5,7 @@
 #include "game_state.hpp"
 #include "render_system.hpp"
 #include "region_manager.hpp"
+//#include "serialize.hpp"
 
 constexpr float player_speed = 1.0f * TPS;
 constexpr float player_jump_velocity = 3.7f * TPS; // adjust so you can reach the test platform
@@ -29,6 +30,7 @@ constexpr int SWORD_CHANNEL = 0;
 constexpr int HURT_CHANNEL = 1;
 
 extern bool Show_FPS;
+extern bool isChickenDead;
 
 class RegionManager;
 
@@ -54,12 +56,15 @@ public:
 	void handle_ai();
 	void handle_saving();
 
+	Entity switch_map();
+
 private:
 	Entity m_player;
 	Entity m_hearts;
 	Entity m_sword;
     Entity m_flameThrower;
 	Entity current_room;
+	Entity next_map;
 	Entity m_tutorial;
 	std::unique_ptr<RegionManager> regionManager;
 
@@ -74,16 +79,17 @@ private:
 
 	void update_status_bar(int num_hearts);
 
-    void respawnGoomba();
     bool canJump = false;
     bool isGrounded = false;
 	bool canAttack = true;
-    bool isBossDead = false;
     bool isFlameThrowerEquipped = false;
     bool flameThrower_enabled = false;
 	bool tutorialOpen = false;
-	bool heartPowerUp = false;
-	bool saved_during_current_session = false;
+
+	// saveables
+	
+	bool heartPowerUp;
+
 
     void updateBoundingBox(Entity entity);
 
@@ -99,9 +105,9 @@ private:
 	bool do_save = false;
 
 	void write_to_save_file();
-	void read_save_file();
 
 	PhysicsSystem physics; // remove when physics is move to GameState
+
 };
 
 extern std::unordered_map<TEXTURE_ASSET_ID, Sprite>* g_texture_paths;
