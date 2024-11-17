@@ -60,8 +60,3 @@ bool gl_has_errors()
 
 	return true;
 }
-
-const std::string BoolToString(bool b)
-{
-	return b ? "true" : "false";
-}

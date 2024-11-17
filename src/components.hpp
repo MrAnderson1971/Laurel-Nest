@@ -301,6 +301,14 @@ enum class TEXTURE_ASSET_ID {
     FIREBALL,                             // Fireball.png
     DOOR,                                 // Door.PNG
     BMT_BG,                               // BMTown_bg.PNG
+    BIRDMAN_CHARGE,
+    BIRDMAN_DEAD,
+    BIRDMAN_FLY1,
+    BIRDMAN_FLY2,
+    BIRDMAN_FLY3,
+    BIRDMAN_FLY4,
+    BIRDMAN_HIT,
+    CHECKPOINT,
     LN_THRONE_BG,                         // LNThrone_bg.PNG
     LN_BG,                                // LN_bg.PNG
     TEXTURE_COUNT                         // Count of all textures

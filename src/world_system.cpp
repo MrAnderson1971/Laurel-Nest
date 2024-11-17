@@ -8,6 +8,7 @@
 
 #include "birdmantown_map.hpp" //testing
 #include "serialize.hpp"
+#include "common.hpp"
 #include "boss_ai.hpp"
 
 // stlib
@@ -17,7 +18,9 @@
 #include <fstream>
 #include <string>
 #include <algorithm>
+
 bool Show_FPS = true;
+bool isChickenDead = false;
 std::unordered_map<TEXTURE_ASSET_ID, Sprite>* g_texture_paths = nullptr;
 
 WorldSystem::WorldSystem() {
@@ -78,6 +81,7 @@ WorldSystem::WorldSystem() {
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::FIREBALL, renderSystem.loadTexture("Fireball.png"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::DOOR, renderSystem.loadTexture("door.PNG"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::BMT_BG, renderSystem.loadTexture("BMTown_bg.PNG"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::CHECKPOINT, renderSystem.loadTexture("checkpoint.png"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::LN_THRONE_BG, renderSystem.loadTexture("LNThrone_bg.PNG"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::LN_BG, renderSystem.loadTexture("LN_bg.PNG"));
 
@@ -86,7 +90,7 @@ WorldSystem::WorldSystem() {
 
     font_color = glm::vec3(1.0, 1.0, 1.0);
     font_trans = glm::mat4(1.0f);
-    font_trans = glm::scale(font_trans, glm::vec3(0.5, 0.5, 1.0));
+    //font_trans = glm::scale(font_trans, glm::vec3(0.5, 0.5, 1.0));
 }
 
 WorldSystem::~WorldSystem() {
@@ -96,8 +100,8 @@ WorldSystem::~WorldSystem() {
 
 void WorldSystem::init() {
     // Create a new entity and register it in the ECSRegistry
-    isBossDead = false;
- 
+    isChickenDead = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::IS_CHICKEN_DEAD), false);
+    heartPowerUp = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::HEART_POWER_UP), false);
     // Player
 
     // Add the Player component to the player entity
@@ -121,12 +125,13 @@ void WorldSystem::init() {
 
     // Create and initialize a Health component for the player
     Health playerHealth;
-    playerHealth.current_health = readIntFromFile(SAVE_FILE_PATH, 0, 3);
-    playerHealth.max_health = readIntFromFile(SAVE_FILE_PATH, 1, 3);
+    playerHealth.current_health = readIntFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::PLAYER_CURRENT_HEALTH), 3);
+    playerHealth.max_health = readIntFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::PLAYER_MAX_HEALTH), 3);
     registry.healths.emplace(m_player, playerHealth);
 
     // Create the HealthFlask for the player to heal with
     HealthFlask healthFlask;
+    healthFlask.num_uses = readIntFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::HEALTH_FLASK_USES), 3);
     registry.healthFlasks.emplace(m_player, healthFlask);
 
     // Add gravity to the Player
@@ -176,15 +181,27 @@ void WorldSystem::init() {
     // load mesh for player
     renderSystem.loadPlayerMeshes(m_player);
 
-    init_status_bar();
+    if (playerHealth.max_health == 4) {
+        renew_status_bar();
+    }
+    else {
+        init_status_bar();
+    }
+  
     init_flame_thrower();
      
     // Initialize the region
     regionManager->init();
     current_room = regionManager->setRegion(makeRegion<Cesspit>);
     //testing bmt
+    //current_room = regionManager->setRegion(makeRegion<Birdmantown>);
     next_map = regionManager->setRegion(makeRegion<Birdmantown>);
     physics.setRoom(current_room);
+
+    // TODO LATER: Somehow differentiate between heart power ups if we are going to have multiple
+    if (heartPowerUp) {
+       registry.remove_all_components_of(registry.heartPowerUp.entities[0]);
+    }
 
     // init tutorial (temp)
     Sprite tutorialSprite(renderSystem.loadTexture("temp_tutorial.PNG"));
@@ -251,7 +268,7 @@ void WorldSystem::handle_connections(float deltaTime) {
         for (auto& connection : list.doors) {
             if (physics.checkForCollision(m_player, connection.door, dir, over)) {
                 // check if in boss room and if boss is dead
-                if (!connection.limit || isBossDead) {
+                if (!connection.limit || isChickenDead) {
                     // set next room
                     // check for switching map
                     if (!connection.switchMap) {
@@ -267,7 +284,7 @@ void WorldSystem::handle_connections(float deltaTime) {
                     // set spawn point of player in new room
                     playerMotion.position = connection.nextSpawn;
                     std::shared_ptr<Mix_Music> music = registry.rooms.get(current_room).music;
-                    if (music != nullptr && !isBossDead) { // Begrudgingly putting this condition here so it only plays when the boss isn't dead.
+                    if (music != nullptr && !isChickenDead) { // Begrudgingly putting this condition here so it only plays when the boss isn't dead.
                         Mix_PlayMusic(music.get(), 1); // TODO: make it more scalable in the future because we can't keep this up.
                     }
                     else {
@@ -501,7 +518,7 @@ void WorldSystem::handle_collisions() {
             }
             if (registry.players.get(m_player).attacking) {
                 if (registry.bosses.has(entity_other)) {
-                    BossAISystem::chicken_get_damaged(m_sword, isBossDead);
+                    BossAISystem::chicken_get_damaged(m_sword, isChickenDead);
                 } else {
                     GoombaLogic::goomba_get_damaged(entity_other, m_sword);
                 }
@@ -526,7 +543,7 @@ void WorldSystem::handle_collisions() {
                 }
             }
             if (registry.bosses.has(entity_other)) {
-                BossAISystem::chicken_get_damaged(entity, isBossDead);
+                BossAISystem::chicken_get_damaged(entity, isChickenDead);
                 registry.remove_all_components_of(entity);
             }
         }
@@ -554,6 +571,7 @@ void WorldSystem::handle_collisions() {
         // handle extra heart powerup, restore all health and remove heart entity
         // TODO: add extra heart life
         if (registry.players.has(entity) && registry.heartPowerUp.has(entity_other)) {
+            if (!heartPowerUp) renew_status_bar();
             heartPowerUp = true;
             registry.remove_all_components_of(entity_other);
             // reset health to full
@@ -562,7 +580,7 @@ void WorldSystem::handle_collisions() {
             player_health.current_health = player_health.max_health;
             HealthFlask& health_flask = registry.healthFlasks.get(m_player);
             health_flask.num_uses = 3;
-            renew_status_bar();
+            
         }
 
     }
@@ -637,7 +655,6 @@ void WorldSystem::handle_saving() {
                 if (do_save) {
                     // TODO MAYBE INSERT A SAVE SOUND
                     write_to_save_file();
-                    saved_during_current_session = true;
                 }
             }
         }
@@ -681,9 +698,9 @@ void WorldSystem::render() {
             float save_point_upper_bound_y = save_point_motion.position.y + save_point_motion.scale.y;
             if (save_point_lower_bound_x <= player_motion.position.x && player_motion.position.x < save_point_upper_bound_x
                 && save_point_lower_bound_y < player_motion.position.y && player_motion.position.y < save_point_upper_bound_y) {
-                double position_x = save_point_motion.position.x * 2.f * 0.78;
-                double position_y = save_point_motion.position.y * 2.f * 1.1;
-                renderSystem.renderText("Press V to Save", static_cast<float>(position_x), static_cast<float>(position_y), 1.0f, font_color, font_trans);
+                double position_x = save_point_motion.position.x * 0.90;
+                double position_y = (renderSystem.getWindowHeight() -  save_point_motion.position.y) * 1.7;
+                renderSystem.renderText("Press V to Save", static_cast<float>(position_x), static_cast<float>(position_y), 0.5f, font_color, font_trans);
             }
         }
 
@@ -723,13 +740,13 @@ void WorldSystem::render() {
     HealthFlask& flask = registry.healthFlasks.get(m_player);
     std::string num_uses = std::to_string(flask.num_uses);
     std::string uses_string = "Health Flask uses: " + num_uses;
-    renderSystem.renderText(uses_string, static_cast<float>(window_width_px * 0.09), static_cast<float>(window_height_px * 1.60), 1.0f, font_color, font_trans);
+    renderSystem.renderText(uses_string, static_cast<float>(window_width_px * 0.045), static_cast<float>(window_height_px * 0.80), 0.5f, font_color, font_trans);
 
 
     // Draw the flame thrower if the boss is killed
     if (registry.transforms.has(m_flameThrower) && registry.sprites.has(m_flameThrower))
     {
-        if (isBossDead && isFlameThrowerEquipped) {
+        if (isChickenDead && isFlameThrowerEquipped) {
             auto &flameThrowerTransform = registry.transforms.get(m_flameThrower);
             auto &flameThrowerSprite = registry.sprites.get(m_flameThrower);
             renderSystem.drawEntity(flameThrowerSprite, flameThrowerTransform);
@@ -739,7 +756,7 @@ void WorldSystem::render() {
     for (const auto& entity : registry.projectiles.entities) {
         if (registry.projectiles.get(entity).type == ProjectileType::FIREBALL) {
             if (registry.sprites.has(entity) && registry.transforms.has(entity)) {
-                if (isBossDead && isFlameThrowerEquipped) {
+                if (isChickenDead && isFlameThrowerEquipped) {
                     auto &fireballSprite = registry.sprites.get(entity);
                     auto &fireballTransform = registry.transforms.get(entity);
                     renderSystem.drawEntity(fireballSprite, fireballTransform);
@@ -823,7 +840,7 @@ void WorldSystem::processPlayerInput(int key, int action) {
 
     // Toggle E to use the flame thrower
     if (action == GLFW_PRESS && key == GLFW_KEY_E) {
-        if (isBossDead) {
+        if (isChickenDead) {
             if (!registry.players.get(m_player).attacking) {
                 isFlameThrowerEquipped = true;
                 if (isFlameThrowerEquipped && flameThrower_enabled) {
@@ -834,7 +851,7 @@ void WorldSystem::processPlayerInput(int key, int action) {
     }
 
     if (action == GLFW_PRESS && key == GLFW_KEY_Q) {
-        if (isBossDead) {
+        if (isChickenDead) {
             isFlameThrowerEquipped = false;
         }
     }
@@ -1095,14 +1112,25 @@ void WorldSystem::write_to_save_file() {
     std::fstream saveFile;
     saveFile.open(SAVE_FILE_PATH, std::ios::out); // writing
     if (saveFile.is_open()) {
-        //saveFile << BoolToString(isChickenDead) + "\n";
         //saveFile << BoolToString(isGreatBirdDead) + "\n";
         //saveFile << std::to_string(PelicanState) + "\n";
         //saveFile << std::to_string(current_room) + "\n";
         // MaxHealth
         Health player_health = registry.healths.get(m_player);
-        saveFile << std::to_string(player_health.current_health) + "\n";
+        // Line 0: player max health
         saveFile << player_health.max_health << "\n";
+        // Line 1: player current health
+        saveFile << player_health.current_health << "\n";
+
+        // Line 2:
+        HealthFlask health_flask = registry.healthFlasks.get(m_player);
+        saveFile << health_flask.num_uses << "\n";
+
+        // Line 3:
+        saveFile << BoolToString(heartPowerUp) << "\n";
+
+        // Line 4:
+        saveFile << BoolToString(isChickenDead) << "\n";
 
         saveFile.close();
         std::cout << "Saved \n";
@@ -1111,37 +1139,3 @@ void WorldSystem::write_to_save_file() {
         std::cout << "Couldnt write to save file \n";
     }
 }
-
-void WorldSystem::read_save_file() {
-    std::fstream saveFile;
-    saveFile.open("highScore.txt", std::ios::in); // reading
-    if (saveFile.is_open()) {
-        std::string line;
-        int i = 0;
-        while (getline(saveFile, line)) {
-            //switch (i) {
-            //// isChickenDead
-            //case 0:
-            //    break;
-            //// isGreatBirdDead
-            //case 1:
-            //    break;
-            //// Pelican State
-            //case 2:
-            //    break;
-            //// CurrentRoom
-            //case 3:
-            //    break;
-            //// MaxHealth
-            //case 4:
-            //    break;
-            //}
-        }
-        //cout << "Max_score is : " << max_score << "\n";
-        saveFile.close();
-    }
-    else {
-        std::cout << "Couldnt open save file \n";
-    }
-}
-
