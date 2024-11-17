@@ -1,5 +1,6 @@
 #include "goomba_logic.hpp"
 #include "ai_system.hpp"
+#include "world_system.hpp"
 #include <cassert>
 #include <sstream>
 #include <iostream>
@@ -68,20 +69,17 @@ void GoombaLogic::goomba_get_damaged(Entity hostile, Entity m_weapon) {
             }
             std::vector<Sprite> goombaSprites;
             // Change the ceilingGoombas sprite
+            Sprite& goombaSprite = registry.sprites.get(hostile);
             Motion& goombaMotion = registry.motions.get(hostile);
-            Motion m_motion;
             if (registry.projectileTimers.has(hostile)) {
-                goombaSprites = registry.goombaSprites.get(m_goombaCeiling);
-                m_motion = registry.goombaScales.get(m_goombaCeiling)[1];
+                goombaSprite = g_texture_paths->at(TEXTURE_ASSET_ID::CEILING_HIT);
+                goombaMotion.scale = GOOMBA_CEILING_HIT_SCALE;
             }
             // Change the landGoombas sprite
             else {
-                goombaSprites = registry.goombaSprites.get(m_goombaLand);
-                m_motion = registry.goombaScales.get(m_goombaLand)[1];
+                goombaSprite = g_texture_paths->at(TEXTURE_ASSET_ID::GOOMBA_WALK_HIT);
+                goombaMotion.scale = GOOMBA_LAND_HIT_SCALE;
             }
-            Sprite& goombaSprite = registry.sprites.get(hostile);
-            goombaSprite = goombaSprites[1];
-            goombaMotion.scale = m_motion.scale;
         }
         else {
             if (registry.projectileTimers.has(hostile)) {
