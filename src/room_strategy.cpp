@@ -332,7 +332,7 @@ Entity CPExitRoomStrategy::execute() {
     Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.f, 1.0f, 0.5f, 0.5f, 0.f);
 
     // savepoint 
-    Entity m_save_point = SetSavePoint(40.f / 100.f, 87.f / 100.f);
+    Entity m_check_point = SetCheckpoint(40.f / 100.f, 76.4f / 100.f);
     
 
     // note on bg: don't add motion
@@ -359,7 +359,7 @@ Entity CPExitRoomStrategy::execute() {
     room.insert(m_platform5);
     room.insert(m_platform6);
     room.insert(m_platform7);
-    room.insert(m_save_point);
+    room.insert(m_check_point);
     registry.rooms.emplace(m_exit_room, std::move(room));
     return m_exit_room;
 }
@@ -824,9 +824,9 @@ Entity RoomStrategy::SetDoorEx(float width, float height, float xPos, float yPos
     return m_door;
 }
 
-Entity RoomStrategy::SetSavePoint(float xPos, float yPos) {
+Entity RoomStrategy::SetCheckpoint(float xPos, float yPos) {
     Entity savePoint = Entity();
-    registry.sprites.emplace(savePoint, g_texture_paths->at(TEXTURE_ASSET_ID::GOOMBA_WALK_NOTICE));
+    registry.sprites.emplace(savePoint, g_texture_paths->at(TEXTURE_ASSET_ID::CHECKPOINT));
 
     TransformComponent savePointTransform;
     registry.transforms.emplace(savePoint, std::move(savePointTransform));
@@ -835,7 +835,8 @@ Entity RoomStrategy::SetSavePoint(float xPos, float yPos) {
     savePointMotion.position = glm::vec2(renderSystem.getWindowWidth() * xPos, renderSystem.getWindowHeight() * yPos);
     /*savePointMotion.position = glm::vec2(xPos, yPos);*/
     // TODO GIVE IT A PROPER SCALE
-    savePointMotion.scale = {100, 100};
+    int factor = 1;
+    savePointMotion.scale = {285 / factor, 318 / factor };
     registry.motions.emplace(savePoint, std::move(savePointMotion));
 
     registry.savePoints.emplace(savePoint, std::move(SavePoint()));

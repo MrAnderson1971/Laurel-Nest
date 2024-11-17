@@ -308,6 +308,7 @@ enum class TEXTURE_ASSET_ID {
     BIRDMAN_FLY3,
     BIRDMAN_FLY4,
     BIRDMAN_HIT,
+    CHECKPOINT,
     TEXTURE_COUNT                         // Count of all textures
 };
 constexpr int texture_count = static_cast<int>(TEXTURE_ASSET_ID::TEXTURE_COUNT);

@@ -81,6 +81,7 @@ WorldSystem::WorldSystem() {
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::FIREBALL, renderSystem.loadTexture("Fireball.png"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::DOOR, renderSystem.loadTexture("door.PNG"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::BMT_BG, renderSystem.loadTexture("BMTown_bg.PNG"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::CHECKPOINT, renderSystem.loadTexture("checkpoint.png"));
 
     texture_paths = std::make_unique<std::unordered_map<TEXTURE_ASSET_ID, Sprite>>(std::move(temp_texture_paths));
     g_texture_paths = texture_paths.get();
@@ -692,8 +693,8 @@ void WorldSystem::render() {
             float save_point_upper_bound_y = save_point_motion.position.y + save_point_motion.scale.y;
             if (save_point_lower_bound_x <= player_motion.position.x && player_motion.position.x < save_point_upper_bound_x
                 && save_point_lower_bound_y < player_motion.position.y && player_motion.position.y < save_point_upper_bound_y) {
-                double position_x = save_point_motion.position.x * 0.84;
-                double position_y = (renderSystem.getWindowHeight() -  save_point_motion.position.y) * 0.5;
+                double position_x = save_point_motion.position.x * 0.90;
+                double position_y = (renderSystem.getWindowHeight() -  save_point_motion.position.y) * 1.7;
                 renderSystem.renderText("Press V to Save", static_cast<float>(position_x), static_cast<float>(position_y), 0.5f, font_color, font_trans);
             }
         }
