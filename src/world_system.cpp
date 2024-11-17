@@ -8,6 +8,7 @@
 
 #include "birdmantown_map.hpp" //testing
 #include "serialize.hpp"
+#include "common.hpp"
 #include "boss_ai.hpp"
 
 // stlib
@@ -94,8 +95,8 @@ WorldSystem::~WorldSystem() {
 
 void WorldSystem::init() {
     // Create a new entity and register it in the ECSRegistry
-    isBossDead = false;
- 
+    isChickenDead = false;
+    
     // Player
 
     // Add the Player component to the player entity
@@ -118,12 +119,13 @@ void WorldSystem::init() {
 
     // Create and initialize a Health component for the player
     Health playerHealth;
-    playerHealth.current_health = readIntFromFile(SAVE_FILE_PATH, 0, 3);
-    playerHealth.max_health = readIntFromFile(SAVE_FILE_PATH, 1, 3);
+    playerHealth.current_health = readIntFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::PLAYER_CURRENT_HEALTH), 3);
+    playerHealth.max_health = readIntFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::PLAYER_MAX_HEALTH), 3);
     registry.healths.emplace(m_player, playerHealth);
 
     // Create the HealthFlask for the player to heal with
     HealthFlask healthFlask;
+    healthFlask.num_uses = readIntFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::HEALTH_FLASK_USES), 3);
     registry.healthFlasks.emplace(m_player, healthFlask);
 
     // Add gravity to the Player
@@ -248,7 +250,7 @@ void WorldSystem::handle_connections(float deltaTime) {
         for (auto& connection : list.doors) {
             if (PhysicsSystem::checkForCollision(m_player, connection.door, dir, over)) {
                 // check if in boss room and if boss is dead
-                if (!connection.limit || isBossDead) {
+                if (!connection.limit || isChickenDead) {
                     // set next room
                     current_room = connection.nextRoom;
                     AISystem::init_aim();
@@ -256,7 +258,7 @@ void WorldSystem::handle_connections(float deltaTime) {
                     // set spawn point of player in new room
                     playerMotion.position = connection.nextSpawn;
                     std::shared_ptr<Mix_Music> music = registry.rooms.get(current_room).music;
-                    if (music != nullptr && !isBossDead) { // Begrudgingly putting this condition here so it only plays when the boss isn't dead.
+                    if (music != nullptr && !isChickenDead) { // Begrudgingly putting this condition here so it only plays when the boss isn't dead.
                         Mix_PlayMusic(music.get(), 1); // TODO: make it more scalable in the future because we can't keep this up.
                     }
                     else {
@@ -490,7 +492,7 @@ void WorldSystem::handle_collisions() {
             }
             if (registry.players.get(m_player).attacking) {
                 if (registry.bosses.has(entity_other)) {
-                    BossAISystem::chicken_get_damaged(m_sword, isBossDead);
+                    BossAISystem::chicken_get_damaged(m_sword, isChickenDead);
                 } else {
                     GoombaLogic::goomba_get_damaged(entity_other, m_sword);
                 }
@@ -515,7 +517,7 @@ void WorldSystem::handle_collisions() {
                 }
             }
             if (registry.bosses.has(entity_other)) {
-                BossAISystem::chicken_get_damaged(entity, isBossDead);
+                BossAISystem::chicken_get_damaged(entity, isChickenDead);
                 registry.remove_all_components_of(entity);
             }
         }
@@ -629,7 +631,6 @@ void WorldSystem::handle_saving() {
                 if (do_save) {
                     // TODO MAYBE INSERT A SAVE SOUND
                     write_to_save_file();
-                    saved_during_current_session = true;
                 }
             }
         }
@@ -721,7 +722,7 @@ void WorldSystem::render() {
     // Draw the flame thrower if the boss is killed
     if (registry.transforms.has(m_flameThrower) && registry.sprites.has(m_flameThrower))
     {
-        if (isBossDead && isFlameThrowerEquipped) {
+        if (isChickenDead && isFlameThrowerEquipped) {
             auto &flameThrowerTransform = registry.transforms.get(m_flameThrower);
             auto &flameThrowerSprite = registry.sprites.get(m_flameThrower);
             renderSystem.drawEntity(flameThrowerSprite, flameThrowerTransform);
@@ -731,7 +732,7 @@ void WorldSystem::render() {
     for (const auto& entity : registry.projectiles.entities) {
         if (registry.projectiles.get(entity).type == ProjectileType::FIREBALL) {
             if (registry.sprites.has(entity) && registry.transforms.has(entity)) {
-                if (isBossDead && isFlameThrowerEquipped) {
+                if (isChickenDead && isFlameThrowerEquipped) {
                     auto &fireballSprite = registry.sprites.get(entity);
                     auto &fireballTransform = registry.transforms.get(entity);
                     renderSystem.drawEntity(fireballSprite, fireballTransform);
@@ -820,7 +821,7 @@ void WorldSystem::processPlayerInput(int key, int action) {
 
     // Toggle E to use the flame thrower
     if (action == GLFW_PRESS && key == GLFW_KEY_E) {
-        if (isBossDead) {
+        if (isChickenDead) {
             if (!registry.players.get(m_player).attacking) {
                 isFlameThrowerEquipped = true;
                 if (isFlameThrowerEquipped && flameThrower_enabled) {
@@ -831,7 +832,7 @@ void WorldSystem::processPlayerInput(int key, int action) {
     }
 
     if (action == GLFW_PRESS && key == GLFW_KEY_Q) {
-        if (isBossDead) {
+        if (isChickenDead) {
             isFlameThrowerEquipped = false;
         }
     }
@@ -1136,8 +1137,17 @@ void WorldSystem::write_to_save_file() {
         //saveFile << std::to_string(current_room) + "\n";
         // MaxHealth
         Health player_health = registry.healths.get(m_player);
-        saveFile << std::to_string(player_health.current_health) + "\n";
+        // Line 0: player max health
+        saveFile << player_health.current_health << "\n";
+        // Line 1: player current health
         saveFile << player_health.max_health << "\n";
+
+        // Line 2:
+        HealthFlask health_flask = registry.healthFlasks.get(m_player);
+        saveFile << health_flask.num_uses << "\n";
+
+        // Line 3:
+        //saveFile << Serialize::BoolToString(isChickenDead) << "\n";
 
         saveFile.close();
         std::cout << "Saved \n";
@@ -1147,36 +1157,50 @@ void WorldSystem::write_to_save_file() {
     }
 }
 
-void WorldSystem::read_save_file() {
-    std::fstream saveFile;
-    saveFile.open("highScore.txt", std::ios::in); // reading
-    if (saveFile.is_open()) {
-        std::string line;
-        int i = 0;
-        while (getline(saveFile, line)) {
-            //switch (i) {
-            //// isChickenDead
-            //case 0:
-            //    break;
-            //// isGreatBirdDead
-            //case 1:
-            //    break;
-            //// Pelican State
-            //case 2:
-            //    break;
-            //// CurrentRoom
-            //case 3:
-            //    break;
-            //// MaxHealth
-            //case 4:
-            //    break;
-            //}
+// (JETT) I don't know why, but it wont compile if tries to include from serialize.hpp. 
+int WorldSystem::readIntFromFile(const std::string& filePath, int lineNumber, int defaultValue) {
+    std::ifstream file(filePath);
+    if (!file.is_open()) {
+        return defaultValue;
+    }
+
+    std::string line;
+    int currentLine = 0;
+
+    while (std::getline(file, line)) {
+        if (currentLine == lineNumber) {
+            std::istringstream iss(line);
+            int value;
+            if (iss >> value) {
+                return value;
+            }
+            return defaultValue;
         }
-        //cout << "Max_score is : " << max_score << "\n";
-        saveFile.close();
+        currentLine++;
     }
-    else {
-        std::cout << "Couldnt open save file \n";
-    }
+    return defaultValue;
 }
 
+
+bool WorldSystem::readBoolFromFile(const std::string& filePath, int lineNumber, bool defaultValue) {
+    std::ifstream file(filePath);
+    if (!file.is_open()) {
+        return defaultValue;
+    }
+
+    std::string line;
+    int currentLine = 0;
+
+    while (std::getline(file, line)) {
+        if (currentLine == lineNumber) {
+            std::istringstream iss(line);
+            bool value;
+            if (iss >> std::boolalpha >> value) {
+                return value;
+            }
+            return defaultValue;
+        }
+        currentLine++;
+    }
+    return defaultValue;
+}

@@ -2,7 +2,7 @@
 #include <fstream>
 #include <sstream>
 
-int readIntFromFile(const std::string& filePath, int lineNumber, int defaultValue) {
+int Serialize::readIntFromFile(const std::string& filePath, int lineNumber, int defaultValue) {
 	std::ifstream file(filePath);
 	if (!file.is_open()) {
 		return defaultValue;
@@ -23,4 +23,9 @@ int readIntFromFile(const std::string& filePath, int lineNumber, int defaultValu
 		currentLine++;
 	}
 	return defaultValue;
+}
+
+const std::string Serialize::BoolToString(bool b)
+{
+	return b ? "true" : "false";
 }

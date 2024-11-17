@@ -5,6 +5,7 @@
 #include "game_state.hpp"
 #include "render_system.hpp"
 #include "region_manager.hpp"
+//#include "serialize.hpp"
 
 constexpr float player_speed = 1.0f * TPS;
 constexpr float player_jump_velocity = 3.7f * TPS; // adjust so you can reach the test platform
@@ -76,12 +77,12 @@ private:
     bool canJump = false;
     bool isGrounded = false;
 	bool canAttack = true;
-    bool isBossDead = false;
+    bool isChickenDead = false;
     bool isFlameThrowerEquipped = false;
     bool flameThrower_enabled = false;
 	bool tutorialOpen = false;
 	bool heartPowerUp = false;
-	bool saved_during_current_session = false;
+
 
     void updateBoundingBox(Entity entity);
 
@@ -97,7 +98,10 @@ private:
 	bool do_save = false;
 
 	void write_to_save_file();
-	void read_save_file();
+
+	int readIntFromFile(const std::string& filePath, int lineNumber, int defaultValue);
+	bool readBoolFromFile(const std::string& filePath, int lineNumber, bool defaultValue);
+
 
 };
 

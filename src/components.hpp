@@ -305,6 +305,14 @@ enum class TEXTURE_ASSET_ID {
 };
 constexpr int texture_count = static_cast<int>(TEXTURE_ASSET_ID::TEXTURE_COUNT);
 
+enum class SAVEFILE_LINES {
+    PLAYER_MAX_HEALTH = 0,
+    PLAYER_CURRENT_HEALTH = PLAYER_MAX_HEALTH + 1,
+    HEALTH_FLASK_USES = PLAYER_CURRENT_HEALTH + 1,
+    SAVEFILE_LINES = HEALTH_FLASK_USES + 1
+};
+constexpr int line_count = static_cast<int>(SAVEFILE_LINES::SAVEFILE_LINES);
+
 enum class EFFECT_ASSET_ID {
     PLAYER_EFFECT = 0,
     EFFECT_COUNT = PLAYER_EFFECT + 1
