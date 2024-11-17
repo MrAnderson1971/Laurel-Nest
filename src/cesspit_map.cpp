@@ -99,9 +99,8 @@ void Cesspit::init() {
     Connection door_ex_to_boss = SetDoor(0.03f, 0.18f, 0.f, 0.815f, m_boss_room, vec2(renderSystem.getWindowWidth() * 0.93f, renderSystem.getWindowHeight() * 0.7f), false);
     list_ex.doors.push_back(door_ex_to_boss);
 
-    // exitRoom to next map
-    // door coords = (0.3f, 0.03f, 0.5f, 0.f)
-    // spawn coords into exit room = (0.5f, 0.17f)
+    // cp to bmt
+    // door coords = (0.3f, 0.03f, 0.5f, 0.f), spawn = (0.25f, 0.82f)
 
     registry.doorList.emplace(m_entrance_room, std::move(list_en));
     registry.doorList.emplace(m_room1, std::move(list_1));

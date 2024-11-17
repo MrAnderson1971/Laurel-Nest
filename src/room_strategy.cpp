@@ -376,16 +376,16 @@ Entity BMTEntranceRoomStrategy::execute() {
     Entity m_ceiling = SetCeiling(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_CEILING), 0.35f);
 
     // platform 1: lower left
-    Entity m_platform1 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.55f, 0.7f);
+    Entity m_platform1 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.55f, 0.75f);
 
     // platform 2: middle
-    Entity m_platform2 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.75f, 0.5f);
+    Entity m_platform2 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.75f, 0.55f);
 
     // platform 3: upper right
-    Entity m_platform3 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.95f, 0.3f);
+    Entity m_platform3 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.95f, 0.35f);
 
-    // ground left
-    Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.f, 1.0f, 0.5f, 0.6f, 0.0f);
+    // ground
+    Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.f, 1.0f, 0.5f, 0.7f, 0.0f);
 
     // note on bg: don't add motion
     registry.grounds.emplace(m_ground, std::move(Ground()));
@@ -399,6 +399,7 @@ Entity BMTEntranceRoomStrategy::execute() {
     room.insert(m_platform1);
     room.insert(m_platform2);
     room.insert(m_platform3);
+
     registry.rooms.emplace(m_room, std::move(room));
 
     return m_room;
@@ -637,6 +638,11 @@ Entity LNRoom1Strategy::execute() {
     room.insert(m_bg);
     room.insert(m_ceiling);
     room.insert(m_ground);
+
+    // testing pos
+    //Entity m_pos = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DOOR), 0.03f, 0.4f, 1.f, 0.7f);
+    //room.insert(m_pos);
+
     registry.rooms.emplace(m_room, std::move(room));
 
     return m_room;
