@@ -295,6 +295,15 @@ void BossAISystem::step(Entity player, float elapsed_time) {
 		chickenMotion.scale = { DEATH_CHICKEN_WIDTH, DEATH_CHICKEN_HEIGHT };
 		break;
 	}
+
+	switch (chickenBoss.boxType) {
+	case BoxType::ATTACK_BOX:
+		chickenMotion.boundingBox = chickenBoss.attackbox;
+	case BoxType::BODY_BOX:
+		chickenMotion.boundingBox = chickenBoss.bodybox;
+	case BoxType::HIT_BOX:
+		chickenMotion.boundingBox = chickenBoss.hitbox;
+	}
 };
 
 void BossAISystem::render() {
