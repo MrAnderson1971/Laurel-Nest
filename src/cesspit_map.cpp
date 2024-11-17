@@ -101,6 +101,9 @@ void Cesspit::init() {
 
     // cp to bmt
     // door coords = (0.3f, 0.03f, 0.5f, 0.f), spawn = (0.25f, 0.82f)
+    Connection door_cp_to_bmt = SetDoor(0.3f, 0.03f, 0.5f, 0.f, m_exit_room, vec2(renderSystem.getWindowWidth() * 0.25f, renderSystem.getWindowHeight() * 0.82f), false);
+    door_cp_to_bmt.switchMap = true;
+    list_ex.doors.push_back(door_cp_to_bmt);
 
     registry.doorList.emplace(m_entrance_room, std::move(list_en));
     registry.doorList.emplace(m_room1, std::move(list_1));
@@ -141,12 +144,7 @@ Connection Cesspit::SetDoor(float width, float height, float xPos, float yPos, E
     doorConnection.nextRoom = connectNextRoom;
     doorConnection.nextSpawn = connectNextSpawn;
     doorConnection.limit = isLimited;
+    doorConnection.switchMap = false;
 
     return doorConnection;
-}
-
-// TODO: figure out how to init BMT from here (also need to clear cesspit?)
-Connection Cesspit::SetBMTDoor(float width, float height, float xPos, float yPos, vec2 connectNextSpawn, bool isLimited)
-{
-    return Connection();
 }
