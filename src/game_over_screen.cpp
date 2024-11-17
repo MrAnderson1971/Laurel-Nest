@@ -52,6 +52,8 @@ void GameOverScreen::render()
         // Use the render system to draw the entity
         renderSystem.drawEntity(sprite, transform);
     }
+
+    renderSystem.renderText("Press any button to continue.", window_width_px * 0.29f, window_height_px * 0.80f, 1.0f, vec3(1), mat4(1));
 }
 
 void GameOverScreen::update(float) {
