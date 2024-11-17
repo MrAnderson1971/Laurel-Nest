@@ -99,6 +99,7 @@ private:
 	void write_to_save_file();
 	void read_save_file();
 
+	PhysicsSystem physics; // remove when physics is move to GameState
 };
 
 extern std::unordered_map<TEXTURE_ASSET_ID, Sprite>* g_texture_paths;

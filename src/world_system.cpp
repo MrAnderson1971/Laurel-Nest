@@ -100,6 +100,7 @@ void WorldSystem::init() {
 
     // Add the Player component to the player entity
     registry.players.emplace(m_player, Player());
+    physics.setPlayer(m_player);
 
     // Create and initialize a Motion component for the player
     Motion playerMotion;
@@ -183,7 +184,7 @@ void WorldSystem::init() {
     current_room = regionManager->setRegion(makeRegion<Cesspit>);
     // testing bmt
     //current_room = regionManager->setRegion(makeRegion<Birdmantown>);
-    PhysicsSystem::setRoom(current_room);
+    physics.setRoom(current_room);
 
     // init tutorial (temp)
     Sprite tutorialSprite(renderSystem.loadTexture("temp_tutorial.PNG"));
@@ -237,6 +238,8 @@ void WorldSystem::update(float deltaTime) {
         updateBoundingBox(e1);
     }
 
+    // Update physics, modify gamestate to handle this elsewhere
+    physics.step(deltaTime);
 }
 
 void WorldSystem::handle_connections(float deltaTime) {
@@ -246,13 +249,13 @@ void WorldSystem::handle_connections(float deltaTime) {
         vec2 dir;
         vec2 over;
         for (auto& connection : list.doors) {
-            if (PhysicsSystem::checkForCollision(m_player, connection.door, dir, over)) {
+            if (physics.checkForCollision(m_player, connection.door, dir, over)) {
                 // check if in boss room and if boss is dead
                 if (!connection.limit || isBossDead) {
                     // set next room
                     current_room = connection.nextRoom;
                     AISystem::init_aim();
-                    PhysicsSystem::setRoom(current_room);
+                    physics.setRoom(current_room);
                     // set spawn point of player in new room
                     playerMotion.position = connection.nextSpawn;
                     std::shared_ptr<Mix_Music> music = registry.rooms.get(current_room).music;

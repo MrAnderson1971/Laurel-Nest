@@ -84,7 +84,6 @@ private:
     static void mouseClickCallbackRedirect(GLFWwindow* wnd, int button, int action, int mods);
 
     GameStateManager* gameStateManager;
-    PhysicsSystem physics; // remove when physics is move to GameState
 };
 
 extern RenderSystem& renderSystem;
