@@ -14,7 +14,6 @@ GoombaLand::GoombaLand() {
 }
 
 void GoombaLand::init_sprite() {
-	std::vector<Sprite> goombaLandSprites = registry.goombaSprites.get(m_goombaLand);
 	registry.sprites.emplace(entity, g_texture_paths->at(TEXTURE_ASSET_ID::GOOMBA_WALK_IDLE));
 }
 
@@ -24,7 +23,7 @@ void GoombaLand::init_components(float x, float y) {
 	goombaMotion.scale = GOOMBA_LAND_IDLE_SCALE;
 	registry.motions.emplace(entity, std::move(goombaMotion));
 
-	TransformComponent goombaTransform = registry.transforms.get(m_goombaLand);
+	TransformComponent goombaTransform;
 	registry.transforms.emplace(entity, std::move(goombaTransform));
 
 	registry.gravity.emplace(entity, std::move(Gravity()));
@@ -39,7 +38,6 @@ GoombaCeiling::GoombaCeiling() {
 }
 
 void GoombaCeiling::init_sprite() {
-	std::vector<Sprite> goombaCeilingSprites = registry.goombaSprites.get(m_goombaCeiling);
 	registry.sprites.emplace(entity, g_texture_paths->at(TEXTURE_ASSET_ID::CEILING_IDLE));
 }
 
@@ -49,7 +47,7 @@ void GoombaCeiling::init_components(float x, float y) {
 	goombaMotion.scale = GOOMBA_CEILING_IDLE_SCALE;
 	registry.motions.emplace(entity, std::move(goombaMotion));
 
-	TransformComponent goombaTransform = registry.transforms.get(m_goombaCeiling);
+	TransformComponent goombaTransform;
 	registry.transforms.emplace(entity, std::move(goombaTransform));
 
 	ProjectileTimer spit_timer;
