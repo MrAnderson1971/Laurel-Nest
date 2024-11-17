@@ -11,7 +11,7 @@ constexpr vec2 GOOMBA_LAND_DEAD_SCALE = { 115, 73 };
 
 constexpr vec2 GOOMBA_CEILING_IDLE_SCALE = { 104, 78 };
 constexpr vec2 GOOMBA_CEILING_HIT_SCALE = { 104, 80 };
-constexpr vec2 GOOMBA_CEILING_NOTICE_SCALE = { 141, 92 };
+constexpr vec2 GOOMBA_CEILING_FALL_SCALE = { 141, 92 };
 constexpr vec2 GOOMBA_CEILING_ATTACK_SCALE = { 38, 38 };
 constexpr vec2 GOOMBA_CEILING_DEAD_SCALE = { 115, 73 };
 

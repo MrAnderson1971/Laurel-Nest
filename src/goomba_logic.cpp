@@ -35,9 +35,12 @@ void GoombaLogic::spawn_ceiling_goomba_spit(Entity ceilingGoomba, Entity current
 }
 
 void GoombaLogic::goomba_ceiling_death(Entity hostile) {
-    std::vector<Sprite> goombaCeilingSprites = registry.goombaSprites.get(m_goombaCeiling);
     Sprite& goombaCeilingSprite = registry.sprites.get(hostile);
-    goombaCeilingSprite = goombaCeilingSprites[2];
+    goombaCeilingSprite = g_texture_paths->at(TEXTURE_ASSET_ID::CEILING_FALL);
+
+    //Motion& goombaCeilingMotion = registry.motions.get(hostile);
+    //goombaCeilingMotion.scale = GOOMBA_CEILING_FALL_SCALE;
+
     registry.gravity.emplace(hostile, std::move(Gravity()));
     registry.damages.remove(hostile);
     registry.healths.remove(hostile);
@@ -45,15 +48,16 @@ void GoombaLogic::goomba_ceiling_death(Entity hostile) {
 }
 
 void GoombaLogic::goomba_land_death(Entity hostile) {
-    registry.sprites.remove(hostile);
-    registry.bounding_box.remove(hostile);
+    Sprite& goombaLandSprite = registry.sprites.get(hostile);
+    goombaLandSprite = g_texture_paths->at(TEXTURE_ASSET_ID::GOOMBA_DEAD);
+
     Motion& hostile_motion = registry.motions.get(hostile);
     hostile_motion.velocity = { 0,0 };
+
+    registry.bounding_box.remove(hostile);
     registry.patrol_ais.remove(hostile);
     registry.damages.remove(hostile);
     registry.healths.remove(hostile);
-    Sprite goombaSprite = registry.goombaSprites.get(m_goombaLand).back();
-    registry.sprites.emplace(hostile, goombaSprite);
 }
 
 void GoombaLogic::goomba_get_damaged(Entity hostile, Entity m_weapon) {
