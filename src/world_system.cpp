@@ -493,6 +493,8 @@ void WorldSystem::handle_collisions() {
             }
             if (registry.players.get(m_player).attacking) {
                 if (registry.bosses.has(entity_other)) {
+                    Boss& boss = registry.bosses.get(entity_other);
+                    boss.boxType = BoxType::HIT_BOX;
                     BossAISystem::chicken_get_damaged(m_sword, isBossDead);
                 } else {
                     GoombaLogic::goomba_get_damaged(entity_other, m_sword);
@@ -503,6 +505,10 @@ void WorldSystem::handle_collisions() {
                 }
                 registry.players.get(m_player).attacking = false;
             } else {
+                if (registry.bosses.has(entity_other)) {
+                    Boss& boss = registry.bosses.get(entity_other);
+                    boss.boxType = BoxType::ATTACK_BOX;
+                }
                 if (!registry.invinciblityTimers.has(entity)) {
                     player_get_damaged(entity_other);
                 }
@@ -518,6 +524,8 @@ void WorldSystem::handle_collisions() {
                 }
             }
             if (registry.bosses.has(entity_other)) {
+                Boss& boss = registry.bosses.get(entity_other);
+                boss.boxType = BoxType::BODY_BOX;
                 BossAISystem::chicken_get_damaged(entity, isBossDead);
                 registry.remove_all_components_of(entity);
             }

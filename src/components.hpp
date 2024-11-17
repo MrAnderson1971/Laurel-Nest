@@ -184,9 +184,18 @@ struct Hostile
 
 };
 
+enum class BoxType {
+    HIT_BOX,
+    ATTACK_BOX,
+    BODY_BOX
+};
+
 struct Boss
 {
-
+    BoxType boxType = BoxType::BODY_BOX;
+    vec2 hitbox;
+    vec2 attackbox;
+    vec2 bodybox;
 };
 
 // struct for attacking

@@ -31,7 +31,30 @@ bool PhysicsSystem::checkForCollision(Entity e1, Entity e2, vec2& direction, vec
     vec2 half_size1;
     vec2 half_size2;
 
-    half_size1 = (box1 / 2.f);
+    if (registry.bosses.has(e1)) {
+        Boss& boss = registry.bosses.get(e1);
+
+        if (boss.boxType == BoxType::HIT_BOX) {
+            box1 = boss.hitbox;
+        } else if (boss.boxType == BoxType::ATTACK_BOX) {
+            box1 = boss.attackbox;
+        } else if (boss.boxType == BoxType::BODY_BOX) {
+            box1 = boss.bodybox;
+        }
+    }
+    if (registry.bosses.has(e2)) {
+        Boss& boss = registry.bosses.get(e2);
+
+        if (boss.boxType == BoxType::HIT_BOX) {
+            box2 = boss.hitbox;
+        } else if (boss.boxType == BoxType::ATTACK_BOX) {
+            box2 = boss.attackbox;
+        } else if (boss.boxType == BoxType::BODY_BOX) {
+            box2 = boss.bodybox;
+        }
+    }
+
+    half_size1 = box1 / 2.f;
     half_size2 = box2 / 2.f;
 
     vec2 dp = motion1.position - motion2.position;

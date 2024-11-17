@@ -145,7 +145,11 @@ Entity BossAISystem::init(Entity bossRoom) {
 
 	registry.healths.emplace(chicken, std::move(Health{ 10, 10 }));
 	registry.damages.emplace(chicken, std::move(Damage{ 1 }));
-	registry.bosses.emplace(chicken, Boss());
+    Boss chickenBoss = Boss();
+    chickenBoss.hitbox = {WALKING_CHICKEN_WIDTH, WALKING_CHICKEN_HEIGHT};
+    chickenBoss.attackbox = {WALKING_CHICKEN_WIDTH, WALKING_CHICKEN_HEIGHT};
+    chickenBoss.bodybox = {WALKING_CHICKEN_WIDTH, WALKING_CHICKEN_HEIGHT};
+	registry.bosses.emplace(chicken, chickenBoss);
 
 	return chicken;
 };
@@ -157,16 +161,25 @@ void BossAISystem::step(Entity player, float elapsed_time) {
 	auto& a = registry.chickenAnimations.get(chicken);
 	Motion& chickenMotion = registry.motions.get(chicken);
 	Motion& playerMotion = registry.motions.get(player);
+    Boss& chickenBoss = registry.bosses.get(chicken);
 
 	// check for death
 	// check for death
 	if (registry.healths.get(chicken).current_health <= 0) {
 		current_state = STATE::DEATH;
 		a.setState(CHICKEN_DEATH);
+
+        chickenBoss.hitbox = {DEATH_CHICKEN_WIDTH, DEATH_CHICKEN_HEIGHT};
+        chickenBoss.attackbox = {DEATH_CHICKEN_WIDTH, DEATH_CHICKEN_HEIGHT};
+        chickenBoss.bodybox = {DEATH_CHICKEN_WIDTH, DEATH_CHICKEN_HEIGHT};
 	}
 	else if (animationDone) {
 		animationDone = false;
 		if (current_state == STATE::IDLE) {
+            chickenBoss.hitbox = {WALKING_CHICKEN_WIDTH - 100.f, WALKING_CHICKEN_HEIGHT};
+            chickenBoss.attackbox = {WALKING_CHICKEN_WIDTH, WALKING_CHICKEN_HEIGHT};
+            chickenBoss.bodybox = {WALKING_CHICKEN_WIDTH - 100.f, WALKING_CHICKEN_HEIGHT + 200.f};
+
 			if (canPeck(chickenMotion, playerMotion)) {
 				current_state = STATE::PECK;
 				a.setState(CHICKEN_PECK);
@@ -174,6 +187,10 @@ void BossAISystem::step(Entity player, float elapsed_time) {
 			else if (canWalk(chickenMotion, playerMotion)) {
 				current_state = STATE::WALK;
 				a.setState(CHICKEN_WALK);
+
+                chickenBoss.hitbox = {WALKING_CHICKEN_WIDTH - 100.f, WALKING_CHICKEN_HEIGHT};
+                chickenBoss.attackbox = {WALKING_CHICKEN_WIDTH, WALKING_CHICKEN_HEIGHT};
+                chickenBoss.bodybox = {WALKING_CHICKEN_WIDTH - 100.f, WALKING_CHICKEN_HEIGHT + 200.f};
 			}
 			else if (canFlame(chickenMotion, playerMotion)) {
 				current_state = STATE::FLAME;
@@ -187,6 +204,10 @@ void BossAISystem::step(Entity player, float elapsed_time) {
 
 		}
 		else if (current_state == STATE::PECK) {
+            chickenBoss.hitbox = {PECK_CHICKEN_WIDTH - 100.f, PECK_CHICKEN_HEIGHT * 0.6f};
+            chickenBoss.attackbox = {PECK_CHICKEN_WIDTH, PECK_CHICKEN_HEIGHT * 0.6f};
+            chickenBoss.bodybox = {PECK_CHICKEN_WIDTH - 100.f, PECK_CHICKEN_HEIGHT + 200.f};
+
 			if (canWalk(chickenMotion, playerMotion)) {
 				current_state = STATE::WALK;
 				a.setState(CHICKEN_WALK);
@@ -208,6 +229,11 @@ void BossAISystem::step(Entity player, float elapsed_time) {
 		else if (current_state == STATE::WALK) {
 			walkRight = false;
 			walkLeft = false;
+
+            chickenBoss.hitbox = {WALKING_CHICKEN_WIDTH - 200.f, WALKING_CHICKEN_HEIGHT};
+            chickenBoss.attackbox = {WALKING_CHICKEN_WIDTH, WALKING_CHICKEN_HEIGHT};
+            chickenBoss.bodybox = {WALKING_CHICKEN_WIDTH - 200.f, WALKING_CHICKEN_HEIGHT + 200.f};
+
 			if (canPeck(chickenMotion, playerMotion)) {
 				current_state = STATE::PECK;
 				a.setState(CHICKEN_PECK);
@@ -222,6 +248,11 @@ void BossAISystem::step(Entity player, float elapsed_time) {
 			}
 		}
 		else if (current_state == STATE::FLAME) {
+
+            chickenBoss.hitbox = {WALKING_CHICKEN_WIDTH - 200.f, WALKING_CHICKEN_HEIGHT};
+            chickenBoss.attackbox = {WALKING_CHICKEN_WIDTH, WALKING_CHICKEN_HEIGHT};
+            chickenBoss.bodybox = {WALKING_CHICKEN_WIDTH - 200.f, WALKING_CHICKEN_HEIGHT + 200.f};
+
 			if (canWalk(chickenMotion, playerMotion)) {
 				current_state = STATE::WALK;
 				a.setState(CHICKEN_WALK);
