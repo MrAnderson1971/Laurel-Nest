@@ -1,8 +1,4 @@
-#include <iostream>
 #include "world_system.hpp"
-
-#include <iomanip>
-
 #include "pause_state.hpp"
 #include "cesspit_map.hpp"
 #include "goomba_logic.hpp"
@@ -11,9 +7,16 @@
 #include <game_over_screen.hpp>
 
 #include "birdmantown_map.hpp" //testing
-
+#include "serialize.hpp"
 #include "boss_ai.hpp"
 
+// stlib
+#include <cassert>
+#include <sstream>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <algorithm>
 bool Show_FPS = true;
 std::unordered_map<TEXTURE_ASSET_ID, Sprite>* g_texture_paths = nullptr;
 
@@ -78,6 +81,10 @@ WorldSystem::WorldSystem() {
 
     texture_paths = std::make_unique<std::unordered_map<TEXTURE_ASSET_ID, Sprite>>(std::move(temp_texture_paths));
     g_texture_paths = texture_paths.get();
+
+    font_color = glm::vec3(1.0, 1.0, 1.0);
+    font_trans = glm::mat4(1.0f);
+    font_trans = glm::scale(font_trans, glm::vec3(0.5, 0.5, 1.0));
 }
 
 WorldSystem::~WorldSystem() {
@@ -93,6 +100,7 @@ void WorldSystem::init() {
 
     // Add the Player component to the player entity
     registry.players.emplace(m_player, Player());
+    physics.setPlayer(m_player);
 
     // Create and initialize a Motion component for the player
     Motion playerMotion;
@@ -111,8 +119,8 @@ void WorldSystem::init() {
 
     // Create and initialize a Health component for the player
     Health playerHealth;
-    playerHealth.max_health = 3;
-    playerHealth.current_health = 3;
+    playerHealth.current_health = readIntFromFile(SAVE_FILE_PATH, 0, 3);
+    playerHealth.max_health = readIntFromFile(SAVE_FILE_PATH, 1, 3);
     registry.healths.emplace(m_player, playerHealth);
 
     // Create the HealthFlask for the player to heal with
@@ -178,6 +186,7 @@ void WorldSystem::init() {
     current_room = regionManager->setRegion(makeRegion<Birdmantown>);
     PhysicsSystem::setRoom(current_room);
 
+
     // init tutorial (temp)
     Sprite tutorialSprite(renderSystem.loadTexture("temp_tutorial.PNG"));
     tutorialSprite.width *= 0.15f;
@@ -206,6 +215,7 @@ void WorldSystem::update(float deltaTime) {
     handle_collisions();
     handle_invinciblity(deltaTime);
     handle_ai();
+    handle_saving();
 
     if (registry.weapons.has(m_flameThrower)) {
         auto& weapon = registry.weapons.get(m_flameThrower);
@@ -228,6 +238,9 @@ void WorldSystem::update(float deltaTime) {
         Entity e1 = bounding_boxes.entities[i];
         updateBoundingBox(e1);
     }
+
+    // Update physics, modify gamestate to handle this elsewhere
+    physics.step(deltaTime);
 }
 
 void WorldSystem::handle_connections(float deltaTime) {
@@ -237,13 +250,13 @@ void WorldSystem::handle_connections(float deltaTime) {
         vec2 dir;
         vec2 over;
         for (auto& connection : list.doors) {
-            if (PhysicsSystem::checkForCollision(m_player, connection.door, dir, over)) {
+            if (physics.checkForCollision(m_player, connection.door, dir, over)) {
                 // check if in boss room and if boss is dead
                 if (!connection.limit || isBossDead) {
                     // set next room
                     current_room = connection.nextRoom;
                     AISystem::init_aim();
-                    PhysicsSystem::setRoom(current_room);
+                    physics.setRoom(current_room);
                     // set spawn point of player in new room
                     playerMotion.position = connection.nextSpawn;
                     std::shared_ptr<Mix_Music> music = registry.rooms.get(current_room).music;
@@ -601,6 +614,33 @@ void WorldSystem::handle_ai() {
     }
 }
 
+void WorldSystem::handle_saving() {
+    if (!registry.rooms.has(current_room)) {
+        return;
+    }
+    Room& room = registry.rooms.get(current_room);
+    for (Entity sp : registry.savePoints.entities) {
+        if (room.has(sp)) {
+            // check if the player is within range of the savepoint
+            Motion player_motion = registry.motions.get(m_player);
+            Motion save_point_motion = registry.motions.get(sp);
+            float save_point_lower_bound_x = save_point_motion.position.x - save_point_motion.scale.x;
+            float save_point_upper_bound_x = save_point_motion.position.x + save_point_motion.scale.x;
+            float save_point_lower_bound_y = save_point_motion.position.y - save_point_motion.scale.y;
+            float save_point_upper_bound_y = save_point_motion.position.y + save_point_motion.scale.y;
+            if (save_point_lower_bound_x <= player_motion.position.x && player_motion.position.x < save_point_upper_bound_x
+                && save_point_lower_bound_y < player_motion.position.y && player_motion.position.y < save_point_upper_bound_y) {
+                if (do_save) {
+                    // TODO MAYBE INSERT A SAVE SOUND
+                    write_to_save_file();
+                    saved_during_current_session = true;
+                }
+            }
+        }
+    }
+    do_save = false;
+}
+
 void WorldSystem::render() {
     glClearColor(0.2f, 0.2f, 0.8f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -618,8 +658,32 @@ void WorldSystem::render() {
             auto& sprite = registry.sprites.get(obj);
             renderSystem.drawEntity(sprite, transform);
         }
+
     }
+
     for (auto& obj : room.entities) {
+        // Draw the savepoints
+        if (registry.savePoints.has(obj) && registry.transforms.has(obj) && registry.sprites.has(obj)) {
+            auto& transform = registry.transforms.get(obj);
+            auto& sprite = registry.sprites.get(obj);
+            renderSystem.drawEntity(sprite, transform);
+
+            // check if the player is within range of the savepoint
+            Motion player_motion = registry.motions.get(m_player);
+            Motion save_point_motion = registry.motions.get(obj);
+            float save_point_lower_bound_x = save_point_motion.position.x - save_point_motion.scale.x;
+            float save_point_upper_bound_x = save_point_motion.position.x + save_point_motion.scale.x;
+            float save_point_lower_bound_y = save_point_motion.position.y - save_point_motion.scale.y;
+            float save_point_upper_bound_y = save_point_motion.position.y + save_point_motion.scale.y;
+            if (save_point_lower_bound_x <= player_motion.position.x && player_motion.position.x < save_point_upper_bound_x
+                && save_point_lower_bound_y < player_motion.position.y && player_motion.position.y < save_point_upper_bound_y) {
+                double position_x = save_point_motion.position.x * 2.f * 0.78;
+                double position_y = save_point_motion.position.y * 2.f * 1.1;
+                renderSystem.renderText("Press V to Save", static_cast<float>(position_x), static_cast<float>(position_y), 1.0f, font_color, font_trans);
+            }
+        }
+
+
         // Draw the goombas
         if (registry.hostiles.has(obj) && registry.transforms.has(obj) && registry.sprites.has(obj))
         {
@@ -628,6 +692,7 @@ void WorldSystem::render() {
             renderSystem.drawEntity(sprite, transform);
 
         }
+
         // Draw Bosses
         if (registry.bosses.has(obj)) {
             BossAISystem::render();
@@ -651,14 +716,11 @@ void WorldSystem::render() {
         update_status_bar(health.current_health);
     }
 
-    glm::vec3 font_color = glm::vec3(1.0, 1.0, 1.0);
-    glm::mat4 font_trans = glm::mat4(1.0f);
-    font_trans = glm::scale(font_trans, glm::vec3(0.5, 0.5, 1.0));
     HealthFlask& flask = registry.healthFlasks.get(m_player);
     std::string num_uses = std::to_string(flask.num_uses);
     std::string uses_string = "Health Flask uses: " + num_uses;
     renderSystem.renderText(uses_string, static_cast<float>(window_width_px * 0.09), static_cast<float>(window_height_px * 1.60), 1.0f, font_color, font_trans);
-    
+
 
     // Draw the flame thrower if the boss is killed
     if (registry.transforms.has(m_flameThrower) && registry.sprites.has(m_flameThrower))
@@ -689,7 +751,6 @@ void WorldSystem::render() {
 
         renderSystem.drawEntity(tutorialSprite, tutorialTransform);
     }
-    
 }
 
 void WorldSystem::processPlayerInput(int key, int action) {
@@ -787,6 +848,11 @@ void WorldSystem::processPlayerInput(int key, int action) {
     // Escape n to close the tutorial
     if (action == GLFW_RELEASE && key == GLFW_KEY_N) {
         tutorialOpen = !tutorialOpen;
+    }
+
+    // Press V to save
+    if (action == GLFW_PRESS && key == GLFW_KEY_V) {
+        do_save = true;
     }
 }
 
@@ -959,10 +1025,10 @@ void WorldSystem::init_status_bar() {
 
     registry.heartSprites.emplace(m_hearts, std::vector<Sprite> {
         g_texture_paths->at(TEXTURE_ASSET_ID::HEART_0),
-        g_texture_paths->at(TEXTURE_ASSET_ID::HEART_1),
-        g_texture_paths->at(TEXTURE_ASSET_ID::HEART_2),
-        g_texture_paths->at(TEXTURE_ASSET_ID::HEART_3)
-        });
+            g_texture_paths->at(TEXTURE_ASSET_ID::HEART_1),
+            g_texture_paths->at(TEXTURE_ASSET_ID::HEART_2),
+            g_texture_paths->at(TEXTURE_ASSET_ID::HEART_3)
+    });
 
     // Create and initialize the a Transform component for the Heart sprites
     TransformComponent heartSpriteTransform;
@@ -970,6 +1036,10 @@ void WorldSystem::init_status_bar() {
     heartSpriteTransform.scale = glm::vec3(HEARTS_WIDTH, HEARTS_HEIGHT, 1.0);
     heartSpriteTransform.rotation = 0.0f;
     registry.transforms.emplace(m_hearts, std::move(heartSpriteTransform));
+
+    if (registry.healths.get(m_player).max_health > 3) {
+        renew_status_bar();
+    }
 }
 
 void WorldSystem::renew_status_bar() {
@@ -1059,3 +1129,58 @@ void WorldSystem::updateBoundingBox(Entity e1) {
     bounding_box.p4.y = y_value_max;
 
 }
+
+void WorldSystem::write_to_save_file() {
+    std::fstream saveFile;
+    saveFile.open(SAVE_FILE_PATH, std::ios::out); // writing
+    if (saveFile.is_open()) {
+        //saveFile << BoolToString(isChickenDead) + "\n";
+        //saveFile << BoolToString(isGreatBirdDead) + "\n";
+        //saveFile << std::to_string(PelicanState) + "\n";
+        //saveFile << std::to_string(current_room) + "\n";
+        // MaxHealth
+        Health player_health = registry.healths.get(m_player);
+        saveFile << std::to_string(player_health.current_health) + "\n";
+        saveFile << player_health.max_health << "\n";
+
+        saveFile.close();
+        std::cout << "Saved \n";
+    }
+    else {
+        std::cout << "Couldnt write to save file \n";
+    }
+}
+
+void WorldSystem::read_save_file() {
+    std::fstream saveFile;
+    saveFile.open("highScore.txt", std::ios::in); // reading
+    if (saveFile.is_open()) {
+        std::string line;
+        int i = 0;
+        while (getline(saveFile, line)) {
+            //switch (i) {
+            //// isChickenDead
+            //case 0:
+            //    break;
+            //// isGreatBirdDead
+            //case 1:
+            //    break;
+            //// Pelican State
+            //case 2:
+            //    break;
+            //// CurrentRoom
+            //case 3:
+            //    break;
+            //// MaxHealth
+            //case 4:
+            //    break;
+            //}
+        }
+        //cout << "Max_score is : " << max_score << "\n";
+        saveFile.close();
+    }
+    else {
+        std::cout << "Couldnt open save file \n";
+    }
+}
+

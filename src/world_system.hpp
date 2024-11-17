@@ -52,6 +52,7 @@ public:
 	void handle_collisions();
 	void handle_invinciblity(float deltaTime);
 	void handle_ai();
+	void handle_saving();
 
 private:
 	Entity m_player;
@@ -80,6 +81,7 @@ private:
     bool flameThrower_enabled = false;
 	bool tutorialOpen = false;
 	bool heartPowerUp = false;
+	bool saved_during_current_session = false;
 
     void updateBoundingBox(Entity entity);
 
@@ -87,6 +89,17 @@ private:
 	Mix_Chunk* sword_sound;
 	Mix_Chunk* hurt_sound;
     std::unique_ptr<std::unordered_map<TEXTURE_ASSET_ID, Sprite>> texture_paths;
+
+	// Font stuff
+	glm::vec3 font_color;
+	glm::mat4 font_trans;
+
+	bool do_save = false;
+
+	void write_to_save_file();
+	void read_save_file();
+
+	PhysicsSystem physics; // remove when physics is move to GameState
 };
 
 extern std::unordered_map<TEXTURE_ASSET_ID, Sprite>* g_texture_paths;
