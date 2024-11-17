@@ -611,6 +611,9 @@ void WorldSystem::handle_ai() {
 }
 
 void WorldSystem::handle_saving() {
+    if (!registry.rooms.has(current_room)) {
+        return;
+    }
     Room& room = registry.rooms.get(current_room);
     for (Entity sp : registry.savePoints.entities) {
         if (room.has(sp)) {
@@ -1016,22 +1019,12 @@ void WorldSystem::respawnGoomba() {
 void WorldSystem::init_status_bar() {
     // Create and initialize the Heart sprites
 
-    if (registry.healths.get(m_player).max_health <= 3) {
-        registry.heartSprites.emplace(m_hearts, std::vector<Sprite> {
-            g_texture_paths->at(TEXTURE_ASSET_ID::HEART_0),
-                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_1),
-                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_2),
-                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_3)
-        });
-    }
-    else {
-        registry.heartSprites.emplace(m_hearts, std::vector<Sprite> {
-            g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_0),
-                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_1),
-                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_2),
-                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_3)
-        });
-    }
+    registry.heartSprites.emplace(m_hearts, std::vector<Sprite> {
+        g_texture_paths->at(TEXTURE_ASSET_ID::HEART_0),
+            g_texture_paths->at(TEXTURE_ASSET_ID::HEART_1),
+            g_texture_paths->at(TEXTURE_ASSET_ID::HEART_2),
+            g_texture_paths->at(TEXTURE_ASSET_ID::HEART_3)
+    });
 
     // Create and initialize the a Transform component for the Heart sprites
     TransformComponent heartSpriteTransform;
@@ -1039,6 +1032,10 @@ void WorldSystem::init_status_bar() {
     heartSpriteTransform.scale = glm::vec3(HEARTS_WIDTH, HEARTS_HEIGHT, 1.0);
     heartSpriteTransform.rotation = 0.0f;
     registry.transforms.emplace(m_hearts, std::move(heartSpriteTransform));
+
+    if (registry.healths.get(m_player).max_health > 3) {
+        renew_status_bar();
+    }
 }
 
 void WorldSystem::renew_status_bar() {
