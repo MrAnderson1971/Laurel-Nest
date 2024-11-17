@@ -3,6 +3,7 @@
 #include "components.hpp"
 #include "ecs_registry.hpp"
 #include "enemy.hpp"
+#include "goomba_logic.hpp"
 
 Enemy::Enemy() {
 	entity = Entity();
@@ -14,13 +15,13 @@ GoombaLand::GoombaLand() {
 
 void GoombaLand::init_sprite() {
 	std::vector<Sprite> goombaLandSprites = registry.goombaSprites.get(m_goombaLand);
-	registry.sprites.emplace(entity, std::move(goombaLandSprites[0]));
+	registry.sprites.emplace(entity, std::move(g_texture_paths->at(TEXTURE_ASSET_ID::GOOMBA_WALK_IDLE)));
 }
 
 void GoombaLand::init_components(float x, float y) {
 	Motion goombaMotion;
 	goombaMotion.position = vec2(x, y);
-	goombaMotion.scale = registry.goombaScales.get(m_goombaLand)[0].scale;
+	goombaMotion.scale = GOOMBA_LAND_IDLE_SCALE;
 	registry.motions.emplace(entity, std::move(goombaMotion));
 
 	TransformComponent goombaTransform = registry.transforms.get(m_goombaLand);
@@ -39,13 +40,13 @@ GoombaCeiling::GoombaCeiling() {
 
 void GoombaCeiling::init_sprite() {
 	std::vector<Sprite> goombaCeilingSprites = registry.goombaSprites.get(m_goombaCeiling);
-	registry.sprites.emplace(entity, std::move(goombaCeilingSprites[0]));
+	registry.sprites.emplace(entity, std::move(g_texture_paths->at(TEXTURE_ASSET_ID::CEILING_IDLE)));
 }
 
 void GoombaCeiling::init_components(float x, float y) {
 	Motion goombaMotion;
 	goombaMotion.position = vec2(x, y);
-	goombaMotion.scale = registry.goombaScales.get(m_goombaCeiling)[0].scale;
+	goombaMotion.scale = GOOMBA_CEILING_IDLE_SCALE;
 	registry.motions.emplace(entity, std::move(goombaMotion));
 
 	TransformComponent goombaTransform = registry.transforms.get(m_goombaCeiling);

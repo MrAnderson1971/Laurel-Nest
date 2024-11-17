@@ -1,5 +1,11 @@
 #include "goomba_logic.hpp"
 #include "ai_system.hpp"
+#include <cassert>
+#include <sstream>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <algorithm>
 
 void GoombaLogic::spawn_ceiling_goomba_spit(Entity ceilingGoomba, Entity current_room) {
  
@@ -140,18 +146,23 @@ void GoombaLogic::init_goomba_land_sprites() {
     std::vector<Motion> goombaLandScales;
     int goombaLandWidth, goombaLandHeight;
 
+    std::cout << "0: goomba_walk_idle.png" << "\n";
     init_goomba_sprite(goombaLandWidth, goombaLandHeight, "goomba_walk_idle.PNG", goombaLandSprites);
     init_goomba_scale(goombaLandWidth, goombaLandHeight, 4, goombaLandScales);
 
+    std::cout << "1: goomba_walk_hit.png" << "\n";
     init_goomba_sprite(goombaLandWidth, goombaLandHeight, "goomba_walk_hit.PNG", goombaLandSprites);
     init_goomba_scale(goombaLandWidth, goombaLandHeight, 4, goombaLandScales);
 
+    std::cout << "2: goomba_walk_notice.png" << "\n";
     init_goomba_sprite(goombaLandWidth, goombaLandHeight, "goomba_walk_notice.PNG", goombaLandSprites);
     init_goomba_scale(goombaLandWidth, goombaLandHeight, 4, goombaLandScales);
 
+    std::cout << "3: goomba_walk_attack.png" << "\n";
     init_goomba_sprite(goombaLandWidth, goombaLandHeight, "goomba_walk_attack.PNG", goombaLandSprites);
     init_goomba_scale(goombaLandWidth, goombaLandHeight, 4, goombaLandScales);
 
+    std::cout << "4: goomba_dead.png" << "\n";
     init_goomba_sprite(goombaLandWidth, goombaLandHeight, "goomba_dead.PNG", goombaLandSprites);
     init_goomba_scale(goombaLandWidth, goombaLandHeight, 4, goombaLandScales);
 

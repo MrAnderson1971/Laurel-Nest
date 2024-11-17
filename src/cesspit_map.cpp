@@ -20,7 +20,7 @@ void Cesspit::init() {
 
     setRoomStrategy(std::make_unique<CPRoom1Strategy>());
     m_room1 = currentRoom->execute();
-    // start_room = m_room1;
+     //start_room = m_room1;
 
     setRoomStrategy(std::make_unique<CPRoom2Strategy>());
     m_room2 = currentRoom->execute();
@@ -28,11 +28,11 @@ void Cesspit::init() {
 
     setRoomStrategy(std::make_unique<CPRoom3Strategy>());
     m_room3 = currentRoom->execute();
-    // start_room = m_room3;
+     //start_room = m_room3;
 
     setRoomStrategy(std::make_unique<CPRoom4Strategy>());
     m_room4 = currentRoom->execute();
-    // start_room = m_room4;
+     //start_room = m_room4;
 
     setRoomStrategy(std::make_unique<CPBossRoomStrategy>());
     m_boss_room = currentRoom->execute();

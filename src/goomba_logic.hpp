@@ -3,6 +3,18 @@
 #include "render_system.hpp"
 #include "ecs_registry.hpp"
 
+constexpr vec2 GOOMBA_LAND_IDLE_SCALE = {116, 109};
+constexpr vec2 GOOMBA_LAND_HIT_SCALE = { 149, 178 };
+constexpr vec2 GOOMBA_LAND_NOTICE_SCALE = { 149, 178 };
+constexpr vec2 GOOMBA_LAND_ATTACK_SCALE = { 149, 178 };
+constexpr vec2 GOOMBA_LAND_DEAD_SCALE = { 115, 73 };
+
+constexpr vec2 GOOMBA_CEILING_IDLE_SCALE = { 104, 78 };
+constexpr vec2 GOOMBA_CEILING_HIT_SCALE = { 104, 80 };
+constexpr vec2 GOOMBA_CEILING_NOTICE_SCALE = { 141, 92 };
+constexpr vec2 GOOMBA_CEILING_ATTACK_SCALE = { 38, 38 };
+constexpr vec2 GOOMBA_CEILING_DEAD_SCALE = { 115, 73 };
+
 class GoombaLogic
 {
 public:
