@@ -31,6 +31,7 @@ enum PlayerState {
     WALKING,
     ATTACKING,
     JUMPING,
+    HIT
 };
 
 enum ChickenState {
@@ -262,6 +263,7 @@ enum class TEXTURE_ASSET_ID {
     PLAYER_ATTACK_3,                      // attack_3.png
     PLAYER_ATTACK_4,                      // attack_4.png
     PLAYER_ATTACK_5,                      // attack_5.png
+    PLAYER_HIT,                           // hit.png
     GOOMBA_WALK_ATTACK,                   // goomba_walk_attack.PNG
     GOOMBA_WALK_HIT,                      // goomba_walk_hit.PNG
     GOOMBA_WALK_IDLE,                     // goomba_walk_idle.PNG

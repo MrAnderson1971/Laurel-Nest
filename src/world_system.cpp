@@ -39,6 +39,7 @@ WorldSystem::WorldSystem() {
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::PLAYER_ATTACK_3, renderSystem.loadTexture("attack_3.png"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::PLAYER_ATTACK_4, renderSystem.loadTexture("attack_4.png"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::PLAYER_ATTACK_5, renderSystem.loadTexture("attack_5.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::PLAYER_HIT, renderSystem.loadTexture("hit.png"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::GOOMBA_WALK_ATTACK, renderSystem.loadTexture("goomba_walk_attack.PNG"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::GOOMBA_WALK_HIT, renderSystem.loadTexture("goomba_walk_hit.PNG"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::GOOMBA_WALK_IDLE, renderSystem.loadTexture("goomba_walk_idle.PNG"));
@@ -161,6 +162,9 @@ void WorldSystem::init() {
             g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_ATTACK_4),
             g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_ATTACK_5),
     });
+    playerAnimations.addState(PlayerState::HIT, std::vector<Sprite> {
+            g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_HIT),
+    });
     registry.playerAnimations.emplace(m_player, std::move(playerAnimations));
 
 
@@ -181,11 +185,10 @@ void WorldSystem::init() {
      
     // Initialize the region
     regionManager->init();
-    //current_room = regionManager->setRegion(makeRegion<Cesspit>);
+    current_room = regionManager->setRegion(makeRegion<Cesspit>);
     //testing bmt
-    current_room = regionManager->setRegion(makeRegion<Birdmantown>);
-    PhysicsSystem::setRoom(current_room);
-
+    // current_room = regionManager->setRegion(makeRegion<Birdmantown>);
+    physics.setRoom(current_room);
 
     // init tutorial (temp)
     Sprite tutorialSprite(renderSystem.loadTexture("temp_tutorial.PNG"));
@@ -214,6 +217,7 @@ void WorldSystem::update(float deltaTime) {
     handle_motions(deltaTime);
     handle_collisions();
     handle_invinciblity(deltaTime);
+    update_damaged_player_sprites(deltaTime);
     handle_ai();
     handle_saving();
 
@@ -359,7 +363,10 @@ void WorldSystem::handle_motions(float deltaTime) {
 
                 // Step 6: Handle player state (JUMPING, WALKING, ATTACKING)
                 PlayerState currentState = a.getState();
-                if (c.frames > 0 && !canAttack) {
+                if (registry.recentDamageTimers.has(m_player)) {
+                    currentState = PlayerState::HIT;
+                }
+                else if (c.frames > 0 && !canAttack) {
                     currentState = PlayerState::ATTACKING;
                 }
                 else if (m.velocity[0] != 0) {
@@ -384,6 +391,9 @@ void WorldSystem::handle_motions(float deltaTime) {
                 case ATTACKING:
                     m.scale = vec2(ATTACKING_BB_WIDTH * signof(m.scale.x), ATTACKING_BB_HEIGHT);
                     break;
+                case HIT:
+                    m.scale = vec2(WALKING_BB_WIDTH * signof(m.scale.x), WALKING_BB_HEIGHT);
+                    break;
                 }
 
                 // Step 8: Update the player animation state if it has changed
@@ -392,7 +402,8 @@ void WorldSystem::handle_motions(float deltaTime) {
                     lastState = currentState;
                 }
                 else {
-                    if ((a.currentState == JUMPING && !isGrounded) ||
+                    if ((a.currentState == HIT && registry.recentDamageTimers.has(m_player))||
+                        (a.currentState == JUMPING && !isGrounded) ||
                         (a.currentState == WALKING && m.velocity[0] != 0) ||
                         (a.currentState == IDLE && m.velocity[0] == 0) ||
                         (a.currentState == ATTACKING)) {
@@ -407,6 +418,10 @@ void WorldSystem::handle_motions(float deltaTime) {
                     currentState = isGrounded ? PlayerState::IDLE : PlayerState::WALKING;  // Switch back to IDLE or WALKING
                     a.setState(currentState);  // Update animation state
                     registry.players.get(m_player).attacking = false;
+                }
+
+                if (currentState == PlayerState::HIT) {
+                    m.velocity.x = 0.f;
                 }
 
                 if (registry.motions.has(m_flameThrower) && registry.transforms.has(m_flameThrower)) {
@@ -946,16 +961,37 @@ void WorldSystem::cleanup() {
 
 // TODO: move the functions below to their own classes
 
+void WorldSystem::update_damaged_player_sprites(float delta_time) {
+    for (Entity entity : registry.recentDamageTimers.entities) {
+        if (!registry.players.has(entity) || !registry.playerAnimations.has(entity) || !registry.motions.has(entity)) {
+            continue;
+        }
+        RecentlyDamagedTimer& damaged_timer = registry.recentDamageTimers.get(entity);
+        damaged_timer.counter_ms -= delta_time;
+        if (damaged_timer.counter_ms <= 0) {
+            registry.playerAnimations.get(entity).setState(PlayerState::IDLE);
+            registry.motions.get(entity).scale = { WALKING_BB_WIDTH, WALKING_BB_HEIGHT };
+            registry.recentDamageTimers.remove(entity);
+        }
+    }
+}
+
 void WorldSystem::player_get_damaged(Entity hostile) {
     Mix_PlayChannel(HURT_CHANNEL, hurt_sound, 0);
     Health& player_health = registry.healths.get(m_player);
     Damage hostile_damage = registry.damages.get(hostile);
     // Make sure to give the player i-frames so that they dont just die from walking into a goomba
-    registry.invinciblityTimers.emplace(m_player);
 
     if (player_health.current_health > 0) {
         player_health.current_health -= hostile_damage.damage_dealt;
         update_status_bar(player_health.current_health);
+        if (!registry.recentDamageTimers.has(m_player)) {
+            registry.recentDamageTimers.emplace(m_player, RecentlyDamagedTimer());
+        }
+        if (!registry.invinciblityTimers.has(m_player)) {
+            InvincibilityTimer& timer = registry.invinciblityTimers.emplace(m_player);
+            timer.counter_ms = 250.f;
+        }
         if (player_health.current_health == 0) {
             renderSystem.getGameStateManager()->changeState<GameOverScreen>();
         }
