@@ -7,7 +7,7 @@
 #include <game_over_screen.hpp>
 
 #include "birdmantown_map.hpp" //testing
-
+#include "serialize.hpp"
 #include "boss_ai.hpp"
 
 // stlib
@@ -118,8 +118,8 @@ void WorldSystem::init() {
 
     // Create and initialize a Health component for the player
     Health playerHealth;
-    playerHealth.max_health = 3;
-    playerHealth.current_health = 3;
+    playerHealth.current_health = readIntFromFile(SAVE_FILE_PATH, 0, 3);
+    playerHealth.max_health = readIntFromFile(SAVE_FILE_PATH, 1, 3);
     registry.healths.emplace(m_player, playerHealth);
 
     // Create the HealthFlask for the player to heal with
@@ -709,9 +709,6 @@ void WorldSystem::render() {
         update_status_bar(health.current_health);
     }
 
-    glm::vec3 font_color = glm::vec3(1.0, 1.0, 1.0);
-    glm::mat4 font_trans = glm::mat4(1.0f);
-    font_trans = glm::scale(font_trans, glm::vec3(0.5, 0.5, 1.0));
     HealthFlask& flask = registry.healthFlasks.get(m_player);
     std::string num_uses = std::to_string(flask.num_uses);
     std::string uses_string = "Health Flask uses: " + num_uses;
@@ -1019,12 +1016,22 @@ void WorldSystem::respawnGoomba() {
 void WorldSystem::init_status_bar() {
     // Create and initialize the Heart sprites
 
-    registry.heartSprites.emplace(m_hearts, std::vector<Sprite> {
-        g_texture_paths->at(TEXTURE_ASSET_ID::HEART_0),
-        g_texture_paths->at(TEXTURE_ASSET_ID::HEART_1),
-        g_texture_paths->at(TEXTURE_ASSET_ID::HEART_2),
-        g_texture_paths->at(TEXTURE_ASSET_ID::HEART_3)
+    if (registry.healths.get(m_player).max_health <= 3) {
+        registry.heartSprites.emplace(m_hearts, std::vector<Sprite> {
+            g_texture_paths->at(TEXTURE_ASSET_ID::HEART_0),
+                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_1),
+                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_2),
+                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_3)
         });
+    }
+    else {
+        registry.heartSprites.emplace(m_hearts, std::vector<Sprite> {
+            g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_0),
+                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_1),
+                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_2),
+                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_3)
+        });
+    }
 
     // Create and initialize the a Transform component for the Heart sprites
     TransformComponent heartSpriteTransform;
@@ -1124,7 +1131,7 @@ void WorldSystem::updateBoundingBox(Entity e1) {
 
 void WorldSystem::write_to_save_file() {
     std::fstream saveFile;
-    saveFile.open("saveFile.txt", std::ios::out); // writing
+    saveFile.open(SAVE_FILE_PATH, std::ios::out); // writing
     if (saveFile.is_open()) {
         //saveFile << BoolToString(isChickenDead) + "\n";
         //saveFile << BoolToString(isGreatBirdDead) + "\n";
@@ -1132,7 +1139,8 @@ void WorldSystem::write_to_save_file() {
         //saveFile << std::to_string(current_room) + "\n";
         // MaxHealth
         Health player_health = registry.healths.get(m_player);
-        saveFile << std::to_string(player_health.max_health) + "\n";
+        saveFile << std::to_string(player_health.current_health) + "\n";
+        saveFile << player_health.max_health << "\n";
 
         saveFile.close();
         std::cout << "Saved \n";

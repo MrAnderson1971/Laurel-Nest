@@ -5,6 +5,7 @@
 #include "boss_ai.hpp"
 #include "components.hpp"
 #include "world_system.hpp"
+#include "serialize.hpp"
 
 Entity CPEntranceRoomStrategy::execute() {
     Entity m_entrance_room;

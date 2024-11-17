@@ -81,6 +81,7 @@ private:
     bool flameThrower_enabled = false;
 	bool tutorialOpen = false;
 	bool heartPowerUp = false;
+	bool saved_during_current_session = false;
 
     void updateBoundingBox(Entity entity);
 
