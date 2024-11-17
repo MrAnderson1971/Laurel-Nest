@@ -102,17 +102,16 @@ void GoombaLogic::update_damaged_goomba_sprites(float delta_time) {
         damaged_timer.counter_ms -= delta_time;
         if (damaged_timer.counter_ms <= 0 && registry.healths.has(entity)) {
             std::vector<Sprite> goombaSprites;
+            Sprite& goombaSprite = registry.sprites.get(entity);
             Motion& goombaMotion = registry.motions.get(entity);
             if (registry.projectileTimers.has(entity)) {
-                goombaSprites = registry.goombaSprites.get(m_goombaCeiling);
+                goombaSprite = g_texture_paths->at(TEXTURE_ASSET_ID::CEILING_IDLE);
                 goombaMotion.scale = GOOMBA_CEILING_IDLE_SCALE;
             }
             else {
-                goombaSprites = registry.goombaSprites.get(m_goombaLand);
+                goombaSprite = g_texture_paths->at(TEXTURE_ASSET_ID::GOOMBA_WALK_IDLE);
                 goombaMotion.scale = GOOMBA_LAND_IDLE_SCALE;
             }
-            Sprite& goombaSprite = registry.sprites.get(entity);
-            goombaSprite = goombaSprites[0];
             registry.recentDamageTimers.remove(entity);
         }
     }

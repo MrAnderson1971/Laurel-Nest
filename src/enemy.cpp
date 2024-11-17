@@ -15,7 +15,7 @@ GoombaLand::GoombaLand() {
 
 void GoombaLand::init_sprite() {
 	std::vector<Sprite> goombaLandSprites = registry.goombaSprites.get(m_goombaLand);
-	registry.sprites.emplace(entity, std::move(g_texture_paths->at(TEXTURE_ASSET_ID::GOOMBA_WALK_IDLE)));
+	registry.sprites.emplace(entity, g_texture_paths->at(TEXTURE_ASSET_ID::GOOMBA_WALK_IDLE));
 }
 
 void GoombaLand::init_components(float x, float y) {
@@ -40,7 +40,7 @@ GoombaCeiling::GoombaCeiling() {
 
 void GoombaCeiling::init_sprite() {
 	std::vector<Sprite> goombaCeilingSprites = registry.goombaSprites.get(m_goombaCeiling);
-	registry.sprites.emplace(entity, std::move(g_texture_paths->at(TEXTURE_ASSET_ID::CEILING_IDLE)));
+	registry.sprites.emplace(entity, g_texture_paths->at(TEXTURE_ASSET_ID::CEILING_IDLE));
 }
 
 void GoombaCeiling::init_components(float x, float y) {
