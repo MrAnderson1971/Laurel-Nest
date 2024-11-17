@@ -11,6 +11,7 @@ class ECSRegistry
 
 public:
     // Manually created list of all components this game has
+    ComponentContainer<SavePoint> savePoints;
     ComponentContainer<Health> healths;
     ComponentContainer<HealthFlask> healthFlasks;
     ComponentContainer<Damage> damages;
@@ -54,6 +55,7 @@ public:
     // IMPORTANT: Don't forget to add any newly added containers!
     ECSRegistry()
     {
+        registry_list.push_back(&savePoints);
         registry_list.push_back(&healths);
         registry_list.push_back(&healthFlasks);
         registry_list.push_back(&damages);
