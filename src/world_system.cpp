@@ -184,7 +184,7 @@ void WorldSystem::init() {
     //current_room = regionManager->setRegion(makeRegion<Cesspit>);
     //testing bmt
     current_room = regionManager->setRegion(makeRegion<Birdmantown>);
-    PhysicsSystem::setRoom(current_room);
+    physics.setRoom(current_room);
 
 
     // init tutorial (temp)
