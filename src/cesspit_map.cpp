@@ -15,7 +15,7 @@ void Cesspit::init() {
 
     setRoomStrategy(std::make_unique<CPEntranceRoomStrategy>());
     m_entrance_room = currentRoom->execute();
-    start_room = m_entrance_room;
+    //start_room = m_entrance_room;
     // start coords = (0.1f, 0.4f)
 
     setRoomStrategy(std::make_unique<CPRoom1Strategy>());
@@ -40,7 +40,7 @@ void Cesspit::init() {
 
     setRoomStrategy(std::make_unique<CPExitRoomStrategy>());
     m_exit_room = currentRoom->execute();
-    //start_room = m_exit_room;
+    start_room = m_exit_room;
 
     // set up all doors
     // entrance to npc coords = (0.03f, 0.42f, 1.f, 0.21f), entrance spawn = (0.9f, 0.3f)
@@ -99,9 +99,8 @@ void Cesspit::init() {
     Connection door_ex_to_boss = SetDoor(0.03f, 0.18f, 0.f, 0.815f, m_boss_room, vec2(renderSystem.getWindowWidth() * 0.93f, renderSystem.getWindowHeight() * 0.7f), false);
     list_ex.doors.push_back(door_ex_to_boss);
 
-    // exitRoom to next map
-    // door coords = (0.3f, 0.03f, 0.5f, 0.f)
-    // spawn coords into exit room = (0.5f, 0.17f)
+    // cp to bmt
+    // door coords = (0.3f, 0.03f, 0.5f, 0.f), spawn = (0.25f, 0.82f)
 
     registry.doorList.emplace(m_entrance_room, std::move(list_en));
     registry.doorList.emplace(m_room1, std::move(list_1));

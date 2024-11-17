@@ -87,7 +87,7 @@ WorldSystem::WorldSystem() {
 
     font_color = glm::vec3(1.0, 1.0, 1.0);
     font_trans = glm::mat4(1.0f);
-    font_trans = glm::scale(font_trans, glm::vec3(0.5, 0.5, 1.0));
+    //font_trans = glm::scale(font_trans, glm::vec3(0.5, 0.5, 1.0));
 }
 
 WorldSystem::~WorldSystem() {
@@ -103,6 +103,7 @@ void WorldSystem::init() {
 
     // Add the Player component to the player entity
     registry.players.emplace(m_player, Player());
+    physics.setPlayer(m_player);
 
     // Create and initialize a Motion component for the player
     Motion playerMotion;
@@ -190,9 +191,10 @@ void WorldSystem::init() {
     // Initialize the region
     regionManager->init();
     current_room = regionManager->setRegion(makeRegion<Cesspit>);
-    // testing bmt
+    //testing bmt
     //current_room = regionManager->setRegion(makeRegion<Birdmantown>);
-    PhysicsSystem::setRoom(current_room);
+    physics.setRoom(current_room);
+
 
     // TODO LATER: Somehow differentiate between heart power ups if we are going to have multiple
     if (heartPowerUp) {
@@ -252,6 +254,8 @@ void WorldSystem::update(float deltaTime) {
         updateBoundingBox(e1);
     }
 
+    // Update physics, modify gamestate to handle this elsewhere
+    physics.step(deltaTime);
 }
 
 void WorldSystem::handle_connections(float deltaTime) {
@@ -261,13 +265,13 @@ void WorldSystem::handle_connections(float deltaTime) {
         vec2 dir;
         vec2 over;
         for (auto& connection : list.doors) {
-            if (PhysicsSystem::checkForCollision(m_player, connection.door, dir, over)) {
+            if (physics.checkForCollision(m_player, connection.door, dir, over)) {
                 // check if in boss room and if boss is dead
                 if (!connection.limit || isChickenDead) {
                     // set next room
                     current_room = connection.nextRoom;
                     AISystem::init_aim();
-                    PhysicsSystem::setRoom(current_room);
+                    physics.setRoom(current_room);
                     // set spawn point of player in new room
                     playerMotion.position = connection.nextSpawn;
                     std::shared_ptr<Mix_Music> music = registry.rooms.get(current_room).music;
@@ -688,9 +692,9 @@ void WorldSystem::render() {
             float save_point_upper_bound_y = save_point_motion.position.y + save_point_motion.scale.y;
             if (save_point_lower_bound_x <= player_motion.position.x && player_motion.position.x < save_point_upper_bound_x
                 && save_point_lower_bound_y < player_motion.position.y && player_motion.position.y < save_point_upper_bound_y) {
-                double position_x = save_point_motion.position.x * 2.f * 0.78;
-                double position_y = save_point_motion.position.y * 2.f * 1.1;
-                renderSystem.renderText("Press V to Save", static_cast<float>(position_x), static_cast<float>(position_y), 1.0f, font_color, font_trans);
+                double position_x = save_point_motion.position.x * 0.84;
+                double position_y = (renderSystem.getWindowHeight() -  save_point_motion.position.y) * 0.5;
+                renderSystem.renderText("Press V to Save", static_cast<float>(position_x), static_cast<float>(position_y), 0.5f, font_color, font_trans);
             }
         }
 
@@ -730,7 +734,7 @@ void WorldSystem::render() {
     HealthFlask& flask = registry.healthFlasks.get(m_player);
     std::string num_uses = std::to_string(flask.num_uses);
     std::string uses_string = "Health Flask uses: " + num_uses;
-    renderSystem.renderText(uses_string, static_cast<float>(window_width_px * 0.09), static_cast<float>(window_height_px * 1.60), 1.0f, font_color, font_trans);
+    renderSystem.renderText(uses_string, static_cast<float>(window_width_px * 0.045), static_cast<float>(window_height_px * 0.80), 0.5f, font_color, font_trans);
 
 
     // Draw the flame thrower if the boss is killed

@@ -4,16 +4,21 @@
 #include "ecs.hpp"
 #include "components.hpp"
 #include "ecs_registry.hpp"
+#include "threadpool.hpp"
 
 // A simple physics system that moves rigid bodies and checks for collision
-class PhysicsSystem
-{
+class PhysicsSystem {
+    ThreadPool threadPool;
+	Entity player;
+	Entity currentRoom;
+
 public:
 	void step(float elapsed_ms);
-	static void setRoom(Entity newRoom);
-	static bool checkForCollision(Entity e1, Entity e2, vec2& direction, vec2& overlap);
+	void setRoom(Entity newRoom);
+	void setPlayer(const Entity& newPlayer);
+	bool checkForCollision(Entity e1, Entity e2, vec2& direction, vec2& overlap);
 
-	PhysicsSystem()
+    PhysicsSystem() : threadPool(std::thread::hardware_concurrency())
 	{
 	}
 };
