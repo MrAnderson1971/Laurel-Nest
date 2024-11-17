@@ -10,6 +10,7 @@
 #define SDL_MAIN_HANDLED
 #include <SDL.h>
 #include <SDL_mixer.h>
+#include <boost/optional.hpp>
 
 struct Sprite {
     std::shared_ptr<GLuint> textureID;
@@ -98,7 +99,7 @@ struct Motion {
     vec2 velocity = { 0, 0 };
     vec2 scale = { 0, 0 };
     vec2 acceleration = { 0, 0 };
-    vec2 spawn_position = position;
+    boost::optional<vec2> boundingBox;
 };
 
 struct TransformComponent {
