@@ -78,6 +78,8 @@ WorldSystem::WorldSystem() {
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::FIREBALL, renderSystem.loadTexture("Fireball.png"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::DOOR, renderSystem.loadTexture("door.PNG"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::BMT_BG, renderSystem.loadTexture("BMTown_bg.PNG"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::LN_THRONE_BG, renderSystem.loadTexture("LNThrone_bg.PNG"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::LN_BG, renderSystem.loadTexture("LN_bg.PNG"));
 
     texture_paths = std::make_unique<std::unordered_map<TEXTURE_ASSET_ID, Sprite>>(std::move(temp_texture_paths));
     g_texture_paths = texture_paths.get();
@@ -185,7 +187,6 @@ void WorldSystem::init() {
     //testing bmt
     current_room = regionManager->setRegion(makeRegion<Birdmantown>);
     physics.setRoom(current_room);
-
 
     // init tutorial (temp)
     Sprite tutorialSprite(renderSystem.loadTexture("temp_tutorial.PNG"));
