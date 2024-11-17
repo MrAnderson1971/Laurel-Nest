@@ -15,7 +15,7 @@ void Cesspit::init() {
 
     setRoomStrategy(std::make_unique<CPEntranceRoomStrategy>());
     m_entrance_room = currentRoom->execute();
-    //start_room = m_entrance_room;
+    start_room = m_entrance_room;
     // start coords = (0.1f, 0.4f)
 
     setRoomStrategy(std::make_unique<CPRoom1Strategy>());
@@ -40,7 +40,7 @@ void Cesspit::init() {
 
     setRoomStrategy(std::make_unique<CPExitRoomStrategy>());
     m_exit_room = currentRoom->execute();
-    start_room = m_exit_room;
+    //start_room = m_exit_room;
 
     // set up all doors
     // entrance to npc coords = (0.03f, 0.42f, 1.f, 0.21f), entrance spawn = (0.9f, 0.3f)
