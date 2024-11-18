@@ -15,10 +15,10 @@ constexpr vec2 GOOMBA_CEILING_FALL_SCALE = { 141, 92 };
 constexpr vec2 GOOMBA_CEILING_SPIT_SCALE = { 38, 38 };
 constexpr vec2 GOOMBA_CEILING_DEAD_SCALE = { 115, 73 };
 
-constexpr vec2 GOOMBA_FLYING_CHARGE_SCALE = { 947, 460 };
-constexpr vec2 GOOMBA_FLYING_HIT_SCALE = { 752, 682 };
-constexpr vec2 GOOMBA_FLYING_FLY_SCALE = { 907, 816 };
-constexpr vec2 GOOMBA_FLYING_DEAD_SCALE = { 775, 214 };
+constexpr vec2 GOOMBA_FLYING_CHARGE_SCALE = { 948/3, 461/3 };
+constexpr vec2 GOOMBA_FLYING_HIT_SCALE = { 753/3, 683/3 };
+constexpr vec2 GOOMBA_FLYING_FLY_SCALE = { 908/3, 817/3 };
+constexpr vec2 GOOMBA_FLYING_DEAD_SCALE = { 776/3, 215/3 };
 
 class GoombaLogic
 {

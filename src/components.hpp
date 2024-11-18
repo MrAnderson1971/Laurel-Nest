@@ -109,6 +109,7 @@ struct Motion {
     vec2 position;
     float angle = 0;
     vec2 velocity = { 0, 0 };
+    vec2 old_velocity = { 0, 0 };
     vec2 scale = { 0, 0 };
     vec2 acceleration = { 0, 0 };
     vec2 spawn_position = position;

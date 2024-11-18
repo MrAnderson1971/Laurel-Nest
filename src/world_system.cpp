@@ -253,6 +253,7 @@ void WorldSystem::update(float deltaTime) {
 
     GoombaLogic::update_goomba_projectile_timer(deltaTime, current_room);
     GoombaLogic::update_damaged_goomba_sprites(deltaTime);
+    AISystem::flying_goomba_step(m_player, current_room, deltaTime);
     BossAISystem::step(m_player, deltaTime);
     BossAISystem::update_damaged_chicken_sprites(deltaTime);
 
@@ -521,6 +522,19 @@ void WorldSystem::handle_collisions() {
             }
         }
 
+        // change the flying goomba's animation when it impacts the ground
+        if (registry.hostiles.has(entity) && registry.hostiles.get(entity).type == HostileType::GOOMBA_FLYING 
+            && registry.healths.has(entity) && registry.grounds.has(entity_other)) {
+            auto& goombaFlyingAnimation = registry.flyingGoombaAnimations.get(entity);
+            goombaFlyingAnimation.setState(FlyingGoombaState::FLYING_GOOMBA_IDLE);
+            GoombaFlyingState& g_state = registry.goombaFlyingStates.get(entity);
+            g_state.current_state = FlyingGoombaState::FLYING_GOOMBA_IDLE;
+            g_state.animationDone = true;
+            Motion& g_motion = registry.motions.get(entity);
+            g_motion.scale = GOOMBA_FLYING_FLY_SCALE;
+            g_motion.velocity.x = g_motion.old_velocity.x;
+        }
+
         if (registry.players.has(entity) && registry.damages.has(entity_other)) {
             if (registry.projectiles.has(entity_other) && registry.projectiles.get(entity_other).type == ProjectileType::FIREBALL) {
                 continue;
@@ -722,7 +736,6 @@ void WorldSystem::render() {
             auto& transform = registry.transforms.get(obj);
             auto& sprite = registry.sprites.get(obj);
             renderSystem.drawEntity(sprite, transform);
-
         }
 
 

@@ -106,6 +106,8 @@ void GoombaFlying::init_components(float x, float y) {
 	Motion goombaMotion;
 	goombaMotion.position = vec2(x, y);
 	goombaMotion.scale = GOOMBA_FLYING_FLY_SCALE;
+	goombaMotion.velocity = { TPS , 0 };
+	goombaMotion.old_velocity = goombaMotion.velocity;
 	registry.motions.emplace(entity, std::move(goombaMotion));
 
 	TransformComponent goombaTransform;
@@ -122,6 +124,7 @@ void GoombaFlying::init_components(float x, float y) {
 	registry.goombaFlyingStates.emplace(entity, std::move(state));
 	registry.healths.emplace(entity, std::move(Health{ 3,3 }));
 	registry.damages.emplace(entity, std::move(Damage{ 1 }));
+	registry.patrol_ais.emplace(entity, std::move(Patrol_AI()));
 }
 
 void GoombaFlying::set_flying_altitude(float y) {

@@ -523,7 +523,8 @@ Entity BMTRoom3Strategy::execute() {
     Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.f, 1.0f, 0.5f, 0.5f, 0.0f);
 
     GoombaFlying gf = GoombaFlying();
-    gf.init(renderSystem.getWindowWidth()/2.f, renderSystem.getWindowHeight()/2.f);
+    gf.init(renderSystem.getWindowWidth()/3.f, renderSystem.getWindowHeight()/2.f);
+    gf.set_flying_altitude(renderSystem.getWindowHeight() / 2.f);
 
     // note on bg: don't add motion
     registry.grounds.emplace(m_ground, std::move(Ground()));
