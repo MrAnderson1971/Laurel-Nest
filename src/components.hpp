@@ -285,6 +285,7 @@ enum class TEXTURE_ASSET_ID {
     CEILING_SPIT,                         // ceiling_spit.png 
     SPLASH_SCREEN,                        // splash_screen.png
     DEMO_GROUND,                          // demo_ground.png
+    DEMO_WALL,                            // demo_wall.png
     DEMO_CEILING,                         // demo_ceiling.png
     HEART_3,                              // heart_3.png
     HEART_2,                              // heart_2.png

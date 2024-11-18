@@ -11,7 +11,9 @@ public:
 
     Entity SetCeiling(Sprite ceilingSprite, float xPos);
 
-    Entity SetGround(Sprite groundSprite, float rot, float width, float height, float xPos, float yPos);
+    Entity SetGround(Sprite groundSprite, float width, float height, float xPos, float yPos);
+
+	Entity SetWall(Sprite groundSprite, float left, float width, float height, float xPos, float yPos);
 
     Entity SetPlatform(Sprite platformSprite, float width, float height, float xPos, float yPos);
 
