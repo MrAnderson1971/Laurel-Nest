@@ -10,6 +10,7 @@
 #define SDL_MAIN_HANDLED
 #include <SDL.h>
 #include <SDL_mixer.h>
+#include <boost/optional.hpp>
 
 struct Sprite {
     std::shared_ptr<GLuint> textureID;
@@ -99,7 +100,7 @@ struct Motion {
     vec2 velocity = { 0, 0 };
     vec2 scale = { 0, 0 };
     vec2 acceleration = { 0, 0 };
-    vec2 spawn_position = position;
+    boost::optional<vec2> boundingBox;
 };
 
 struct TransformComponent {
@@ -185,9 +186,18 @@ struct Hostile
 
 };
 
+enum class BoxType {
+    HIT_BOX,
+    ATTACK_BOX,
+    BODY_BOX
+};
+
 struct Boss
 {
-
+    BoxType boxType = BoxType::BODY_BOX;
+    vec2 hitbox;
+    vec2 attackbox;
+    vec2 bodybox;
 };
 
 // struct for attacking

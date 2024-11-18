@@ -19,6 +19,9 @@ void PhysicsSystem::setPlayer(const Entity& newPlayer) {
 vec2 get_bounding_box(const Motion& motion)
 {
     // abs is to avoid negative scale due to the facing direction.
+    if (motion.boundingBox) {
+        return *motion.boundingBox;
+    }
     return { abs(motion.scale.x), abs(motion.scale.y) };
 }
 
@@ -31,7 +34,7 @@ bool PhysicsSystem::checkForCollision(Entity e1, Entity e2, vec2& direction, vec
     vec2 half_size1;
     vec2 half_size2;
 
-    half_size1 = (box1 / 2.f);
+    half_size1 = box1 / 2.f;
     half_size2 = box2 / 2.f;
 
     vec2 dp = motion1.position - motion2.position;
