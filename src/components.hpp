@@ -382,6 +382,12 @@ struct Ground {
 
 };
 
+struct MovingPlatform {
+    bool vertical;
+    vec2 startPos;
+    vec2 endPos;
+};
+
 // Components used for Maps and Rooms
 // For performance, consider:
 // - having different vectors for different types of components

@@ -479,15 +479,20 @@ Entity BMTRoom2Strategy::execute() {
 
     // platform 1: horizontal
     // start (0.2f, 0.38f), end (0.55f, 0.38f)
-    Entity m_platform1 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.55f, 0.38f);
+    //Entity m_platform1 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.32f, 0.75f);
+    Entity m_platform1 = SetMovingPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), true, 0.1f, 0.2f, 0.32f, 0.75f, vec2(0.32f, 0.35f), vec2(0.32f, 0.75f));
 
     // platform 2: vertical
     // start = (0.75f, 0.7f), end = (0.75f, 0.38f)
-    Entity m_platform2 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.75f, 0.35f);
+    //Entity m_platform2 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.75f, 0.35f);
+    Entity m_platform2 = SetMovingPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), true, 0.1f, 0.2f, 0.75f, 0.35f, vec2(0.75f, 0.35f), vec2(0.32f, 0.75f));
 
     // wall
     //Entity m_wall = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.5f, 0.5f, 0.05f, 200.f);
     Entity m_wall = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_WALL), -1.f, 1.2f, 1.2f, 0.05f, 0.f);
+
+    //Entity m_wall = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.5f, 0.5f, 0.05f, 200.f);
+    Entity m_wall2 = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_WALL), -1.f, 0.8f, 0.8f, 0.55f, 400.f);
 
     // ground
     Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 0.5f, 0.5f, 0.0f);
@@ -497,6 +502,7 @@ Entity BMTRoom2Strategy::execute() {
     registry.grounds.emplace(m_wall, std::move(Ground()));
     registry.grounds.emplace(m_platform1, std::move(Ground()));
     registry.grounds.emplace(m_platform2, std::move(Ground()));
+    registry.grounds.emplace(m_wall2, std::move(Ground()));
 
     room.insert(m_bg);
     room.insert(m_ceiling);
@@ -504,6 +510,7 @@ Entity BMTRoom2Strategy::execute() {
     room.insert(m_wall);
     room.insert(m_platform1);
     room.insert(m_platform2);
+    room.insert(m_wall2);
 
     registry.rooms.emplace(m_room, std::move(room));
 
@@ -822,6 +829,50 @@ Entity RoomStrategy::SetPlatform(Sprite platformSprite, float width, float heigh
     BoundingBox bb = registry.bounding_box.get(m_platform);
     bb.height = platformSprite.height;
     bb.width = platformSprite.width;
+
+    // return ground
+    return m_platform;
+}
+
+Entity RoomStrategy::SetMovingPlatform(Sprite platformSprite, bool vertical, float width, float height, float xPos, float yPos, vec2 start, vec2 end) {
+    Entity m_platform = Entity();
+    registry.sprites.emplace(m_platform, platformSprite);
+    width *= platformSprite.width;
+    height *= platformSprite.height;
+
+    // note: both xPos and yPos are multiplied to window width and height respectively
+    // Create and initialize a TransformComponent for the platform
+    TransformComponent platformTransform;
+    platformTransform.position = glm::vec3(renderSystem.getWindowWidth() * xPos, renderSystem.getWindowHeight() * yPos, 0.0);
+    platformTransform.scale = glm::vec3(width, height, 1.0);
+    platformTransform.rotation = 0.0f;
+    registry.transforms.emplace(m_platform, std::move(platformTransform));
+
+    // Create and initialize a Motion component for the platform
+    Motion platformMotion;
+    platformMotion.position = glm::vec2(renderSystem.getWindowWidth() * xPos, renderSystem.getWindowHeight() * yPos);
+    platformMotion.velocity = glm::vec2(100.f, 0);
+    if (vertical) {
+        platformMotion.velocity = glm::vec2(0, 100.f);
+    }
+    platformMotion.scale = { width, height };
+    registry.motions.emplace(m_platform, std::move(platformMotion));
+
+    // add platform to environment to render out later
+    Environment platformObj;
+    registry.envObject.emplace(m_platform, std::move(platformObj));
+
+    registry.bounding_box.emplace(m_platform);
+    BoundingBox bb = registry.bounding_box.get(m_platform);
+    bb.height = platformSprite.height;
+    bb.width = platformSprite.width;
+
+    // add platform to moving platform
+    MovingPlatform platformMove;
+    platformMove.vertical = vertical;
+    platformMove.startPos = start;
+    platformMove.endPos = end;
+    registry.movingPlatform.emplace(m_platform, std::move(platformMove));
 
     // return ground
     return m_platform;
