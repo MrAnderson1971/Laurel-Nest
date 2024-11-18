@@ -222,7 +222,8 @@ void WorldSystem::init() {
     footstep_sound = Mix_LoadWAV(audio_path("footstep.wav").c_str());
     sword_sound = Mix_LoadWAV(audio_path("sword.wav").c_str());
     hurt_sound = Mix_LoadWAV(audio_path("hurt.wav").c_str());
-    if (!(footstep_sound && sword_sound && hurt_sound)) {
+    save_sound = Mix_LoadWAV(audio_path("save.wav").c_str());
+    if (!(footstep_sound && sword_sound && hurt_sound && save_sound)) {
         std::cerr << "Failed to load WAV file: " << Mix_GetError() << std::endl;
     }
 }
@@ -691,6 +692,7 @@ void WorldSystem::handle_saving() {
                 if (do_save) {
                     // TODO MAYBE INSERT A SAVE SOUND
                     start_from_checkpoint = true;
+                    Mix_PlayChannel(SAVE_SOUND_CHANNEL, save_sound, 0);
                     write_to_save_file();
                 }
             }
@@ -898,6 +900,13 @@ void WorldSystem::processPlayerInput(int key, int action) {
     if (action == GLFW_PRESS && key == GLFW_KEY_V) {
         do_save = true;
     }
+    // Press P to clear saveFile
+    if (action == GLFW_PRESS && key == GLFW_KEY_P) {
+        std::fstream fs;
+        fs.open(SAVE_FILE_PATH, std::ios::out);
+        fs.close();
+    }
+
 }
 
 void WorldSystem::useFlameThrower() {
@@ -984,6 +993,10 @@ void WorldSystem::cleanup() {
     if (hurt_sound != nullptr) {
         Mix_FreeChunk(hurt_sound);
         hurt_sound = nullptr;
+    }
+    if (save_sound != nullptr) {
+        Mix_FreeChunk(save_sound);
+        save_sound = nullptr;
     }
     registry.clear_all_components();
 }
