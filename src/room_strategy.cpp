@@ -40,22 +40,22 @@ Entity CPEntranceRoomStrategy::execute() {
     Entity m_platform2 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.75f, 0.9f);
 
     // ground left
-    Entity m_ground_left = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.f, 1.0f, 1.6f, 1.0f/30.0f, 200.0f);
+    Entity m_ground_left = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 1.6f, 1.0f/30.0f, 200.0f);
 
     // ground right
-    Entity m_ground_right = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.f, 0.4f, 1.6f, 1.0f, 300.0f);
-    //Entity m_ground_right = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 270.f, 0.65f, 1.04f, 0.9f, 0.f);
+    //Entity m_ground_right = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.4f, 1.6f, 1.0f, 300.0f);
+    Entity m_wall_right = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_WALL), 1.0f, 1.6f, 1.0f, 0.95f, 90.f);
 
     // note on bg: don't add motion
     registry.grounds.emplace(m_ground_left, std::move(Ground()));
-    registry.grounds.emplace(m_ground_right, std::move(Ground()));
+    registry.grounds.emplace(m_wall_right, std::move(Ground()));
     registry.grounds.emplace(m_platform1, std::move(Ground()));
     registry.grounds.emplace(m_platform2, std::move(Ground()));
 
     room.insert(m_bg);
     room.insert(m_spaceship);
     room.insert(m_ground_left);
-    room.insert(m_ground_right);
+    room.insert(m_wall_right);
     room.insert(m_platform1);
     room.insert(m_platform2);
 
@@ -76,7 +76,7 @@ Entity CPRoom1Strategy::execute() {
     Entity m_ceiling = SetCeiling(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_CEILING), 0.66f);
 
     // ground
-    Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.f, 1.0f, 1.0f, 0.5f, 20.0f);
+    Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 1.0f, 0.5f, 20.0f);
 
     // platform 1
     Entity m_platform1 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.05f, 0.35f);
@@ -114,11 +114,11 @@ Entity CPRoom2Strategy::execute() {
     // ceiling
     Entity m_ceiling = SetCeiling(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_CEILING), 0.5f);
 
-    // ground left
-    Entity m_ground_left = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.f, 0.5f, 2.0f, 1.0f/30.0f, 300.0f);
+    // wall left
+    Entity m_wall_left = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_WALL),-1.f, 2.f, 1.f, 0.085F, 100.0f);
 
-    // ground right
-    Entity m_ground_right = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.f, 0.5f, 2.0f, 1.0f, 300.0f);
+    // wall right
+    Entity m_wall_right = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_WALL), 1.f, 2.f, 1.f, 0.945f, 100.0f);
 
     // platform 1: left
     Entity m_platform1 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.35f, 0.5f);
@@ -133,8 +133,8 @@ Entity CPRoom2Strategy::execute() {
     Entity m_platform4 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.58f, 0.95f);
 
     // note on bg: don't add motion
-    registry.grounds.emplace(m_ground_left, std::move(Ground()));
-    registry.grounds.emplace(m_ground_right, std::move(Ground()));
+    registry.grounds.emplace(m_wall_left, std::move(Ground()));
+    registry.grounds.emplace(m_wall_right, std::move(Ground()));
     registry.grounds.emplace(m_platform1, std::move(Ground()));
     registry.grounds.emplace(m_platform2, std::move(Ground()));
     registry.grounds.emplace(m_platform3, std::move(Ground()));
@@ -146,8 +146,8 @@ Entity CPRoom2Strategy::execute() {
 
     room.insert(m_bg);
     room.insert(m_ceiling);
-    room.insert(m_ground_left);
-    room.insert(m_ground_right);
+    room.insert(m_wall_left);
+    room.insert(m_wall_right);
     room.insert(m_platform1);
     room.insert(m_platform2);
     room.insert(m_platform3);
@@ -182,7 +182,7 @@ Entity CPRoom3Strategy::execute() {
     Entity m_heart = SetPlatform(renderSystem.loadTexture("extra_heart.png"), 0.2f, 0.2f, 0.07f, 0.25f);
 
     // ground
-    Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.f, 1.0f, 1.0f, 0.5f, 0.0f);
+    Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 1.0f, 0.5f, 0.0f);
 
     // platform 1: top
     Entity m_platform1 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.95f, 0.3f);
@@ -226,7 +226,7 @@ Entity CPRoom4Strategy::execute() {
     Entity m_ceiling = SetCeiling(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_CEILING), 0.5f);
 
     // ground
-    Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.f, 1.0f, 1.0f, 0.5f, 20.0f);
+    Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 1.0f, 0.5f, 20.0f);
 
     // platform 1: top
     Entity m_platform1 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.4f, 0.35f);
@@ -274,7 +274,7 @@ Entity CPBossRoomStrategy::execute() {
     Entity m_ceiling = SetCeiling(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_CEILING), 0.5f);
 
     // ground
-    Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.f, 1.0f, 1.0f, 0.5f, 20.0f);
+    Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 1.0f, 0.5f, 20.0f);
 
     // note on bg: don't add motion
     registry.grounds.emplace(m_ground, std::move(Ground()));
@@ -323,13 +323,15 @@ Entity CPExitRoomStrategy::execute() {
     // TODO
     // left wall
     int yPos = renderSystem.getWindowHeight();
-    Entity m_wall_left = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.f, 0.4f, 2.8f, 0.0f, yPos / 2.f + 300.f);
+    //Entity m_wall_left = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.4f, 2.8f, 0.0f, yPos / 2.f + 300.f);
+    Entity m_wall_left = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_WALL), -1.f, 1.2f, 1.2f, 0.1f, (float)yPos - 100.f);
 
     // right right
-    Entity m_wall_right = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.f, 0.4f, 2.8f, 1.0f, yPos / 2.f);
+    //Entity m_wall_right = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.4f, 2.8f, 1.0f, yPos / 2.f);
+    Entity m_wall_right = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_WALL), 1.f, 1.2f, 1.2f, 0.9f, yPos / 2.f);
 
     // ground
-    Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.f, 1.0f, 0.5f, 0.5f, 0.f);
+    Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 0.5f, 0.5f, 0.f);
 
     // savepoint 
     Entity m_check_point = SetCheckpoint(40.f / 100.f, 76.4f / 100.f);
@@ -387,7 +389,7 @@ Entity BMTEntranceRoomStrategy::execute() {
     Entity m_platform3 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.95f, 0.35f);
 
     // ground
-    Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.f, 1.0f, 0.5f, 0.7f, 0.0f);
+    Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 0.5f, 0.7f, 0.0f);
 
     // note on bg: don't add motion
     registry.grounds.emplace(m_ground, std::move(Ground()));
@@ -435,10 +437,10 @@ Entity BMTRoom1Strategy::execute() {
     Entity m_platform5 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.55f, 0.35f);
 
     // ground low
-    Entity m_ground1 = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.f, 1.0f, 0.5f, 0.3f, 0.0f);
+    Entity m_ground1 = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 0.5f, 0.3f, 0.0f);
 
     // ground high
-    Entity m_ground2 = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.f, 0.5f, 0.5f, 0.f, 500.f);
+    Entity m_ground2 = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.5f, 0.5f, 0.f, 500.f);
 
     // note on bg: don't add motion
     registry.grounds.emplace(m_ground1, std::move(Ground()));
@@ -484,10 +486,11 @@ Entity BMTRoom2Strategy::execute() {
     Entity m_platform2 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.75f, 0.35f);
 
     // wall
-    Entity m_wall = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 90.f, 0.5f, 0.5f, 0.05f, 200.f);
+    //Entity m_wall = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.5f, 0.5f, 0.05f, 200.f);
+    Entity m_wall = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_WALL), -1.f, 1.2f, 1.2f, 0.05f, 0.f);
 
     // ground
-    Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.f, 1.0f, 0.5f, 0.5f, 0.0f);
+    Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 0.5f, 0.5f, 0.0f);
 
     // note on bg: don't add motion
     registry.grounds.emplace(m_ground, std::move(Ground()));
@@ -520,7 +523,7 @@ Entity BMTRoom3Strategy::execute() {
     Entity m_ceiling = SetCeiling(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_CEILING), 0.5f);
 
     // ground
-    Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.f, 1.0f, 0.5f, 0.5f, 0.0f);
+    Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 0.5f, 0.5f, 0.0f);
 
     // note on bg: don't add motion
     registry.grounds.emplace(m_ground, std::move(Ground()));
@@ -571,7 +574,7 @@ Entity BMTRoom4Strategy::execute() {
     Entity m_platform8 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.22f, 0.3f);
 
     // ground
-    Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND),0.f, 0.4f, 0.4f, 0.8f, 0.f);
+    Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.4f, 0.4f, 0.8f, 0.f);
 
     // note on bg: don't add motion
     registry.grounds.emplace(m_ground, std::move(Ground()));
@@ -632,7 +635,7 @@ Entity LNRoom1Strategy::execute() {
     Entity m_ceiling = SetCeiling(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_CEILING), 0.5f);
 
     // ground
-    Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.f, 1.0f, 0.5f, 0.7f, 0.0f);
+    Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 0.5f, 0.7f, 0.0f);
 
     // note on bg: don't add motion
     registry.grounds.emplace(m_ground, std::move(Ground()));
@@ -662,7 +665,7 @@ Entity LNBossRoomStrategy::execute() {
     Entity m_ceiling = SetCeiling(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_CEILING), 0.5f);
 
     // ground
-    Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.f, 1.0f, 0.5f, 0.5f, 0.0f);
+    Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 0.5f, 0.5f, 0.0f);
 
     // note on bg: don't add motion
     registry.grounds.emplace(m_ground, std::move(Ground()));
@@ -722,7 +725,7 @@ Entity RoomStrategy::SetCeiling(Sprite ceilingSprite, float xPos) {
     return m_ceiling;
 }
 
-Entity RoomStrategy::SetGround(Sprite groundSprite, float rot, float width, float height, float xPos, float yPos) {
+Entity RoomStrategy::SetGround(Sprite groundSprite, float width, float height, float xPos, float yPos) {
     Entity m_ground;
     registry.sprites.emplace(m_ground, groundSprite);
     width *= groundSprite.width;
@@ -733,7 +736,7 @@ Entity RoomStrategy::SetGround(Sprite groundSprite, float rot, float width, floa
     TransformComponent groundTransform;
     groundTransform.position = glm::vec3(renderSystem.getWindowWidth() * xPos, renderSystem.getWindowHeight() - yPos, 0.0);
     groundTransform.scale = glm::vec3(width, height, 1.0);
-    groundTransform.rotation = rot;
+    groundTransform.rotation = 0.0f;
     registry.transforms.emplace(m_ground, std::move(groundTransform));
 
     // Create and initialize a Motion component for the ground
@@ -741,7 +744,40 @@ Entity RoomStrategy::SetGround(Sprite groundSprite, float rot, float width, floa
     groundMotion.position = glm::vec2(renderSystem.getWindowWidth() * xPos, renderSystem.getWindowHeight() - yPos);
     groundMotion.velocity = glm::vec2(0, 0);
     groundMotion.scale = { width, height };
-    groundMotion.angle = rot;
+    registry.motions.emplace(m_ground, std::move(groundMotion));
+
+    // add ground to environment to render out later
+    Environment groundObj;
+    registry.envObject.emplace(m_ground, std::move(groundObj));
+
+    registry.bounding_box.emplace(m_ground);
+    BoundingBox bb = registry.bounding_box.get(m_ground);
+    bb.height = groundSprite.height;
+    bb.width = groundSprite.width;
+
+    // return ground
+    return m_ground;
+}
+
+Entity RoomStrategy::SetWall(Sprite groundSprite, float left, float width, float height, float xPos, float yPos) {
+    Entity m_ground;
+    registry.sprites.emplace(m_ground, groundSprite);
+    width *= groundSprite.width;
+    height *= groundSprite.height;
+
+    // note: xPos is multiplicaiton of window width, yPos is subtracted from window height
+    // Create and initialize a TransformComponent for the ground
+    TransformComponent groundTransform;
+    groundTransform.position = glm::vec3(renderSystem.getWindowWidth() * xPos, renderSystem.getWindowHeight() - yPos, 0.0);
+    groundTransform.scale = glm::vec3(width, height, 1.0);
+    groundTransform.rotation = 0.0f;
+    registry.transforms.emplace(m_ground, std::move(groundTransform));
+
+    // Create and initialize a Motion component for the ground
+    Motion groundMotion;
+    groundMotion.position = glm::vec2(renderSystem.getWindowWidth() * xPos, renderSystem.getWindowHeight() - yPos);
+    groundMotion.velocity = glm::vec2(0, 0);
+    groundMotion.scale = {left*width, height };
     registry.motions.emplace(m_ground, std::move(groundMotion));
 
     // add ground to environment to render out later

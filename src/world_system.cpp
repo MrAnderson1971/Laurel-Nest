@@ -54,6 +54,7 @@ WorldSystem::WorldSystem() {
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::CEILING_SPIT, renderSystem.loadTexture("ceiling_spit.png"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::SPLASH_SCREEN, renderSystem.loadTexture("splash_screen.png"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::DEMO_GROUND, renderSystem.loadTexture("demo_ground.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::DEMO_WALL, renderSystem.loadTexture("demo_wall.png"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::DEMO_CEILING, renderSystem.loadTexture("demo_ceiling.png"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::HEART_3, renderSystem.loadTexture("heart_3.png"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::HEART_2, renderSystem.loadTexture("heart_2.png"));
@@ -536,7 +537,7 @@ void WorldSystem::handle_collisions() {
                 if (registry.bosses.has(entity_other)) {
                     Boss& boss = registry.bosses.get(entity_other);
                     boss.boxType = BoxType::HIT_BOX;
-                    BossAISystem::chicken_get_damaged(m_sword, isBossDead);
+                    BossAISystem::chicken_get_damaged(m_sword, isChickenDead);
                 } else {
                     GoombaLogic::goomba_get_damaged(entity_other, m_sword);
                 }
@@ -567,7 +568,7 @@ void WorldSystem::handle_collisions() {
             if (registry.bosses.has(entity_other)) {
                 Boss& boss = registry.bosses.get(entity_other);
                 boss.boxType = BoxType::BODY_BOX;
-                BossAISystem::chicken_get_damaged(entity, isBossDead);
+                BossAISystem::chicken_get_damaged(entity, isChickenDead);
                 registry.remove_all_components_of(entity);
             }
         }
