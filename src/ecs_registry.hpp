@@ -35,6 +35,7 @@ public:
     ComponentContainer<ScreenState> screenStates;
     ComponentContainer<Animation<PlayerState>> playerAnimations;
     ComponentContainer<Animation<ChickenState>> chickenAnimations;
+    ComponentContainer<Animation<FlyingGoombaState>> flyingGoombaAnimations;
     ComponentContainer<Gravity> gravity;
     ComponentContainer<Patrol_AI> patrol;
     ComponentContainer<BoundingBox> bounding_box;
@@ -77,6 +78,7 @@ public:
         registry_list.push_back(&screenStates);
         registry_list.push_back(&playerAnimations);
         registry_list.push_back(&chickenAnimations);
+        registry_list.push_back(&flyingGoombaAnimations);
         registry_list.push_back(&gravity);
         registry_list.push_back(&patrol);
         registry_list.push_back(&bounding_box);

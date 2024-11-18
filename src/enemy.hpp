@@ -35,3 +35,11 @@ private:
 	void init_sprite() override;
 	void init_components(float x, float y) override;
 };
+
+class GoombaFlying : public Enemy {
+public:
+	GoombaFlying();
+private:
+	void init_sprite() override;
+	void init_components(float x, float y) override;
+};

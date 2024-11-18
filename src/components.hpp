@@ -42,6 +42,13 @@ enum ChickenState {
     CHICKEN_DEATH
 };
 
+enum FlyingGoombaState {
+    FLYING_GOOMBA_IDLE,
+    FLYING_GOOMBA_CHARGE,
+    FLYING_GOOMBA_HIT,
+    FLYING_GOOMBA_DEAD
+};
+
 /* Template Animation component for animated sprites
 Each supports different animation states, such as walking, jumping, etc.
 */

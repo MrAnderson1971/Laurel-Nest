@@ -52,13 +52,13 @@ WorldSystem::WorldSystem() {
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::CEILING_IDLE, renderSystem.loadTexture("ceiling_idle.png"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::CEILING_SPIT, renderSystem.loadTexture("ceiling_spit.png"));
 
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::CEILING_SPIT, renderSystem.loadTexture("ceiling_spit.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::CEILING_SPIT, renderSystem.loadTexture("ceiling_spit.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::CEILING_SPIT, renderSystem.loadTexture("ceiling_spit.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::CEILING_SPIT, renderSystem.loadTexture("ceiling_spit.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::CEILING_SPIT, renderSystem.loadTexture("ceiling_spit.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::CEILING_SPIT, renderSystem.loadTexture("ceiling_spit.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::CEILING_SPIT, renderSystem.loadTexture("ceiling_spit.png"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::BIRDMAN_CHARGE, renderSystem.loadTexture("birdman_charge.PNG"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::BIRDMAN_DEAD, renderSystem.loadTexture("birdman_dead.PNG"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::BIRDMAN_FLY1, renderSystem.loadTexture("birdman_fly1.PNG"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::BIRDMAN_FLY2, renderSystem.loadTexture("birdman_fly2.PNG"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::BIRDMAN_FLY3, renderSystem.loadTexture("birdman_fly3.PNG"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::BIRDMAN_FLY4, renderSystem.loadTexture("birdman_fly4.PNG"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::BIRDMAN_HIT, renderSystem.loadTexture("birdman_hit.PNG"));
 
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::SPLASH_SCREEN, renderSystem.loadTexture("splash_screen.png"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::DEMO_GROUND, renderSystem.loadTexture("demo_ground.png"));
@@ -158,20 +158,20 @@ void WorldSystem::init() {
     Sprite idleSprite = g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_WALK_3);
 
     playerAnimations.addState(PlayerState::WALKING, std::vector<Sprite> {
-        g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_WALK_1),
+            g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_WALK_1),
             g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_WALK_2),
             g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_WALK_3),
             g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_WALK_4),
     });
     playerAnimations.addState(PlayerState::IDLE, std::vector<Sprite>{idleSprite});
     playerAnimations.addState(PlayerState::JUMPING, std::vector<Sprite> {
-        g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_JUMP_1),
+            g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_JUMP_1),
             g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_JUMP_2),
             g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_JUMP_3),
             g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_JUMP_4),
     });
     playerAnimations.addState(PlayerState::ATTACKING, std::vector<Sprite> {
-        g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_ATTACK_1),
+            g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_ATTACK_1),
             g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_ATTACK_2),
             g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_ATTACK_3),
             g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_ATTACK_4),
