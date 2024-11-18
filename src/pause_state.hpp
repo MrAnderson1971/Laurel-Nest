@@ -28,5 +28,6 @@ private:
     Entity pauseScreenEntity;
     Entity quitEntity;
     Entity optionsEntity;
+    Entity esc_key;
     void spline(float t, const std::vector<float>& controlPoints, int which) const;
 };

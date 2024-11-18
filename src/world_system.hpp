@@ -66,7 +66,7 @@ private:
     Entity m_flameThrower;
 	Entity current_room;
 	Entity next_map;
-	Entity m_tutorial;
+	Entity m_esc;
 	std::unique_ptr<RegionManager> regionManager;
 
 	void player_get_damaged(Entity hostile);
@@ -85,7 +85,6 @@ private:
 	bool canAttack = true;
     bool isFlameThrowerEquipped = false;
     bool flameThrower_enabled = false;
-	bool tutorialOpen = false;
 
 	// saveables
 	

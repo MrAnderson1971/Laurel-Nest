@@ -14,5 +14,11 @@ public:
 private:
 	Entity helpEntity;
 	Entity tutorialEntity;
+	Entity esc_key;
+	Entity control_keys;
+	Entity mouse_click;
+	Entity h_key;
+	Entity e_key;
+	Entity q_key;
 	bool showTutorial = false;
 };

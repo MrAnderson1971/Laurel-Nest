@@ -210,17 +210,13 @@ void WorldSystem::init() {
        registry.remove_all_components_of(registry.heartPowerUp.entities[0]);
     }
 
-    // init tutorial (temp)
-    Sprite tutorialSprite(renderSystem.loadTexture("temp_tutorial.PNG"));
-    tutorialSprite.width *= 0.15f;
-    tutorialSprite.height *= 0.15f;
-    registry.sprites.emplace(m_tutorial, std::move(tutorialSprite));
-    // Create and initialize a TransformComponent for the tutorial
-    TransformComponent tutorialTransform;
-    tutorialTransform.position = glm::vec3(renderSystem.getWindowWidth() * 0.9f, renderSystem.getWindowHeight() * 0.5f, 0.0);
-    tutorialTransform.scale = glm::vec3(tutorialSprite.width, tutorialSprite.height, 1.0);
-    tutorialTransform.rotation = 0.0f;
-    registry.transforms.emplace(m_tutorial, std::move(tutorialTransform));
+    // esc instruction sprite
+    Sprite escSprite(renderSystem.loadTexture("tutorial/esc_key.PNG"));
+    registry.sprites.emplace(m_esc, escSprite);
+    registry.transforms.emplace(m_esc, TransformComponent{
+        vec3(renderSystem.getWindowWidth() * 0.08f, renderSystem.getWindowHeight() * 0.94f, 0.f),
+        vec3(escSprite.width * 0.3f, escSprite.height * 0.3f, 1.f), 0.f
+        });
 
     Mix_ReserveChannels(2);
     footstep_sound = Mix_LoadWAV(audio_path("footstep.wav").c_str());
@@ -793,13 +789,9 @@ void WorldSystem::render() {
         }
     }
 
-    if (tutorialOpen) {
-        // tutorial side bar
-        Sprite tutorialSprite = registry.sprites.get(m_tutorial); 
-        TransformComponent tutorialTransform = registry.transforms.get(m_tutorial);
-
-        renderSystem.drawEntity(tutorialSprite, tutorialTransform);
-    }
+    // lower left instructions to open pause menue
+    renderSystem.drawEntity(registry.sprites.get(m_esc), registry.transforms.get(m_esc));
+    renderSystem.renderText("for pause menu", window_width_px * 0.1f, window_height_px * 0.05f, 0.5f, vec3(1), mat4(1));
 }
 
 void WorldSystem::processPlayerInput(int key, int action) {
@@ -887,11 +879,6 @@ void WorldSystem::processPlayerInput(int key, int action) {
     // Hide/Show FPS Counter (F key)
     if (action == GLFW_PRESS && key == GLFW_KEY_F) {
         Show_FPS = !Show_FPS;
-    }
-
-    // Escape n to close the tutorial
-    if (action == GLFW_RELEASE && key == GLFW_KEY_N) {
-        tutorialOpen = !tutorialOpen;
     }
 
     // Press V to save
