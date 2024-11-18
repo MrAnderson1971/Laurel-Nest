@@ -32,13 +32,20 @@ void SplashScreenState::init()
     MenuItem quitComponent(renderSystem.loadTexture("menu/quit_active.png"), renderSystem.loadTexture("menu/quit_inactive.png"),
         renderSystem.getWindowWidth() / 2.f, renderSystem.getWindowHeight() / 2.f + 150.f + optionsComponent.transformInactive.scale.y * 3);
     registry.menuItems.emplace(quitEntity, quitComponent);
+
+    Sprite escSprite(renderSystem.loadTexture("tutorial/esc_key.PNG"));
+    registry.sprites.emplace(esc_key, escSprite);
+    registry.transforms.emplace(esc_key, TransformComponent{
+        vec3(renderSystem.getWindowWidth() * 0.08f, renderSystem.getWindowHeight() * 0.94f, 0.f),
+        vec3(escSprite.width * 0.3f, escSprite.height * 0.3f, 1.f), 0.f
+        });
 }
 
 void SplashScreenState::on_key(int key, int, int action, int)
 {
     if (action == GLFW_PRESS)
     {
-        if (key == GLFW_KEY_ESCAPE)
+        /*if (key == GLFW_KEY_ESCAPE)
         {
             renderSystem.closeWindow();
         }
@@ -46,7 +53,10 @@ void SplashScreenState::on_key(int key, int, int action, int)
         {
             // go to game
             renderSystem.getGameStateManager()->changeState<WorldSystem>();
-        }
+        }*/
+        
+        // go to game
+        renderSystem.getGameStateManager()->changeState<WorldSystem>();
     }
 }
 
@@ -88,6 +98,9 @@ void SplashScreenState::render() {
     renderMenuItem(registry.menuItems.get(quitEntity), mouse_pos);
 
     renderSystem.renderText("Press any button to start.", window_width_px * 0.29f, window_height_px * 0.80f, 1.0f, vec3(1), mat4(1));
+
+    renderSystem.drawEntity(registry.sprites.get(esc_key), registry.transforms.get(esc_key));
+    renderSystem.renderText("for pause menu", window_width_px * 0.1f, window_height_px * 0.05f, 0.5f, vec3(1), mat4(1));
 }
 
 void SplashScreenState::cleanup() {
