@@ -192,7 +192,7 @@ void WorldSystem::init() {
     else {
         init_status_bar();
     }
-  
+
     init_flame_thrower();
      
     // Initialize the region
@@ -605,7 +605,7 @@ void WorldSystem::handle_collisions() {
             player_health.current_health = player_health.max_health;
             HealthFlask& health_flask = registry.healthFlasks.get(m_player);
             health_flask.num_uses = 3;
-            
+
         }
 
     }
