@@ -25,9 +25,50 @@ PauseState::~PauseState() {
     PauseState::cleanup();
 }
 
-inline void PauseState::lerp(float start, float end, float t) const {
+void PauseState::spline(float t, const std::vector<float>& controlPoints, int which) const {
     t = clamp(t, 0.0f, 1.0f);
-    registry.transforms.get(pauseScreenEntity).position[1] = start * (1 - t) + end * t;
+
+    size_t numPoints = controlPoints.size();
+    if (numPoints < 4) {
+        throw std::invalid_argument("Spline requires at least 4 control points");
+    }
+
+    float scaledT = t * (numPoints - 3);
+    int i1 = static_cast<int>(scaledT) + 1;  
+    int i0 = i1 - 1;                        
+    int i2 = i1 + 1;                        
+    int i3 = i1 + 2;                        
+
+    i0 = std::max(i0, 0);
+    i1 = std::max(i1, 0);
+    i2 = std::min(i2, static_cast<int>(numPoints - 1));
+    i3 = std::min(i3, static_cast<int>(numPoints - 1));
+
+    float localT = scaledT - (i1 - 1);
+
+    float p0 = controlPoints[i0];
+    float p1 = controlPoints[i1];
+    float p2 = controlPoints[i2];
+    float p3 = controlPoints[i3];
+
+    float tension = 0.5f;  
+    if (i1 <= 1 || i1 >= numPoints - 2) {
+        tension = 0.f;
+    }
+
+    const float a0 = (-tension * p0 + (2.0f - tension) * p1 +
+        (tension - 2.0f) * p2 + tension * p3);
+    const float a1 = (2.0f * tension * p0 + (tension - 3.0f) * p1 +
+        (3.0f - 2.0f * tension) * p2 - tension * p3);
+    const float a2 = (-tension * p0 + tension * p2);
+    const float a3 = p1;
+
+    float result = a0 * localT * localT * localT +
+        a1 * localT * localT +
+        a2 * localT +
+        a3;
+
+    registry.transforms.get(pauseScreenEntity).position[which] = result;
 }
 
 void PauseState::init() {
@@ -48,8 +89,30 @@ void PauseState::init() {
 }
 
 void PauseState::update(float deltaTime) {
-    timePassed += deltaTime * 2.0f;
-    lerp(0, renderSystem.getWindowHeight() / 2.0f, timePassed);
+    timePassed += deltaTime;
+
+    /*
+    (0, 0), (0, height), (width, height), (width 0), (0, 0), middle
+    */
+    std::vector<float> controlPointsY = {
+        100.0f,                              
+        window_height_px - 100, 
+        window_height_px - 100, 
+        100.f, 100.f,
+        window_height_px / 2.f,
+        window_height_px / 2.f
+    };
+    std::vector<float> controlPointsX = {
+        100.0f,
+        100.f,
+        window_width_px - 100,
+        window_width_px - 100, 100.f,
+        window_width_px / 2.f,
+        window_width_px / 2.f
+    };
+
+    spline(timePassed, controlPointsX, 0);
+    spline(timePassed, controlPointsY, 1);
 }
 
 void PauseState::cleanup() {

@@ -28,5 +28,5 @@ private:
     Entity pauseScreenEntity;
     Entity quitEntity;
     Entity optionsEntity;
-    inline void lerp(float start, float end, float t) const;
+    void spline(float t, const std::vector<float>& controlPoints, int which) const;
 };
