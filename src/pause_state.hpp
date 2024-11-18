@@ -28,5 +28,6 @@ private:
     Entity pauseScreenEntity;
     Entity quitEntity;
     Entity optionsEntity;
+    Entity esc_key;
     inline void lerp(float start, float end, float t) const;
 };
