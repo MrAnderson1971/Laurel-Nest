@@ -33,6 +33,7 @@ public:
     ComponentContainer<std::vector<Sprite>> heartSprites;
     ComponentContainer<RenderRequest> renderRequests; 
     ComponentContainer<ScreenState> screenStates;
+    ComponentContainer<GoombaFlyingState> goombaFlyingStates;
     ComponentContainer<Animation<PlayerState>> playerAnimations;
     ComponentContainer<Animation<ChickenState>> chickenAnimations;
     ComponentContainer<Animation<FlyingGoombaState>> flyingGoombaAnimations;
@@ -54,6 +55,7 @@ public:
     // IMPORTANT: Don't forget to add any newly added containers!
     ECSRegistry()
     {
+        registry_list.push_back(&goombaFlyingStates);
         registry_list.push_back(&savePoints);
         registry_list.push_back(&healths);
         registry_list.push_back(&healthFlasks);

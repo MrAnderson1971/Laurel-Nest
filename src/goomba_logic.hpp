@@ -30,7 +30,7 @@ public:
     void static update_damaged_goomba_sprites(float delta_time);
     void static update_goomba_projectile_timer(float delta_time, Entity current_room);
     void static goomba_ceiling_splat(Entity hostile);
-   
+    void static goomba_flying_death(Entity hostile);
 
 private:
 

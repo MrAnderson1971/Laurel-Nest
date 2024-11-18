@@ -49,6 +49,12 @@ enum FlyingGoombaState {
     FLYING_GOOMBA_DEAD
 };
 
+enum class HostileType {
+    GOOMBA_LAND,
+    GOOMBA_CEILING,
+    GOOMBA_FLYING,
+};
+
 /* Template Animation component for animated sprites
 Each supports different animation states, such as walking, jumping, etc.
 */
@@ -169,6 +175,14 @@ enum class ProjectileType {
     SPIT
 };
 
+struct GoombaFlyingState {
+    FlyingGoombaState current_state;
+    FlyingGoombaState last_state;
+    bool detectedPlayer = false;
+    bool charging= false;
+    float idle_flying_altitude;
+};
+
 struct Projectile
 {
     ProjectileType type;
@@ -184,11 +198,7 @@ struct Weapon
     float cooldown = 0.0f;
 };
 
-enum class HostileType {
-    GOOMBA_LAND,
-    GOOMBA_CEILING,
-    GOOMBA_FLYING,
-};
+
 
 
 // anything that is hostile to the player
