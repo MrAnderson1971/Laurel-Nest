@@ -14,5 +14,9 @@ public:
 
     static float get_angle(Entity e1, Entity e2);
 
+    void static flying_goomba_step(Entity flyingGoomba, Entity player, float elapsed_time);
+    bool static can_flying_goomba_detect_player(Motion flyingGoombaMotion, Motion playerMotion);
+    void static flying_goomba_charge(Motion& flyingGoombaMotion, Motion playerMotion);
+
     static void init_aim();
 };

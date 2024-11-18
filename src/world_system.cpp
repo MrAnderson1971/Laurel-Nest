@@ -201,10 +201,10 @@ void WorldSystem::init() {
      
     // Initialize the region
     regionManager->init();
-    current_room = regionManager->setRegion(makeRegion<Cesspit>);
+    //current_room = regionManager->setRegion(makeRegion<Cesspit>);
     //testing bmt
-    //current_room = regionManager->setRegion(makeRegion<Birdmantown>);
-    next_map = regionManager->setRegion(makeRegion<Birdmantown>);
+    current_room = regionManager->setRegion(makeRegion<Birdmantown>);
+    //next_map = regionManager->setRegion(makeRegion<Birdmantown>);
     physics.setRoom(current_room);
 
     // TODO LATER: Somehow differentiate between heart power ups if we are going to have multiple
@@ -713,6 +713,8 @@ void WorldSystem::render() {
             }
         }
 
+        GoombaLogic::goomba_flying_render(obj);
+
 
         // Draw the goombas
         if (registry.hostiles.has(obj) && registry.transforms.has(obj) && registry.sprites.has(obj))
@@ -722,6 +724,7 @@ void WorldSystem::render() {
             renderSystem.drawEntity(sprite, transform);
 
         }
+
 
         // Draw Bosses
         if (registry.bosses.has(obj)) {

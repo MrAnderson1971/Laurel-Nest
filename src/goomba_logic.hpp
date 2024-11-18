@@ -31,6 +31,7 @@ public:
     void static update_goomba_projectile_timer(float delta_time, Entity current_room);
     void static goomba_ceiling_splat(Entity hostile);
     void static goomba_flying_death(Entity hostile);
+    void static goomba_flying_render(Entity hostile);
 
 private:
 

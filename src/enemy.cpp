@@ -96,6 +96,8 @@ void GoombaFlying::init_sprite() {
 	goombaAnimations.addState(FlyingGoombaState::FLYING_GOOMBA_CHARGE, std::move(chargeSprites));
 	goombaAnimations.addState(FlyingGoombaState::FLYING_GOOMBA_HIT, std::move(hitSprites));
 	goombaAnimations.addState(FlyingGoombaState::FLYING_GOOMBA_DEAD, std::move(deadSprites));
+
+	goombaAnimations.setState(FlyingGoombaState::FLYING_GOOMBA_IDLE);
 	
 	registry.flyingGoombaAnimations.emplace(entity, std::move(goombaAnimations));
 }

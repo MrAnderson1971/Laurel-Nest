@@ -88,6 +88,90 @@ void AISystem::ceiling_goomba_attack(Entity ceilingGoomba, Entity current_room) 
     aim = false;
 }
 
+// CREATE A GUARD IN WorldSystem::update()
+void AISystem::flying_goomba_step(Entity flyingGoomba, Entity player, float elapsed_time) {
+    auto& flyingGoomba_Animation = registry.flyingGoombaAnimations.get(flyingGoomba);
+    Motion& flyingGoombaMotion = registry.motions.get(flyingGoomba);
+    Motion& playerMotion = registry.motions.get(player);
+
+    if (registry.goombaFlyingStates.has(flyingGoomba)) {
+        GoombaFlyingState& fg_state = registry.goombaFlyingStates.get(flyingGoomba);
+
+        if (registry.healths.has(flyingGoomba) && registry.healths.get(flyingGoomba).current_health <= 0) { 
+            flyingGoomba_Animation.setState(FlyingGoombaState::FLYING_GOOMBA_DEAD);
+            fg_state.current_state = FlyingGoombaState::FLYING_GOOMBA_DEAD;
+        }
+        else if (fg_state.animationDone) {
+            fg_state.animationDone = false;
+            if (fg_state.current_state == FlyingGoombaState::FLYING_GOOMBA_IDLE) {
+
+                //The flying goomba can only charge once it has reached its regular y position
+                if (flyingGoombaMotion.position.y >= fg_state.idle_flying_altitude) {
+                    flyingGoombaMotion.velocity.y = +3;
+                    fg_state.can_charge = false;
+                }
+                else {
+                    flyingGoombaMotion.velocity.y = 0;
+                    fg_state.can_charge = true;
+                }
+
+                if (fg_state.can_charge && can_flying_goomba_detect_player(flyingGoombaMotion, playerMotion)) {
+                    fg_state.can_charge = false;
+                    flyingGoomba_Animation.setState(FlyingGoombaState::FLYING_GOOMBA_CHARGE);
+                    flying_goomba_charge(flyingGoombaMotion, playerMotion);
+                }
+            }
+        }
+        if (flyingGoomba_Animation.isAnimationComplete()) {
+            fg_state.animationDone = true;
+        }
+        else {
+            flyingGoomba_Animation.next(elapsed_time);
+
+        }
+
+        switch (fg_state.current_state) {
+        case FlyingGoombaState::FLYING_GOOMBA_IDLE:
+            flyingGoombaMotion.scale = GOOMBA_FLYING_FLY_SCALE;
+            break;
+        case FlyingGoombaState::FLYING_GOOMBA_HIT:
+            flyingGoombaMotion.scale = GOOMBA_FLYING_HIT_SCALE;
+            break;
+        case FlyingGoombaState::FLYING_GOOMBA_CHARGE:
+            flyingGoombaMotion.scale = GOOMBA_FLYING_CHARGE_SCALE;
+            break;
+        case FlyingGoombaState::FLYING_GOOMBA_DEAD:
+            flyingGoombaMotion.scale = GOOMBA_FLYING_DEAD_SCALE;
+            break;
+        }
+    }
+}
+
+bool AISystem::can_flying_goomba_detect_player(Motion flyingGoombaMotion, Motion playerMotion) {
+    int detection_range_x = 100;
+    if (signof(flyingGoombaMotion.scale.x) == 1) {
+        return (flyingGoombaMotion.position.x < playerMotion.position.x && playerMotion.position.x < flyingGoombaMotion.position.x + detection_range_x);
+    } else {
+        return (flyingGoombaMotion.position.x - detection_range_x < playerMotion.position.x && playerMotion.position.x < flyingGoombaMotion.position.x);
+    }  
+}
+
+void AISystem::flying_goomba_charge(Motion& flyingGoombaMotion, Motion playerMotion) {
+    vec2 fg_position = flyingGoombaMotion.position;
+    vec2 p_position = playerMotion.position;
+
+    float distance = static_cast<float>(sqrt((pow(fg_position.x - p_position.x, 2) + pow(fg_position.y - p_position.y, 2)) / 25.f));
+    float angle = atan2(fg_position.x - p_position.x, fg_position.y - p_position.y);
+
+    float damping = 0.2f;
+    flyingGoombaMotion.velocity = { distance * cos(angle) * damping, distance * sin(angle) * damping };
+
+    flyingGoombaMotion.angle = angle * -1;
+};
+
+
+
+
 
 void AISystem::group_behaviour(Entity player){
     // Make all goombas chase

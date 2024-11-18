@@ -50,6 +50,7 @@ void GoombaLogic::goomba_get_damaged(Entity hostile, Entity m_weapon) {
     if (registry.healths.has(hostile)) {
         Health& hostile_health = registry.healths.get(hostile);
         Damage damage = registry.damages.get(m_weapon);
+
         hostile_health.current_health -= damage.damage_dealt;
 
         // If the goomba isnt dead yet, change their current sprite to their hit sprite
@@ -57,11 +58,12 @@ void GoombaLogic::goomba_get_damaged(Entity hostile, Entity m_weapon) {
             if (!registry.recentDamageTimers.has(hostile)) {
                 registry.recentDamageTimers.emplace(hostile, std::move(RecentlyDamagedTimer()));
             }
-            // Change the ceilingGoombas sprite
             Sprite& goombaSprite = registry.sprites.get(hostile);
             Motion& goombaMotion = registry.motions.get(hostile);
             if (registry.hostiles.get(hostile).type == HostileType::GOOMBA_FLYING) {
-
+                registry.flyingGoombaAnimations.get(hostile).setState(FlyingGoombaState::FLYING_GOOMBA_HIT);
+                registry.goombaFlyingStates.get(hostile).current_state = FlyingGoombaState::FLYING_GOOMBA_HIT;
+                goombaMotion.scale = GOOMBA_FLYING_HIT_SCALE;
             }
             else if (registry.hostiles.get(hostile).type == HostileType::GOOMBA_CEILING) {
                 goombaSprite = g_texture_paths->at(TEXTURE_ASSET_ID::CEILING_HIT);
@@ -74,10 +76,11 @@ void GoombaLogic::goomba_get_damaged(Entity hostile, Entity m_weapon) {
             }
         }
         else {
-            if (registry.hostiles.get(hostile).type == HostileType::GOOMBA_CEILING) {
+            if (registry.hostiles.get(hostile).type == HostileType::GOOMBA_FLYING) {
+                goomba_flying_death(hostile);
+            } else if (registry.hostiles.get(hostile).type == HostileType::GOOMBA_CEILING) {
                 goomba_ceiling_death(hostile);
-            }
-            else {
+            } else {
                 goomba_land_death(hostile);
             }
         }
@@ -97,7 +100,12 @@ void GoombaLogic::update_damaged_goomba_sprites(float delta_time) {
             Motion& goombaMotion = registry.motions.get(entity);
             // change flying goombas sprite
             if (registry.hostiles.get(entity).type == HostileType::GOOMBA_FLYING) {
-
+                GoombaFlyingState& fg_state = registry.goombaFlyingStates.get(entity);
+                auto& fg_animation = registry.flyingGoombaAnimations.get(entity);
+                
+                fg_state.current_state = FlyingGoombaState::FLYING_GOOMBA_IDLE;
+                fg_animation.setState(FlyingGoombaState::FLYING_GOOMBA_IDLE);
+                goombaMotion.scale = GOOMBA_FLYING_FLY_SCALE;
             } 
             // change ceiling goombas sprite
             else if (registry.hostiles.get(entity).type == HostileType::GOOMBA_CEILING) {
@@ -126,6 +134,13 @@ void GoombaLogic::update_goomba_projectile_timer(float delta_time, Entity curren
     }
 }
 
-
+void GoombaLogic::goomba_flying_render(Entity hostile) {
+    if (registry.flyingGoombaAnimations.has(hostile) &&
+        registry.transforms.has(hostile)) {
+        auto& animation = registry.flyingGoombaAnimations.get(hostile);
+        auto& transform = registry.transforms.get(hostile);
+        renderSystem.drawEntity(animation.getCurrentFrame(), transform);
+    }
+}
 
 

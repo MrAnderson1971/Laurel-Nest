@@ -522,12 +522,16 @@ Entity BMTRoom3Strategy::execute() {
     // ground
     Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.f, 1.0f, 0.5f, 0.5f, 0.0f);
 
+    GoombaFlying gf = GoombaFlying();
+    gf.init(renderSystem.getWindowWidth()/2.f, renderSystem.getWindowHeight()/2.f);
+
     // note on bg: don't add motion
     registry.grounds.emplace(m_ground, std::move(Ground()));
 
     room.insert(m_bg);
     room.insert(m_ceiling);
     room.insert(m_ground);
+    room.insert(gf.entity);
 
     registry.rooms.emplace(m_room, std::move(room));
 

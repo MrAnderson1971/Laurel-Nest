@@ -179,7 +179,8 @@ struct GoombaFlyingState {
     FlyingGoombaState current_state;
     FlyingGoombaState last_state;
     bool detectedPlayer = false;
-    bool charging= false;
+    bool can_charge = false;
+    bool animationDone = false;
     float idle_flying_altitude;
 };
 
