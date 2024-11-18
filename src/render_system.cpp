@@ -565,7 +565,8 @@ void RenderSystem::loadPlayerMeshes(Entity playerEntity) {
             {PlayerState::IDLE, mesh_path("mesh_walk_3.obj")},
             {PlayerState::WALKING, mesh_path("mesh_walk_3.obj")},
             {PlayerState::JUMPING, mesh_path("mesh_jump_3.obj")},
-            {PlayerState::ATTACKING, mesh_path("mesh_attack_3.obj")}
+            {PlayerState::ATTACKING, mesh_path("mesh_attack_3.obj")},
+            {PlayerState::HIT, mesh_path("mesh_hit.obj")},
     };
 
     // Check if the player already has a PlayerMeshes component

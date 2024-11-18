@@ -71,6 +71,8 @@ private:
 	void player_get_damaged(Entity hostile);
 	void player_get_healed();
 
+    void update_damaged_player_sprites(float delta_time);
+
 	void init_status_bar();
     void renew_status_bar();
     void init_flame_thrower();
