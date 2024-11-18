@@ -376,6 +376,19 @@ void WorldSystem::handle_motions(float deltaTime) {
                 m.scale.x = std::abs(m.scale.x);
             }
 
+            // moving platform specific, keep platform within bounds
+            if (registry.movingPlatform.has(entity)) {
+                auto& mp = registry.movingPlatform.get(entity);
+                float mp_xpos = window_width_px;
+                float mp_ypos = window_height_px;
+                if (mp.vertical) {
+                    if (m.position.y < (mp.startPos.y * mp_ypos) || m.position.y > (mp.endPos.y * mp_ypos)) m.velocity *= -1.f;
+                }
+                else {
+                    if (m.position.x < (mp.startPos.x * mp_xpos) || m.position.x > (mp.endPos.x * mp_xpos)) m.velocity *= -1.f;
+                }
+            }
+
             // Player-specific logic
             if (entity == m_player && registry.playerAnimations.has(m_player) && registry.combat.has(m_player)) {
                 auto& a = registry.playerAnimations.get(m_player);

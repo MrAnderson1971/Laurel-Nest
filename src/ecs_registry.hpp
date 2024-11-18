@@ -41,6 +41,7 @@ public:
     ComponentContainer<Environment> envObject;
     ComponentContainer<Combat> combat;
     ComponentContainer<Ground> grounds;
+    ComponentContainer<MovingPlatform> movingPlatform;
     ComponentContainer<Patrol_AI> patrol_ais;
 
     ComponentContainer<Room> rooms;
@@ -83,6 +84,7 @@ public:
         registry_list.push_back(&envObject);
         registry_list.push_back(&combat);
         registry_list.push_back(&grounds);
+        registry_list.push_back(&movingPlatform);
         registry_list.push_back(&patrol_ais);
         registry_list.push_back(&doors);
         registry_list.push_back(&doorList);
