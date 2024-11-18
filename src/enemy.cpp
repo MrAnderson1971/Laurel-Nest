@@ -120,14 +120,11 @@ void GoombaFlying::init_components(float x, float y) {
 	GoombaFlyingState state;
 	state.current_state = FlyingGoombaState::FLYING_GOOMBA_IDLE;
 	state.last_state = state.current_state;
+	state.idle_flying_altitude = y;
 
 	registry.goombaFlyingStates.emplace(entity, std::move(state));
 	registry.healths.emplace(entity, std::move(Health{ 3,3 }));
 	registry.damages.emplace(entity, std::move(Damage{ 1 }));
 	registry.patrol_ais.emplace(entity, std::move(Patrol_AI()));
-}
 
-void GoombaFlying::set_flying_altitude(float y) {
-	GoombaFlyingState& state = registry.goombaFlyingStates.get(entity);
-	state.idle_flying_altitude = y;
 }

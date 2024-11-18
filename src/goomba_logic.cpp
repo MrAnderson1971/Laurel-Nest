@@ -43,7 +43,22 @@ void GoombaLogic::goomba_land_death(Entity hostile) {
 }
 
 void GoombaLogic::goomba_flying_death(Entity hostile) {
+    Motion& hostile_motion = registry.motions.get(hostile);
+    hostile_motion.velocity = { 0,0 };
+    hostile_motion.scale = GOOMBA_FLYING_DEAD_SCALE;
 
+    GoombaFlyingState& fg_state = registry.goombaFlyingStates.get(hostile);
+    fg_state.current_state = FlyingGoombaState::FLYING_GOOMBA_DEAD;
+
+    auto& flyingGoomba_Animation = registry.flyingGoombaAnimations.get(hostile);
+    flyingGoomba_Animation.setState(FlyingGoombaState::FLYING_GOOMBA_DEAD);
+
+    registry.gravity.emplace(hostile, std::move(Gravity()));
+
+    registry.bounding_box.remove(hostile);
+    registry.patrol_ais.remove(hostile);
+    registry.damages.remove(hostile);
+    registry.healths.remove(hostile);
 }
 
 void GoombaLogic::goomba_get_damaged(Entity hostile, Entity m_weapon) {
@@ -58,7 +73,6 @@ void GoombaLogic::goomba_get_damaged(Entity hostile, Entity m_weapon) {
             if (!registry.recentDamageTimers.has(hostile)) {
                 registry.recentDamageTimers.emplace(hostile, std::move(RecentlyDamagedTimer()));
             }
-            Sprite& goombaSprite = registry.sprites.get(hostile);
             Motion& goombaMotion = registry.motions.get(hostile);
             if (registry.hostiles.get(hostile).type == HostileType::GOOMBA_FLYING) {
                 registry.flyingGoombaAnimations.get(hostile).setState(FlyingGoombaState::FLYING_GOOMBA_HIT);
@@ -66,11 +80,13 @@ void GoombaLogic::goomba_get_damaged(Entity hostile, Entity m_weapon) {
                 goombaMotion.scale = GOOMBA_FLYING_HIT_SCALE;
             }
             else if (registry.hostiles.get(hostile).type == HostileType::GOOMBA_CEILING) {
+                Sprite& goombaSprite = registry.sprites.get(hostile);
                 goombaSprite = g_texture_paths->at(TEXTURE_ASSET_ID::CEILING_HIT);
                 goombaMotion.scale = GOOMBA_CEILING_HIT_SCALE;
             }
             // Change the landGoombas sprite
             else {
+                Sprite& goombaSprite = registry.sprites.get(hostile);
                 goombaSprite = g_texture_paths->at(TEXTURE_ASSET_ID::GOOMBA_WALK_HIT);
                 goombaMotion.scale = GOOMBA_LAND_HIT_SCALE;
             }
@@ -90,13 +106,12 @@ void GoombaLogic::goomba_get_damaged(Entity hostile, Entity m_weapon) {
 // If the goomba is currently using its damaged sprite, revert it back to its idle sprite
 void GoombaLogic::update_damaged_goomba_sprites(float delta_time) {
     for (Entity entity : registry.recentDamageTimers.entities) {
-        if (!registry.sprites.has(entity)) {
+        /*if (!registry.sprites.has(entity)) {
             continue;
-        }
+        }*/
         RecentlyDamagedTimer& damaged_timer = registry.recentDamageTimers.get(entity);
         damaged_timer.counter_ms -= delta_time;
         if (damaged_timer.counter_ms <= 0 && registry.healths.has(entity)) {
-            Sprite& goombaSprite = registry.sprites.get(entity);
             Motion& goombaMotion = registry.motions.get(entity);
             // change flying goombas sprite
             if (registry.hostiles.get(entity).type == HostileType::GOOMBA_FLYING) {
@@ -104,15 +119,18 @@ void GoombaLogic::update_damaged_goomba_sprites(float delta_time) {
                 auto& fg_animation = registry.flyingGoombaAnimations.get(entity);
                 
                 fg_state.current_state = FlyingGoombaState::FLYING_GOOMBA_IDLE;
+                fg_state.animationDone = true;
                 fg_animation.setState(FlyingGoombaState::FLYING_GOOMBA_IDLE);
                 goombaMotion.scale = GOOMBA_FLYING_FLY_SCALE;
             } 
             // change ceiling goombas sprite
             else if (registry.hostiles.get(entity).type == HostileType::GOOMBA_CEILING) {
+                Sprite& goombaSprite = registry.sprites.get(entity);
                 goombaSprite = g_texture_paths->at(TEXTURE_ASSET_ID::CEILING_IDLE);
                 goombaMotion.scale = GOOMBA_CEILING_IDLE_SCALE;
             }
             else {
+                Sprite& goombaSprite = registry.sprites.get(entity);
                 goombaSprite = g_texture_paths->at(TEXTURE_ASSET_ID::GOOMBA_WALK_IDLE);
                 goombaMotion.scale = GOOMBA_LAND_IDLE_SCALE;
             }
