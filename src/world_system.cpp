@@ -21,6 +21,7 @@
 
 bool Show_FPS = true;
 bool isChickenDead = false;
+bool start_from_checkpoint = false;
 std::unordered_map<TEXTURE_ASSET_ID, Sprite>* g_texture_paths = nullptr;
 
 WorldSystem::WorldSystem() {
@@ -104,9 +105,10 @@ void WorldSystem::init() {
     // Create a new entity and register it in the ECSRegistry
     isChickenDead = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::IS_CHICKEN_DEAD), false);
     heartPowerUp = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::HEART_POWER_UP), false);
+    start_from_checkpoint = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::START_FROM_CHECKPOINT),false);
     // Player
 
-    // Add the Player component to the player entity
+    // Add the Player component to the player entity    
     registry.players.emplace(m_player, Player());
     physics.setPlayer(m_player);
 
@@ -679,6 +681,7 @@ void WorldSystem::handle_saving() {
                 && save_point_lower_bound_y < player_motion.position.y && player_motion.position.y < save_point_upper_bound_y) {
                 if (do_save) {
                     // TODO MAYBE INSERT A SAVE SOUND
+                    start_from_checkpoint = true;
                     write_to_save_file();
                 }
             }
@@ -1160,7 +1163,6 @@ void WorldSystem::write_to_save_file() {
     if (saveFile.is_open()) {
         //saveFile << BoolToString(isGreatBirdDead) + "\n";
         //saveFile << std::to_string(PelicanState) + "\n";
-        //saveFile << std::to_string(current_room) + "\n";
         // MaxHealth
         Health player_health = registry.healths.get(m_player);
         // Line 0: player max health
@@ -1177,6 +1179,9 @@ void WorldSystem::write_to_save_file() {
 
         // Line 4:
         saveFile << BoolToString(isChickenDead) << "\n";
+
+        // Line 5:
+        saveFile << BoolToString(start_from_checkpoint) << "\n";
 
         saveFile.close();
         std::cout << "Saved \n";

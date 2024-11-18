@@ -31,6 +31,7 @@ constexpr int HURT_CHANNEL = 1;
 
 extern bool Show_FPS;
 extern bool isChickenDead;
+extern bool start_from_checkpoint;
 
 class RegionManager;
 
