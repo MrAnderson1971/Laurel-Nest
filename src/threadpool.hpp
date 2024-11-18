@@ -22,5 +22,5 @@ private:
     std::condition_variable condition;
     std::condition_variable done;
     std::atomic<size_t> activeTasks;
-    std::atomic<size_t> stop;
+    std::atomic<bool> stop;
 };
