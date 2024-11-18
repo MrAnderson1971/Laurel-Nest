@@ -624,7 +624,10 @@ void RenderSystem::keyCallbackRedirect(GLFWwindow* wnd, int key, int scancode, i
 void RenderSystem::mouseMoveCallbackRedirect(GLFWwindow* wnd, double xpos, double ypos) {
     RenderSystem* renderSystem_ = static_cast<RenderSystem*>(glfwGetWindowUserPointer(wnd));
     if (renderSystem_ && renderSystem_->gameStateManager) {
-        renderSystem_->gameStateManager->on_mouse_move(glm::vec2(xpos, ypos)); // Forward to WorldSystem
+        int actualWidth, actualHeight;
+        glfwGetFramebufferSize(wnd, &actualWidth, &actualHeight);
+        renderSystem_->gameStateManager->on_mouse_move(glm::vec2(xpos * window_width_px / actualWidth,
+            ypos * window_height_px / actualHeight)); // Forward to WorldSystem
     }
 }
 
@@ -633,7 +636,10 @@ void RenderSystem::mouseClickCallbackRedirect(GLFWwindow* wnd, int button, int a
     if (renderSystem_ && renderSystem_->gameStateManager) {
         double xpos, ypos;
         glfwGetCursorPos(wnd, &xpos, &ypos);
-        renderSystem_->gameStateManager->on_mouse_click(button, action, glm::vec2(xpos, ypos), mods);
+        int actualWidth, actualHeight;
+        glfwGetFramebufferSize(wnd, &actualWidth, &actualHeight);
+        renderSystem_->gameStateManager->on_mouse_click(button, action, glm::vec2(xpos * window_width_px / actualWidth,
+            ypos * window_height_px / actualHeight), mods);
     }
 }
 
