@@ -32,6 +32,7 @@ enum PlayerState {
     WALKING,
     ATTACKING,
     JUMPING,
+    HIT
 };
 
 enum ChickenState {
@@ -272,6 +273,7 @@ enum class TEXTURE_ASSET_ID {
     PLAYER_ATTACK_3,                      // attack_3.png
     PLAYER_ATTACK_4,                      // attack_4.png
     PLAYER_ATTACK_5,                      // attack_5.png
+    PLAYER_HIT,                           // hit.png
     GOOMBA_WALK_ATTACK,                   // goomba_walk_attack.PNG
     GOOMBA_WALK_HIT,                      // goomba_walk_hit.PNG
     GOOMBA_WALK_IDLE,                     // goomba_walk_idle.PNG
@@ -311,6 +313,16 @@ enum class TEXTURE_ASSET_ID {
     FIREBALL,                             // Fireball.png
     DOOR,                                 // Door.PNG
     BMT_BG,                               // BMTown_bg.PNG
+    BIRDMAN_CHARGE,
+    BIRDMAN_DEAD,
+    BIRDMAN_FLY1,
+    BIRDMAN_FLY2,
+    BIRDMAN_FLY3,
+    BIRDMAN_FLY4,
+    BIRDMAN_HIT,
+    CHECKPOINT,
+    LN_THRONE_BG,                         // LNThrone_bg.PNG
+    LN_BG,                                // LN_bg.PNG
     TEXTURE_COUNT                         // Count of all textures
 };
 constexpr int texture_count = static_cast<int>(TEXTURE_ASSET_ID::TEXTURE_COUNT);
@@ -408,6 +420,7 @@ struct Connection {
     Entity nextRoom;
     vec2 nextSpawn;
     bool limit;
+    bool switchMap;
 };
 
 struct ConnectionList {

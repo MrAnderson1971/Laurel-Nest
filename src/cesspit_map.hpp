@@ -20,8 +20,6 @@ public:
 
     Connection SetDoor(float width, float height, float xPos, float yPos, Entity connectNextRoom, vec2 connectNextSpawn, bool isLimited);
 
-    Connection SetBMTDoor(float width, float height, float xPos, float yPos, vec2 connectNextSpawn, bool isLimited);
-
 private:
 
 };
