@@ -20,7 +20,7 @@ void Cesspit::init() {
 
     setRoomStrategy(std::make_unique<CPRoom1Strategy>());
     m_room1 = currentRoom->execute();
-    // start_room = m_room1;
+     //start_room = m_room1;
 
     setRoomStrategy(std::make_unique<CPRoom2Strategy>());
     m_room2 = currentRoom->execute();
@@ -28,11 +28,11 @@ void Cesspit::init() {
 
     setRoomStrategy(std::make_unique<CPRoom3Strategy>());
     m_room3 = currentRoom->execute();
-    // start_room = m_room3;
+     //start_room = m_room3;
 
     setRoomStrategy(std::make_unique<CPRoom4Strategy>());
     m_room4 = currentRoom->execute();
-    // start_room = m_room4;
+     //start_room = m_room4;
 
     setRoomStrategy(std::make_unique<CPBossRoomStrategy>());
     m_boss_room = currentRoom->execute();
@@ -99,9 +99,11 @@ void Cesspit::init() {
     Connection door_ex_to_boss = SetDoor(0.03f, 0.18f, 0.f, 0.815f, m_boss_room, vec2(renderSystem.getWindowWidth() * 0.93f, renderSystem.getWindowHeight() * 0.7f), false);
     list_ex.doors.push_back(door_ex_to_boss);
 
-    // exitRoom to next map
-    // door coords = (0.3f, 0.03f, 0.5f, 0.f)
-    // spawn coords into exit room = (0.5f, 0.17f)
+    // cp to bmt
+    // door coords = (0.3f, 0.03f, 0.5f, 0.f), spawn = (0.25f, 0.82f)
+    Connection door_cp_to_bmt = SetDoor(0.3f, 0.03f, 0.5f, 0.f, m_exit_room, vec2(renderSystem.getWindowWidth() * 0.25f, renderSystem.getWindowHeight() * 0.82f), false);
+    door_cp_to_bmt.switchMap = true;
+    list_ex.doors.push_back(door_cp_to_bmt);
 
     registry.doorList.emplace(m_entrance_room, std::move(list_en));
     registry.doorList.emplace(m_room1, std::move(list_1));
@@ -142,12 +144,7 @@ Connection Cesspit::SetDoor(float width, float height, float xPos, float yPos, E
     doorConnection.nextRoom = connectNextRoom;
     doorConnection.nextSpawn = connectNextSpawn;
     doorConnection.limit = isLimited;
+    doorConnection.switchMap = false;
 
     return doorConnection;
-}
-
-// TODO: figure out how to init BMT from here (also need to clear cesspit?)
-Connection Cesspit::SetBMTDoor(float width, float height, float xPos, float yPos, vec2 connectNextSpawn, bool isLimited)
-{
-    return Connection();
 }

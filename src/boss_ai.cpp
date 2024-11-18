@@ -143,13 +143,20 @@ Entity BossAISystem::init(Entity bossRoom) {
 	chickenTransform.rotation = 0.0f;
 	registry.transforms.emplace(chicken, std::move(chickenTransform));
 
-	registry.healths.emplace(chicken, std::move(Health{ 10, 10 }));
-	registry.damages.emplace(chicken, std::move(Damage{ 1 }));
-    Boss chickenBoss = Boss();
-    chickenBoss.hitbox = {WALKING_CHICKEN_WIDTH, WALKING_CHICKEN_HEIGHT};
-    chickenBoss.attackbox = {WALKING_CHICKEN_WIDTH, WALKING_CHICKEN_HEIGHT};
-    chickenBoss.bodybox = {WALKING_CHICKEN_WIDTH, WALKING_CHICKEN_HEIGHT};
-	registry.bosses.emplace(chicken, chickenBoss);
+	if (!isChickenDead) {
+		registry.healths.emplace(chicken, std::move(Health{ 10, 10 }));
+		registry.damages.emplace(chicken, std::move(Damage{ 1 }));
+	    Boss chickenBoss = Boss();
+	    chickenBoss.hitbox = {WALKING_CHICKEN_WIDTH, WALKING_CHICKEN_HEIGHT};
+	    chickenBoss.attackbox = {WALKING_CHICKEN_WIDTH, WALKING_CHICKEN_HEIGHT};
+	    chickenBoss.bodybox = {WALKING_CHICKEN_WIDTH, WALKING_CHICKEN_HEIGHT};
+		registry.bosses.emplace(chicken, chickenBoss);
+	}
+	else {
+		registry.healths.emplace(chicken, std::move(Health{ 10, 0 }));
+		registry.gravity.emplace(chicken, std::move(Gravity()));
+		registry.bosses.emplace(chicken, Boss());
+	}
 
 	return chicken;
 };
