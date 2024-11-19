@@ -537,7 +537,7 @@ Entity BMTRoom2Strategy::execute() {
     /*GoombaFlying gf = GoombaFlying();
     gf.init(renderSystem.getWindowWidth() / 3.f, renderSystem.getWindowHeight() / 6.f);*/
 
-    // platform 3: goomba right
+    /*// platform 3: goomba right
     Entity m_platform3 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.85f, 0.0f);
 
     // platform 4: goomba left
@@ -549,16 +549,15 @@ Entity BMTRoom2Strategy::execute() {
 
     GoombaCeiling gc2 = GoombaCeiling();
     gc2.init(renderSystem.getWindowWidth() * 0.4f, renderSystem.getWindowHeight() * 0.f + gc2.with_platform );
-    gc2.set_spit_timer(1.75f);
-
+    gc2.set_spit_timer(1.75f);*/
 
     // note on bg: don't add motion
     registry.grounds.emplace(m_ground, std::move(Ground()));
     registry.grounds.emplace(m_wall, std::move(Ground()));
     registry.grounds.emplace(m_platform1, std::move(Ground()));
     registry.grounds.emplace(m_platform2, std::move(Ground()));
-    registry.grounds.emplace(m_platform3, std::move(Ground()));
-    registry.grounds.emplace(m_platform4, std::move(Ground()));
+    //registry.grounds.emplace(m_platform3, std::move(Ground()));
+    //registry.grounds.emplace(m_platform4, std::move(Ground()));
     registry.grounds.emplace(m_wall2, std::move(Ground()));
 
     room.insert(m_bg);
@@ -567,13 +566,13 @@ Entity BMTRoom2Strategy::execute() {
     room.insert(m_wall);
     room.insert(m_platform1);
     room.insert(m_platform2);
-    room.insert(m_platform3);
-    room.insert(m_platform4);
+    //room.insert(m_platform3);
+    //room.insert(m_platform4);
     room.insert(m_wall2);
 
     //room.insert(gf.entity);
-    room.insert(gc1.entity);
-    room.insert(gc2.entity);
+    //room.insert(gc1.entity);
+    //room.insert(gc2.entity);
 
     registry.rooms.emplace(m_room, std::move(room));
 
@@ -786,6 +785,24 @@ Entity LNBossRoomStrategy::execute() {
     // background
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::LN_THRONE_BG));
 
+    // spaceship
+    Entity m_greatbird;
+    Sprite greatbirdSprite(renderSystem.loadTexture("greatbird_idle.png"));
+    greatbirdSprite.width *= 1.2f;
+    greatbirdSprite.height *= 1.2f;
+    registry.sprites.emplace(m_greatbird, std::move(greatbirdSprite));
+
+    // Create and initialize a TransformComponent for the spaceship
+    TransformComponent greatbirdTransform;
+    greatbirdTransform.position = glm::vec3(renderSystem.getWindowWidth() * 0.5f, renderSystem.getWindowHeight() * 0.72f, 0.0);
+    greatbirdTransform.scale = glm::vec3(greatbirdSprite.width, greatbirdSprite.height, 1.0);
+    greatbirdTransform.rotation = 0.0f;
+    registry.transforms.emplace(m_greatbird, std::move(greatbirdTransform));
+
+    // add spaceship to environment to render out later
+    Environment greatbirdObj;
+    registry.envObject.emplace(m_greatbird, std::move(greatbirdObj));
+
     // ceiling
     Entity m_ceiling = SetCeiling(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_CEILING), 0.5f);
 
@@ -798,6 +815,7 @@ Entity LNBossRoomStrategy::execute() {
     room.insert(m_bg);
     room.insert(m_ceiling);
     room.insert(m_ground);
+    room.insert(m_greatbird);
     registry.rooms.emplace(m_room, std::move(room));
 
     return m_room;
