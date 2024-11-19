@@ -11,7 +11,7 @@ bool aim = false;
 //float can_charge_timer = 0.5f;
 
 
-void AISystem::step(Entity player_entity)
+void AISystem::step(Entity player_entity, Entity current_room)
 {
     size_t size = registry.patrol_ais.size();
     const float chaseRange = 400.0f;
@@ -36,7 +36,9 @@ void AISystem::step(Entity player_entity)
                 if (patrol_component.landed) {
                     if (!patrol_component.chasing && player_distance_x < chaseRange && player_distance_y <= 100) {
                         patrol_component.chasing = true;
-                        group_behaviour(player_entity);
+                        if(registry.rooms.has(entity)){
+                            group_behaviour(player_entity);
+                        }
                         //                if (motion_player.position.x < motion.position.x) {
                         //                    motion.velocity.x = -5.0f;
                         //                } else {
