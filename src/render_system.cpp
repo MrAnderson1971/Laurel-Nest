@@ -624,7 +624,16 @@ void RenderSystem::keyCallbackRedirect(GLFWwindow* wnd, int key, int scancode, i
 void RenderSystem::mouseMoveCallbackRedirect(GLFWwindow* wnd, double xpos, double ypos) {
     RenderSystem* renderSystem_ = static_cast<RenderSystem*>(glfwGetWindowUserPointer(wnd));
     if (renderSystem_ && renderSystem_->gameStateManager) {
-        renderSystem_->gameStateManager->on_mouse_move(glm::vec2(xpos, ypos)); // Forward to WorldSystem
+        int actualWidth, actualHeight;
+        glfwGetWindowSize(wnd, &actualWidth, &actualHeight);
+
+        // Scale mouse position based on logical window size
+        glm::vec2 scaledPos = glm::vec2(
+                xpos * renderSystem_->windowWidth / actualWidth,
+                ypos * renderSystem_->windowHeight / actualHeight
+        );
+
+        renderSystem_->gameStateManager->on_mouse_move(scaledPos);
     }
 }
 
