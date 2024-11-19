@@ -1,6 +1,7 @@
 #include "options_menu.hpp"
 #include <fstream>
 #include "serialize.hpp"
+#include "splash_screen_state.hpp"
 
 OptionsMenu::~OptionsMenu() {
 	OptionsMenu::cleanup();
@@ -89,6 +90,7 @@ void OptionsMenu::on_mouse_click(int, int, const vec2&, int) {
 		std::fstream fs;
 		fs.open(SAVE_FILE_PATH, std::ios::out);
 		fs.close();
+		renderSystem.getGameStateManager()->resetPausedStates<SplashScreenState>();
 	}
 }
 
