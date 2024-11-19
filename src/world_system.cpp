@@ -53,6 +53,15 @@ WorldSystem::WorldSystem() {
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::CEILING_HIT, renderSystem.loadTexture("ceiling_hit.png"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::CEILING_IDLE, renderSystem.loadTexture("ceiling_idle.png"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::CEILING_SPIT, renderSystem.loadTexture("ceiling_spit.png"));
+
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::BIRDMAN_CHARGE, renderSystem.loadTexture("birdman_charge.PNG"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::BIRDMAN_DEAD, renderSystem.loadTexture("birdman_dead.PNG"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::BIRDMAN_FLY1, renderSystem.loadTexture("birdman_fly1.PNG"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::BIRDMAN_FLY2, renderSystem.loadTexture("birdman_fly2.PNG"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::BIRDMAN_FLY3, renderSystem.loadTexture("birdman_fly3.PNG"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::BIRDMAN_FLY4, renderSystem.loadTexture("birdman_fly4.PNG"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::BIRDMAN_HIT, renderSystem.loadTexture("birdman_hit.PNG"));
+
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::SPLASH_SCREEN, renderSystem.loadTexture("splash_screen.png"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::DEMO_GROUND, renderSystem.loadTexture("demo_ground.png"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::DEMO_WALL, renderSystem.loadTexture("demo_wall.png"));
@@ -153,20 +162,20 @@ void WorldSystem::init() {
     Sprite idleSprite = g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_WALK_3);
 
     playerAnimations.addState(PlayerState::WALKING, std::vector<Sprite> {
-        g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_WALK_1),
+            g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_WALK_1),
             g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_WALK_2),
             g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_WALK_3),
             g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_WALK_4),
     });
     playerAnimations.addState(PlayerState::IDLE, std::vector<Sprite>{idleSprite});
     playerAnimations.addState(PlayerState::JUMPING, std::vector<Sprite> {
-        g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_JUMP_1),
+            g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_JUMP_1),
             g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_JUMP_2),
             g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_JUMP_3),
             g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_JUMP_4),
     });
     playerAnimations.addState(PlayerState::ATTACKING, std::vector<Sprite> {
-        g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_ATTACK_1),
+            g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_ATTACK_1),
             g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_ATTACK_2),
             g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_ATTACK_3),
             g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_ATTACK_4),
@@ -249,6 +258,7 @@ void WorldSystem::update(float deltaTime) {
 
     GoombaLogic::update_goomba_projectile_timer(deltaTime, current_room);
     GoombaLogic::update_damaged_goomba_sprites(deltaTime);
+    AISystem::flying_goomba_step(m_player, current_room, deltaTime);
     BossAISystem::step(m_player, deltaTime);
     BossAISystem::update_damaged_chicken_sprites(deltaTime);
 
@@ -541,6 +551,19 @@ void WorldSystem::handle_collisions() {
             }
         }
 
+        // change the flying goomba's animation when it impacts the ground
+        if (registry.hostiles.has(entity) && registry.hostiles.get(entity).type == HostileType::GOOMBA_FLYING 
+            && registry.healths.has(entity) && registry.grounds.has(entity_other)) {
+            auto& goombaFlyingAnimation = registry.flyingGoombaAnimations.get(entity);
+            goombaFlyingAnimation.setState(FlyingGoombaState::FLYING_GOOMBA_IDLE);
+            GoombaFlyingState& g_state = registry.goombaFlyingStates.get(entity);
+            g_state.current_state = FlyingGoombaState::FLYING_GOOMBA_IDLE;
+            g_state.animationDone = true;
+            Motion& g_motion = registry.motions.get(entity);
+            g_motion.scale = GOOMBA_FLYING_FLY_SCALE;
+            g_motion.velocity.x = g_motion.old_velocity.x;
+        }
+
         if (registry.players.has(entity) && registry.damages.has(entity_other)) {
             if (registry.projectiles.has(entity_other) && registry.projectiles.get(entity_other).type == ProjectileType::FIREBALL) {
                 continue;
@@ -601,7 +624,7 @@ void WorldSystem::handle_collisions() {
         }
 
         // Once the ceiling goomba is dead. change its sprite to the dead sprite
-        if (registry.projectileTimers.has(entity) && registry.grounds.has(entity_other)) {
+        if (registry.hostiles.has(entity) && registry.hostiles.get(entity).type == HostileType::GOOMBA_CEILING && !registry.healths.has(entity) && registry.grounds.has(entity_other)) {
             GoombaLogic::goomba_ceiling_splat(entity);
         }
 
@@ -816,14 +839,16 @@ void WorldSystem::render() {
             }
         }
 
+        GoombaLogic::goomba_flying_render(obj);
+
         // Draw the goombas
         if (registry.hostiles.has(obj) && registry.transforms.has(obj) && registry.sprites.has(obj))
         {
             auto& transform = registry.transforms.get(obj);
             auto& sprite = registry.sprites.get(obj);
             renderSystem.drawEntity(sprite, transform);
-
         }
+
 
         // Draw Bosses
         if (registry.bosses.has(obj)) {
