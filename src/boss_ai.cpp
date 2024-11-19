@@ -64,6 +64,7 @@ void walk(Motion& chickenMotion, Motion& playerMotion) {
 	else if (walkRight) {
 		chickenMotion.position.x += 1.f;
 	}
+
 }
 
 bool canPeck(Motion chickenMotion, Motion playerMotion, float time) {
