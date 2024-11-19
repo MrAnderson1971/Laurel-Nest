@@ -134,7 +134,7 @@ void GoombaFlying::init_components(float x, float y) {
 	state.idle_flying_altitude = y;
 
 	registry.goombaFlyingStates.emplace(entity, std::move(state));
-	registry.healths.emplace(entity, std::move(Health{ 3,3 }));
+	registry.healths.emplace(entity, std::move(Health{ 4,4}));
 	registry.damages.emplace(entity, std::move(Damage{ 1 }));
 	registry.patrol_ais.emplace(entity, std::move(Patrol_AI()));
 

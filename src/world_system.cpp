@@ -96,6 +96,8 @@ WorldSystem::WorldSystem() {
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::CHECKPOINT, renderSystem.loadTexture("checkpoint.png"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::LN_THRONE_BG, renderSystem.loadTexture("LNThrone_bg.PNG"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::LN_BG, renderSystem.loadTexture("LN_bg.PNG"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::PELICAN_IDLE, renderSystem.loadTexture("PelicanIdle.PNG"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::PELICAN_TALK, renderSystem.loadTexture("PelicanTalk.PNG"));
 
     texture_paths = std::make_unique<std::unordered_map<TEXTURE_ASSET_ID, Sprite>>(std::move(temp_texture_paths));
     g_texture_paths = texture_paths.get();
@@ -114,6 +116,8 @@ void WorldSystem::init() {
     // Create a new entity and register it in the ECSRegistry
     isChickenDead = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::IS_CHICKEN_DEAD), false);
     heartPowerUp = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::HEART_POWER_UP), false);
+    //TODO: sword
+
     start_from_checkpoint = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::START_FROM_CHECKPOINT),false);
     // Player
 
@@ -218,6 +222,12 @@ void WorldSystem::init() {
     if (heartPowerUp) {
        registry.remove_all_components_of(registry.heartPowerUp.entities[0]);
     }
+
+    //TODO: sword
+    /*if (swordPowerUp) {
+        registry.remove_all_components_of(registry.swordPowerUp.entities[0]);
+    }*/
+    
 
     // esc instruction sprite
     Sprite escSprite(renderSystem.loadTexture("tutorial/esc_key.PNG"));
@@ -643,6 +653,15 @@ void WorldSystem::handle_collisions() {
 
         }
 
+        // TODO: sword
+        if (registry.players.has(entity) && registry.swordPowerUp.has(entity_other)) {
+            swordPowerUp = true;
+            registry.remove_all_components_of(entity_other);
+            // increase attack
+            Damage& d = registry.damages.get(m_sword);
+            d.damage_dealt = 2;
+        }
+
     }
     registry.collisions.clear();
 }
@@ -729,9 +748,9 @@ std::string dialogue[7] = { "You, you! You're not a bird?",
 "Seeking the Crown of Claws, hmm?",
 "But the Chiken Clan left us.",
 "Everything below is covered in poop.",
-"The sewers overflow, and the bird yearn for flesh.",
-"Hahahaha!",
-"..."};
+"The sewers are overflown,",
+"and the birds yearn for flesh.",
+"Hahahaha!" };
 
 // npc stuff // TODO KUTER
 void WorldSystem::handle_pelican() {
@@ -752,9 +771,13 @@ void WorldSystem::handle_pelican() {
             if (pelican_point_lower_bound_x <= player_motion.position.x && player_motion.position.x < pelican_point_upper_bound_x
                 && pelican_point_lower_bound_y < player_motion.position.y && player_motion.position.y < pelican_point_upper_bound_y) {
                 if (pelican_talk) {
-                    double position_x = pelican_point_motion.position.x - 300.f;
+                    double position_x = pelican_point_motion.position.x - 500.f;
                     double position_y = pelican_point_motion.position.y + 550.f;
-
+                    if (pelicanIndex >= 6) {
+                        position_x += 400.f;
+                    }
+                    Sprite& pelican_sprite = registry.sprites.get(sp);
+                    pelican_sprite = g_texture_paths->at(TEXTURE_ASSET_ID::PELICAN_TALK);
                     // draw box, init in world_init
                     // save dialogue of pelican in an array
                     // have  an index
@@ -767,6 +790,8 @@ void WorldSystem::handle_pelican() {
                 }
             }
             else {
+                Sprite& pelican_sprite = registry.sprites.get(sp);
+                pelican_sprite = g_texture_paths->at(TEXTURE_ASSET_ID::PELICAN_IDLE);
                 pelican_talk = false;
             }
         }
@@ -835,7 +860,7 @@ void WorldSystem::render() {
                 double position_x = npc_point_motion.position.x - 100.f;
                 double position_y = npc_point_motion.position.y + 300.f;
                 renderSystem.renderText("Press T to talk", static_cast<float>(position_x), static_cast<float>(position_y),
-                    0.5f, font_color, font_trans);
+                    0.5f, font_color, font_trans);                
             }
         }
 
@@ -1291,6 +1316,8 @@ void WorldSystem::write_to_save_file() {
 
         // Line 3:
         saveFile << BoolToString(heartPowerUp) << "\n";
+
+        //TODO: sword
 
         // Line 4:
         saveFile << BoolToString(isChickenDead) << "\n";

@@ -107,7 +107,7 @@ void Birdmantown::init() {
     ConnectionList list_ln1;
     Connection door_ln1_to_4 = SetDoor(0.35f, 0.04f, 0.1f, 1.f, m_room4, vec2(renderSystem.getWindowWidth() * 0.9f, renderSystem.getWindowHeight() * 0.18f), false);
     list_ln1.doors.push_back(door_ln1_to_4);
-    
+
     // LN1 to boss: (0.03f, 0.4f, 1.f, 0.7f), spawn = (0.05f, 0.8f)
     Connection door_ln1_to_boss = SetDoor(0.03f, 0.4f, 1.f, 0.7f, m_ln_boss_room, vec2(renderSystem.getWindowWidth() * 0.05f, renderSystem.getWindowHeight() * 0.8f), false);
     list_ln1.doors.push_back(door_ln1_to_boss);

@@ -79,6 +79,16 @@ private:
     int windowWidth;
     int windowHeight;
 
+    // fps
+    float fps;
+    float frameTime;
+    // FPS at 333 is kinda trash but on average, FPS is below 333, 
+    // FPS at 334 can make it spike to 500, but on average is above 334
+    const Uint32 maxFPS = 360;
+
+    void calculateFPS();
+
+
     static void keyCallbackRedirect(GLFWwindow* wnd, int key, int scancode, int action, int mods);
     static void mouseMoveCallbackRedirect(GLFWwindow* wnd, double xpos, double ypos);
     static void mouseClickCallbackRedirect(GLFWwindow* wnd, int button, int action, int mods);

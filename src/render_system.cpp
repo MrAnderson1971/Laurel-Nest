@@ -438,13 +438,13 @@ void RenderSystem::closeWindow() {
     glfwSetWindowShouldClose(window, true);
 }
 
+
 void RenderSystem::renderLoop()
 {
     float lastTime = static_cast<float>(glfwGetTime());
 
     // FPS stuff
     float FPS_Last_Time = 0;
-    unsigned int frames = 0;
     std::string prev_FPS_string = "";
 
     // setup fonts
@@ -458,6 +458,7 @@ void RenderSystem::renderLoop()
 
     while (!glfwWindowShouldClose(window))
     {
+        Uint32 startTicks = SDL_GetTicks();
         float currentTime = static_cast<float>(glfwGetTime());
         float deltaTime = currentTime - lastTime;
         lastTime = currentTime;
@@ -469,18 +470,15 @@ void RenderSystem::renderLoop()
             gameStateManager->render();
         }
         // FPS stuff
+        calculateFPS();
         float FPS_Delta_Time = currentTime - FPS_Last_Time;
-        frames++;
      
         if (FPS_Delta_Time >= 1.0)
         {
-            int fps_ = static_cast<int> (round((1.0 / FPS_Delta_Time) * frames));
-            fps_ = clamp(fps_, 0, fps_);
-            std::string FPS = std::to_string(fps_);
+            std::string FPS = std::to_string(static_cast<int>(fps));
             std::string FPS_String = "FPS: " + FPS;
             prev_FPS_string = FPS_String;
             FPS_Last_Time = currentTime;
-            frames = 0;
             if (Show_FPS) {
                 renderText(FPS_String, static_cast<float>(getWindowWidth() * 1.85), static_cast<float>(getWindowHeight() * 1.95), 1.0f, font_color, font_trans);
             }
@@ -490,6 +488,12 @@ void RenderSystem::renderLoop()
                 renderText(prev_FPS_string, static_cast<float>(getWindowWidth() * 1.85), static_cast<float>(getWindowHeight() * 1.95), 1.0f, font_color, font_trans);
             }
         }
+        // FPS limiting 
+        Uint32 frameTicks = SDL_GetTicks() - startTicks;
+        if (1000 / maxFPS > frameTicks) {
+            SDL_Delay((1000 / maxFPS) - frameTicks);
+        }
+        
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -668,4 +672,41 @@ int RenderSystem::getWindowWidth() const
 int RenderSystem::getWindowHeight() const
 {
     return windowHeight;
+}
+
+void RenderSystem::calculateFPS() {
+    static const int NUM_SAMPLES = 10;
+    static float frameTimes[NUM_SAMPLES];
+    static int currentFrame = 0;
+
+    static float prevTicks = static_cast<float>(SDL_GetTicks());
+    float currentTicks = static_cast<float>(SDL_GetTicks());
+
+    frameTime = currentTicks - prevTicks;
+    frameTimes[currentFrame % NUM_SAMPLES] = frameTime;
+    prevTicks = currentTicks;
+
+    int count;
+    currentFrame++;
+
+    if (currentFrame < NUM_SAMPLES) {
+        count = currentFrame;
+    }
+    else {
+        count = NUM_SAMPLES;
+    }
+
+    float frameTimeAverage = 0;
+    for (int i = 0; i < count; i++) {
+        frameTimeAverage += frameTimes[i];
+    }
+
+    frameTimeAverage /= count;
+
+    if (frameTimeAverage > 0) {
+        fps = 1000.0f / frameTimeAverage;
+    }
+    else {
+        fps = 60.0f;
+    }
 }

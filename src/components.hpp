@@ -353,6 +353,8 @@ enum class TEXTURE_ASSET_ID {
     CHECKPOINT,
     LN_THRONE_BG,                         // LNThrone_bg.PNG
     LN_BG,                                // LN_bg.PNG
+    PELICAN_IDLE,
+    PELICAN_TALK,
     TEXTURE_COUNT                         // Count of all textures
 };
 constexpr int texture_count = static_cast<int>(TEXTURE_ASSET_ID::TEXTURE_COUNT);
@@ -473,6 +475,9 @@ struct Character {
 };
 
 struct HeartPowerUp {
+};
+
+struct SwordPowerUp {
 };
 
 struct MenuItem {
