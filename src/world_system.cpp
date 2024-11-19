@@ -395,7 +395,7 @@ void WorldSystem::handle_motions(float deltaTime) {
             }
 
             // moving platform specific, keep platform within bounds
-            if (registry.movingPlatform.has(entity)) {
+            if (registry.movingPlatform.has(entity) && registry.rooms.get(current_room).has(entity)) {
                 auto& mp = registry.movingPlatform.get(entity);
                 float mp_xpos = window_width_px;
                 float mp_ypos = window_height_px;
