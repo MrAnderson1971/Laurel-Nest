@@ -96,6 +96,8 @@ WorldSystem::WorldSystem() {
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::CHECKPOINT, renderSystem.loadTexture("checkpoint.png"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::LN_THRONE_BG, renderSystem.loadTexture("LNThrone_bg.PNG"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::LN_BG, renderSystem.loadTexture("LN_bg.PNG"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::PELICAN_IDLE, renderSystem.loadTexture("PelicanIdle.PNG"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::PELICAN_TALK, renderSystem.loadTexture("PelicanTalk.PNG"));
 
     texture_paths = std::make_unique<std::unordered_map<TEXTURE_ASSET_ID, Sprite>>(std::move(temp_texture_paths));
     g_texture_paths = texture_paths.get();
@@ -754,7 +756,8 @@ void WorldSystem::handle_pelican() {
                 if (pelican_talk) {
                     double position_x = pelican_point_motion.position.x - 300.f;
                     double position_y = pelican_point_motion.position.y + 550.f;
-
+                    Sprite& pelican_sprite = registry.sprites.get(sp);
+                    pelican_sprite = g_texture_paths->at(TEXTURE_ASSET_ID::PELICAN_TALK);
                     // draw box, init in world_init
                     // save dialogue of pelican in an array
                     // have  an index
@@ -767,6 +770,8 @@ void WorldSystem::handle_pelican() {
                 }
             }
             else {
+                Sprite& pelican_sprite = registry.sprites.get(sp);
+                pelican_sprite = g_texture_paths->at(TEXTURE_ASSET_ID::PELICAN_IDLE);
                 pelican_talk = false;
             }
         }
@@ -835,7 +840,7 @@ void WorldSystem::render() {
                 double position_x = npc_point_motion.position.x - 100.f;
                 double position_y = npc_point_motion.position.y + 300.f;
                 renderSystem.renderText("Press T to talk", static_cast<float>(position_x), static_cast<float>(position_y),
-                    0.5f, font_color, font_trans);
+                    0.5f, font_color, font_trans);                
             }
         }
 
