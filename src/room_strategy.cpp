@@ -554,6 +554,10 @@ Entity BMTRoom3Strategy::execute() {
     // ceiling
     Entity m_ceiling = SetCeiling(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_CEILING), 0.5f);
 
+    // sword powerUp
+    // TODO: add to texture_paths
+    Entity m_sword = SetPlatform(renderSystem.loadTexture("sword_powerup.png"), 0.25f, 0.25f, 0.07f, 0.8f);
+
     // ground
     Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 0.5f, 0.5f, 0.0f);
 
@@ -579,9 +583,13 @@ Entity BMTRoom3Strategy::execute() {
     // note on bg: don't add motion
     registry.grounds.emplace(m_ground, std::move(Ground()));
 
+    // add sword
+    registry.swordPowerUp.emplace(m_sword, std::move(SwordPowerUp()));
+
     room.insert(m_bg);
     room.insert(m_ceiling);
     room.insert(m_ground);
+    room.insert(m_sword);
     room.insert(gf1.entity);
     room.insert(gf2.entity);
     room.insert(gc1.entity);

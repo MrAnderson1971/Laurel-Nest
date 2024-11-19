@@ -477,6 +477,9 @@ struct Character {
 struct HeartPowerUp {
 };
 
+struct SwordPowerUp {
+};
+
 struct MenuItem {
     Sprite active;
     Sprite inactive;

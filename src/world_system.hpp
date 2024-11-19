@@ -91,6 +91,7 @@ private:
 	// saveables
 	
 	bool heartPowerUp;
+	bool swordPowerUp;
 
 
     void updateBoundingBox(Entity entity);
