@@ -701,6 +701,56 @@ void WorldSystem::handle_saving() {
     do_save = false;
 }
 
+// move this elsewhere later
+std::string dialogue[7] = { "You, you! You're not a bird?",
+"Seeking the Crown of Claws, hmm?",
+"But the Chiken Clan left us.",
+"Everything below is covered in poop.",
+"The sewers overflow, and the bird yearn for flesh.",
+"Hahahaha!",
+"..."};
+
+// npc stuff // TODO KUTER
+void WorldSystem::handle_pelican() {
+    // check if plaican is alive?
+    if (!registry.rooms.has(current_room)) {
+        return;
+    }
+    Room& room = registry.rooms.get(current_room);
+    for (Entity sp : registry.pelican.entities) {
+        if (room.has(sp)) {
+            // check if the player is within range of the savepoint
+            Motion player_motion = registry.motions.get(m_player);
+            Motion pelican_point_motion = registry.motions.get(sp);
+            float  pelican_point_lower_bound_x = pelican_point_motion.position.x - pelican_point_motion.scale.x;
+            float pelican_point_upper_bound_x = pelican_point_motion.position.x + pelican_point_motion.scale.x;
+            float pelican_point_lower_bound_y = pelican_point_motion.position.y - pelican_point_motion.scale.y;
+            float pelican_point_upper_bound_y = pelican_point_motion.position.y + pelican_point_motion.scale.y;
+            if (pelican_point_lower_bound_x <= player_motion.position.x && player_motion.position.x < pelican_point_upper_bound_x
+                && pelican_point_lower_bound_y < player_motion.position.y && player_motion.position.y < pelican_point_upper_bound_y) {
+                if (pelican_talk) {
+                    double position_x = pelican_point_motion.position.x - 300.f;
+                    double position_y = pelican_point_motion.position.y + 550.f;
+
+                    // draw box, init in world_init
+                    // save dialogue of pelican in an array
+                    // have  an index
+                    // print from the array, increase index
+                    // if chicken is dead index can increase more
+
+
+                    renderSystem.renderText(dialogue[pelicanIndex], static_cast<float>(position_x), static_cast<float>(position_y),
+                        0.5f, font_color, font_trans);
+                }
+            }
+            else {
+                pelican_talk = false;
+            }
+        }
+    }
+    //pelican_talk = false;
+}
+
 void WorldSystem::render() {
     glClearColor(0.2f, 0.2f, 0.8f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -743,6 +793,28 @@ void WorldSystem::render() {
             }
         }
 
+        // TODO KUTER
+        // Draw npcs
+        if (registry.pelican.has(obj) && registry.transforms.has(obj) && registry.sprites.has(obj)) {
+            auto& transform = registry.transforms.get(obj);
+            auto& sprite = registry.sprites.get(obj);
+            renderSystem.drawEntity(sprite, transform);
+
+            // check if the player is within range of the savepoint
+            Motion player_motion = registry.motions.get(m_player);
+            Motion npc_point_motion = registry.motions.get(obj);
+            float npc_point_lower_bound_x = npc_point_motion.position.x - npc_point_motion.scale.x;
+            float npc_point_upper_bound_x = npc_point_motion.position.x + npc_point_motion.scale.x;
+            float npc_point_lower_bound_y = npc_point_motion.position.y - npc_point_motion.scale.y;
+            float npc_point_upper_bound_y = npc_point_motion.position.y + npc_point_motion.scale.y;
+            if (npc_point_lower_bound_x <= player_motion.position.x && player_motion.position.x < npc_point_upper_bound_x
+                && npc_point_lower_bound_y < player_motion.position.y && player_motion.position.y < npc_point_upper_bound_y) {
+                double position_x = npc_point_motion.position.x - 100.f;
+                double position_y = npc_point_motion.position.y + 300.f;
+                renderSystem.renderText("Press T to talk", static_cast<float>(position_x), static_cast<float>(position_y),
+                    0.5f, font_color, font_trans);
+            }
+        }
 
         // Draw the goombas
         if (registry.hostiles.has(obj) && registry.transforms.has(obj) && registry.sprites.has(obj))
@@ -803,6 +875,8 @@ void WorldSystem::render() {
             }
         }
     }
+
+    handle_pelican();
 
     // lower left instructions to open pause menue
     renderSystem.drawEntity(registry.sprites.get(m_esc), registry.transforms.get(m_esc));
@@ -899,6 +973,16 @@ void WorldSystem::processPlayerInput(int key, int action) {
     // Press V to save
     if (action == GLFW_PRESS && key == GLFW_KEY_V) {
         do_save = true;
+    }
+
+    // Press T to talk
+    if (action == GLFW_PRESS && key == GLFW_KEY_T) {
+        if (pelican_talk && pelicanIndex < 6) {
+            pelicanIndex++;
+        }
+        else if (pelicanIndex >= 6 || pelican_talk == false) {
+            pelican_talk = !pelican_talk;
+        }
     }
 }
 

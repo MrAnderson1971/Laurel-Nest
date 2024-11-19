@@ -147,6 +147,10 @@ struct SavePoint
 
 };
 
+struct Pelican {
+    bool isAlive;
+};
+
 // A timer that will be associated to when the player can get damaged again 
 struct InvincibilityTimer
 {

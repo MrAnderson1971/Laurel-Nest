@@ -44,6 +44,8 @@ public:
     ComponentContainer<MovingPlatform> movingPlatform;
     ComponentContainer<Patrol_AI> patrol_ais;
 
+    ComponentContainer<Pelican> pelican;
+
     ComponentContainer<Room> rooms;
     ComponentContainer<Connection> doors;
     ComponentContainer<ConnectionList> doorList;
@@ -90,6 +92,7 @@ public:
         registry_list.push_back(&doorList);
         registry_list.push_back(&heartPowerUp);
         registry_list.push_back(&menuItems);
+        registry_list.push_back(&pelican);
     }
 
     void clear_all_components() {

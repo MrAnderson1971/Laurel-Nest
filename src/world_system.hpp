@@ -57,6 +57,7 @@ public:
 	void handle_invinciblity(float deltaTime);
 	void handle_ai();
 	void handle_saving();
+	void handle_pelican();
 
 	Entity switch_map();
 
@@ -103,6 +104,11 @@ private:
 	// Font stuff
 	glm::vec3 font_color;
 	glm::mat4 font_trans;
+
+	// NPC stuff
+	bool pelican_talk = false;
+	bool skip_dialogue = false;
+	int pelicanIndex = 0;
 
 	bool do_save = false;
 
