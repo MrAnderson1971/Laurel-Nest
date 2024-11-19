@@ -5,6 +5,10 @@
 
 // Ecah struct below reprsenets a state transition
 
+float can_peck_timer = 0.5f;
+float last_peck = 0;
+
+
 enum class STATE {
 	IDLE = 0,
 	WALK = IDLE + 1,
@@ -62,14 +66,18 @@ void walk(Motion& chickenMotion, Motion& playerMotion) {
 	}
 }
 
-bool canPeck(Motion chickenMotion, Motion playerMotion) {
-	if (chickenMotion.position.x < playerMotion.position.x + 300.f &&
-		chickenMotion.position.x > playerMotion.position.x) {
-		return true;
-	}
-	return false;
+bool canPeck(Motion chickenMotion, Motion playerMotion, float time) {
+    can_peck_timer -= time;
+    if(can_peck_timer > 0){
+        return false;
+    }
+    if (chickenMotion.position.x < playerMotion.position.x + 300.f &&
+        chickenMotion.position.x > playerMotion.position.x) {
+        can_peck_timer = 0.5f;
+        return true;
+    }
+    return false;
 }
-
 bool canFlame(Motion chickenMotion, Motion playerMotion) {
 	if (flame_cooldown <= 0 && chickenMotion.position.x > playerMotion.position.x + 700.f) {
 		return true;
@@ -187,7 +195,7 @@ void BossAISystem::step(Entity player, float elapsed_time) {
             chickenBoss.attackbox = {WALKING_CHICKEN_WIDTH - 200.f, WALKING_CHICKEN_HEIGHT};
             chickenBoss.bodybox = {WALKING_CHICKEN_WIDTH - 200.f, WALKING_CHICKEN_HEIGHT + 200.f};
 
-			if (canPeck(chickenMotion, playerMotion)) {
+			if (canPeck(chickenMotion, playerMotion, elapsed_time)) {
 				current_state = STATE::PECK;
 				a.setState(CHICKEN_PECK);
 			}
@@ -237,7 +245,7 @@ void BossAISystem::step(Entity player, float elapsed_time) {
             chickenBoss.attackbox = {WALKING_CHICKEN_WIDTH - 200.f, WALKING_CHICKEN_HEIGHT};
             chickenBoss.bodybox = {WALKING_CHICKEN_WIDTH - 200.f, WALKING_CHICKEN_HEIGHT + 200.f};
 
-			if (canPeck(chickenMotion, playerMotion)) {
+			if (canPeck(chickenMotion, playerMotion, elapsed_time)) {
 				current_state = STATE::PECK;
 				a.setState(CHICKEN_PECK);
 			}
