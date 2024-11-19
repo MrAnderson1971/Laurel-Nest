@@ -1,4 +1,6 @@
 #include "options_menu.hpp"
+#include <fstream>
+#include "serialize.hpp"
 
 OptionsMenu::~OptionsMenu() {
 	OptionsMenu::cleanup();
@@ -8,6 +10,10 @@ void OptionsMenu::init() {
 	MenuItem helpComponent(renderSystem.loadTexture("menu/help_active.png"), renderSystem.loadTexture("menu/help_inactive.png"),
 		renderSystem.getWindowWidth() / 2.f, renderSystem.getWindowHeight() / 2.f - 100.f);
 	registry.menuItems.emplace(helpEntity, helpComponent);
+
+	MenuItem clearSaveComponent(renderSystem.loadTexture("menu/clear_data_active.png"), renderSystem.loadTexture("menu/clear_data_inactive.png"),
+		renderSystem.getWindowWidth() / 2.f, renderSystem.getWindowHeight() / 2.f + 150.f);
+	registry.menuItems.emplace(clearSaveEntity, clearSaveComponent);
 
 	Sprite escSprite(renderSystem.loadTexture("tutorial/esc_key.PNG"));
 	registry.sprites.emplace(esc_key, escSprite);
@@ -62,7 +68,14 @@ void OptionsMenu::init() {
 
 void OptionsMenu::cleanup() {
 	registry.remove_all_components_of(helpEntity);
-	//registry.remove_all_components_of(tutorialEntity);
+	registry.remove_all_components_of(clearSaveEntity);
+	registry.remove_all_components_of(tutorialEntity);
+	registry.remove_all_components_of(esc_key);
+	registry.remove_all_components_of(control_keys);
+	registry.remove_all_components_of(mouse_click);
+	registry.remove_all_components_of(h_key);
+	registry.remove_all_components_of(e_key);
+	registry.remove_all_components_of(q_key);
 }
 
 void OptionsMenu::update(float) {
@@ -72,6 +85,10 @@ void OptionsMenu::update(float) {
 void OptionsMenu::on_mouse_click(int, int, const vec2&, int) {
 	if (registry.menuItems.get(helpEntity).isPointWithin(mouse_pos)) {
 		showTutorial = true;
+	} else if (registry.menuItems.get(clearSaveEntity).isPointWithin(mouse_pos)) {
+		std::fstream fs;
+		fs.open(SAVE_FILE_PATH, std::ios::out);
+		fs.close();
 	}
 }
 
@@ -85,6 +102,7 @@ void OptionsMenu::on_key(int key, int scancode, int action, int mods) {
 void OptionsMenu::render() {
 	MenuState::render();
 	renderMenuItem(registry.menuItems.get(helpEntity), mouse_pos);
+	renderMenuItem(registry.menuItems.get(clearSaveEntity), mouse_pos);
 	if (showTutorial) {
 		renderSystem.drawEntity(registry.sprites.get(tutorialEntity), registry.transforms.get(tutorialEntity));
 

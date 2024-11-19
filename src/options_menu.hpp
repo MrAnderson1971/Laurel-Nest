@@ -13,6 +13,7 @@ public:
 
 private:
 	Entity helpEntity;
+	Entity clearSaveEntity;
 	Entity tutorialEntity;
 	Entity esc_key;
 	Entity control_keys;

@@ -900,13 +900,6 @@ void WorldSystem::processPlayerInput(int key, int action) {
     if (action == GLFW_PRESS && key == GLFW_KEY_V) {
         do_save = true;
     }
-    // Press P to clear saveFile
-    if (action == GLFW_PRESS && key == GLFW_KEY_P) {
-        std::fstream fs;
-        fs.open(SAVE_FILE_PATH, std::ios::out);
-        fs.close();
-    }
-
 }
 
 void WorldSystem::useFlameThrower() {
