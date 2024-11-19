@@ -5,10 +5,10 @@
 
 bool gb = false;
 bool aim = false;
-bool group_detection = false;
-int second_charge;
-
-float can_charge_timer = 0.5f;
+//bool group_detection = false;
+//int second_charge;
+//
+//float can_charge_timer = 0.5f;
 
 
 void AISystem::step(Entity player_entity)
