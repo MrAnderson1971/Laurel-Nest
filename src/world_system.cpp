@@ -924,12 +924,14 @@ void WorldSystem::render() {
     }
 
     for (const auto& entity : registry.projectiles.entities) {
-        if (registry.projectiles.get(entity).type == ProjectileType::FIREBALL) {
-            if (registry.sprites.has(entity) && registry.transforms.has(entity)) {
-                if (isChickenDead && isFlameThrowerEquipped) {
-                    auto &fireballSprite = registry.sprites.get(entity);
-                    auto &fireballTransform = registry.transforms.get(entity);
-                    renderSystem.drawEntity(fireballSprite, fireballTransform);
+        if (room.has(entity)) {
+            if (registry.projectiles.get(entity).type == ProjectileType::FIREBALL) {
+                if (registry.sprites.has(entity) && registry.transforms.has(entity)) {
+                    if (isChickenDead && isFlameThrowerEquipped) {
+                        auto& fireballSprite = registry.sprites.get(entity);
+                        auto& fireballTransform = registry.transforms.get(entity);
+                        renderSystem.drawEntity(fireballSprite, fireballTransform);
+                    }
                 }
             }
         }
@@ -1085,6 +1087,10 @@ void WorldSystem::useFlameThrower() {
 
    // Set fireball to expire at window edges
    registry.projectiles.emplace(m_fireball, std::move(Projectile{ProjectileType::FIREBALL}));
+
+   Room& this_room = registry.rooms.get(current_room);
+   this_room.entities.insert(m_fireball);
+
 
    weapon.cooldown = 3.0f;
    flameThrower_enabled = false;
