@@ -642,10 +642,7 @@ void RenderSystem::mouseClickCallbackRedirect(GLFWwindow* wnd, int button, int a
     if (renderSystem_ && renderSystem_->gameStateManager) {
         double xpos, ypos;
         glfwGetCursorPos(wnd, &xpos, &ypos);
-        int actualWidth, actualHeight;
-        glfwGetFramebufferSize(wnd, &actualWidth, &actualHeight);
-        renderSystem_->gameStateManager->on_mouse_click(button, action, glm::vec2(xpos * window_width_px / actualWidth,
-            ypos * window_height_px / actualHeight), mods);
+        renderSystem_->gameStateManager->on_mouse_click(button, action, glm::vec2(xpos, ypos), mods);
     }
 }
 
