@@ -21,6 +21,8 @@ public:
 
 	Entity SetCheckpoint(float xPos, float yPos);
 
+	Entity SetPelican(float xPos, float yPos);
+
     // for testing
 	Entity SetDoorEx(float width, float height, float xPos, float yPos);
     //

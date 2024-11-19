@@ -46,6 +46,9 @@ Entity CPEntranceRoomStrategy::execute() {
     //Entity m_ground_right = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.4f, 1.6f, 1.0f, 300.0f);
     Entity m_wall_right = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_WALL), 1.0f, 1.6f, 1.0f, 0.95f, 90.f);
 
+    // Pelican
+    Entity pelican = SetPelican(renderSystem.getWindowWidth() - 200.f, renderSystem.getWindowHeight() - 747.f);
+
     // note on bg: don't add motion
     registry.grounds.emplace(m_ground_left, std::move(Ground()));
     registry.grounds.emplace(m_wall_right, std::move(Ground()));
@@ -58,6 +61,7 @@ Entity CPEntranceRoomStrategy::execute() {
     room.insert(m_wall_right);
     room.insert(m_platform1);
     room.insert(m_platform2);
+    room.insert(pelican);
 
     registry.rooms.emplace(m_entrance_room, std::move(room));
 
@@ -999,4 +1003,29 @@ Entity RoomStrategy::SetCheckpoint(float xPos, float yPos) {
     registry.savePoints.emplace(savePoint, std::move(SavePoint()));
 
     return savePoint;
+}
+
+Entity RoomStrategy::SetPelican(float xPos, float yPos) {
+    Entity pelican;
+    Sprite pelicanSprite(renderSystem.loadTexture("PelicanIdle.png"));
+    pelicanSprite.width /= 11;
+    pelicanSprite.height /= 11;
+    registry.sprites.emplace(pelican, std::move(pelicanSprite));
+
+    // Create and initialize a TransformComponent for the spaceship
+    TransformComponent pelicanTransform;
+    pelicanTransform.position = glm::vec3(xPos, yPos, 0.0);
+    pelicanTransform.scale = glm::vec3(pelicanSprite.width, pelicanSprite.height, 1.0);
+    pelicanTransform.rotation = 0.0f;
+    registry.transforms.emplace(pelican, std::move(pelicanTransform));
+
+    Motion npcMotion;
+    npcMotion.position = glm::vec2(xPos, yPos);
+    npcMotion.scale = { pelicanSprite.width, pelicanSprite.height };
+    registry.motions.emplace(pelican, std::move(npcMotion));
+
+    // add spaceship to environment to render out later
+    Pelican pelicanNPC;
+    registry.pelican.emplace(pelican, std::move(pelicanNPC));
+    return pelican;
 }
