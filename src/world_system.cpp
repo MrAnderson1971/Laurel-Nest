@@ -735,6 +735,10 @@ void WorldSystem::handle_saving() {
                     // TODO MAYBE INSERT A SAVE SOUND
                     start_from_checkpoint = true;
                     Mix_PlayChannel(SAVE_SOUND_CHANNEL, save_sound, 0);
+                    Health& health = registry.healths.get(m_player);
+                    health.current_health = health.max_health;
+                    HealthFlask& healthFlask = registry.healthFlasks.get(m_player);
+                    healthFlask.num_uses = 3;
                     write_to_save_file();
                 }
             }
