@@ -685,7 +685,7 @@ void WorldSystem::handle_invinciblity(float deltaTime) {
 // TODO for Kuter: possibly need to add guards here once the goomba is tied to a room
 // to not step the ai of enemies in invisible rooms.
 void WorldSystem::handle_ai() {
-    AISystem::step(m_player);
+    AISystem::step(m_player, current_room);
     for (auto& e : registry.patrol_ais.entities) {
         auto& p = registry.patrol_ais.get(e);
         if (registry.motions.has(e)) {
