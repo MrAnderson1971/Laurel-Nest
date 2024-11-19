@@ -633,6 +633,8 @@ void WorldSystem::handle_collisions() {
             swordPowerUp = true;
             registry.remove_all_components_of(entity_other);
             // increase attack
+            Damage& d = registry.damages.get(m_sword);
+            d.damage_dealt = 2;
         }
 
     }
