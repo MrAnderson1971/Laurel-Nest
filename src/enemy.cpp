@@ -9,6 +9,11 @@ Enemy::Enemy() {
 	entity = Entity();
 }
 
+void Enemy::set_direction(bool dir) {
+	auto& patrol = registry.patrol_ais.get(entity);
+	patrol.movingRight = dir;
+}
+
 GoombaLand::GoombaLand() {
 	entity = Entity();
 }
@@ -64,6 +69,12 @@ void GoombaCeiling::init_components(float x, float y) {
 
 	registry.healths.emplace(entity, std::move(Health{ 3,3 }));
 	registry.damages.emplace(entity, std::move(Damage{ 1 }));
+}
+
+void GoombaCeiling::set_spit_timer(float time) {
+	ProjectileTimer& proejctile_timer = registry.projectileTimers.get(entity);
+	proejctile_timer.max_time = time;
+	proejctile_timer.elapsed_time = proejctile_timer.max_time;
 }
 
 GoombaFlying::GoombaFlying() {

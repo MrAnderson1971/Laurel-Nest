@@ -14,6 +14,8 @@ public:
 		init_components(x, y);
 	};
 
+	void set_direction(bool dir);
+
 private:
 	virtual void init_sprite() = 0;
 	virtual void init_components(float x, float y) = 0;
@@ -29,8 +31,10 @@ private:
 
 class GoombaCeiling : public Enemy {
 public:
-	float bottom_edge = 40.0f;
+	float bottom_edge = 40.f;
+	float with_platform = 37.f + bottom_edge;
 	GoombaCeiling();
+	void set_spit_timer(float time);
 private:
 	void init_sprite() override;
 	void init_components(float x, float y) override;

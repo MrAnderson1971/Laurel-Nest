@@ -587,7 +587,7 @@ void WorldSystem::handle_collisions() {
         }
 
         // Once the ceiling goomba is dead. change its sprite to the dead sprite
-        if (registry.hostiles.has(entity) && registry.hostiles.get(entity).type == HostileType::GOOMBA_CEILING && registry.grounds.has(entity_other)) {
+        if (registry.hostiles.has(entity) && registry.hostiles.get(entity).type == HostileType::GOOMBA_CEILING && !registry.healths.has(entity) && registry.grounds.has(entity_other)) {
             GoombaLogic::goomba_ceiling_splat(entity);
         }
 
