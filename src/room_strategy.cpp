@@ -412,7 +412,7 @@ Entity BMTEntranceRoomStrategy::execute() {
     room.insert(m_platform1);
     room.insert(m_platform2);
     room.insert(m_platform3);
-    room.insert(gf.entity);
+    //room.insert(gf.entity);
 
     registry.rooms.emplace(m_room, std::move(room));
 
@@ -452,6 +452,10 @@ Entity BMTRoom1Strategy::execute() {
     // ground high
     Entity m_ground2 = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.5f, 0.5f, 0.f, 500.f);
 
+    GoombaCeiling gc1 = GoombaCeiling();
+    gc1.init(renderSystem.getWindowWidth() * 1.f / 1.6f, gc1.bottom_edge);
+    gc1.set_spit_timer(1.f);
+
     // note on bg: don't add motion
     registry.grounds.emplace(m_ground1, std::move(Ground()));
     registry.grounds.emplace(m_ground2, std::move(Ground()));
@@ -470,6 +474,7 @@ Entity BMTRoom1Strategy::execute() {
     room.insert(m_platform3);
     room.insert(m_platform4);
     room.insert(m_platform5);
+    room.insert(gc1.entity);
     registry.rooms.emplace(m_room, std::move(room));
 
     return m_room;
@@ -507,15 +512,21 @@ Entity BMTRoom2Strategy::execute() {
     // ground
     Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 0.5f, 0.5f, 0.0f);
 
-    GoombaFlying gf = GoombaFlying();
-    gf.init(renderSystem.getWindowWidth() / 3.f, renderSystem.getWindowHeight() / 6.f);
+    /*GoombaFlying gf = GoombaFlying();
+    gf.init(renderSystem.getWindowWidth() / 3.f, renderSystem.getWindowHeight() / 6.f);*/
 
+    // platform 3: goomba right
+    Entity m_platform3 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.85f, 0.0f);
+
+    // platform 4: goomba left
+    Entity m_platform4 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.4f, 0.0f);
+    
     GoombaCeiling gc1 = GoombaCeiling();
-    gc1.init(renderSystem.getWindowWidth() * 0.55f, renderSystem.getWindowHeight() * 0.38f + gc1.with_platform);
+    gc1.init(renderSystem.getWindowWidth() * 0.85f, renderSystem.getWindowHeight() * 0.f + gc1.with_platform);
     gc1.set_spit_timer(1.f);
 
     GoombaCeiling gc2 = GoombaCeiling();
-    gc2.init(renderSystem.getWindowWidth() * 0.75f, renderSystem.getWindowHeight() * 0.35f + gc2.with_platform );
+    gc2.init(renderSystem.getWindowWidth() * 0.4f, renderSystem.getWindowHeight() * 0.f + gc2.with_platform );
     gc2.set_spit_timer(1.75f);
 
     // note on bg: don't add motion
@@ -523,6 +534,8 @@ Entity BMTRoom2Strategy::execute() {
     registry.grounds.emplace(m_wall, std::move(Ground()));
     registry.grounds.emplace(m_platform1, std::move(Ground()));
     registry.grounds.emplace(m_platform2, std::move(Ground()));
+    registry.grounds.emplace(m_platform3, std::move(Ground()));
+    registry.grounds.emplace(m_platform4, std::move(Ground()));
     registry.grounds.emplace(m_wall2, std::move(Ground()));
 
     room.insert(m_bg);
@@ -531,9 +544,11 @@ Entity BMTRoom2Strategy::execute() {
     room.insert(m_wall);
     room.insert(m_platform1);
     room.insert(m_platform2);
+    room.insert(m_platform3);
+    room.insert(m_platform4);
     room.insert(m_wall2);
 
-    room.insert(gf.entity);
+    //room.insert(gf.entity);
     room.insert(gc1.entity);
     room.insert(gc2.entity);
 
@@ -632,8 +647,12 @@ Entity BMTRoom4Strategy::execute() {
     // ground
     Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.4f, 0.4f, 0.8f, 0.f);
 
-    GoombaFlying gf1 = GoombaFlying();
-    gf1.init(renderSystem.getWindowWidth() * 4.f/ 5.f, renderSystem.getWindowHeight() / 8.f);
+    /*GoombaFlying gf1 = GoombaFlying();
+    gf1.init(renderSystem.getWindowWidth() * 4.f/ 5.f, renderSystem.getWindowHeight() / 8.f);*/
+    GoombaCeiling gc1 = GoombaCeiling();
+    gc1.init(renderSystem.getWindowWidth() * 1.f / 2.1f, gc1.bottom_edge);
+    gc1.set_spit_timer(1.f);
+    
 
     // note on bg: don't add motion
     registry.grounds.emplace(m_ground, std::move(Ground()));
@@ -657,7 +676,8 @@ Entity BMTRoom4Strategy::execute() {
     room.insert(m_platform6);
     room.insert(m_platform7);
     room.insert(m_platform8);
-    room.insert(gf1.entity);
+    //room.insert(gf1.entity);
+    room.insert(gc1.entity);
 
     registry.rooms.emplace(m_room, std::move(room));
 
