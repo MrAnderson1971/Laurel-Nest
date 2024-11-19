@@ -116,6 +116,7 @@ void WorldSystem::init() {
     // Create a new entity and register it in the ECSRegistry
     isChickenDead = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::IS_CHICKEN_DEAD), false);
     heartPowerUp = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::HEART_POWER_UP), false);
+    saved_this_instance = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::SAVED_THIS_INSTANCE), false);
     //TODO: sword
 
     start_from_checkpoint = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::START_FROM_CHECKPOINT),false);
@@ -735,10 +736,14 @@ void WorldSystem::handle_saving() {
                     // TODO MAYBE INSERT A SAVE SOUND
                     start_from_checkpoint = true;
                     Mix_PlayChannel(SAVE_SOUND_CHANNEL, save_sound, 0);
-                    Health& health = registry.healths.get(m_player);
-                    health.current_health = health.max_health;
-                    HealthFlask& healthFlask = registry.healthFlasks.get(m_player);
-                    healthFlask.num_uses = 3;
+                    if (!saved_this_instance) {
+                        Health& health = registry.healths.get(m_player);
+                        health.current_health = health.max_health;
+                        HealthFlask& healthFlask = registry.healthFlasks.get(m_player);
+                        healthFlask.num_uses = 3;
+                        saved_this_instance = true;
+                    }
+                   
                     write_to_save_file();
                 }
             }
@@ -1328,6 +1333,8 @@ void WorldSystem::write_to_save_file() {
 
         // Line 5:
         saveFile << BoolToString(start_from_checkpoint) << "\n";
+
+        saveFile << BoolToString(saved_this_instance) << "\n";
 
         saveFile.close();
         std::cout << "Saved \n";

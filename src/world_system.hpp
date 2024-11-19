@@ -112,6 +112,7 @@ private:
 	int pelicanIndex = 0;
 
 	bool do_save = false;
+	bool saved_this_instance;
 
 	void write_to_save_file();
 
