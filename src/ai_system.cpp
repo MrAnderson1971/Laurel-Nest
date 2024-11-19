@@ -146,13 +146,6 @@ void AISystem::flying_goomba_step(Entity player, Entity current_room, float elap
                                     fg_state.current_state = FlyingGoombaState::FLYING_GOOMBA_CHARGE;
                                     flyingGoomba_Animation.setState(FlyingGoombaState::FLYING_GOOMBA_CHARGE);
                                     flying_goomba_charge(flyingGoombaMotion, playerMotion);
-                                    group_detection = true;
-                                    can_charge_timer = 0.5f;
-                                    if(count == 1){
-                                        second_charge = 0;
-                                    }else{
-                                        second_charge = 1;
-                                    }
                                 }
                                 else {
                                     flyingGoomba_Animation.setState(FlyingGoombaState::FLYING_GOOMBA_IDLE);

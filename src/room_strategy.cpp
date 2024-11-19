@@ -655,9 +655,9 @@ Entity BMTRoom4Strategy::execute() {
     gc1.init(renderSystem.getWindowWidth() * 1.f / 4.f, gc1.bottom_edge);
     gc1.set_spit_timer(2.f);
 
-    GoombaCeiling gc2 = GoombaCeiling();
-    gc2.init(renderSystem.getWindowWidth() * 2.f / 4.f, gc2.bottom_edge);
-    gc2.set_spit_timer(1.25f);
+//    GoombaCeiling gc2 = GoombaCeiling();
+//    gc2.init(renderSystem.getWindowWidth() * 2.f / 4.f, gc2.bottom_edge);
+//    gc2.set_spit_timer(1.25f);
 
     GoombaCeiling gc3 = GoombaCeiling();
     gc3.init(renderSystem.getWindowWidth() * 3.f / 4.f, gc3.bottom_edge);
@@ -687,7 +687,7 @@ Entity BMTRoom4Strategy::execute() {
     room.insert(m_platform7);
     room.insert(m_platform8);
     room.insert(gc1.entity);
-    room.insert(gc2.entity);
+    //room.insert(gc2.entity);
     room.insert(gc3.entity);
 
     registry.rooms.emplace(m_room, std::move(room));
