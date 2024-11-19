@@ -523,6 +523,60 @@ void RenderSystem::drawEntity(const Sprite& sprite, const TransformComponent& tr
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
+std::future<Image> loadImageData(const std::string& filePath, std::atomic<int>& count) {
+    return std::async(std::launch::async, [filePath, &count]() {
+        int width, height, nrChannels;
+        unsigned char* data = stbi_load(textures_path(filePath).c_str(), &width, &height, &nrChannels, 0);
+        if (!data) {
+            std::cerr << "Failed to load texture at path: " << filePath << std::endl;
+            return Image{0, 0, 0, nullptr};
+        }
+        count++;
+        return Image{ width, height, nrChannels, data };
+        });
+}
+
+Sprite bindTexture(const Image& image) {
+    GLuint textureID;
+    glGenTextures(1, &textureID);
+
+    int width = image.width;
+    int height = image.height;
+    int nrChannels = image.nrChannels;
+    unsigned char* data = image.data;
+    if (data)
+    {
+        GLenum format = GL_RGB;
+        if (nrChannels == 1) {
+            format = GL_RED;
+        }
+        else if (nrChannels == 3) {
+            format = GL_RGB;
+        }
+        else if (nrChannels == 4) {
+            format = GL_RGBA;
+        }
+
+        glBindTexture(GL_TEXTURE_2D, textureID);
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        // Set texture parameters
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    }
+    else
+    {
+        std::cerr << "Failed to load texture" << std::endl;
+        glDeleteTextures(1, &textureID);
+        textureID = 0;
+    }
+
+    return Sprite{ textureID, static_cast<float>(width), static_cast<float>(height) };
+}
+
 Sprite RenderSystem::loadTexture(const std::string& filePath)
 {
     GLuint textureID;
