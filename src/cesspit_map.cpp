@@ -40,13 +40,13 @@ void Cesspit::init() {
 
     setRoomStrategy(std::make_unique<CPExitRoomStrategy>());
     m_exit_room = currentRoom->execute();
-    start_room = m_exit_room;
-    /*if (start_from_checkpoint) {
+    //start_room = m_exit_room;
+    if (start_from_checkpoint) {
         start_room = m_exit_room;
     }
     else {
         start_room = m_entrance_room;
-    }*/
+    }
     
 
     // set up all doors
