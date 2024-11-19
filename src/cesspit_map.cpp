@@ -132,7 +132,11 @@ Connection Cesspit::SetDoor(float width, float height, float xPos, float yPos, E
 
     // Create and initialize a Motion component for the platform
     Motion doorMotion;
-    doorMotion.position = glm::vec2(renderSystem.getWindowWidth() * xPos, renderSystem.getWindowHeight() * yPos);
+    if (yPos == 0.f) {
+        doorMotion.position = glm::vec2(renderSystem.getWindowWidth() * xPos, renderSystem.getWindowHeight() * yPos + 10.f);
+    } else {
+        doorMotion.position = glm::vec2(renderSystem.getWindowWidth() * xPos, renderSystem.getWindowHeight() * yPos);
+    }
     doorMotion.velocity = glm::vec2(0, 0);
     doorMotion.scale = { width, height };
     registry.motions.emplace(m_door, std::move(doorMotion));

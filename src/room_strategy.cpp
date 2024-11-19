@@ -315,10 +315,10 @@ Entity CPExitRoomStrategy::execute() {
     Entity m_platform5 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.38f, 0.4f);
 
     // platform 6: top right barrier
-    Entity m_platform6 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.3f, 0.2f, 0.75f, 0.f);
+    Entity m_platform6 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.3f, 0.3f, 0.75f, 0.f);
 
     // platform 7: top left barrier
-    Entity m_platform7 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.3f, 0.2f, 0.25f, 0.f);
+    Entity m_platform7 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.3f, 0.3f, 0.25f, 0.f);
 
     // TODO
     // left wall
