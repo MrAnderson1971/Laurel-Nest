@@ -105,6 +105,8 @@ void WorldSystem::init() {
     // Create a new entity and register it in the ECSRegistry
     isChickenDead = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::IS_CHICKEN_DEAD), false);
     heartPowerUp = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::HEART_POWER_UP), false);
+    //TODO: sword
+
     start_from_checkpoint = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::START_FROM_CHECKPOINT),false);
     // Player
 
@@ -201,7 +203,7 @@ void WorldSystem::init() {
     regionManager->init();
     current_room = regionManager->setRegion(makeRegion<Cesspit>);
     //testing bmt
-    //current_room = regionManager->setRegion(makeRegion<Birdmantown>);
+    current_room = regionManager->setRegion(makeRegion<Birdmantown>);
     next_map = regionManager->setRegion(makeRegion<Birdmantown>);
     physics.setRoom(current_room);
 
@@ -209,6 +211,12 @@ void WorldSystem::init() {
     if (heartPowerUp) {
        registry.remove_all_components_of(registry.heartPowerUp.entities[0]);
     }
+
+    //TODO: sword
+    /*if (swordPowerUp) {
+        registry.remove_all_components_of(registry.swordPowerUp.entities[0]);
+    }*/
+    
 
     // esc instruction sprite
     Sprite escSprite(renderSystem.loadTexture("tutorial/esc_key.PNG"));
@@ -618,6 +626,13 @@ void WorldSystem::handle_collisions() {
             HealthFlask& health_flask = registry.healthFlasks.get(m_player);
             health_flask.num_uses = 3;
 
+        }
+
+        // TODO: sword
+        if (registry.players.has(entity) && registry.swordPowerUp.has(entity_other)) {
+            swordPowerUp = true;
+            registry.remove_all_components_of(entity_other);
+            // increase attack
         }
 
     }
@@ -1182,6 +1197,8 @@ void WorldSystem::write_to_save_file() {
 
         // Line 3:
         saveFile << BoolToString(heartPowerUp) << "\n";
+
+        //TODO: sword
 
         // Line 4:
         saveFile << BoolToString(isChickenDead) << "\n";
