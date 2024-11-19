@@ -201,10 +201,10 @@ void WorldSystem::init() {
      
     // Initialize the region
     regionManager->init();
-    //current_room = regionManager->setRegion(makeRegion<Cesspit>);
+    current_room = regionManager->setRegion(makeRegion<Cesspit>);
     //testing bmt
-    current_room = regionManager->setRegion(makeRegion<Birdmantown>);
-    //next_map = regionManager->setRegion(makeRegion<Birdmantown>);
+    //current_room = regionManager->setRegion(makeRegion<Birdmantown>);
+    next_map = regionManager->setRegion(makeRegion<Birdmantown>);
     physics.setRoom(current_room);
 
     // TODO LATER: Somehow differentiate between heart power ups if we are going to have multiple

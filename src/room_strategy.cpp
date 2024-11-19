@@ -91,7 +91,7 @@ Entity CPRoom1Strategy::execute() {
     
 
     GoombaLand g1 = GoombaLand();
-    g1.init(renderSystem.getWindowWidth() / 2.0f, 50.f);
+    g1.init(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight()* 4.f / 5.f);
 
     room.insert(m_bg);
     room.insert(m_ceiling);
@@ -143,6 +143,7 @@ Entity CPRoom2Strategy::execute() {
     // Ceiling Goomba
     GoombaCeiling g1 = GoombaCeiling();
     g1.init(renderSystem.getWindowWidth() / 2.0f, g1.bottom_edge);
+    g1.set_spit_timer(1.f);
 
     room.insert(m_bg);
     room.insert(m_ceiling);
@@ -242,10 +243,11 @@ Entity CPRoom4Strategy::execute() {
     // Goombas
     GoombaCeiling g = GoombaCeiling();
     g.init(renderSystem.getWindowWidth() / 2.0f, g.bottom_edge);
+    g.set_spit_timer(1.f);
     GoombaLand g2 = GoombaLand();
-    g2.init(renderSystem.getWindowWidth() / 2.0f, 50.f);
+    g2.init(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() * 4.f / 5.f);
     GoombaLand g3 = GoombaLand();
-    g3.init(renderSystem.getWindowWidth() * 1.f, 50.f);
+    g3.init(renderSystem.getWindowWidth() * 1.f, renderSystem.getWindowHeight() * 4.f / 5.f);
 
 
     room.insert(m_bg);
@@ -390,7 +392,7 @@ Entity BMTEntranceRoomStrategy::execute() {
     Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.f, 1.0f, 0.5f, 0.7f, 0.0f);
 
     GoombaFlying gf = GoombaFlying();
-    gf.init(renderSystem.getWindowWidth() / 5.f, renderSystem.getWindowHeight() / 5.f);
+    gf.init(renderSystem.getWindowWidth() / 5.f, renderSystem.getWindowHeight() / 6.f);
 
     // note on bg: don't add motion
     registry.grounds.emplace(m_ground, std::move(Ground()));
