@@ -400,7 +400,12 @@ void WorldSystem::handle_motions(float deltaTime) {
                 float mp_xpos = window_width_px;
                 float mp_ypos = window_height_px;
                 if (mp.vertical) {
-                    if (m.position.y < (mp.startPos.y * mp_ypos) || m.position.y > (mp.endPos.y * mp_ypos)) m.velocity *= -1.f;
+                    if (m.position.y < (mp.startPos.y * mp_ypos)) { 
+                        m.velocity.y = std::abs(m.velocity.y); 
+                    }
+                    else if (m.position.y > (mp.endPos.y * mp_ypos)) {
+                        m.velocity.y = -std::abs(m.velocity.y);
+                    }
                 }
                 else {
                     if (m.position.x < (mp.startPos.x * mp_xpos) || m.position.x > (mp.endPos.x * mp_xpos)) m.velocity *= -1.f;
