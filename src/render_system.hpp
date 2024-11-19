@@ -84,7 +84,7 @@ private:
     float frameTime;
     // FPS at 333 is kinda trash but on average, FPS is below 333, 
     // FPS at 334 can make it spike to 500, but on average is above 334
-    const Uint32 maxFPS = 240;
+    const Uint32 maxFPS = 360;
 
     void calculateFPS();
 
