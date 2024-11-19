@@ -53,6 +53,15 @@ WorldSystem::WorldSystem() {
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::CEILING_HIT, renderSystem.loadTexture("ceiling_hit.png"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::CEILING_IDLE, renderSystem.loadTexture("ceiling_idle.png"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::CEILING_SPIT, renderSystem.loadTexture("ceiling_spit.png"));
+
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::BIRDMAN_CHARGE, renderSystem.loadTexture("birdman_charge.PNG"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::BIRDMAN_DEAD, renderSystem.loadTexture("birdman_dead.PNG"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::BIRDMAN_FLY1, renderSystem.loadTexture("birdman_fly1.PNG"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::BIRDMAN_FLY2, renderSystem.loadTexture("birdman_fly2.PNG"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::BIRDMAN_FLY3, renderSystem.loadTexture("birdman_fly3.PNG"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::BIRDMAN_FLY4, renderSystem.loadTexture("birdman_fly4.PNG"));
+    temp_texture_paths.emplace(TEXTURE_ASSET_ID::BIRDMAN_HIT, renderSystem.loadTexture("birdman_hit.PNG"));
+
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::SPLASH_SCREEN, renderSystem.loadTexture("splash_screen.png"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::DEMO_GROUND, renderSystem.loadTexture("demo_ground.png"));
     temp_texture_paths.emplace(TEXTURE_ASSET_ID::DEMO_WALL, renderSystem.loadTexture("demo_wall.png"));
@@ -155,20 +164,20 @@ void WorldSystem::init() {
     Sprite idleSprite = g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_WALK_3);
 
     playerAnimations.addState(PlayerState::WALKING, std::vector<Sprite> {
-        g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_WALK_1),
+            g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_WALK_1),
             g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_WALK_2),
             g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_WALK_3),
             g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_WALK_4),
     });
     playerAnimations.addState(PlayerState::IDLE, std::vector<Sprite>{idleSprite});
     playerAnimations.addState(PlayerState::JUMPING, std::vector<Sprite> {
-        g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_JUMP_1),
+            g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_JUMP_1),
             g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_JUMP_2),
             g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_JUMP_3),
             g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_JUMP_4),
     });
     playerAnimations.addState(PlayerState::ATTACKING, std::vector<Sprite> {
-        g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_ATTACK_1),
+            g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_ATTACK_1),
             g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_ATTACK_2),
             g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_ATTACK_3),
             g_texture_paths->at(TEXTURE_ASSET_ID::PLAYER_ATTACK_4),
@@ -257,6 +266,7 @@ void WorldSystem::update(float deltaTime) {
 
     GoombaLogic::update_goomba_projectile_timer(deltaTime, current_room);
     GoombaLogic::update_damaged_goomba_sprites(deltaTime);
+    AISystem::flying_goomba_step(m_player, current_room, deltaTime);
     BossAISystem::step(m_player, deltaTime);
     BossAISystem::update_damaged_chicken_sprites(deltaTime);
 
@@ -549,6 +559,19 @@ void WorldSystem::handle_collisions() {
             }
         }
 
+        // change the flying goomba's animation when it impacts the ground
+        if (registry.hostiles.has(entity) && registry.hostiles.get(entity).type == HostileType::GOOMBA_FLYING 
+            && registry.healths.has(entity) && registry.grounds.has(entity_other)) {
+            auto& goombaFlyingAnimation = registry.flyingGoombaAnimations.get(entity);
+            goombaFlyingAnimation.setState(FlyingGoombaState::FLYING_GOOMBA_IDLE);
+            GoombaFlyingState& g_state = registry.goombaFlyingStates.get(entity);
+            g_state.current_state = FlyingGoombaState::FLYING_GOOMBA_IDLE;
+            g_state.animationDone = true;
+            Motion& g_motion = registry.motions.get(entity);
+            g_motion.scale = GOOMBA_FLYING_FLY_SCALE;
+            g_motion.velocity.x = g_motion.old_velocity.x;
+        }
+
         if (registry.players.has(entity) && registry.damages.has(entity_other)) {
             if (registry.projectiles.has(entity_other) && registry.projectiles.get(entity_other).type == ProjectileType::FIREBALL) {
                 continue;
@@ -609,7 +632,7 @@ void WorldSystem::handle_collisions() {
         }
 
         // Once the ceiling goomba is dead. change its sprite to the dead sprite
-        if (registry.projectileTimers.has(entity) && registry.grounds.has(entity_other)) {
+        if (registry.hostiles.has(entity) && registry.hostiles.get(entity).type == HostileType::GOOMBA_CEILING && !registry.healths.has(entity) && registry.grounds.has(entity_other)) {
             GoombaLogic::goomba_ceiling_splat(entity);
         }
 
@@ -718,6 +741,56 @@ void WorldSystem::handle_saving() {
     do_save = false;
 }
 
+// move this elsewhere later
+std::string dialogue[7] = { "You, you! You're not a bird?",
+"Seeking the Crown of Claws, hmm?",
+"But the Chiken Clan left us.",
+"Everything below is covered in poop.",
+"The sewers overflow, and the bird yearn for flesh.",
+"Hahahaha!",
+"..."};
+
+// npc stuff // TODO KUTER
+void WorldSystem::handle_pelican() {
+    // check if plaican is alive?
+    if (!registry.rooms.has(current_room)) {
+        return;
+    }
+    Room& room = registry.rooms.get(current_room);
+    for (Entity sp : registry.pelican.entities) {
+        if (room.has(sp)) {
+            // check if the player is within range of the savepoint
+            Motion player_motion = registry.motions.get(m_player);
+            Motion pelican_point_motion = registry.motions.get(sp);
+            float  pelican_point_lower_bound_x = pelican_point_motion.position.x - pelican_point_motion.scale.x;
+            float pelican_point_upper_bound_x = pelican_point_motion.position.x + pelican_point_motion.scale.x;
+            float pelican_point_lower_bound_y = pelican_point_motion.position.y - pelican_point_motion.scale.y;
+            float pelican_point_upper_bound_y = pelican_point_motion.position.y + pelican_point_motion.scale.y;
+            if (pelican_point_lower_bound_x <= player_motion.position.x && player_motion.position.x < pelican_point_upper_bound_x
+                && pelican_point_lower_bound_y < player_motion.position.y && player_motion.position.y < pelican_point_upper_bound_y) {
+                if (pelican_talk) {
+                    double position_x = pelican_point_motion.position.x - 300.f;
+                    double position_y = pelican_point_motion.position.y + 550.f;
+
+                    // draw box, init in world_init
+                    // save dialogue of pelican in an array
+                    // have  an index
+                    // print from the array, increase index
+                    // if chicken is dead index can increase more
+
+
+                    renderSystem.renderText(dialogue[pelicanIndex], static_cast<float>(position_x), static_cast<float>(position_y),
+                        0.5f, font_color, font_trans);
+                }
+            }
+            else {
+                pelican_talk = false;
+            }
+        }
+    }
+    //pelican_talk = false;
+}
+
 void WorldSystem::render() {
     glClearColor(0.2f, 0.2f, 0.8f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -760,6 +833,30 @@ void WorldSystem::render() {
             }
         }
 
+        // TODO KUTER
+        // Draw npcs
+        if (registry.pelican.has(obj) && registry.transforms.has(obj) && registry.sprites.has(obj)) {
+            auto& transform = registry.transforms.get(obj);
+            auto& sprite = registry.sprites.get(obj);
+            renderSystem.drawEntity(sprite, transform);
+
+            // check if the player is within range of the savepoint
+            Motion player_motion = registry.motions.get(m_player);
+            Motion npc_point_motion = registry.motions.get(obj);
+            float npc_point_lower_bound_x = npc_point_motion.position.x - npc_point_motion.scale.x;
+            float npc_point_upper_bound_x = npc_point_motion.position.x + npc_point_motion.scale.x;
+            float npc_point_lower_bound_y = npc_point_motion.position.y - npc_point_motion.scale.y;
+            float npc_point_upper_bound_y = npc_point_motion.position.y + npc_point_motion.scale.y;
+            if (npc_point_lower_bound_x <= player_motion.position.x && player_motion.position.x < npc_point_upper_bound_x
+                && npc_point_lower_bound_y < player_motion.position.y && player_motion.position.y < npc_point_upper_bound_y) {
+                double position_x = npc_point_motion.position.x - 100.f;
+                double position_y = npc_point_motion.position.y + 300.f;
+                renderSystem.renderText("Press T to talk", static_cast<float>(position_x), static_cast<float>(position_y),
+                    0.5f, font_color, font_trans);
+            }
+        }
+
+        GoombaLogic::goomba_flying_render(obj);
 
         // Draw the goombas
         if (registry.hostiles.has(obj) && registry.transforms.has(obj) && registry.sprites.has(obj))
@@ -767,8 +864,8 @@ void WorldSystem::render() {
             auto& transform = registry.transforms.get(obj);
             auto& sprite = registry.sprites.get(obj);
             renderSystem.drawEntity(sprite, transform);
-
         }
+
 
         // Draw Bosses
         if (registry.bosses.has(obj)) {
@@ -820,6 +917,8 @@ void WorldSystem::render() {
             }
         }
     }
+
+    handle_pelican();
 
     // lower left instructions to open pause menue
     renderSystem.drawEntity(registry.sprites.get(m_esc), registry.transforms.get(m_esc));
@@ -916,6 +1015,16 @@ void WorldSystem::processPlayerInput(int key, int action) {
     // Press V to save
     if (action == GLFW_PRESS && key == GLFW_KEY_V) {
         do_save = true;
+    }
+
+    // Press T to talk
+    if (action == GLFW_PRESS && key == GLFW_KEY_T) {
+        if (pelican_talk && pelicanIndex < 6) {
+            pelicanIndex++;
+        }
+        else if (pelicanIndex >= 6 || pelican_talk == false) {
+            pelican_talk = !pelican_talk;
+        }
     }
 }
 

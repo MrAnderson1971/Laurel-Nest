@@ -33,8 +33,10 @@ public:
     ComponentContainer<std::vector<Sprite>> heartSprites;
     ComponentContainer<RenderRequest> renderRequests; 
     ComponentContainer<ScreenState> screenStates;
+    ComponentContainer<GoombaFlyingState> goombaFlyingStates;
     ComponentContainer<Animation<PlayerState>> playerAnimations;
     ComponentContainer<Animation<ChickenState>> chickenAnimations;
+    ComponentContainer<Animation<FlyingGoombaState>> flyingGoombaAnimations;
     ComponentContainer<Gravity> gravity;
     ComponentContainer<Patrol_AI> patrol;
     ComponentContainer<BoundingBox> bounding_box;
@@ -43,6 +45,8 @@ public:
     ComponentContainer<Ground> grounds;
     ComponentContainer<MovingPlatform> movingPlatform;
     ComponentContainer<Patrol_AI> patrol_ais;
+
+    ComponentContainer<Pelican> pelican;
 
     ComponentContainer<Room> rooms;
     ComponentContainer<Connection> doors;
@@ -55,6 +59,7 @@ public:
     // IMPORTANT: Don't forget to add any newly added containers!
     ECSRegistry()
     {
+        registry_list.push_back(&goombaFlyingStates);
         registry_list.push_back(&savePoints);
         registry_list.push_back(&healths);
         registry_list.push_back(&healthFlasks);
@@ -79,6 +84,7 @@ public:
         registry_list.push_back(&screenStates);
         registry_list.push_back(&playerAnimations);
         registry_list.push_back(&chickenAnimations);
+        registry_list.push_back(&flyingGoombaAnimations);
         registry_list.push_back(&gravity);
         registry_list.push_back(&patrol);
         registry_list.push_back(&bounding_box);
@@ -92,6 +98,7 @@ public:
         registry_list.push_back(&heartPowerUp);
         registry_list.push_back(&swordPowerUp);
         registry_list.push_back(&menuItems);
+        registry_list.push_back(&pelican);
     }
 
     void clear_all_components() {

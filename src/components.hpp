@@ -44,6 +44,19 @@ enum ChickenState {
     CHICKEN_DEATH
 };
 
+enum FlyingGoombaState {
+    FLYING_GOOMBA_IDLE,
+    FLYING_GOOMBA_CHARGE,
+    FLYING_GOOMBA_HIT,
+    FLYING_GOOMBA_DEAD
+};
+
+enum class HostileType {
+    GOOMBA_LAND,
+    GOOMBA_CEILING,
+    GOOMBA_FLYING,
+};
+
 /* Template Animation component for animated sprites
 Each supports different animation states, such as walking, jumping, etc.
 */
@@ -98,6 +111,7 @@ struct Motion {
     vec2 position;
     float angle = 0;
     vec2 velocity = { 0, 0 };
+    vec2 old_velocity = { 0, 0 };
     vec2 scale = { 0, 0 };
     vec2 acceleration = { 0, 0 };
     boost::optional<vec2> boundingBox;
@@ -147,6 +161,10 @@ struct SavePoint
 
 };
 
+struct Pelican {
+    bool isAlive;
+};
+
 // A timer that will be associated to when the player can get damaged again 
 struct InvincibilityTimer
 {
@@ -162,6 +180,15 @@ struct ProjectileTimer
 enum class ProjectileType {
     FIREBALL,
     SPIT
+};
+
+struct GoombaFlyingState {
+    FlyingGoombaState current_state;
+    FlyingGoombaState last_state;
+    bool detectedPlayer = false;
+    bool can_charge = false;
+    bool animationDone = false;
+    float idle_flying_altitude;
 };
 
 struct Projectile
@@ -180,10 +207,12 @@ struct Weapon
 };
 
 
+
+
 // anything that is hostile to the player
 struct Hostile
 {
-
+    HostileType type;
 };
 
 enum class BoxType {
@@ -316,11 +345,11 @@ enum class TEXTURE_ASSET_ID {
     BMT_BG,                               // BMTown_bg.PNG
     BIRDMAN_CHARGE,
     BIRDMAN_DEAD,
+    BIRDMAN_HIT,
     BIRDMAN_FLY1,
     BIRDMAN_FLY2,
     BIRDMAN_FLY3,
     BIRDMAN_FLY4,
-    BIRDMAN_HIT,
     CHECKPOINT,
     LN_THRONE_BG,                         // LNThrone_bg.PNG
     LN_BG,                                // LN_bg.PNG

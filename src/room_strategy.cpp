@@ -46,6 +46,9 @@ Entity CPEntranceRoomStrategy::execute() {
     //Entity m_ground_right = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.4f, 1.6f, 1.0f, 300.0f);
     Entity m_wall_right = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_WALL), 1.0f, 1.6f, 1.0f, 0.95f, 90.f);
 
+    // Pelican
+    Entity pelican = SetPelican(renderSystem.getWindowWidth() - 200.f, renderSystem.getWindowHeight() - 747.f);
+
     // note on bg: don't add motion
     registry.grounds.emplace(m_ground_left, std::move(Ground()));
     registry.grounds.emplace(m_wall_right, std::move(Ground()));
@@ -58,6 +61,7 @@ Entity CPEntranceRoomStrategy::execute() {
     room.insert(m_wall_right);
     room.insert(m_platform1);
     room.insert(m_platform2);
+    room.insert(pelican);
 
     registry.rooms.emplace(m_entrance_room, std::move(room));
 
@@ -91,7 +95,7 @@ Entity CPRoom1Strategy::execute() {
     
 
     GoombaLand g1 = GoombaLand();
-    g1.init(renderSystem.getWindowWidth() / 2.0f, 50.f);
+    g1.init(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight()* 4.f / 5.f);
 
     room.insert(m_bg);
     room.insert(m_ceiling);
@@ -143,6 +147,7 @@ Entity CPRoom2Strategy::execute() {
     // Ceiling Goomba
     GoombaCeiling g1 = GoombaCeiling();
     g1.init(renderSystem.getWindowWidth() / 2.0f, g1.bottom_edge);
+    g1.set_spit_timer(1.f);
 
     room.insert(m_bg);
     room.insert(m_ceiling);
@@ -242,10 +247,11 @@ Entity CPRoom4Strategy::execute() {
     // Goombas
     GoombaCeiling g = GoombaCeiling();
     g.init(renderSystem.getWindowWidth() / 2.0f, g.bottom_edge);
+    g.set_spit_timer(1.f);
     GoombaLand g2 = GoombaLand();
-    g2.init(renderSystem.getWindowWidth() / 2.0f, 50.f);
+    g2.init(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() * 4.f / 5.f);
     GoombaLand g3 = GoombaLand();
-    g3.init(renderSystem.getWindowWidth() * 1.f, 50.f);
+    g3.init(renderSystem.getWindowWidth() * 1.f, renderSystem.getWindowHeight() * 4.f / 5.f);
 
 
     room.insert(m_bg);
@@ -391,6 +397,9 @@ Entity BMTEntranceRoomStrategy::execute() {
     // ground
     Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 0.5f, 0.7f, 0.0f);
 
+    GoombaFlying gf = GoombaFlying();
+    gf.init(renderSystem.getWindowWidth() / 5.f, renderSystem.getWindowHeight() / 6.f);
+
     // note on bg: don't add motion
     registry.grounds.emplace(m_ground, std::move(Ground()));
     registry.grounds.emplace(m_platform1, std::move(Ground()));
@@ -403,6 +412,7 @@ Entity BMTEntranceRoomStrategy::execute() {
     room.insert(m_platform1);
     room.insert(m_platform2);
     room.insert(m_platform3);
+    room.insert(gf.entity);
 
     registry.rooms.emplace(m_room, std::move(room));
 
@@ -497,6 +507,17 @@ Entity BMTRoom2Strategy::execute() {
     // ground
     Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 0.5f, 0.5f, 0.0f);
 
+    GoombaFlying gf = GoombaFlying();
+    gf.init(renderSystem.getWindowWidth() / 3.f, renderSystem.getWindowHeight() / 6.f);
+
+    GoombaCeiling gc1 = GoombaCeiling();
+    gc1.init(renderSystem.getWindowWidth() * 0.55f, renderSystem.getWindowHeight() * 0.38f + gc1.with_platform);
+    gc1.set_spit_timer(1.f);
+
+    GoombaCeiling gc2 = GoombaCeiling();
+    gc2.init(renderSystem.getWindowWidth() * 0.75f, renderSystem.getWindowHeight() * 0.35f + gc2.with_platform );
+    gc2.set_spit_timer(1.75f);
+
     // note on bg: don't add motion
     registry.grounds.emplace(m_ground, std::move(Ground()));
     registry.grounds.emplace(m_wall, std::move(Ground()));
@@ -511,6 +532,10 @@ Entity BMTRoom2Strategy::execute() {
     room.insert(m_platform1);
     room.insert(m_platform2);
     room.insert(m_wall2);
+
+    room.insert(gf.entity);
+    room.insert(gc1.entity);
+    room.insert(gc2.entity);
 
     registry.rooms.emplace(m_room, std::move(room));
 
@@ -536,6 +561,25 @@ Entity BMTRoom3Strategy::execute() {
     // ground
     Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 0.5f, 0.5f, 0.0f);
 
+    GoombaFlying gf1= GoombaFlying();
+    gf1.init(renderSystem.getWindowWidth()/3.f, renderSystem.getWindowHeight()/3.f);
+
+    GoombaFlying gf2 = GoombaFlying();
+    gf2.init(renderSystem.getWindowWidth() * 2.f / 3.f, renderSystem.getWindowHeight() / 3.f);
+    gf2.set_direction(false);
+
+    GoombaCeiling gc1 = GoombaCeiling();
+    gc1.init(renderSystem.getWindowWidth() * 1.f / 4.f, gc1.bottom_edge);
+    gc1.set_spit_timer(1.f);
+
+    GoombaCeiling gc2 = GoombaCeiling();
+    gc2.init(renderSystem.getWindowWidth() * 2.f / 4.f, gc2.bottom_edge);
+    gc2.set_spit_timer(1.25f);
+
+    GoombaCeiling gc3 = GoombaCeiling();
+    gc3.init(renderSystem.getWindowWidth() * 3.f / 4.f, gc3.bottom_edge);
+    gc3.set_spit_timer(1.5f);
+
     // note on bg: don't add motion
     registry.grounds.emplace(m_ground, std::move(Ground()));
 
@@ -546,6 +590,11 @@ Entity BMTRoom3Strategy::execute() {
     room.insert(m_ceiling);
     room.insert(m_ground);
     room.insert(m_sword);
+    room.insert(gf1.entity);
+    room.insert(gf2.entity);
+    room.insert(gc1.entity);
+    room.insert(gc2.entity);
+    room.insert(gc3.entity);
 
     registry.rooms.emplace(m_room, std::move(room));
 
@@ -591,6 +640,9 @@ Entity BMTRoom4Strategy::execute() {
     // ground
     Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.4f, 0.4f, 0.8f, 0.f);
 
+    GoombaFlying gf1 = GoombaFlying();
+    gf1.init(renderSystem.getWindowWidth() * 4.f/ 5.f, renderSystem.getWindowHeight() / 8.f);
+
     // note on bg: don't add motion
     registry.grounds.emplace(m_ground, std::move(Ground()));
     registry.grounds.emplace(m_platform1, std::move(Ground()));
@@ -613,6 +665,7 @@ Entity BMTRoom4Strategy::execute() {
     room.insert(m_platform6);
     room.insert(m_platform7);
     room.insert(m_platform8);
+    room.insert(gf1.entity);
 
     registry.rooms.emplace(m_room, std::move(room));
 
@@ -652,12 +705,33 @@ Entity LNRoom1Strategy::execute() {
     // ground
     Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 0.5f, 0.7f, 0.0f);
 
+    GoombaCeiling gc1 = GoombaCeiling();
+    gc1.init(static_cast<float>(renderSystem.getWindowWidth() * 0.4), gc1.bottom_edge);
+    gc1.set_spit_timer(0.5f);
+
+    GoombaCeiling gc2 = GoombaCeiling();
+    gc2.init(static_cast<float>(renderSystem.getWindowWidth() * 0.55), gc2.bottom_edge);
+    gc2.set_spit_timer(0.6f);
+
+    GoombaCeiling gc3 = GoombaCeiling();
+    gc3.init(static_cast<float>(renderSystem.getWindowWidth() * 0.7), gc3.bottom_edge);
+    gc3.set_spit_timer(0.7f);
+
+    GoombaCeiling gc4 = GoombaCeiling();
+    gc4.init(static_cast<float>(renderSystem.getWindowWidth() * 0.85), gc4.bottom_edge);
+    gc4.set_spit_timer(0.8f);
+
     // note on bg: don't add motion
     registry.grounds.emplace(m_ground, std::move(Ground()));
 
     room.insert(m_bg);
     room.insert(m_ceiling);
     room.insert(m_ground);
+
+    room.insert(gc1.entity);
+    room.insert(gc2.entity);
+    room.insert(gc3.entity);
+    room.insert(gc4.entity);
 
     // testing pos
     //Entity m_pos = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DOOR), 0.03f, 0.4f, 1.f, 0.7f);
@@ -937,4 +1011,29 @@ Entity RoomStrategy::SetCheckpoint(float xPos, float yPos) {
     registry.savePoints.emplace(savePoint, std::move(SavePoint()));
 
     return savePoint;
+}
+
+Entity RoomStrategy::SetPelican(float xPos, float yPos) {
+    Entity pelican;
+    Sprite pelicanSprite(renderSystem.loadTexture("PelicanIdle.png"));
+    pelicanSprite.width /= 11;
+    pelicanSprite.height /= 11;
+    registry.sprites.emplace(pelican, std::move(pelicanSprite));
+
+    // Create and initialize a TransformComponent for the spaceship
+    TransformComponent pelicanTransform;
+    pelicanTransform.position = glm::vec3(xPos, yPos, 0.0);
+    pelicanTransform.scale = glm::vec3(pelicanSprite.width, pelicanSprite.height, 1.0);
+    pelicanTransform.rotation = 0.0f;
+    registry.transforms.emplace(pelican, std::move(pelicanTransform));
+
+    Motion npcMotion;
+    npcMotion.position = glm::vec2(xPos, yPos);
+    npcMotion.scale = { pelicanSprite.width, pelicanSprite.height };
+    registry.motions.emplace(pelican, std::move(npcMotion));
+
+    // add spaceship to environment to render out later
+    Pelican pelicanNPC;
+    registry.pelican.emplace(pelican, std::move(pelicanNPC));
+    return pelican;
 }
