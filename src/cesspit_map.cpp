@@ -47,6 +47,7 @@ void Cesspit::init() {
     else {
         start_room = m_entrance_room;
     }
+    
 
     // set up all doors
     // entrance to npc coords = (0.03f, 0.42f, 1.f, 0.21f), entrance spawn = (0.9f, 0.3f)

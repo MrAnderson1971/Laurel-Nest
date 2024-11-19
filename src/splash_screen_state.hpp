@@ -20,4 +20,5 @@ private:
     Entity namesEntity;
     Entity quitEntity;
     Entity optionsEntity;
+    Entity esc_key;
 };
