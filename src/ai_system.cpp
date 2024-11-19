@@ -5,6 +5,12 @@
 
 bool gb = false;
 bool aim = false;
+bool group_detection = false;
+int second_charge;
+
+float can_charge_timer = 0.5f;
+
+
 void AISystem::step(Entity player_entity)
 {
     size_t size = registry.patrol_ais.size();
@@ -97,6 +103,7 @@ void AISystem::ceiling_goomba_attack(Entity ceilingGoomba, Entity current_room) 
 // CREATE A GUARD IN WorldSystem::update()
 void AISystem::flying_goomba_step(Entity player, Entity current_room, float elapsed_time) {
     if (registry.rooms.has(current_room)) {
+        int count = 0;
         for (Entity entity : registry.rooms.get(current_room).entities) {
             if (registry.hostiles.has(entity) && registry.hostiles.get(entity).type == HostileType::GOOMBA_FLYING) {
 
@@ -110,6 +117,19 @@ void AISystem::flying_goomba_step(Entity player, Entity current_room, float elap
                     if (fg_state.current_state != FlyingGoombaState::FLYING_GOOMBA_DEAD) {
                         if (fg_state.animationDone) {
                             fg_state.animationDone = false;
+
+//                            if(group_detection){
+//                                can_charge_timer -= elapsed_time;
+//                                if(count == second_charge && can_charge_timer < 0){
+//                                    fg_state.can_charge = false;
+//                                    fg_state.current_state = FlyingGoombaState::FLYING_GOOMBA_CHARGE;
+//                                    flyingGoomba_Animation.setState(FlyingGoombaState::FLYING_GOOMBA_CHARGE);
+//                                    flying_goomba_charge(flyingGoombaMotion, playerMotion);
+//                                    group_detection = false;
+//                                }
+//                            }
+
+
                             if (fg_state.current_state == FlyingGoombaState::FLYING_GOOMBA_IDLE) {
                                 //The flying goomba can only charge once it has reached its regular y position
                                 if (flyingGoombaMotion.position.y > fg_state.idle_flying_altitude) {
@@ -126,6 +146,13 @@ void AISystem::flying_goomba_step(Entity player, Entity current_room, float elap
                                     fg_state.current_state = FlyingGoombaState::FLYING_GOOMBA_CHARGE;
                                     flyingGoomba_Animation.setState(FlyingGoombaState::FLYING_GOOMBA_CHARGE);
                                     flying_goomba_charge(flyingGoombaMotion, playerMotion);
+                                    group_detection = true;
+                                    can_charge_timer = 0.5f;
+                                    if(count == 1){
+                                        second_charge = 0;
+                                    }else{
+                                        second_charge = 1;
+                                    }
                                 }
                                 else {
                                     flyingGoomba_Animation.setState(FlyingGoombaState::FLYING_GOOMBA_IDLE);
@@ -165,6 +192,7 @@ void AISystem::flying_goomba_step(Entity player, Entity current_room, float elap
                         }
                     }
                 }
+                count++;
             }
         }
     }
