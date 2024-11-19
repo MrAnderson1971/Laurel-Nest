@@ -748,9 +748,9 @@ std::string dialogue[7] = { "You, you! You're not a bird?",
 "Seeking the Crown of Claws, hmm?",
 "But the Chiken Clan left us.",
 "Everything below is covered in poop.",
-"The sewers overflow, and the bird yearn for flesh.",
-"Hahahaha!",
-"..."};
+"The sewers are overflown,",
+"and the birds yearn for flesh.",
+"Hahahaha!" };
 
 // npc stuff // TODO KUTER
 void WorldSystem::handle_pelican() {
@@ -771,8 +771,11 @@ void WorldSystem::handle_pelican() {
             if (pelican_point_lower_bound_x <= player_motion.position.x && player_motion.position.x < pelican_point_upper_bound_x
                 && pelican_point_lower_bound_y < player_motion.position.y && player_motion.position.y < pelican_point_upper_bound_y) {
                 if (pelican_talk) {
-                    double position_x = pelican_point_motion.position.x - 300.f;
+                    double position_x = pelican_point_motion.position.x - 500.f;
                     double position_y = pelican_point_motion.position.y + 550.f;
+                    if (pelicanIndex >= 6) {
+                        position_x += 400.f;
+                    }
                     Sprite& pelican_sprite = registry.sprites.get(sp);
                     pelican_sprite = g_texture_paths->at(TEXTURE_ASSET_ID::PELICAN_TALK);
                     // draw box, init in world_init
