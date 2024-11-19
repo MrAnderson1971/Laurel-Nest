@@ -142,12 +142,14 @@ void GoombaLogic::update_damaged_goomba_sprites(float delta_time) {
 // Counts down to when the ceiling goomba can attack again
 void GoombaLogic::update_goomba_projectile_timer(float delta_time, Entity current_room) {
     for (Entity entity : registry.projectileTimers.entities) {
-        ProjectileTimer& projectile_counter = registry.projectileTimers.get(entity);
-        projectile_counter.elapsed_time -= delta_time;
-        // TODO for Kuter: should this remain here?
-        if (projectile_counter.elapsed_time <= 0 && registry.rooms.get(current_room).has(entity)) {
-            AISystem::ceiling_goomba_attack(entity, current_room);
-            projectile_counter.elapsed_time = projectile_counter.max_time;
+        if (registry.rooms.has(current_room) && registry.rooms.get(current_room).has(entity)) {
+            ProjectileTimer& projectile_counter = registry.projectileTimers.get(entity);
+            projectile_counter.elapsed_time -= delta_time;
+            // TODO for Kuter: should this remain here?
+            if (projectile_counter.elapsed_time <= 0) {
+                AISystem::ceiling_goomba_attack(entity, current_room);
+                projectile_counter.elapsed_time = projectile_counter.max_time;
+            }
         }
     }
 }
