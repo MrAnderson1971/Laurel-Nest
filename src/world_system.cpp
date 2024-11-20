@@ -10,6 +10,7 @@
 #include "serialize.hpp"
 #include "common.hpp"
 #include "boss_ai.hpp"
+#include "world_init.hpp"
 
 // stlib
 #include <cassert>
@@ -27,77 +28,7 @@ std::unordered_map<TEXTURE_ASSET_ID, Sprite>* g_texture_paths = nullptr;
 WorldSystem::WorldSystem() {
     regionManager = std::make_unique<RegionManager>();
 
-    std::unordered_map<TEXTURE_ASSET_ID, Sprite> temp_texture_paths;
-
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::PLAYER_IDLE, renderSystem.loadTexture("idle.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::PLAYER_WALK_1, renderSystem.loadTexture("walk_1.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::PLAYER_WALK_2, renderSystem.loadTexture("walk_2.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::PLAYER_WALK_3, renderSystem.loadTexture("walk_3.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::PLAYER_WALK_4, renderSystem.loadTexture("walk_4.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::PLAYER_JUMP_1, renderSystem.loadTexture("jump_1.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::PLAYER_JUMP_2, renderSystem.loadTexture("jump_2.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::PLAYER_JUMP_3, renderSystem.loadTexture("jump_3.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::PLAYER_JUMP_4, renderSystem.loadTexture("jump_4.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::PLAYER_ATTACK_1, renderSystem.loadTexture("attack_1.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::PLAYER_ATTACK_2, renderSystem.loadTexture("attack_2.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::PLAYER_ATTACK_3, renderSystem.loadTexture("attack_3.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::PLAYER_ATTACK_4, renderSystem.loadTexture("attack_4.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::PLAYER_ATTACK_5, renderSystem.loadTexture("attack_5.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::PLAYER_HIT, renderSystem.loadTexture("hit.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::GOOMBA_WALK_ATTACK, renderSystem.loadTexture("goomba_walk_attack.PNG"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::GOOMBA_WALK_HIT, renderSystem.loadTexture("goomba_walk_hit.PNG"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::GOOMBA_WALK_IDLE, renderSystem.loadTexture("goomba_walk_idle.PNG"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::GOOMBA_WALK_NOTICE, renderSystem.loadTexture("goomba_walk_notice.PNG"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::GOOMBA_DEAD, renderSystem.loadTexture("goomba_dead.PNG"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::CEILING_FALL, renderSystem.loadTexture("ceiling_fall.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::CEILING_HIT, renderSystem.loadTexture("ceiling_hit.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::CEILING_IDLE, renderSystem.loadTexture("ceiling_idle.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::CEILING_SPIT, renderSystem.loadTexture("ceiling_spit.png"));
-
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::BIRDMAN_CHARGE, renderSystem.loadTexture("birdman_charge.PNG"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::BIRDMAN_DEAD, renderSystem.loadTexture("birdman_dead.PNG"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::BIRDMAN_FLY1, renderSystem.loadTexture("birdman_fly1.PNG"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::BIRDMAN_FLY2, renderSystem.loadTexture("birdman_fly2.PNG"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::BIRDMAN_FLY3, renderSystem.loadTexture("birdman_fly3.PNG"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::BIRDMAN_FLY4, renderSystem.loadTexture("birdman_fly4.PNG"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::BIRDMAN_HIT, renderSystem.loadTexture("birdman_hit.PNG"));
-
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::SPLASH_SCREEN, renderSystem.loadTexture("splash_screen.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::DEMO_GROUND, renderSystem.loadTexture("demo_ground.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::DEMO_WALL, renderSystem.loadTexture("demo_wall.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::DEMO_CEILING, renderSystem.loadTexture("demo_ceiling.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::HEART_3, renderSystem.loadTexture("heart_3.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::HEART_2, renderSystem.loadTexture("heart_2.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::HEART_1, renderSystem.loadTexture("heart_1.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::HEART_0, renderSystem.loadTexture("heart_0.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::HEART_4_4, renderSystem.loadTexture("heart_4_4.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::HEART_4_3, renderSystem.loadTexture("heart_4_3.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::HEART_4_2, renderSystem.loadTexture("heart_4_2.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::HEART_4_1, renderSystem.loadTexture("heart_4_1.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::HEART_4_0, renderSystem.loadTexture("heart_4_0.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::CESSPIT_BG, renderSystem.loadTexture("cesspit_bg.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::ENTRANCE_BG, renderSystem.loadTexture("entrance_bg.PNG"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::SPACESHIP, renderSystem.loadTexture("spaceship.PNG"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::PIPES, renderSystem.loadTexture("pipes.PNG"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::CESSPIT_BOSS_BG, renderSystem.loadTexture("cesspit_boss_bg.PNG"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::CHICKEN_FIRE, renderSystem.loadTexture("chicken_fire.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::CHICKEN_IDLE, renderSystem.loadTexture("chicken_idle.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::CHICKEN_PECK, renderSystem.loadTexture("chicken_peck.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::CHICKEN_WALK1, renderSystem.loadTexture("chicken_walk1.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::CHICKEN_WALK2, renderSystem.loadTexture("chicken_walk2.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::CHICKEN_WALK3, renderSystem.loadTexture("chicken_walk3.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::CHICKEN_WALK4, renderSystem.loadTexture("chicken_walk4.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::CHICKEN_WALK5, renderSystem.loadTexture("chicken_walk5.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::CHICKEN_WALK6, renderSystem.loadTexture("chicken_walk6.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::FLAME_THROWER, renderSystem.loadTexture("flame_thrower.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::FIREBALL, renderSystem.loadTexture("Fireball.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::DOOR, renderSystem.loadTexture("door.PNG"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::BMT_BG, renderSystem.loadTexture("BMTown_bg.PNG"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::CHECKPOINT, renderSystem.loadTexture("checkpoint.png"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::LN_THRONE_BG, renderSystem.loadTexture("LNThrone_bg.PNG"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::LN_BG, renderSystem.loadTexture("LN_bg.PNG"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::PELICAN_IDLE, renderSystem.loadTexture("PelicanIdle.PNG"));
-    temp_texture_paths.emplace(TEXTURE_ASSET_ID::PELICAN_TALK, renderSystem.loadTexture("PelicanTalk.PNG"));
+    std::unordered_map<TEXTURE_ASSET_ID, Sprite> temp_texture_paths = loadTextures();
 
     texture_paths = std::make_unique<std::unordered_map<TEXTURE_ASSET_ID, Sprite>>(std::move(temp_texture_paths));
     g_texture_paths = texture_paths.get();

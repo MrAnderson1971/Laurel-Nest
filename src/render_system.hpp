@@ -8,6 +8,7 @@
 #include <array>	
 #include "physics_system.hpp"
 #include <map>				// map of character textures
+#include <future>
 
 class RenderSystem
 {
@@ -101,3 +102,41 @@ inline void renderMenuItem(const MenuItem& component, const vec2& mouse_pos) {
     renderSystem.drawEntity(component.isPointWithin(mouse_pos) ? component.active : component.inactive,
         component.isPointWithin(mouse_pos) ? component.transformActive : component.transformInactive);
 }
+
+struct Image {
+    int width, height, nrChannels;
+    unsigned char* data;
+
+    Image(int width, int height, int nrChannels, unsigned char* data) : width(width), height(height), nrChannels(nrChannels), data(data)
+    {
+    }
+
+    ~Image() {
+        if (data) {
+            stbi_image_free(data);
+            data = nullptr;
+        }
+    }
+    
+    Image& operator=(const Image& other) = delete;
+    Image(const Image& other) = delete;
+    Image& operator=(Image&& other) {
+        if (this != &other) {
+            if (data) {
+                stbi_image_free(data);
+            }
+            width = other.width;
+            height = other.height;
+            nrChannels = other.nrChannels;
+            data = other.data;
+            other.data = nullptr;
+        }
+        return *this;
+    }
+    Image(Image&& other) : width(other.width), height(other.height), nrChannels(other.nrChannels), data(other.data) {
+        other.data = nullptr;
+    }
+};
+
+std::future<Image> loadImageData(const std::string& filePath, std::atomic<int>& count);
+Sprite bindTexture(const Image& image);

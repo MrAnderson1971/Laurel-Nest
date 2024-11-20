@@ -288,7 +288,6 @@ struct ScreenState
 };
 
 enum class TEXTURE_ASSET_ID {
-    PLAYER_IDLE = 0,                      // idle.png
     PLAYER_WALK_1,                        // walk_1.png
     PLAYER_WALK_2,                        // walk_2.png
     PLAYER_WALK_3,                        // walk_3.png
@@ -330,15 +329,6 @@ enum class TEXTURE_ASSET_ID {
     SPACESHIP,                            // spaceship.png
     PIPES,                                // pipes.png
     CESSPIT_BOSS_BG,                      // cesspit_boss_bg
-    CHICKEN_FIRE,                         // chicken_fire.png
-    CHICKEN_IDLE,                         // chicken_idle.png
-    CHICKEN_PECK,                         // chicken_peck.png
-    CHICKEN_WALK1,                        // chicken_walk1.png
-    CHICKEN_WALK2,                        // chicken_walk2.png
-    CHICKEN_WALK3,                        // chicken_walk3.png
-    CHICKEN_WALK4,                        // chicken_walk4.png
-    CHICKEN_WALK5,                        // chicken_walk5.png
-    CHICKEN_WALK6,                        // chicken_walk6.png
     FLAME_THROWER,                        // flame_thrower.png
     FIREBALL,                             // Fireball.png
     DOOR,                                 // Door.PNG
