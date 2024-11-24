@@ -79,15 +79,15 @@ class BMTRoom4Strategy : public RoomStrategy {
 };
 
 // npc rooms
+class NPCRoom1Strategy : public RoomStrategy {
+	Entity execute() override;
+};
+
 class NPCRoom2Strategy : public RoomStrategy {
 	Entity execute() override;
 };
 
 class NPCRoom3Strategy : public RoomStrategy {
-	Entity execute() override;
-};
-
-class NPCRoom4Strategy : public RoomStrategy {
 	Entity execute() override;
 };
 

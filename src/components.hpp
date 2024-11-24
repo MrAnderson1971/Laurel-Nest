@@ -333,6 +333,8 @@ enum class TEXTURE_ASSET_ID {
     FIREBALL,                             // Fireball.png
     DOOR,                                 // Door.PNG
     BMT_BG,                               // BMTown_bg.PNG
+    CP_WALL,
+    BMT_WALL,
     BIRDMAN_CHARGE,
     BIRDMAN_DEAD,
     BIRDMAN_HIT,
