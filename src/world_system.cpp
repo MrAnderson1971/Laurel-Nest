@@ -949,9 +949,6 @@ void WorldSystem::processPlayerInput(int key, int action) {
         if (isChickenDead) {
             if (!registry.players.get(m_player).attacking) {
                 isFlameThrowerEquipped = true;
-                if (isFlameThrowerEquipped && flameThrower_enabled) {
-                    useFlameThrower();
-                }
             }
         }
     }
@@ -1052,6 +1049,8 @@ void WorldSystem::on_mouse_click(int button, int action, const glm::vec2&, int) 
                     c.frames = c.max_frames;
                     registry.players.get(m_player).attacking = true;
                 }
+            } else if (flameThrower_enabled) {
+                useFlameThrower();
             }
         }
     }
@@ -1065,6 +1064,7 @@ void WorldSystem::cleanup() {
         footstep_sound = nullptr;
     }
     if (sword_sound != nullptr) {
+        Mix_FreeChunk(sword_sound);
         Mix_FreeChunk(sword_sound);
         sword_sound = nullptr;
     }
