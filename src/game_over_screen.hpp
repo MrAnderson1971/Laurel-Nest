@@ -3,7 +3,7 @@
 
 class GameOverScreen : public GameState {
 public:
-    GameOverScreen() = default;
+    GameOverScreen();
     ~GameOverScreen();
 
     void init() override;
@@ -16,4 +16,6 @@ public:
 
 private:
     Entity gameOverEntity;
+    float time;
+    float transparency;
 };

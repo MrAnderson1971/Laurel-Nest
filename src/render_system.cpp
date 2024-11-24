@@ -500,7 +500,7 @@ void RenderSystem::renderLoop()
     }
 }
 
-void RenderSystem::drawEntity(const Sprite& sprite, const TransformComponent& transform)
+void RenderSystem::drawEntity(const Sprite& sprite, const TransformComponent& transform, float transparency)
 {
     glUseProgram(shaderProgram);
 
@@ -514,6 +514,8 @@ void RenderSystem::drawEntity(const Sprite& sprite, const TransformComponent& tr
     glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
     GLuint modelLoc = glGetUniformLocation(shaderProgram, "model");
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+    glUniform1f(glGetUniformLocation(shaderProgram, "visibility"), transparency);
 
     // Bind texture
     glBindTexture(GL_TEXTURE_2D, *sprite.textureID);
