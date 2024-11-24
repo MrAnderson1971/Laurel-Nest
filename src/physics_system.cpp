@@ -150,8 +150,13 @@ bool playerMeshCollide(Entity player, Entity other, vec2& direction, vec2& overl
     }
 
     if (collisionDetected) {
-        direction = minOverlapAxis;
-        overlap = minOverlapAxis * minOverlap;
+        if (fabs(minOverlapAxis.x) > fabs(minOverlapAxis.y)) {
+            direction = vec2((minOverlapAxis.x > 0) ? 1.0f : -1.0f, 0.0f);
+        }
+        else {
+            direction = vec2(0.0f, (minOverlapAxis.y > 0) ? 1.0f : -1.0f);
+        }
+        overlap = direction * minOverlap;
         return true;
     }
 
