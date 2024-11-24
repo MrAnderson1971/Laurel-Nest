@@ -133,12 +133,9 @@ void WorldSystem::init() {
     // load mesh for player
     renderSystem.loadPlayerMeshes(m_player);
 
-    if (playerHealth.max_health == 4) {
-        renew_status_bar();
-    }
-    else {
+    
         init_status_bar();
-    }
+    
 
     init_flame_thrower();
      
@@ -586,7 +583,7 @@ void WorldSystem::handle_collisions() {
             player_health.max_health = 4;
             player_health.current_health = player_health.max_health;
             HealthFlask& health_flask = registry.healthFlasks.get(m_player);
-            health_flask.num_uses = 3;
+            health_flask.num_uses = health_flask.max_uses;
 
         }
 
@@ -676,7 +673,7 @@ void WorldSystem::handle_saving() {
                         Health& health = registry.healths.get(m_player);
                         health.current_health = health.max_health;
                         HealthFlask& healthFlask = registry.healthFlasks.get(m_player);
-                        healthFlask.num_uses = 3;
+                        healthFlask.num_uses = healthFlask.max_uses;
                         saved_this_instance = true;
                     }
                    

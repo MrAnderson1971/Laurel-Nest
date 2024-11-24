@@ -198,7 +198,8 @@ struct Projectile
 
 struct HealthFlask
 {
-    int num_uses = 3;
+    int max_uses = 3;
+    int num_uses = max_uses;
 };
 
 struct Weapon
