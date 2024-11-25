@@ -31,7 +31,7 @@ constexpr float FIREBALL_HEIGHT = 0.4f * 339.f;
 
 constexpr int SWORD_CHANNEL = 0;
 constexpr int HURT_CHANNEL = 1;
-constexpr int SAVE_SOUND_CHANNEL = 1;
+constexpr int SAVE_SOUND_CHANNEL = 2;
 
 extern bool Show_FPS;
 extern bool isChickenDead;

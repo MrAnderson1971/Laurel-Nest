@@ -184,7 +184,7 @@ void WorldSystem::init() {
         vec3(escSprite.width * 0.3f, escSprite.height * 0.3f, 1.f), 0.f
         });
 
-    Mix_ReserveChannels(2);
+    Mix_ReserveChannels(3);
     footstep_sound = Mix_LoadWAV(audio_path("footstep.wav").c_str());
     sword_sound = Mix_LoadWAV(audio_path("sword.wav").c_str());
     hurt_sound = Mix_LoadWAV(audio_path("hurt.wav").c_str());
@@ -950,6 +950,7 @@ void WorldSystem::processPlayerInput(int key, int action) {
                     coyoteTimer = 0.f;
                     isGrounded = false;
                 }
+
             }
             break;
         case GLFW_KEY_S:
@@ -1080,7 +1081,6 @@ void WorldSystem::cleanup() {
         footstep_sound = nullptr;
     }
     if (sword_sound != nullptr) {
-        Mix_FreeChunk(sword_sound);
         Mix_FreeChunk(sword_sound);
         sword_sound = nullptr;
     }
