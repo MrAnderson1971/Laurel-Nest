@@ -587,12 +587,17 @@ void WorldSystem::handle_collisions() {
         // handle extra heart powerup, restore all health and remove heart entity
         // TODO: add extra heart life
         if (registry.players.has(entity) && registry.heartPowerUp.has(entity_other)) {
-            if (!heartPowerUp) renew_status_bar();
-            heartPowerUp = true;
+            // if (!heartPowerUp)
+            // heartPowerUp = true;
             registry.remove_all_components_of(entity_other);
             // reset health to full
             Health& player_health = registry.healths.get(m_player);
-            player_health.max_health = 4;
+            if (player_health.max_health == 3) {
+                player_health.max_health = 4;
+            } else if (player_health.max_health == 4) {
+                player_health.max_health = 5;
+            }
+            renew_status_bar();
             player_health.current_health = player_health.max_health;
             HealthFlask& health_flask = registry.healthFlasks.get(m_player);
             health_flask.num_uses = 3;
@@ -1171,18 +1176,33 @@ void WorldSystem::renew_status_bar() {
     }
 
     // Add new heart sprites (HEART_4_0 to HEART_4_4)
-    registry.heartSprites.emplace(m_hearts, std::vector<Sprite> {
-            g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_0),
-            g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_1),
-            g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_2),
-            g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_3),
-            g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_4)
-    });
+    if (registry.healths.get(m_player).max_health == 4) {
+        registry.heartSprites.emplace(m_hearts, std::vector<Sprite>{
+                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_0),
+                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_1),
+                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_2),
+                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_3),
+                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_4)
+        });
+    } else if (registry.healths.get(m_player).max_health == 5) {
+        registry.heartSprites.emplace(m_hearts, std::vector<Sprite>{
+                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_5_0),
+                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_5_1),
+                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_5_2),
+                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_5_3),
+                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_5_4),
+                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_5_5)
+        });
+    }
 
     // Create and initialize a Transform component for the new Heart sprites
     TransformComponent heartSpriteTransform;
     heartSpriteTransform.position = glm::vec3(250.0f, 120.0f, 0.0); // Position remains unchanged
-    heartSpriteTransform.scale = glm::vec3(0.4f * 1065.0f, HEARTS_HEIGHT, 1.0); // Updated width used
+    if (registry.healths.get(m_player).max_health == 4) {
+        heartSpriteTransform.scale = glm::vec3(0.4f * 1065.0f, HEARTS_HEIGHT, 1.0);
+    } else if (registry.healths.get(m_player).max_health == 5) {
+        heartSpriteTransform.scale = glm::vec3(0.4f * 1234.0f, HEARTS_HEIGHT, 1.0);
+    }
     heartSpriteTransform.rotation = 0.0f;
     registry.transforms.emplace(m_hearts, std::move(heartSpriteTransform));
 }
