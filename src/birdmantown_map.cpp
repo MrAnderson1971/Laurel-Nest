@@ -36,9 +36,9 @@ void Birdmantown::init() {
     m_npc_room1 = currentRoom->execute();
     //start_room = m_npc_room1;
 
-    setRoomStrategy(std::make_unique<NPCRoom2Strategy>());
+    /*setRoomStrategy(std::make_unique<NPCRoom2Strategy>());
     m_npc_room2 = currentRoom->execute();
-    //start_room = m_npc_room2;
+    //start_room = m_npc_room2;*/
 
     setRoomStrategy(std::make_unique<NPCRoom3Strategy>());
     m_npc_room3 = currentRoom->execute();
@@ -93,14 +93,14 @@ void Birdmantown::init() {
     Connection door_2_to_1 = SetDoor(0.03f, 0.8f, 1.0f, 0.5f, m_room1, vec2(renderSystem.getWindowWidth() * 0.08f, renderSystem.getWindowHeight() * 0.8f), false);
     list_2.doors.push_back(door_2_to_1);
 
-    // 2 to npc2: (0.03f, 0.27f, 0.f, 0.25f), spawn = (0.92f, 0.8f)
+    /*// 2 to npc2: (0.03f, 0.27f, 0.f, 0.25f), spawn = (0.92f, 0.8f)
     Connection door_2_to_npc2 = SetDoor(0.03f, 0.35f, 0.0f, 0.2f, m_npc_room2, vec2(renderSystem.getWindowWidth() * 0.92f, renderSystem.getWindowHeight() * 0.8f), false);
     list_2.doors.push_back(door_2_to_npc2);
 
     // npc2 to 2: (0.1f, 0.8f, 1.f, 0.5f), spawn = (0.08f, 0.28f)
     ConnectionList list_npc2;
     Connection door_npc2_to_2 = SetDoor(0.03f, 0.8f, 1.f, 0.5f, m_room2, vec2(renderSystem.getWindowWidth() * 0.08f, renderSystem.getWindowHeight() * 0.28f), false);
-    list_npc2.doors.push_back(door_npc2_to_2);
+    list_npc2.doors.push_back(door_npc2_to_2);*/
 
     // 3 to 1: (0.03f, 0.8f, 1.0f, 0.5f), spawn = (0.08f, 0.35f)
     ConnectionList list_3;
@@ -148,7 +148,7 @@ void Birdmantown::init() {
     registry.doorList.emplace(m_room3, std::move(list_3));
     registry.doorList.emplace(m_room4, std::move(list_4));
     registry.doorList.emplace(m_npc_room1, std::move(list_npc1));
-    registry.doorList.emplace(m_npc_room2, std::move(list_npc2));
+    //registry.doorList.emplace(m_npc_room2, std::move(list_npc2));
     registry.doorList.emplace(m_npc_room3, std::move(list_npc3));
     registry.doorList.emplace(m_ln_room1, std::move(list_ln1));
     registry.doorList.emplace(m_ln_boss_room, std::move(list_boss));

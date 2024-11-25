@@ -16,7 +16,7 @@ public:
     Entity m_room3;
     Entity m_room4;
     Entity m_npc_room1;
-    Entity m_npc_room2;
+    //Entity m_npc_room2;
     Entity m_npc_room3;
     Entity m_ln_room1;
     Entity m_ln_boss_room;

@@ -77,6 +77,7 @@ Entity CPRoom1Strategy::execute() {
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::CESSPIT_BG));
 
     // wall TODO: figure out how to make solid without breaking goomba
+    /*
     Entity m_wall;
     Sprite wallBSprite = g_texture_paths->at(TEXTURE_ASSET_ID::CP_WALL);
     TransformComponent bgTransform;
@@ -87,7 +88,9 @@ Entity CPRoom1Strategy::execute() {
     registry.transforms.emplace(m_wall, std::move(bgTransform));
 
     Environment wallObj;
-    registry.envObject.emplace(m_wall, std::move(wallObj));
+    registry.envObject.emplace(m_wall, std::move(wallObj));*/
+
+    Entity m_wall = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::CP_WALL), 1.f, 0.6f, 0.6f, 0.f, 400.f);
 
     // ceiling
     Entity m_ceiling = SetCeiling(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_CEILING), 0.66f);
@@ -545,6 +548,9 @@ Entity BMTRoom2Strategy::execute() {
     // background
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_BG));
 
+    // wall
+    Entity m_wall_bound = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL), 1.f, 0.6f, 0.6f, 0.01f, 1200.f);
+
     // ceiling
     Entity m_ceiling = SetCeiling(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_CEILING), 0.5f);
 
@@ -586,6 +592,7 @@ Entity BMTRoom2Strategy::execute() {
     gc2.set_spit_timer(1.75f);*/
 
     // note on bg: don't add motion
+    registry.grounds.emplace(m_wall_bound, std::move(Ground()));
     registry.grounds.emplace(m_ground, std::move(Ground()));
     registry.grounds.emplace(m_wall, std::move(Ground()));
     registry.grounds.emplace(m_platform1, std::move(Ground()));
@@ -595,6 +602,7 @@ Entity BMTRoom2Strategy::execute() {
     registry.grounds.emplace(m_wall2, std::move(Ground()));
 
     room.insert(m_bg);
+    room.insert(m_wall_bound);
     room.insert(m_ceiling);
     room.insert(m_ground);
     room.insert(m_wall);
@@ -622,6 +630,9 @@ Entity BMTRoom3Strategy::execute() {
     // background
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_BG));
 
+    //walls
+    Entity m_wall = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL), 1.f, 0.6f, 0.6f, 0.01f, 300.f);
+
     // ceiling
     Entity m_ceiling = SetCeiling(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_CEILING), 0.5f);
 
@@ -643,19 +654,19 @@ Entity BMTRoom3Strategy::execute() {
 //    gc1.init(renderSystem.getWindowWidth() * 1.f / 4.f, gc1.bottom_edge);
 //    gc1.set_spit_timer(2.f);
 
-
-
     GoombaFlying gf = GoombaFlying();
     gf.init(renderSystem.getWindowWidth() / 5.f, renderSystem.getWindowHeight() / 6.f);
 
 
     // note on bg: don't add motion
+    registry.grounds.emplace(m_wall, std::move(Ground()));
     registry.grounds.emplace(m_ground, std::move(Ground()));
 
     // add sword
     registry.swordPowerUp.emplace(m_sword, std::move(SwordPowerUp()));
 
     room.insert(m_bg);
+    room.insert(m_wall);
     room.insert(m_ceiling);
     room.insert(m_ground);
     room.insert(m_sword);
@@ -679,8 +690,9 @@ Entity BMTRoom4Strategy::execute() {
     // background
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_BG));
 
-    // wall
-    Entity m_wall = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL), 1.f, 0.6f, 0.6f, 0.99f, 1200.f);
+    // walls
+    Entity m_wall_left = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL), 1.f, 0.6f, 0.6f, 0.01f, 400.f);
+    Entity m_wall_right = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL), 1.f, 0.6f, 0.6f, 0.99f, 1200.f);
 
     // ceiling
     Entity m_ceiling = SetCeiling(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_CEILING), 0.2f);
@@ -728,7 +740,8 @@ Entity BMTRoom4Strategy::execute() {
     gc3.set_spit_timer(2.5f);
 
     // note on bg: don't add motion
-    registry.grounds.emplace(m_wall, std::move(Ground()));
+    registry.grounds.emplace(m_wall_left, std::move(Ground()));
+    registry.grounds.emplace(m_wall_right, std::move(Ground()));
     registry.grounds.emplace(m_ground, std::move(Ground()));
     registry.grounds.emplace(m_platform1, std::move(Ground()));
     registry.grounds.emplace(m_platform2, std::move(Ground()));
@@ -740,7 +753,8 @@ Entity BMTRoom4Strategy::execute() {
     registry.grounds.emplace(m_platform8, std::move(Ground()));
 
     room.insert(m_bg);
-    room.insert(m_wall);
+    room.insert(m_wall_left);
+    room.insert(m_wall_right);
     room.insert(m_ceiling);
     room.insert(m_ground);
     room.insert(m_platform1);
