@@ -44,13 +44,12 @@ WorldSystem::~WorldSystem() {
 }
 
 void WorldSystem::init() {
-    // Create a new entity and register it in the ECSRegistry
     isChickenDead = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::IS_CHICKEN_DEAD), false);
     heartPowerUp_0 = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::HEART_POWER_UP_0), false);
     heartPowerUp_1 = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::HEART_POWER_UP_1), false);
     swordPowerUp_0 = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::HEART_POWER_UP_1), false);
     saved_this_instance = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::SAVED_THIS_INSTANCE), false);
-    //TODO: sword
+
 
     start_from_checkpoint = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::START_FROM_CHECKPOINT),false);
     // Player
@@ -152,9 +151,9 @@ void WorldSystem::init() {
 
     std::vector<bool> heartPowerUps;
     heartPowerUps.push_back(heartPowerUp_0);
-    //heartPowerUps.push_back(heartPowerUp_1);
+    heartPowerUps.push_back(heartPowerUp_1);
     for (int i = 0; i < heartPowerUps.size(); i++) {
-        if (heartPowerUps[i]) registry.remove_all_components_of(registry.heartPowerUp.entities[0]);
+        if (heartPowerUps[i]) registry.remove_all_components_of(registry.heartPowerUp.entities[i]);
     }
 
     //TODO: sword
