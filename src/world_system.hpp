@@ -9,6 +9,7 @@
 
 constexpr float player_speed = 1.0f * TPS;
 constexpr float player_jump_velocity = 3.7f * TPS; // adjust so you can reach the test platform
+constexpr float MAX_COYOTE_TIME = 0.1f;
 
 // These are hardcoded to the dimensions of the entity texture
 // BB = bounding box
@@ -30,7 +31,7 @@ constexpr float FIREBALL_HEIGHT = 0.4f * 339.f;
 
 constexpr int SWORD_CHANNEL = 0;
 constexpr int HURT_CHANNEL = 1;
-constexpr int SAVE_SOUND_CHANNEL = 1;
+constexpr int SAVE_SOUND_CHANNEL = 2;
 
 extern bool Show_FPS;
 extern bool isChickenDead;
@@ -87,7 +88,7 @@ private:
 	void update_status_bar(int num_hearts);
 	void upgrade_player_health();
 
-    bool canJump = false;
+    float coyoteTimer = 0.f;
     bool isGrounded = false;
 	bool canAttack = true;
     bool isFlameThrowerEquipped = false;
