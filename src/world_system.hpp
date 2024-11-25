@@ -19,7 +19,9 @@ constexpr float JUMPING_BB_WIDTH  = 1.2f * 464.f * 0.2f;
 constexpr float JUMPING_BB_HEIGHT = 1.2f * 714.f * 0.2f;
 constexpr float ATTACKING_BB_WIDTH  = 1.2f * 816.f * 0.2f;
 constexpr float ATTACKING_BB_HEIGHT = 1.2f * 714.f * 0.2f;
-constexpr float HEARTS_WIDTH = 0.4f * 964.0f;
+constexpr float HEARTS_THREE_WIDTH = 0.4f * 964.0f;
+constexpr float HEARTS_FOUR_WIDTH = 0.4f * 1065.0f;
+constexpr float HEARTS_FIVE_WIDTH = 0.4f * 1234.0f;
 constexpr float HEARTS_HEIGHT = 0.4f * 366.0f;
 constexpr float FLAME_THROWER_WIDTH = 0.2f * 418.f;
 constexpr float FLAME_THROWER_HEIGHT = 0.2f * 272.f;
@@ -77,10 +79,13 @@ private:
     void update_damaged_player_sprites(float delta_time);
 
 	void init_status_bar();
-    void renew_status_bar();
+	void init_three_heart_status_bar();
+	void init_four_heart_status_bar();
+	void init_five_heart_status_bar();
     void init_flame_thrower();
 
 	void update_status_bar(int num_hearts);
+	void upgrade_player_health();
 
     bool canJump = false;
     bool isGrounded = false;
@@ -90,8 +95,9 @@ private:
 
 	// saveables
 	
-	bool heartPowerUp;
-	bool swordPowerUp;
+	bool heartPowerUp_0;
+	bool heartPowerUp_1;
+	bool swordPowerUp_0;
 
 
     void updateBoundingBox(Entity entity);

@@ -204,7 +204,7 @@ Entity CPRoom3Strategy::execute() {
     registry.grounds.emplace(m_pipe3, std::move(Ground()));
 
     // add heart
-    registry.heartPowerUp.emplace(m_heart, std::move(HeartPowerUp()));
+    registry.heartPowerUp.emplace(m_heart, std::move(HeartPowerUp{0}));
 
     room.insert(m_bg);
     room.insert(m_ceiling);
