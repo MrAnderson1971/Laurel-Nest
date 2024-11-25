@@ -892,7 +892,6 @@ void WorldSystem::render() {
 
 void WorldSystem::processPlayerInput(int key, int action) {
     // Escape key to close the window
-
     if (action == GLFW_RELEASE) {
         switch (key) {
         case GLFW_KEY_ESCAPE:
@@ -938,6 +937,7 @@ void WorldSystem::processPlayerInput(int key, int action) {
                     coyoteTimer = 0.f;
                     isGrounded = false;
                 }
+
             }
             break;
         case GLFW_KEY_S:
@@ -955,9 +955,6 @@ void WorldSystem::processPlayerInput(int key, int action) {
             if (isChickenDead) {
                 if (!registry.players.get(m_player).attacking) {
                     isFlameThrowerEquipped = true;
-                    if (isFlameThrowerEquipped && flameThrower_enabled) {
-                        useFlameThrower();
-                    }
                 }
             }
             break;
