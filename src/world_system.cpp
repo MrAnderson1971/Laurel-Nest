@@ -171,9 +171,9 @@ void WorldSystem::init() {
     }
 
     //TODO: sword
-    /*if (swordPowerUp) {
+    if (swordPowerUp_0) {
         registry.remove_all_components_of(registry.swordPowerUp.entities[0]);
-    }*/
+    }
     
 
     // esc instruction sprite
@@ -315,7 +315,15 @@ void WorldSystem::handle_motions(float deltaTime) {
 
             // If this is the player, reset canJump before handling collisions
             if (entity == m_player) {
-                canJump = false;  // Only the player can jump
+                if (isGrounded) {
+                    coyoteTimer = MAX_COYOTE_TIME;
+                }
+                else {
+                    coyoteTimer -= deltaTime;
+                    if (coyoteTimer < 0.0f) {
+                        coyoteTimer = 0.0f;
+                    }
+                }
             }
 
             // Step 3: Prevent falling out of the screen for all entities
@@ -326,7 +334,7 @@ void WorldSystem::handle_motions(float deltaTime) {
                 // Only the player can be grounded and jump
                 if (entity == m_player) {
                     isGrounded = true;
-                    canJump = true;
+                    coyoteTimer = MAX_COYOTE_TIME;
                 }
             }
 
@@ -491,8 +499,9 @@ void WorldSystem::handle_collisions() {
                     thisMotion.velocity.y = 0;
 
                     if (registry.players.has(entity)) {
-                        canJump = true;  // Allow player to jump again
-                        isGrounded = true;  // Player is grounded
+                        // Player has collided with the ground
+                        isGrounded = true;
+                        coyoteTimer = MAX_COYOTE_TIME; // Reset coyote timer
                     }
                 }
                 else if (direction.y < 0 && thisMotion.velocity.y < 0) {
@@ -613,7 +622,6 @@ void WorldSystem::handle_collisions() {
             Damage& d = registry.damages.get(m_sword);
             d.damage_dealt = 2;
         }
-
     }
     registry.collisions.clear();
 }
@@ -897,100 +905,93 @@ void WorldSystem::render() {
 
 void WorldSystem::processPlayerInput(int key, int action) {
     // Escape key to close the window
-    if (action == GLFW_RELEASE && key == GLFW_KEY_ESCAPE) {
-        renderSystem.getGameStateManager()->pauseState<PauseState>();
-    }
-
-    // Move left (A key)
-    if (action == GLFW_PRESS && key == GLFW_KEY_A) {
-        if (registry.motions.has(m_player)) {
-            registry.motions.get(m_player).velocity[0] = -player_speed;
-        }
-    }
-
-    // Move right (D key)
-    if (action == GLFW_PRESS && key == GLFW_KEY_D) {
-        if (registry.motions.has(m_player)) {
-            registry.motions.get(m_player).velocity[0] = player_speed;
-        }
-    }
-
-    // Stop leftward movement (release A key)
-    if (action == GLFW_RELEASE && key == GLFW_KEY_A) {
-        if (registry.motions.has(m_player)) {
-            auto& motion = registry.motions.get(m_player);
-            if (motion.velocity[0] < 0) {  // Only stop leftward movement
-                motion.velocity[0] = 0;
+    if (action == GLFW_RELEASE) {
+        switch (key) {
+        case GLFW_KEY_ESCAPE:
+            renderSystem.getGameStateManager()->pauseState<PauseState>();
+            break;
+        case GLFW_KEY_A:
+            if (registry.motions.has(m_player)) {
+                auto& motion = registry.motions.get(m_player);
+                if (motion.velocity[0] < 0) {  // Only stop leftward movement
+                    motion.velocity[0] = 0;
+                }
             }
-        }
-    }
-
-    // Stop rightward movement (release D key)
-    if (action == GLFW_RELEASE && key == GLFW_KEY_D) {
-        if (registry.motions.has(m_player)) {
-            auto& motion = registry.motions.get(m_player);
-            if (motion.velocity[0] > 0) {  // Only stop rightward movement
-                motion.velocity[0] = 0;
+            break;
+        case GLFW_KEY_D:
+            if (registry.motions.has(m_player)) {
+                auto& motion = registry.motions.get(m_player);
+                if (motion.velocity[0] > 0) {  // Only stop rightward movement
+                    motion.velocity[0] = 0;
+                }
             }
+            break;
         }
     }
-
-    // Jump (Space key)
-    if (action == GLFW_PRESS && (key == GLFW_KEY_SPACE || key == GLFW_KEY_W)) {
-        if (registry.motions.has(m_player)) {
-            auto& playerMotion = registry.motions.get(m_player);
-            if (canJump) {  // Ensure the player can only jump if grounded
-                playerMotion.velocity[1] = -player_jump_velocity;  // Apply jump velocity
-                canJump = false;  // Prevent further jumps mid-air
-                isGrounded = false;
+    else if (action == GLFW_PRESS) {
+        switch (key) {
+            // move left/right
+        case GLFW_KEY_A:
+            if (registry.motions.has(m_player)) {
+                registry.motions.get(m_player).velocity[0] = -player_speed;
             }
-        }
-    }
-
-    if (action == GLFW_PRESS && key == GLFW_KEY_S) {
-        if (registry.motions.has(m_player)) {
-            auto& playerMotion = registry.motions.get(m_player);
-            playerMotion.velocity[1] += player_speed * 2.0f; // Increase downward velocity
-        }
-    }
-
-    // Press H to heal the player
-    if (action == GLFW_PRESS && key == GLFW_KEY_H) {
-        player_get_healed();
-    }
-
-    // Toggle E to use the flame thrower
-    if (action == GLFW_PRESS && key == GLFW_KEY_E) {
-        if (isChickenDead) {
-            if (!registry.players.get(m_player).attacking) {
-                isFlameThrowerEquipped = true;
+            break;
+        case GLFW_KEY_D:
+            if (registry.motions.has(m_player)) {
+                registry.motions.get(m_player).velocity[0] = player_speed;
             }
-        }
-    }
-
-    if (action == GLFW_PRESS && key == GLFW_KEY_Q) {
-        if (isChickenDead) {
-            isFlameThrowerEquipped = false;
-        }
-    }
-
-    // Hide/Show FPS Counter (F key)
-    if (action == GLFW_PRESS && key == GLFW_KEY_F) {
-        Show_FPS = !Show_FPS;
-    }
-
-    // Press V to save
-    if (action == GLFW_PRESS && key == GLFW_KEY_V) {
-        do_save = true;
-    }
-
-    // Press T to talk
-    if (action == GLFW_PRESS && key == GLFW_KEY_T) {
-        if (pelican_talk && pelicanIndex < 6) {
-            pelicanIndex++;
-        }
-        else if (pelicanIndex >= 6 || pelican_talk == false) {
-            pelican_talk = !pelican_talk;
+            break;
+        case GLFW_KEY_W:
+        case GLFW_KEY_SPACE:
+            if (registry.motions.has(m_player)) {
+                auto& playerMotion = registry.motions.get(m_player);
+                if (coyoteTimer > 0.f) {  // Ensure the player can only jump if grounded
+                    playerMotion.velocity[1] = -player_jump_velocity;  // Apply jump velocity
+                    coyoteTimer = 0.f;
+                    isGrounded = false;
+                }
+            }
+            break;
+        case GLFW_KEY_S:
+            if (registry.motions.has(m_player)) {
+                auto& playerMotion = registry.motions.get(m_player);
+                playerMotion.velocity[1] += player_speed * 2.0f; // Increase downward velocity
+            }
+            break;
+            // Heal
+        case GLFW_KEY_H:
+            player_get_healed();
+            break;
+            // Equip / unequip flamethrower
+        case GLFW_KEY_E:
+            if (isChickenDead) {
+                if (!registry.players.get(m_player).attacking) {
+                    isFlameThrowerEquipped = true;
+                }
+            }
+            break;
+        case GLFW_KEY_Q:
+            if (isChickenDead) {
+                isFlameThrowerEquipped = false;
+            }
+            break;
+            // show/hide FPS counter
+        case GLFW_KEY_F:
+            Show_FPS = !Show_FPS;
+            break;
+            // save
+        case GLFW_KEY_V:
+            do_save = true;
+            break;
+            // talk
+        case GLFW_KEY_T:
+            if (pelican_talk && pelicanIndex < 6) {
+                pelicanIndex++;
+            }
+            else if (pelicanIndex >= 6 || pelican_talk == false) {
+                pelican_talk = !pelican_talk;
+            }
+            break;
         }
     }
 }
@@ -1189,6 +1190,7 @@ void WorldSystem::init_four_heart_status_bar() {
     if (registry.transforms.has(m_hearts)) {
         registry.transforms.remove(m_hearts);
     }
+
     registry.heartSprites.emplace(m_hearts, std::vector<Sprite> {
         g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_0),
             g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_1),
@@ -1196,6 +1198,7 @@ void WorldSystem::init_four_heart_status_bar() {
             g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_3),
             g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_4)
     });
+
 
     // Create and initialize a Transform component for the new 4 Heart sprites
     TransformComponent heartSpriteTransform;
@@ -1226,6 +1229,7 @@ void WorldSystem::init_five_heart_status_bar() {
     TransformComponent heartSpriteTransform;
     heartSpriteTransform.position = glm::vec3(250.0f, 120.0f, 0.0); // Position remains unchanged
     heartSpriteTransform.scale = glm::vec3(HEARTS_FIVE_WIDTH, HEARTS_HEIGHT, 1.0); // Updated width used
+
     heartSpriteTransform.rotation = 0.0f;
     registry.transforms.emplace(m_hearts, std::move(heartSpriteTransform));
 }
@@ -1317,9 +1321,9 @@ void WorldSystem::write_to_save_file() {
 
         saveFile << player_health.current_health << "\n";
 
-        saveFile << player_damage.damage_dealt << "\n";
-
         saveFile << health_flask.num_uses << "\n";
+
+        saveFile << player_damage.damage_dealt << "\n";
 
         saveFile << BoolToString(heartPowerUp_0) << "\n";
 
