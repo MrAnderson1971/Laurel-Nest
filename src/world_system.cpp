@@ -1065,7 +1065,6 @@ void WorldSystem::cleanup() {
     }
     if (sword_sound != nullptr) {
         Mix_FreeChunk(sword_sound);
-        Mix_FreeChunk(sword_sound);
         sword_sound = nullptr;
     }
     if (hurt_sound != nullptr) {
