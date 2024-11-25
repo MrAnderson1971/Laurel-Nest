@@ -534,6 +534,11 @@ Entity BMTRoom2Strategy::execute() {
     // ground
     Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 0.5f, 0.5f, 0.0f);
 
+    // heart powerUp
+    Entity m_heart = SetPlatform(renderSystem.loadTexture("extra_heart.png"), 0.2f, 0.2f, 0.07f, 0.28f);
+
+    registry.heartPowerUp.emplace(m_heart, std::move(HeartPowerUp()));
+
     /*GoombaFlying gf = GoombaFlying();
     gf.init(renderSystem.getWindowWidth() / 3.f, renderSystem.getWindowHeight() / 6.f);*/
 
@@ -569,6 +574,7 @@ Entity BMTRoom2Strategy::execute() {
     //room.insert(m_platform3);
     //room.insert(m_platform4);
     room.insert(m_wall2);
+    room.insert(m_heart);
 
     //room.insert(gf.entity);
     //room.insert(gc1.entity);
