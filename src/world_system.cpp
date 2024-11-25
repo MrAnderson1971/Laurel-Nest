@@ -1209,7 +1209,6 @@ void WorldSystem::init_four_heart_status_bar() {
 }
 
 void WorldSystem::init_five_heart_status_bar() {
-    // Add new heart sprites (HEART_4_0 to HEART_4_4)
     if (registry.heartSprites.has(m_hearts)) {
         registry.heartSprites.remove(m_hearts);
     }
@@ -1229,7 +1228,6 @@ void WorldSystem::init_five_heart_status_bar() {
     TransformComponent heartSpriteTransform;
     heartSpriteTransform.position = glm::vec3(250.0f, 120.0f, 0.0); // Position remains unchanged
     heartSpriteTransform.scale = glm::vec3(HEARTS_FIVE_WIDTH, HEARTS_HEIGHT, 1.0); // Updated width used
-
     heartSpriteTransform.rotation = 0.0f;
     registry.transforms.emplace(m_hearts, std::move(heartSpriteTransform));
 }
