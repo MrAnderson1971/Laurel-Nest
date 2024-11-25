@@ -4,6 +4,8 @@
 #include "options_menu.hpp"
 #include <iostream>
 
+SplashScreenState::SplashScreenState() : hasLoaded(false) {}
+
 SplashScreenState::~SplashScreenState() {
     SplashScreenState::cleanup();
 }
@@ -43,19 +45,9 @@ void SplashScreenState::init()
 
 void SplashScreenState::on_key(int key, int, int action, int)
 {
-    if (action == GLFW_PRESS)
+    if (action == GLFW_PRESS && !hasLoaded)
     {
-        /*if (key == GLFW_KEY_ESCAPE)
-        {
-            renderSystem.closeWindow();
-        }
-        else
-        {
-            // go to game
-            renderSystem.getGameStateManager()->changeState<WorldSystem>();
-        }*/
-        
-        // go to game
+        hasLoaded = true;
         renderSystem.getGameStateManager()->changeState<WorldSystem>();
     }
 }

@@ -7,6 +7,7 @@
 
 class SplashScreenState : public MenuState {
 public:
+    SplashScreenState();
     ~SplashScreenState();
     void init() override;
     void on_key(int key, int scancode, int action, int mods) override;
@@ -21,4 +22,5 @@ private:
     Entity quitEntity;
     Entity optionsEntity;
     Entity esc_key;
+    bool hasLoaded;
 };
