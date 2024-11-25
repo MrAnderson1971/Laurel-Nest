@@ -2,9 +2,17 @@
 #include "ecs_registry.hpp"
 #include "game_state_manager.hpp"
 #include "splash_screen_state.hpp"
+#include <limits>
+
+static float lerp(float a, float b, float t) {
+    t = clamp(t, 0, 1);
+    return (1 - t) * a + t * b;
+}
+
+GameOverScreen::GameOverScreen() : time(0.f), transparency(0.f) {}
 
 GameOverScreen::~GameOverScreen() {
-    cleanup();
+    GameOverScreen::cleanup();
 }
 
 void GameOverScreen::init()
@@ -27,7 +35,7 @@ void GameOverScreen::cleanup() {
 }
 
 void GameOverScreen::on_key(int key, int, int action, int) {
-    if (action == GLFW_PRESS) {
+    if (action == GLFW_PRESS && transparency + std::numeric_limits<float>::epsilon() >= 1) {
         renderSystem.getGameStateManager()->changeState<SplashScreenState>();
     }
 }
@@ -50,12 +58,15 @@ void GameOverScreen::render()
         auto& transform = registry.transforms.get(gameOverEntity);
 
         // Use the render system to draw the entity
-        renderSystem.drawEntity(sprite, transform);
+        renderSystem.drawEntity(sprite, transform, transparency);
     }
 
-    renderSystem.renderText("Press any button to continue.", window_width_px * 0.29f, window_height_px * 0.80f, 1.0f, vec3(1), mat4(1));
+    if (transparency >= 1 - std::numeric_limits<float>::epsilon()) {
+        renderSystem.renderText("Press any key to continue.", window_width_px * 0.29f, window_height_px * 0.80f, 1.0f, vec3(1), mat4(1));
+    }
 }
 
-void GameOverScreen::update(float) {
-
+void GameOverScreen::update(float elapsed_ms) {
+    time += elapsed_ms;
+    transparency = lerp(0.f, 1.f, time);
 }

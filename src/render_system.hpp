@@ -54,7 +54,7 @@ public:
 
     void cleanup();
     Sprite loadTexture(const std::string& filePath);
-    void drawEntity(const Sprite& sprite, const TransformComponent& transform);
+    void drawEntity(const Sprite& sprite, const TransformComponent& transform, float transparency = 1.f);
     bool fontInit(const std::string& font_filename, unsigned int font_default_size);
     void renderText(std::string text, float x, float y, float scale, const glm::vec3& color, const glm::mat4& trans);
 
