@@ -152,7 +152,7 @@ void WorldSystem::init() {
 
     std::vector<bool> heartPowerUps;
     heartPowerUps.push_back(heartPowerUp_0);
-    heartPowerUps.push_back(heartPowerUp_1);
+    //heartPowerUps.push_back(heartPowerUp_1);
     for (int i = 0; i < heartPowerUps.size(); i++) {
         if (heartPowerUps[i]) registry.remove_all_components_of(registry.heartPowerUp.entities[0]);
     }
