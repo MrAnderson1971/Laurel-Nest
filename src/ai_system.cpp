@@ -161,6 +161,9 @@ void AISystem::flying_goomba_step(Entity player, Entity current_room, float elap
                                     flyingGoombaMotion.velocity.y = 0;
                                 }
                             }
+                            else if (fg_state.current_state == FlyingGoombaState::FLYING_GOOMBA_THROW_PROJECTILE) {
+
+                            }
                         }
                         if (flyingGoomba_Animation.isAnimationComplete()) {
                             fg_state.animationDone = true;
