@@ -94,7 +94,7 @@ inline std::unordered_map<TEXTURE_ASSET_ID, Sprite> loadTextures() {
     std::unordered_map<TEXTURE_ASSET_ID, Sprite> results;
     for (auto& pair : futures) {
         results.emplace(pair.first, bindTexture(pair.second.get()));
-        drawLoadingScreen(count.load(), futures.size());
+        renderSystem.doGlassBreakTransition(count.load(), futures.size());
     }
 
     return results;
