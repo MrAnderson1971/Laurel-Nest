@@ -32,6 +32,7 @@ constexpr float FIREBALL_HEIGHT = 0.4f * 339.f;
 constexpr int SWORD_CHANNEL = 0;
 constexpr int HURT_CHANNEL = 1;
 constexpr int SAVE_SOUND_CHANNEL = 2;
+constexpr int GUN_CLICK_CHANNEL = 3;
 
 extern bool Show_FPS;
 extern bool isChickenDead;
@@ -108,6 +109,7 @@ private:
 	Mix_Chunk* sword_sound;
 	Mix_Chunk* hurt_sound;
 	Mix_Chunk* save_sound;
+	Mix_Chunk* gun_click_sound;
     std::unique_ptr<std::unordered_map<TEXTURE_ASSET_ID, Sprite>> texture_paths;
 
 	// Font stuff
