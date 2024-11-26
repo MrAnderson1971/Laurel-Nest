@@ -9,7 +9,7 @@
 
 constexpr float player_speed = 1.0f * TPS;
 constexpr float player_jump_velocity = 3.7f * TPS; // adjust so you can reach the test platform
-constexpr float MAX_COYOTE_TIME = 0.1f;
+constexpr float MAX_COYOTE_TIME = 0.2f;
 
 // These are hardcoded to the dimensions of the entity texture
 // BB = bounding box
@@ -20,7 +20,9 @@ constexpr float JUMPING_BB_WIDTH  = 1.2f * 464.f * 0.2f;
 constexpr float JUMPING_BB_HEIGHT = 1.2f * 714.f * 0.2f;
 constexpr float ATTACKING_BB_WIDTH  = 1.2f * 816.f * 0.2f;
 constexpr float ATTACKING_BB_HEIGHT = 1.2f * 714.f * 0.2f;
-constexpr float HEARTS_WIDTH = 0.4f * 964.0f;
+constexpr float HEARTS_THREE_WIDTH = 0.4f * 964.0f;
+constexpr float HEARTS_FOUR_WIDTH = 0.4f * 1065.0f;
+constexpr float HEARTS_FIVE_WIDTH = 0.4f * 1234.0f;
 constexpr float HEARTS_HEIGHT = 0.4f * 366.0f;
 constexpr float FLAME_THROWER_WIDTH = 0.2f * 418.f;
 constexpr float FLAME_THROWER_HEIGHT = 0.2f * 272.f;
@@ -29,7 +31,8 @@ constexpr float FIREBALL_HEIGHT = 0.4f * 339.f;
 
 constexpr int SWORD_CHANNEL = 0;
 constexpr int HURT_CHANNEL = 1;
-constexpr int SAVE_SOUND_CHANNEL = 1;
+constexpr int SAVE_SOUND_CHANNEL = 2;
+constexpr int GUN_CLICK_CHANNEL = 3;
 
 extern bool Show_FPS;
 extern bool isChickenDead;
@@ -59,6 +62,7 @@ public:
 	void handle_ai();
 	void handle_saving();
 	void handle_pelican();
+	void handle_bmt3();
 
 	Entity switch_map();
 
@@ -78,10 +82,13 @@ private:
     void update_damaged_player_sprites(float delta_time);
 
 	void init_status_bar();
-    void renew_status_bar();
+	void init_three_heart_status_bar();
+	void init_four_heart_status_bar();
+	void init_five_heart_status_bar();
     void init_flame_thrower();
 
 	void update_status_bar(int num_hearts);
+	void upgrade_player_health();
 
     float coyoteTimer = 0.f;
     bool isGrounded = false;
@@ -91,8 +98,9 @@ private:
 
 	// saveables
 	
-	bool heartPowerUp;
-	bool swordPowerUp;
+	bool heartPowerUp_0;
+	bool heartPowerUp_1;
+	bool swordPowerUp_0;
 
 
     void updateBoundingBox(Entity entity);
@@ -101,6 +109,7 @@ private:
 	Mix_Chunk* sword_sound;
 	Mix_Chunk* hurt_sound;
 	Mix_Chunk* save_sound;
+	Mix_Chunk* gun_click_sound;
     std::unique_ptr<std::unordered_map<TEXTURE_ASSET_ID, Sprite>> texture_paths;
 
 	// Font stuff

@@ -2,6 +2,7 @@
 #include "components.hpp"
 #include "world_system.hpp"
 #include "options_menu.hpp"
+#include "cutscene.hpp"
 #include <iostream>
 
 SplashScreenState::SplashScreenState() : hasLoaded(false) {}
@@ -48,7 +49,7 @@ void SplashScreenState::on_key(int key, int, int action, int)
     if (action == GLFW_PRESS && !hasLoaded)
     {
         hasLoaded = true;
-        renderSystem.getGameStateManager()->changeState<WorldSystem>();
+        renderSystem.getGameStateManager()->changeState<Cutscene>();
     }
 }
 

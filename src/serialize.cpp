@@ -52,3 +52,72 @@ const std::string BoolToString(bool b)
 {
 	return b ? "true" : "false";
 }
+
+void readFromSaveFile(const std::string& filePath, SaveFile& sf) {
+	std::ifstream file(filePath);
+	if (!file.is_open()) {
+		return;
+	}
+
+	std::string line;
+	int currentLine = 0;
+	while (std::getline(file, line)) {
+		std::istringstream iss(line);
+		int value;
+		bool value_b;
+		switch (static_cast<SAVEFILE_LINES>(currentLine)) {
+		case SAVEFILE_LINES::PLAYER_MAX_HEALTH:
+			if (iss >> value) {
+				sf.player_max_health = value;
+			}
+			break;
+		case SAVEFILE_LINES::PLAYER_CURRENT_HEALTH:
+			if (iss >> value) {
+				sf.player_current_health = value;
+			}
+			break;
+		case SAVEFILE_LINES::HEALTH_FLASK_USES:
+			if (iss >> value) {
+				sf.health_flask_uses = value;
+			}
+			break;
+		case SAVEFILE_LINES::SWORD_DAMAGE:
+			if (iss >> value) {
+				sf.sword_damage = value;
+			}
+			break;
+		case SAVEFILE_LINES::HEART_POWER_UP_0:
+			if (iss >> std::boolalpha >> value_b) {
+				sf.heart_power_up_0 = value_b;
+			}
+			break;
+		case SAVEFILE_LINES::HEART_POWER_UP_1:
+			if (iss >> std::boolalpha >> value_b) {
+				sf.heart_power_up_1 = value_b;
+			}
+			break;
+		case SAVEFILE_LINES::SWORD_POWER_UP_0:
+			if (iss >> std::boolalpha >> value_b) {
+				sf.sword_power_up_0 = value_b;
+			}
+			break;
+		case SAVEFILE_LINES::IS_CHICKEN_DEAD:
+			if (iss >> std::boolalpha >> value_b) {
+				sf.is_chicken_dead = value_b;
+			}
+			break;
+		case SAVEFILE_LINES::START_FROM_CHECKPOINT:
+			if (iss >> std::boolalpha >> value_b) {
+				sf.start_from_checkpoint = value_b;
+			}
+			break;
+		case SAVEFILE_LINES::SAVED_THIS_INSTANCE:
+			if (iss >> std::boolalpha >> value_b) {
+				sf.saved_this_instance = value_b;
+			}
+			break;
+
+		}
+		currentLine++;
+	}
+}

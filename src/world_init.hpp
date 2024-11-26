@@ -67,7 +67,8 @@ inline std::unordered_map<TEXTURE_ASSET_ID, std::string> createTextureAssetMap()
         {TEXTURE_ASSET_ID::LN_THRONE_BG, "LNThrone_bg.PNG"},
         {TEXTURE_ASSET_ID::LN_BG, "LN_bg.PNG"},
         {TEXTURE_ASSET_ID::PELICAN_IDLE, "PelicanIdle.PNG"},
-        {TEXTURE_ASSET_ID::PELICAN_TALK, "PelicanTalk.PNG"}
+        {TEXTURE_ASSET_ID::PELICAN_TALK, "PelicanTalk.PNG"},
+        {TEXTURE_ASSET_ID::EXTRA_HEART, "extra_heart.png"}
     };
 }
 
@@ -93,7 +94,7 @@ inline std::unordered_map<TEXTURE_ASSET_ID, Sprite> loadTextures() {
     std::unordered_map<TEXTURE_ASSET_ID, Sprite> results;
     for (auto& pair : futures) {
         results.emplace(pair.first, bindTexture(pair.second.get()));
-        drawLoadingScreen(count.load(), futures.size());
+        renderSystem.doGlassBreakTransition(count.load(), futures.size());
     }
 
     return results;

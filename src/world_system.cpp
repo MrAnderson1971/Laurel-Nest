@@ -40,17 +40,25 @@ WorldSystem::WorldSystem() {
 
 WorldSystem::~WorldSystem() {
     g_texture_paths = nullptr;
-	cleanup();
+	WorldSystem::cleanup();
 }
 
 void WorldSystem::init() {
     // Create a new entity and register it in the ECSRegistry
-    isChickenDead = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::IS_CHICKEN_DEAD), false);
-    heartPowerUp = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::HEART_POWER_UP), false);
+    SaveFile sf;
+    readFromSaveFile(SAVE_FILE_PATH, sf);
+    heartPowerUp_0 = sf.heart_power_up_0;
+    heartPowerUp_1 = sf.heart_power_up_1;
+    swordPowerUp_0 = sf.sword_power_up_0;
+    isChickenDead = sf.is_chicken_dead;
+    start_from_checkpoint = sf.start_from_checkpoint;
+    saved_this_instance = sf.saved_this_instance;
+    /*isChickenDead = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::IS_CHICKEN_DEAD), false);
+    heartPowerUp_0 = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::HEART_POWER_UP_0), false);
+    heartPowerUp_1 = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::HEART_POWER_UP_1), false);
+    swordPowerUp_0 = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::HEART_POWER_UP_1), false);
     saved_this_instance = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::SAVED_THIS_INSTANCE), false);
-    //TODO: sword
-
-    start_from_checkpoint = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::START_FROM_CHECKPOINT),false);
+    start_from_checkpoint = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::START_FROM_CHECKPOINT),false);*/
     // Player
 
     // Add the Player component to the player entity    
@@ -69,18 +77,18 @@ void WorldSystem::init() {
 
     // Create and initialize a damage component for the sword
     Damage swordDamage;
-    swordDamage.damage_dealt = 1;
+    swordDamage.damage_dealt = sf.sword_damage;
     registry.damages.emplace(m_sword, swordDamage);
 
     // Create and initialize a Health component for the player
     Health playerHealth;
-    playerHealth.current_health = readIntFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::PLAYER_CURRENT_HEALTH), 3);
-    playerHealth.max_health = readIntFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::PLAYER_MAX_HEALTH), 3);
+    playerHealth.current_health = sf.player_current_health;
+    playerHealth.max_health = sf.player_max_health;
     registry.healths.emplace(m_player, playerHealth);
 
     // Create the HealthFlask for the player to heal with
     HealthFlask healthFlask;
-    healthFlask.num_uses = readIntFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::HEALTH_FLASK_USES), 3);
+    healthFlask.num_uses = sf.health_flask_uses;
     registry.healthFlasks.emplace(m_player, healthFlask);
 
     // Add gravity to the Player
@@ -133,12 +141,9 @@ void WorldSystem::init() {
     // load mesh for player
     renderSystem.loadPlayerMeshes(m_player);
 
-    if (playerHealth.max_health == 4) {
-        renew_status_bar();
-    }
-    else {
-        init_status_bar();
-    }
+    
+    init_status_bar();
+    
 
     init_flame_thrower();
      
@@ -150,15 +155,25 @@ void WorldSystem::init() {
     next_map = regionManager->setRegion(makeRegion<Birdmantown>);
     physics.setRoom(current_room);
 
-    // TODO LATER: Somehow differentiate between heart power ups if we are going to have multiple
-    if (heartPowerUp) {
-       registry.remove_all_components_of(registry.heartPowerUp.entities[0]);
+
+    std::vector<bool> heartPowerUps;
+    heartPowerUps.push_back(heartPowerUp_0);
+    heartPowerUps.push_back(heartPowerUp_1);
+    int x = 0;
+    int y = 0;
+    while (x < heartPowerUps.size()) {
+        if (heartPowerUps[x]) {
+            registry.remove_all_components_of(registry.heartPowerUp.entities[y]);
+        } else {
+            y++;
+        }
+        x++;
     }
 
     //TODO: sword
-    /*if (swordPowerUp) {
+    if (swordPowerUp_0) {
         registry.remove_all_components_of(registry.swordPowerUp.entities[0]);
-    }*/
+    }
     
 
     // esc instruction sprite
@@ -169,12 +184,13 @@ void WorldSystem::init() {
         vec3(escSprite.width * 0.3f, escSprite.height * 0.3f, 1.f), 0.f
         });
 
-    Mix_ReserveChannels(2);
+    Mix_ReserveChannels(3);
     footstep_sound = Mix_LoadWAV(audio_path("footstep.wav").c_str());
     sword_sound = Mix_LoadWAV(audio_path("sword.wav").c_str());
     hurt_sound = Mix_LoadWAV(audio_path("hurt.wav").c_str());
     save_sound = Mix_LoadWAV(audio_path("save.wav").c_str());
-    if (!(footstep_sound && sword_sound && hurt_sound && save_sound)) {
+    gun_click_sound = Mix_LoadWAV(audio_path("gun_click.wav").c_str());
+    if (!(footstep_sound && sword_sound && hurt_sound && save_sound && gun_click_sound)) {
         std::cerr << "Failed to load WAV file: " << Mix_GetError() << std::endl;
     }
 }
@@ -204,6 +220,11 @@ void WorldSystem::update(float deltaTime) {
     BossAISystem::step(m_player, deltaTime);
     BossAISystem::update_damaged_chicken_sprites(deltaTime);
 
+    // look for specific rooms with restrictions
+    if (registry.rooms.has(current_room) && registry.rooms.get(current_room).id == ROOM_ID::BMT_3 && !registry.rooms.get(current_room).clear) {
+        handle_bmt3();
+    }
+
     // TODO: make this its own function too??
     //Update bounding boxes for all the entities
     auto & bounding_boxes = registry.bounding_box;
@@ -225,7 +246,7 @@ void WorldSystem::handle_connections(float deltaTime) {
         for (auto& connection : list.doors) {
             if (physics.checkForCollision(m_player, connection.door, dir, over)) {
                 // check if in boss room and if boss is dead
-                if (!connection.limit || isChickenDead) {
+                if (!connection.limit || (registry.rooms.get(current_room).id == ROOM_ID::CP_BOSS && isChickenDead)) {
                     // set next room
                     // check for switching map
                     if (!connection.switchMap) {
@@ -301,14 +322,9 @@ void WorldSystem::handle_motions(float deltaTime) {
 
             // If this is the player, reset canJump before handling collisions
             if (entity == m_player) {
-                if (isGrounded) {
-                    coyoteTimer = MAX_COYOTE_TIME;
-                }
-                else {
-                    coyoteTimer -= deltaTime;
-                    if (coyoteTimer < 0.0f) {
-                        coyoteTimer = 0.0f;
-                    }
+                coyoteTimer -= deltaTime;
+                if (coyoteTimer < 0.0f) {
+                    coyoteTimer = 0.0f;
                 }
             }
 
@@ -337,18 +353,23 @@ void WorldSystem::handle_motions(float deltaTime) {
             // moving platform specific, keep platform within bounds
             if (registry.movingPlatform.has(entity) && registry.rooms.get(current_room).has(entity)) {
                 auto& mp = registry.movingPlatform.get(entity);
-                float mp_xpos = window_width_px;
-                float mp_ypos = window_height_px;
-                if (mp.vertical) {
-                    if (m.position.y < (mp.startPos.y * mp_ypos)) { 
-                        m.velocity.y = std::abs(m.velocity.y); 
+                if (mp.moving) {
+                    float mp_xpos = window_width_px;
+                    float mp_ypos = window_height_px;
+                    // vertical platforms
+                    if (mp.vertical) {
+                        // start = upper left
+                        if (m.position.y < (mp.startPos.y * mp_ypos)) {
+                            m.velocity.y = std::abs(m.velocity.y);
+                        }
+                        // end = lower right
+                        else if (m.position.y > (mp.endPos.y * mp_ypos)) {
+                            m.velocity.y = -std::abs(m.velocity.y);
+                        }
                     }
-                    else if (m.position.y > (mp.endPos.y * mp_ypos)) {
-                        m.velocity.y = -std::abs(m.velocity.y);
+                    else { // horizontal platforms
+                        if (m.position.x < (mp.startPos.x * mp_xpos) || m.position.x >(mp.endPos.x * mp_xpos)) m.velocity *= -1.f;
                     }
-                }
-                else {
-                    if (m.position.x < (mp.startPos.x * mp_xpos) || m.position.x > (mp.endPos.x * mp_xpos)) m.velocity *= -1.f;
                 }
             }
 
@@ -478,7 +499,8 @@ void WorldSystem::handle_collisions() {
             }
         }
 
-        if (registry.grounds.has(entity_other)) {
+        // gaurd against moving platform and flying goombas because i'm tired
+        if (registry.grounds.has(entity_other) && !(registry.movingPlatform.has(entity_other) && registry.flyingGoombaAnimations.has(entity))) {
             if (direction.x != 0 && thisMotion.velocity.x != 0) {
                 thisMotion.position.x -= overlap.x;
             } 
@@ -514,7 +536,7 @@ void WorldSystem::handle_collisions() {
 
         // change the flying goomba's animation when it impacts the ground
         if (registry.hostiles.has(entity) && registry.hostiles.get(entity).type == HostileType::GOOMBA_FLYING 
-            && registry.healths.has(entity) && registry.grounds.has(entity_other)) {
+            && registry.healths.has(entity) && registry.grounds.has(entity_other) && !registry.movingPlatform.has(entity_other)) {
             auto& goombaFlyingAnimation = registry.flyingGoombaAnimations.get(entity);
             goombaFlyingAnimation.setState(FlyingGoombaState::FLYING_GOOMBA_IDLE);
             GoombaFlyingState& g_state = registry.goombaFlyingStates.get(entity);
@@ -592,26 +614,21 @@ void WorldSystem::handle_collisions() {
         // handle extra heart powerup, restore all health and remove heart entity
         // TODO: add extra heart life
         if (registry.players.has(entity) && registry.heartPowerUp.has(entity_other)) {
-            // if (!heartPowerUp)
-            // heartPowerUp = true;
-            registry.remove_all_components_of(entity_other);
-            // reset health to full
-            Health& player_health = registry.healths.get(m_player);
-            if (player_health.max_health == 3) {
-                player_health.max_health = 4;
-            } else if (player_health.max_health == 4) {
-                player_health.max_health = 5;
+            if (!heartPowerUp_0 || !heartPowerUp_1) {
+                upgrade_player_health();
+                if (registry.heartPowerUp.get(entity_other).number == 0) {
+                    heartPowerUp_0 = true;
+                }
+                else if (registry.heartPowerUp.get(entity_other).number == 1) {
+                    heartPowerUp_1 = true;
+                }
+                registry.remove_all_components_of(entity_other);
             }
-            renew_status_bar();
-            player_health.current_health = player_health.max_health;
-            HealthFlask& health_flask = registry.healthFlasks.get(m_player);
-            health_flask.num_uses = 3;
-
         }
 
         // TODO: sword
         if (registry.players.has(entity) && registry.swordPowerUp.has(entity_other)) {
-            swordPowerUp = true;
+            swordPowerUp_0 = true;
             registry.remove_all_components_of(entity_other);
             // increase attack
             Damage& d = registry.damages.get(m_sword);
@@ -700,7 +717,7 @@ void WorldSystem::handle_saving() {
                         Health& health = registry.healths.get(m_player);
                         health.current_health = health.max_health;
                         HealthFlask& healthFlask = registry.healthFlasks.get(m_player);
-                        healthFlask.num_uses = 3;
+                        healthFlask.num_uses = healthFlask.max_uses;
                         saved_this_instance = true;
                     }
                    
@@ -712,10 +729,28 @@ void WorldSystem::handle_saving() {
     do_save = false;
 }
 
+void WorldSystem::handle_bmt3() {
+    bool cleared = true;
+    for (auto entity : registry.rooms.get(current_room).entities) {
+        if (registry.goombaFlyingStates.has(entity) && registry.goombaFlyingStates.get(entity).current_state != FLYING_GOOMBA_DEAD) {
+            cleared = false;
+        }
+    }
+    if (cleared) {
+        for (auto entity : registry.rooms.get(current_room).entities) {
+            if (registry.movingPlatform.has(entity)) {
+                registry.movingPlatform.get(entity).moving = true;
+                registry.motions.get(entity).velocity = glm::vec2(0, 100.f);
+            }
+        }
+        registry.rooms.get(current_room).clear = true;
+    }
+}
+
 // move this elsewhere later
 std::string dialogue[7] = { "You, you! You're not a bird?",
 "Seeking the Crown of Claws, hmm?",
-"But the Chiken Clan left us.",
+"But the Chicken Clan left us.",
 "Everything below is covered in poop.",
 "The sewers are overflown,",
 "and the birds yearn for flesh.",
@@ -951,6 +986,7 @@ void WorldSystem::processPlayerInput(int key, int action) {
                     coyoteTimer = 0.f;
                     isGrounded = false;
                 }
+
             }
             break;
         case GLFW_KEY_S:
@@ -968,9 +1004,6 @@ void WorldSystem::processPlayerInput(int key, int action) {
             if (isChickenDead) {
                 if (!registry.players.get(m_player).attacking) {
                     isFlameThrowerEquipped = true;
-                    if (isFlameThrowerEquipped && flameThrower_enabled) {
-                        useFlameThrower();
-                    }
                 }
             }
             break;
@@ -1044,7 +1077,6 @@ void WorldSystem::useFlameThrower() {
    Room& this_room = registry.rooms.get(current_room);
    this_room.entities.insert(m_fireball);
 
-
    weapon.cooldown = 3.0f;
    flameThrower_enabled = false;
 }
@@ -1069,6 +1101,11 @@ void WorldSystem::on_mouse_click(int button, int action, const glm::vec2&, int) 
                     c.frames = c.max_frames;
                     registry.players.get(m_player).attacking = true;
                 }
+            } else if (flameThrower_enabled) {
+                useFlameThrower();
+            }
+            else {
+                Mix_PlayChannel(GUN_CLICK_CHANNEL, gun_click_sound, 0);
             }
         }
     }
@@ -1092,6 +1129,10 @@ void WorldSystem::cleanup() {
     if (save_sound != nullptr) {
         Mix_FreeChunk(save_sound);
         save_sound = nullptr;
+    }
+    if (gun_click_sound != nullptr) {
+        Mix_FreeChunk(gun_click_sound);
+        gun_click_sound = nullptr;
     }
     registry.clear_all_components();
 }
@@ -1157,7 +1198,17 @@ void WorldSystem::player_get_healed() {
 
 void WorldSystem::init_status_bar() {
     // Create and initialize the Heart sprites
+    Health player_health = registry.healths.get(m_player);
+    if (player_health.max_health == 5) {
+        init_five_heart_status_bar();
+    } else if (player_health.max_health == 4) {
+        init_four_heart_status_bar();
+    } else {
+        init_three_heart_status_bar();
+    }
+}
 
+void WorldSystem::init_three_heart_status_bar() {
     registry.heartSprites.emplace(m_hearts, std::vector<Sprite> {
         g_texture_paths->at(TEXTURE_ASSET_ID::HEART_0),
             g_texture_paths->at(TEXTURE_ASSET_ID::HEART_1),
@@ -1165,20 +1216,16 @@ void WorldSystem::init_status_bar() {
             g_texture_paths->at(TEXTURE_ASSET_ID::HEART_3)
     });
 
-    // Create and initialize the a Transform component for the Heart sprites
+    // Create and initialize the a Transform component for the 3 Heart sprites
     TransformComponent heartSpriteTransform;
     heartSpriteTransform.position = glm::vec3(250.0f, 120.0f, 0.0);
-    heartSpriteTransform.scale = glm::vec3(HEARTS_WIDTH, HEARTS_HEIGHT, 1.0);
+    heartSpriteTransform.scale = glm::vec3(HEARTS_THREE_WIDTH, HEARTS_HEIGHT, 1.0);
     heartSpriteTransform.rotation = 0.0f;
     registry.transforms.emplace(m_hearts, std::move(heartSpriteTransform));
-
-    if (registry.healths.get(m_player).max_health > 3) {
-        renew_status_bar();
-    }
 }
 
-void WorldSystem::renew_status_bar() {
-    // Update the Heart sprites
+void WorldSystem::init_four_heart_status_bar() {
+    // Add new heart sprites (HEART_4_0 to HEART_4_4)
     if (registry.heartSprites.has(m_hearts)) {
         registry.heartSprites.remove(m_hearts);
     }
@@ -1186,34 +1233,43 @@ void WorldSystem::renew_status_bar() {
         registry.transforms.remove(m_hearts);
     }
 
-    // Add new heart sprites (HEART_4_0 to HEART_4_4)
-    if (registry.healths.get(m_player).max_health == 4) {
-        registry.heartSprites.emplace(m_hearts, std::vector<Sprite>{
-                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_0),
-                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_1),
-                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_2),
-                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_3),
-                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_4)
-        });
-    } else if (registry.healths.get(m_player).max_health == 5) {
-        registry.heartSprites.emplace(m_hearts, std::vector<Sprite>{
-                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_5_0),
-                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_5_1),
-                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_5_2),
-                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_5_3),
-                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_5_4),
-                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_5_5)
-        });
-    }
+    registry.heartSprites.emplace(m_hearts, std::vector<Sprite> {
+        g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_0),
+            g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_1),
+            g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_2),
+            g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_3),
+            g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_4)
+    });
 
-    // Create and initialize a Transform component for the new Heart sprites
+
+    // Create and initialize a Transform component for the new 4 Heart sprites
     TransformComponent heartSpriteTransform;
     heartSpriteTransform.position = glm::vec3(250.0f, 120.0f, 0.0); // Position remains unchanged
-    if (registry.healths.get(m_player).max_health == 4) {
-        heartSpriteTransform.scale = glm::vec3(0.4f * 1065.0f, HEARTS_HEIGHT, 1.0);
-    } else if (registry.healths.get(m_player).max_health == 5) {
-        heartSpriteTransform.scale = glm::vec3(0.4f * 1234.0f, HEARTS_HEIGHT, 1.0);
+    heartSpriteTransform.scale = glm::vec3(HEARTS_FOUR_WIDTH, HEARTS_HEIGHT, 1.0); // Updated width used
+    heartSpriteTransform.rotation = 0.0f;
+    registry.transforms.emplace(m_hearts, std::move(heartSpriteTransform));
+}
+
+void WorldSystem::init_five_heart_status_bar() {
+    if (registry.heartSprites.has(m_hearts)) {
+        registry.heartSprites.remove(m_hearts);
     }
+    if (registry.transforms.has(m_hearts)) {
+        registry.transforms.remove(m_hearts);
+    }
+    registry.heartSprites.emplace(m_hearts, std::vector<Sprite> {
+        g_texture_paths->at(TEXTURE_ASSET_ID::HEART_5_0),
+            g_texture_paths->at(TEXTURE_ASSET_ID::HEART_5_1),
+            g_texture_paths->at(TEXTURE_ASSET_ID::HEART_5_2),
+            g_texture_paths->at(TEXTURE_ASSET_ID::HEART_5_3),
+            g_texture_paths->at(TEXTURE_ASSET_ID::HEART_5_4),
+            g_texture_paths->at(TEXTURE_ASSET_ID::HEART_5_5)
+    });
+
+    // Create and initialize a Transform component for the new 4 Heart sprites
+    TransformComponent heartSpriteTransform;
+    heartSpriteTransform.position = glm::vec3(250.0f, 120.0f, 0.0); // Position remains unchanged
+    heartSpriteTransform.scale = glm::vec3(HEARTS_FIVE_WIDTH, HEARTS_HEIGHT, 1.0); // Updated width used
     heartSpriteTransform.rotation = 0.0f;
     registry.transforms.emplace(m_hearts, std::move(heartSpriteTransform));
 }
@@ -1280,38 +1336,48 @@ void WorldSystem::updateBoundingBox(Entity e1) {
 
 }
 
+void WorldSystem::upgrade_player_health()  {
+    Health& player_health = registry.healths.get(m_player);
+    player_health.max_health ++;
+    player_health.current_health = player_health.max_health;
+    HealthFlask& health_flask = registry.healthFlasks.get(m_player);
+    health_flask.num_uses = health_flask.max_uses;
+    if (player_health.max_health == 5) {
+        init_five_heart_status_bar();
+    } else if (player_health.max_health == 4) {
+        init_four_heart_status_bar();
+    }
+}
+
 void WorldSystem::write_to_save_file() {
     std::fstream saveFile;
     saveFile.open(SAVE_FILE_PATH, std::ios::out); // writing
     if (saveFile.is_open()) {
-        //saveFile << BoolToString(isGreatBirdDead) + "\n";
-        //saveFile << std::to_string(PelicanState) + "\n";
-        // MaxHealth
         Health player_health = registry.healths.get(m_player);
-        // Line 0: player max health
+        Damage player_damage = registry.damages.get(m_sword);
+        HealthFlask health_flask = registry.healthFlasks.get(m_player);
+
         saveFile << player_health.max_health << "\n";
-        // Line 1: player current health
+
         saveFile << player_health.current_health << "\n";
 
-        // Line 2:
-        HealthFlask health_flask = registry.healthFlasks.get(m_player);
         saveFile << health_flask.num_uses << "\n";
 
-        // Line 3:
-        saveFile << BoolToString(heartPowerUp) << "\n";
+        saveFile << player_damage.damage_dealt << "\n";
 
-        //TODO: sword
+        saveFile << BoolToString(heartPowerUp_0) << "\n";
 
-        // Line 4:
+        saveFile << BoolToString(heartPowerUp_1) << "\n";
+
+        saveFile << BoolToString(swordPowerUp_0) << "\n";
+
         saveFile << BoolToString(isChickenDead) << "\n";
 
-        // Line 5:
         saveFile << BoolToString(start_from_checkpoint) << "\n";
 
         saveFile << BoolToString(saved_this_instance) << "\n";
 
         saveFile.close();
-        std::cout << "Saved \n";
     }
     else {
         std::cout << "Couldnt write to save file \n";
