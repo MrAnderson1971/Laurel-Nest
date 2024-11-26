@@ -41,7 +41,7 @@ void main() {
             if (dist < minDist) {
                 secondMinDist = minDist;
                 minDist = dist;
-            } else if (dist < minDist) {
+            } else if (dist < secondMinDist) {
                 secondMinDist = dist;
             }
         }
