@@ -33,6 +33,10 @@ Entity CPEntranceRoomStrategy::execute() {
     Environment spaceshipObg;
     registry.envObject.emplace(m_spaceship, std::move(spaceshipObg));
 
+    Entity m_wall_bound_left = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::CP_WALL), 1.f, 0.6f, 0.6f, 0.f, 1000.f);
+
+    Entity m_wall_bound_right = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::CP_WALL), 1.f, 0.6f, 0.6f, 1.f, 1000.f);
+
     // platform 1: upper left
     Entity m_platform1 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.6f, 0.65f);
 
@@ -50,6 +54,8 @@ Entity CPEntranceRoomStrategy::execute() {
     Entity pelican = SetPelican(renderSystem.getWindowWidth() - 200.f, renderSystem.getWindowHeight() - 747.f);
 
     // note on bg: don't add motion
+    registry.grounds.emplace(m_wall_bound_left, std::move(Ground()));
+    registry.grounds.emplace(m_wall_bound_right, std::move(Ground()));
     registry.grounds.emplace(m_ground_left, std::move(Ground()));
     registry.grounds.emplace(m_wall_right, std::move(Ground()));
     registry.grounds.emplace(m_platform1, std::move(Ground()));
@@ -57,6 +63,8 @@ Entity CPEntranceRoomStrategy::execute() {
 
     room.insert(m_bg);
     room.insert(m_spaceship);
+    room.insert(m_wall_bound_left);
+    room.insert(m_wall_bound_right);
     room.insert(m_ground_left);
     room.insert(m_wall_right);
     room.insert(m_platform1);
@@ -105,7 +113,7 @@ Entity CPRoom1Strategy::execute() {
     Entity m_platform2 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.21f, 0.65f);
 
     // note on bg: don't add motion
-    registry.grounds.emplace(m_wall, std::move(Ground()));
+    //registry.grounds.emplace(m_wall, std::move(Ground()));
     registry.grounds.emplace(m_ground, std::move(Ground()));
     registry.grounds.emplace(m_platform1, std::move(Ground()));
     registry.grounds.emplace(m_platform2, std::move(Ground()));
@@ -115,7 +123,7 @@ Entity CPRoom1Strategy::execute() {
     g1.init(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight()* 4.f / 5.f);
 
     room.insert(m_bg);
-    room.insert(m_wall);
+    //room.insert(m_wall);
     room.insert(m_ceiling);
     room.insert(m_ground);
     room.insert(m_platform1);
