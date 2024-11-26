@@ -97,8 +97,10 @@ bool RenderSystem::initOpenGL(int width, int height, const std::string& title)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Load shaders and set up vertices
-    loadShaders();
+    loadShaders("textured", shaderProgram);
+    loadShaders("glass", glassShader);
     setupVertices();
+    setupGlassVertices();
 
     // Set GLFW callbacks for input handling
     glfwSetKeyCallback(window, keyCallbackRedirect);
@@ -144,10 +146,9 @@ bool RenderSystem::initOpenGL(int width, int height, const std::string& title)
     return true;
 }
 
-void RenderSystem::loadShaders()
-{
-    std::string vertexCode = readShaderFile(shader_path("textured.vs.glsl"));
-    std::string fragmentCode = readShaderFile(shader_path("textured.fs.glsl"));
+void RenderSystem::loadShaders(const std::string& program, GLuint& shader_program) {
+    std::string vertexCode = readShaderFile(shader_path(program + ".vs.glsl"));
+    std::string fragmentCode = readShaderFile(shader_path(program + ".fs.glsl"));
 
     const char* vertexShaderSource = vertexCode.c_str();
     const char* fragmentShaderSource = fragmentCode.c_str();
@@ -177,21 +178,20 @@ void RenderSystem::loadShaders()
         std::cerr << "Error: Fragment Shader compilation failed\n" << infoLog << std::endl;
     }
 
-    shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
+    shader_program = glCreateProgram();
+    glAttachShader(shader_program, vertexShader);
+    glAttachShader(shader_program, fragmentShader);
+    glLinkProgram(shader_program);
 
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+    glGetProgramiv(shader_program, GL_LINK_STATUS, &success);
     if (!success)
     {
-        glGetProgramInfoLog(shaderProgram, 512, nullptr, infoLog);
+        glGetProgramInfoLog(shader_program, 512, nullptr, infoLog);
         std::cerr << "Error: Shader Program linking failed\n" << infoLog << std::endl;
     }
 
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
-    projectionLoc = glGetUniformLocation(shaderProgram, "projection");
 }
 
 std::string RenderSystem::readShaderFile(const std::string& filePath)
@@ -434,6 +434,41 @@ void RenderSystem::setupVertices()
     glBindVertexArray(0);
 }
 
+void RenderSystem::setupGlassVertices()
+{
+    float glassVertices[] = {
+        -1.0f, -1.0f,  0.0f, 0.0f,
+         1.0f, -1.0f,  1.0f, 0.0f, 
+         1.0f,  1.0f,  1.0f, 1.0f,
+        -1.0f,  1.0f,  0.0f, 1.0f  
+    };
+
+    unsigned int glassIndices[] = {
+        0, 1, 2,
+        2, 3, 0 
+    };
+
+    glGenVertexArrays(1, &glassVAO);
+    glBindVertexArray(glassVAO);
+
+    glGenBuffers(1, &glassVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, glassVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glassVertices), glassVertices, GL_STATIC_DRAW);
+
+    glGenBuffers(1, &glassEBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glassEBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(glassIndices), glassIndices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    glBindVertexArray(0);
+    gl_has_errors();
+}
+
 void RenderSystem::closeWindow() {
     glfwSetWindowShouldClose(window, true);
 }
@@ -500,8 +535,19 @@ void RenderSystem::renderLoop()
     }
 }
 
-void RenderSystem::drawEntity(const Sprite& sprite, const TransformComponent& transform, float transparency)
-{
+void RenderSystem::doGlassBreakTransition(int count, size_t total) {
+    glUseProgram(glassShader);
+    glUniform1f(glGetUniformLocation(glassShader, "keyframe"), static_cast<float>(count) / total);
+    glBindVertexArray(glassVAO);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBindVertexArray(0);
+    glfwSwapBuffers(renderSystem.getWindow());
+    glfwPollEvents();
+    gl_has_errors();
+}
+
+void RenderSystem::drawEntity(const Sprite& sprite, const TransformComponent& transform, float transparency) {
     glUseProgram(shaderProgram);
 
     // Create model matrix from transform component
@@ -511,7 +557,7 @@ void RenderSystem::drawEntity(const Sprite& sprite, const TransformComponent& tr
     model = glm::scale(model, transform.scale * glm::vec3(1.f));
 
     // Set uniforms
-    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
     GLuint modelLoc = glGetUniformLocation(shaderProgram, "model");
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
