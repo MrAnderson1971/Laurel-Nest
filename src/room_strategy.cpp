@@ -184,7 +184,7 @@ Entity CPRoom3Strategy::execute() {
 
     // heart powerUp
     // TODO: add to texture_paths
-    Entity m_heart = SetPlatform(renderSystem.loadTexture("extra_heart.png"), 0.2f, 0.2f, 0.07f, 0.25f);
+    Entity m_heart = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::EXTRA_HEART), 0.2f, 0.2f, 0.07f, 0.25f);
 
     // ground
     Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 1.0f, 0.5f, 0.0f);
@@ -204,7 +204,7 @@ Entity CPRoom3Strategy::execute() {
     registry.grounds.emplace(m_pipe3, std::move(Ground()));
 
     // add heart
-    registry.heartPowerUp.emplace(m_heart, std::move(HeartPowerUp()));
+    registry.heartPowerUp.emplace(m_heart, std::move(HeartPowerUp{0}));
 
     room.insert(m_bg);
     room.insert(m_ceiling);
@@ -534,10 +534,9 @@ Entity BMTRoom2Strategy::execute() {
     // ground
     Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 0.5f, 0.5f, 0.0f);
 
-    // heart powerUp
-    Entity m_heart = SetPlatform(renderSystem.loadTexture("extra_heart.png"), 0.2f, 0.2f, 0.07f, 0.28f);
+    // Heart powerup
+    Entity m_heart = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::EXTRA_HEART), 0.2f, 0.2f, 0.07f, 0.25f);
 
-    registry.heartPowerUp.emplace(m_heart, std::move(HeartPowerUp()));
 
     /*GoombaFlying gf = GoombaFlying();
     gf.init(renderSystem.getWindowWidth() / 3.f, renderSystem.getWindowHeight() / 6.f);*/
@@ -556,6 +555,9 @@ Entity BMTRoom2Strategy::execute() {
     gc2.init(renderSystem.getWindowWidth() * 0.4f, renderSystem.getWindowHeight() * 0.f + gc2.with_platform );
     gc2.set_spit_timer(1.75f);*/
 
+    // add heart
+    registry.heartPowerUp.emplace(m_heart, std::move(HeartPowerUp{ 1 }));
+
     // note on bg: don't add motion
     registry.grounds.emplace(m_ground, std::move(Ground()));
     registry.grounds.emplace(m_wall, std::move(Ground()));
@@ -571,6 +573,7 @@ Entity BMTRoom2Strategy::execute() {
     room.insert(m_wall);
     room.insert(m_platform1);
     room.insert(m_platform2);
+    room.insert(m_heart);
     //room.insert(m_platform3);
     //room.insert(m_platform4);
     room.insert(m_wall2);

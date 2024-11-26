@@ -44,11 +44,12 @@ WorldSystem::~WorldSystem() {
 }
 
 void WorldSystem::init() {
-    // Create a new entity and register it in the ECSRegistry
     isChickenDead = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::IS_CHICKEN_DEAD), false);
-    heartPowerUp = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::HEART_POWER_UP), false);
+    heartPowerUp_0 = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::HEART_POWER_UP_0), false);
+    heartPowerUp_1 = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::HEART_POWER_UP_1), false);
+    swordPowerUp_0 = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::HEART_POWER_UP_1), false);
     saved_this_instance = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::SAVED_THIS_INSTANCE), false);
-    //TODO: sword
+
 
     start_from_checkpoint = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::START_FROM_CHECKPOINT),false);
     // Player
@@ -133,12 +134,9 @@ void WorldSystem::init() {
     // load mesh for player
     renderSystem.loadPlayerMeshes(m_player);
 
-    if (playerHealth.max_health == 4) {
-        renew_status_bar();
-    }
-    else {
-        init_status_bar();
-    }
+    
+    init_status_bar();
+    
 
     init_flame_thrower();
      
@@ -150,9 +148,12 @@ void WorldSystem::init() {
     next_map = regionManager->setRegion(makeRegion<Birdmantown>);
     physics.setRoom(current_room);
 
-    // TODO LATER: Somehow differentiate between heart power ups if we are going to have multiple
-    if (heartPowerUp) {
-       registry.remove_all_components_of(registry.heartPowerUp.entities[0]);
+
+    std::vector<bool> heartPowerUps;
+    heartPowerUps.push_back(heartPowerUp_0);
+    heartPowerUps.push_back(heartPowerUp_1);
+    for (int i = 0; i < heartPowerUps.size(); i++) {
+        if (heartPowerUps[i]) registry.remove_all_components_of(registry.heartPowerUp.entities[i]);
     }
 
     //TODO: sword
@@ -169,7 +170,7 @@ void WorldSystem::init() {
         vec3(escSprite.width * 0.3f, escSprite.height * 0.3f, 1.f), 0.f
         });
 
-    Mix_ReserveChannels(2);
+    Mix_ReserveChannels(3);
     footstep_sound = Mix_LoadWAV(audio_path("footstep.wav").c_str());
     sword_sound = Mix_LoadWAV(audio_path("sword.wav").c_str());
     hurt_sound = Mix_LoadWAV(audio_path("hurt.wav").c_str());
@@ -587,26 +588,21 @@ void WorldSystem::handle_collisions() {
         // handle extra heart powerup, restore all health and remove heart entity
         // TODO: add extra heart life
         if (registry.players.has(entity) && registry.heartPowerUp.has(entity_other)) {
-            // if (!heartPowerUp)
-            // heartPowerUp = true;
-            registry.remove_all_components_of(entity_other);
-            // reset health to full
-            Health& player_health = registry.healths.get(m_player);
-            if (player_health.max_health == 3) {
-                player_health.max_health = 4;
-            } else if (player_health.max_health == 4) {
-                player_health.max_health = 5;
+            if (!heartPowerUp_0 || !heartPowerUp_1) {
+                upgrade_player_health();
+                if (registry.heartPowerUp.get(entity_other).number == 0) {
+                    heartPowerUp_0 = true;
+                }
+                else if (registry.heartPowerUp.get(entity_other).number == 1) {
+                    heartPowerUp_1 = true;
+                }
+                registry.remove_all_components_of(entity_other);
             }
-            renew_status_bar();
-            player_health.current_health = player_health.max_health;
-            HealthFlask& health_flask = registry.healthFlasks.get(m_player);
-            health_flask.num_uses = 3;
-
         }
 
         // TODO: sword
         if (registry.players.has(entity) && registry.swordPowerUp.has(entity_other)) {
-            swordPowerUp = true;
+            swordPowerUp_0 = true;
             registry.remove_all_components_of(entity_other);
             // increase attack
             Damage& d = registry.damages.get(m_sword);
@@ -689,7 +685,7 @@ void WorldSystem::handle_saving() {
                         Health& health = registry.healths.get(m_player);
                         health.current_health = health.max_health;
                         HealthFlask& healthFlask = registry.healthFlasks.get(m_player);
-                        healthFlask.num_uses = 3;
+                        healthFlask.num_uses = healthFlask.max_uses;
                         saved_this_instance = true;
                     }
                    
@@ -1146,7 +1142,17 @@ void WorldSystem::player_get_healed() {
 
 void WorldSystem::init_status_bar() {
     // Create and initialize the Heart sprites
+    Health player_health = registry.healths.get(m_player);
+    if (player_health.max_health == 5) {
+        init_five_heart_status_bar();
+    } else if (player_health.max_health == 4) {
+        init_four_heart_status_bar();
+    } else {
+        init_three_heart_status_bar();
+    }
+}
 
+void WorldSystem::init_three_heart_status_bar() {
     registry.heartSprites.emplace(m_hearts, std::vector<Sprite> {
         g_texture_paths->at(TEXTURE_ASSET_ID::HEART_0),
             g_texture_paths->at(TEXTURE_ASSET_ID::HEART_1),
@@ -1154,20 +1160,16 @@ void WorldSystem::init_status_bar() {
             g_texture_paths->at(TEXTURE_ASSET_ID::HEART_3)
     });
 
-    // Create and initialize the a Transform component for the Heart sprites
+    // Create and initialize the a Transform component for the 3 Heart sprites
     TransformComponent heartSpriteTransform;
     heartSpriteTransform.position = glm::vec3(250.0f, 120.0f, 0.0);
-    heartSpriteTransform.scale = glm::vec3(HEARTS_WIDTH, HEARTS_HEIGHT, 1.0);
+    heartSpriteTransform.scale = glm::vec3(HEARTS_THREE_WIDTH, HEARTS_HEIGHT, 1.0);
     heartSpriteTransform.rotation = 0.0f;
     registry.transforms.emplace(m_hearts, std::move(heartSpriteTransform));
-
-    if (registry.healths.get(m_player).max_health > 3) {
-        renew_status_bar();
-    }
 }
 
-void WorldSystem::renew_status_bar() {
-    // Update the Heart sprites
+void WorldSystem::init_four_heart_status_bar() {
+    // Add new heart sprites (HEART_4_0 to HEART_4_4)
     if (registry.heartSprites.has(m_hearts)) {
         registry.heartSprites.remove(m_hearts);
     }
@@ -1175,34 +1177,45 @@ void WorldSystem::renew_status_bar() {
         registry.transforms.remove(m_hearts);
     }
 
-    // Add new heart sprites (HEART_4_0 to HEART_4_4)
-    if (registry.healths.get(m_player).max_health == 4) {
-        registry.heartSprites.emplace(m_hearts, std::vector<Sprite>{
-                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_0),
-                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_1),
-                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_2),
-                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_3),
-                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_4)
-        });
-    } else if (registry.healths.get(m_player).max_health == 5) {
-        registry.heartSprites.emplace(m_hearts, std::vector<Sprite>{
-                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_5_0),
-                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_5_1),
-                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_5_2),
-                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_5_3),
-                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_5_4),
-                g_texture_paths->at(TEXTURE_ASSET_ID::HEART_5_5)
-        });
-    }
+    registry.heartSprites.emplace(m_hearts, std::vector<Sprite> {
+        g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_0),
+            g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_1),
+            g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_2),
+            g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_3),
+            g_texture_paths->at(TEXTURE_ASSET_ID::HEART_4_4)
+    });
 
-    // Create and initialize a Transform component for the new Heart sprites
+
+    // Create and initialize a Transform component for the new 4 Heart sprites
     TransformComponent heartSpriteTransform;
     heartSpriteTransform.position = glm::vec3(250.0f, 120.0f, 0.0); // Position remains unchanged
-    if (registry.healths.get(m_player).max_health == 4) {
-        heartSpriteTransform.scale = glm::vec3(0.4f * 1065.0f, HEARTS_HEIGHT, 1.0);
-    } else if (registry.healths.get(m_player).max_health == 5) {
-        heartSpriteTransform.scale = glm::vec3(0.4f * 1234.0f, HEARTS_HEIGHT, 1.0);
+    heartSpriteTransform.scale = glm::vec3(HEARTS_FOUR_WIDTH, HEARTS_HEIGHT, 1.0); // Updated width used
+    heartSpriteTransform.rotation = 0.0f;
+    registry.transforms.emplace(m_hearts, std::move(heartSpriteTransform));
+}
+
+void WorldSystem::init_five_heart_status_bar() {
+    // Add new heart sprites (HEART_4_0 to HEART_4_4)
+    if (registry.heartSprites.has(m_hearts)) {
+        registry.heartSprites.remove(m_hearts);
     }
+    if (registry.transforms.has(m_hearts)) {
+        registry.transforms.remove(m_hearts);
+    }
+    registry.heartSprites.emplace(m_hearts, std::vector<Sprite> {
+        g_texture_paths->at(TEXTURE_ASSET_ID::HEART_5_0),
+            g_texture_paths->at(TEXTURE_ASSET_ID::HEART_5_1),
+            g_texture_paths->at(TEXTURE_ASSET_ID::HEART_5_2),
+            g_texture_paths->at(TEXTURE_ASSET_ID::HEART_5_3),
+            g_texture_paths->at(TEXTURE_ASSET_ID::HEART_5_4),
+            g_texture_paths->at(TEXTURE_ASSET_ID::HEART_5_5)
+    });
+
+    // Create and initialize a Transform component for the new 4 Heart sprites
+    TransformComponent heartSpriteTransform;
+    heartSpriteTransform.position = glm::vec3(250.0f, 120.0f, 0.0); // Position remains unchanged
+    heartSpriteTransform.scale = glm::vec3(HEARTS_FIVE_WIDTH, HEARTS_HEIGHT, 1.0); // Updated width used
+
     heartSpriteTransform.rotation = 0.0f;
     registry.transforms.emplace(m_hearts, std::move(heartSpriteTransform));
 }
@@ -1269,6 +1282,19 @@ void WorldSystem::updateBoundingBox(Entity e1) {
 
 }
 
+void WorldSystem::upgrade_player_health()  {
+    Health& player_health = registry.healths.get(m_player);
+    player_health.max_health ++;
+    player_health.current_health = player_health.max_health;
+    HealthFlask& health_flask = registry.healthFlasks.get(m_player);
+    health_flask.num_uses = health_flask.max_uses;
+    if (player_health.max_health == 5) {
+        init_five_heart_status_bar();
+    } else if (player_health.max_health == 4) {
+        init_four_heart_status_bar();
+    }
+}
+
 void WorldSystem::write_to_save_file() {
     std::fstream saveFile;
     saveFile.open(SAVE_FILE_PATH, std::ios::out); // writing
@@ -1287,9 +1313,11 @@ void WorldSystem::write_to_save_file() {
         saveFile << health_flask.num_uses << "\n";
 
         // Line 3:
-        saveFile << BoolToString(heartPowerUp) << "\n";
+        saveFile << BoolToString(heartPowerUp_0) << "\n";
 
-        //TODO: sword
+        saveFile << BoolToString(heartPowerUp_1) << "\n";
+
+        saveFile << BoolToString(swordPowerUp_0) << "\n";
 
         // Line 4:
         saveFile << BoolToString(isChickenDead) << "\n";
