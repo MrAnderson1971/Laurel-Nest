@@ -1,6 +1,7 @@
 #include "cutscene.hpp"
 #include "render_system.hpp"
 #include "world_system.hpp"
+#include "world_init.hpp"
 
 Cutscene::Cutscene() : frameCount(0), seconds_passed(0.f), hasLoaded(false) {
     std::array<std::future<Image>, LAST_ANIMATION_FRAME> images;
@@ -11,11 +12,12 @@ Cutscene::Cutscene() : frameCount(0), seconds_passed(0.f), hasLoaded(false) {
 
     for (int i = 0; i < LAST_ANIMATION_FRAME; i++) {
         frames[i] = bindTexture(images[i].get());
+        drawLoadingScreen(count.load(), LAST_ANIMATION_FRAME);
     }
 }
 
 void Cutscene::on_key(int, int, int action, int) {
-    if (action == GLFW_PRESS && !hasLoaded) {
+    if (action == GLFW_PRESS && !hasLoaded) { // press any button to skip
         hasLoaded = true;
         renderSystem.getGameStateManager()->changeState<WorldSystem>();
     }
