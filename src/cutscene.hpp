@@ -4,7 +4,7 @@
 #include <array>
 #include <boost/optional.hpp>
 
-constexpr int LAST_ANIMATION_FRAME = 16;
+constexpr int LAST_ANIMATION_FRAME = 18;
 constexpr float MILISECONDS_PER_FRAME = 0.5f;
 
 class Cutscene : public GameState {
