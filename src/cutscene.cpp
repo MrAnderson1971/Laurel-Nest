@@ -27,7 +27,8 @@ void Cutscene::update(float deltaTime) {
     seconds_passed += deltaTime;
     if (seconds_passed > MILISECONDS_PER_FRAME) {
         seconds_passed = 0;
-        if (++frameCount >= LAST_ANIMATION_FRAME) {
+        if (++frameCount >= LAST_ANIMATION_FRAME && !hasLoaded) {
+            hasLoaded = true;
             renderSystem.getGameStateManager()->changeState<WorldSystem>();
         }
     }
