@@ -19,6 +19,6 @@ public:
     static void flying_goomba_charge(Motion& flyingGoombaMotion, Motion playerMotion);
     static void flying_goomba_throw_spear(Motion& flyingGoombaMotion, Motion playerMotion, Entity current_room);
     static vec3 calculate_velocity(Motion flyingGoombaMotion, Motion playerMotion);
-    static void spawn_flying_goomba_spear(vec3 X_Y_Angle, Entity current_room);
+    static void spawn_flying_goomba_spear(Motion flyingGoombaMotion, vec3 X_Y_Angle, Entity current_room, float gap);
     static void init_aim();
 };

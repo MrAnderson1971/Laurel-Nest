@@ -180,7 +180,8 @@ struct ProjectileTimer
 
 enum class ProjectileType {
     FIREBALL,
-    SPIT
+    SPIT,
+    SPEAR
 };
 
 struct GoombaFlyingState {

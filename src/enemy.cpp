@@ -119,7 +119,7 @@ void GoombaFlying::init_components(float x, float y) {
 	Motion goombaMotion;
 	goombaMotion.position = vec2(x, y);
 	goombaMotion.scale = GOOMBA_FLYING_FLY_SCALE;
-	goombaMotion.velocity = { TPS , 0 };
+	//goombaMotion.velocity = { TPS , 0 };
 	goombaMotion.old_velocity = goombaMotion.velocity;
 	registry.motions.emplace(entity, std::move(goombaMotion));
 
@@ -132,7 +132,7 @@ void GoombaFlying::init_components(float x, float y) {
 
 	GoombaFlyingState state;
 	state.current_state = FlyingGoombaState::FLYING_GOOMBA_IDLE;
-	state.last_state = state.current_state;
+	state.last_state = FlyingGoombaState::FLYING_GOOMBA_THROW_PROJECTILE;
 	state.idle_flying_altitude = y;
 
 	registry.goombaFlyingStates.emplace(entity, std::move(state));

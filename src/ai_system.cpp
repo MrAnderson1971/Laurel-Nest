@@ -134,36 +134,56 @@ void AISystem::flying_goomba_step(Entity player, Entity current_room, float elap
                             if (fg_state.current_state == FlyingGoombaState::FLYING_GOOMBA_IDLE) {
                                 //The flying goomba can only charge once it has reached its regular y position
                                 if (flyingGoombaMotion.position.y > fg_state.idle_flying_altitude) {
-                                    flyingGoombaMotion.velocity.y = -TPS;
+                                    flyingGoombaMotion.velocity.y = -TPS * 0.75f;
                                     fg_state.can_charge = false;
-                                }
-                                else {
-                                    flyingGoombaMotion.velocity.y = 0;
-                                    fg_state.can_charge = true;
-                                }
-
-                                if (fg_state.can_charge && can_flying_goomba_detect_player(flyingGoombaMotion, playerMotion)) {
-                                    fg_state.can_charge = false;
-                                    fg_state.current_state = FlyingGoombaState::FLYING_GOOMBA_CHARGE;
-                                    flyingGoomba_Animation.setState(FlyingGoombaState::FLYING_GOOMBA_CHARGE);
-                                    flying_goomba_charge(flyingGoombaMotion, playerMotion);
-                                }
-                                else {
+                                    fg_state.can_throw_projectile = false;
                                     flyingGoomba_Animation.setState(FlyingGoombaState::FLYING_GOOMBA_IDLE);
                                     fg_state.current_state = FlyingGoombaState::FLYING_GOOMBA_IDLE;
+                                } else {
+                                    flyingGoombaMotion.velocity.y = 0;
+                                    fg_state.can_charge = true;
+                                    fg_state.can_throw_projectile = true;
+                                    if (can_flying_goomba_detect_player(flyingGoombaMotion, playerMotion)) {
+                                        if (fg_state.can_charge && fg_state.last_state == FlyingGoombaState::FLYING_GOOMBA_THROW_PROJECTILE) {
+                                            fg_state.can_charge = false;
+                                            fg_state.can_throw_projectile = false;
+                                            fg_state.current_state = FlyingGoombaState::FLYING_GOOMBA_CHARGE;
+                                            fg_state.last_state = FlyingGoombaState::FLYING_GOOMBA_CHARGE;
+                                            flyingGoomba_Animation.setState(FlyingGoombaState::FLYING_GOOMBA_CHARGE);
+                                            flying_goomba_charge(flyingGoombaMotion, playerMotion);
+                                        }
+                                        else if (fg_state.can_throw_projectile && fg_state.last_state == FlyingGoombaState::FLYING_GOOMBA_CHARGE) {
+                                            fg_state.can_charge = false;
+                                            fg_state.can_throw_projectile = false;
+                                            fg_state.current_state = FlyingGoombaState::FLYING_GOOMBA_THROW_PROJECTILE;
+                                            fg_state.last_state = FlyingGoombaState::FLYING_GOOMBA_THROW_PROJECTILE;
+                                            flyingGoomba_Animation.setState(FlyingGoombaState::FLYING_GOOMBA_THROW_PROJECTILE);
+                                            flyingGoombaMotion.velocity = { signof(flyingGoombaMotion.scale.x)*1,0 };
+                                            flying_goomba_throw_spear(flyingGoombaMotion, playerMotion, current_room);
+                                        }
+                                    }
+                                    else {
+                                        flyingGoomba_Animation.setState(FlyingGoombaState::FLYING_GOOMBA_IDLE);
+                                        fg_state.current_state = FlyingGoombaState::FLYING_GOOMBA_IDLE;
+                                    }
                                 }
                             }
                             else if (fg_state.current_state == FlyingGoombaState::FLYING_GOOMBA_HIT) {
                                 if (flyingGoombaMotion.position.y > fg_state.idle_flying_altitude) {
-                                    flyingGoombaMotion.velocity.y = -TPS;
+                                    flyingGoombaMotion.velocity.y = -TPS * 0.75f;
                                 }
                                 else {
                                     flyingGoombaMotion.velocity.y = 0;
                                 }
                             }
                             else if (fg_state.current_state == FlyingGoombaState::FLYING_GOOMBA_THROW_PROJECTILE) {
-
+                                //flyingGoombaMotion.velocity = {TPS, 0};
+                                fg_state.can_charge = false;
+                                fg_state.can_throw_projectile = false;
+                                fg_state.current_state = FlyingGoombaState::FLYING_GOOMBA_IDLE;
+                                flyingGoomba_Animation.setState(FlyingGoombaState::FLYING_GOOMBA_IDLE);
                             }
+                            
                         }
                         if (flyingGoomba_Animation.isAnimationComplete()) {
                             fg_state.animationDone = true;
@@ -175,6 +195,9 @@ void AISystem::flying_goomba_step(Entity player, Entity current_room, float elap
 
                         switch (fg_state.current_state) {
                         case FlyingGoombaState::FLYING_GOOMBA_IDLE:
+                            flyingGoombaMotion.scale = GOOMBA_FLYING_FLY_SCALE;
+                            break;
+                        case FlyingGoombaState::FLYING_GOOMBA_THROW_PROJECTILE:
                             flyingGoombaMotion.scale = GOOMBA_FLYING_FLY_SCALE;
                             break;
                         case FlyingGoombaState::FLYING_GOOMBA_HIT:
@@ -210,21 +233,43 @@ bool AISystem::can_flying_goomba_detect_player(Motion flyingGoombaMotion, Motion
 }
 
 void AISystem::flying_goomba_charge(Motion& flyingGoombaMotion, Motion playerMotion) {
-    vec2 fg_position = flyingGoombaMotion.position;
-    vec2 p_position = playerMotion.position;
-
-    float distance = static_cast<float>(sqrt((pow(fg_position.x - p_position.x, 2) + pow(fg_position.y - p_position.y, 2))));
-    float angle = atan2(fg_position.y - p_position.y, fg_position.x - p_position.x) * -1;
-
-    float factor_x = 50;
-    float factor_y = 1.5;
-    flyingGoombaMotion.velocity = { distance * cos(angle) * factor_x * -1, distance * sin(angle) * factor_y };
-
-    flyingGoombaMotion.angle = angle;
+    vec3 v = AISystem::calculate_velocity(flyingGoombaMotion, playerMotion);
+    flyingGoombaMotion.velocity = { v.x, v.y };
+    flyingGoombaMotion.angle = v.z;
 };
 
+void AISystem::flying_goomba_throw_spear(Motion& flyingGoombaMotion, Motion playerMotion, Entity current_room) {
+    vec3 v = AISystem::calculate_velocity(flyingGoombaMotion, playerMotion);
+    //flyingGoombaMotion.velocity = { 0,0 };
+    flyingGoombaMotion.angle = v.z;
+    AISystem::spawn_flying_goomba_spear(flyingGoombaMotion, v, current_room, 0);
+    AISystem::spawn_flying_goomba_spear(flyingGoombaMotion, v, current_room, 10.f);
+    AISystem::spawn_flying_goomba_spear(flyingGoombaMotion, v, current_room, -10.f);
+}
 
+void AISystem::spawn_flying_goomba_spear(Motion flyingGoombaMotion, vec3 X_Y_Angle, Entity current_room, float gap) {
+    Entity spear = Entity();
 
+    // GIVE IT A PROPER SPEAR SPRITE AT SOME POINT
+    registry.sprites.emplace(spear, g_texture_paths->at(TEXTURE_ASSET_ID::CEILING_SPIT));
+
+    Motion spearMotion;
+    spearMotion.position = flyingGoombaMotion.position;
+    spearMotion.velocity = { X_Y_Angle.x / (20 + gap), X_Y_Angle.y };
+    spearMotion.scale = GOOMBA_CEILING_SPIT_SCALE*2.f;
+    spearMotion.angle = X_Y_Angle.z;
+    registry.motions.emplace(spear, std::move(spearMotion));
+
+    TransformComponent spear_transform;
+    registry.transforms.emplace(spear, std::move(spear_transform));
+
+    registry.projectiles.emplace(spear, std::move(Projectile{ ProjectileType::SPEAR }));
+    registry.damages.emplace(spear, std::move(Damage{ 1 }));
+    registry.hostiles.emplace(spear, std::move(Hostile()));
+
+    // TODO: maybe do this differently
+    registry.rooms.get(current_room).insert(spear);
+}
 
 
 void AISystem::group_behaviour(Entity player){
@@ -263,4 +308,16 @@ float AISystem::get_angle(Entity e1, Entity e2){
 
 void AISystem::init_aim(){
     aim = false;
+}
+
+vec3 AISystem::calculate_velocity(Motion flyingGoombaMotion, Motion playerMotion) {
+    vec2 fg_position = flyingGoombaMotion.position;
+    vec2 p_position = playerMotion.position;
+
+    float distance = static_cast<float>(sqrt((pow(fg_position.x - p_position.x, 2) + pow(fg_position.y - p_position.y, 2))));
+    float angle = atan2(fg_position.y - p_position.y, fg_position.x - p_position.x) * -1;
+
+    float factor_x = 50;
+    float factor_y = 2.5f;
+    return { distance * cos(angle) * factor_x * -1, distance * sin(angle) * factor_y , angle };
 }
