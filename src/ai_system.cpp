@@ -241,7 +241,7 @@ void AISystem::flying_goomba_charge(Motion& flyingGoombaMotion, Motion playerMot
 void AISystem::flying_goomba_throw_spear(Motion& flyingGoombaMotion, Motion playerMotion, Entity current_room) {
     vec3 v = AISystem::calculate_velocity(flyingGoombaMotion, playerMotion);
     flyingGoombaMotion.angle = v.z;
-    AISystem::spawn_flying_goomba_spear(flyingGoombaMotion, v, current_room, 0);
+    AISystem::spawn_flying_goomba_spear(flyingGoombaMotion, v, current_room, 5.f);
 }
 
 void AISystem::spawn_flying_goomba_spear(Motion flyingGoombaMotion, vec3 X_Y_Angle, Entity current_room, float gap) {
@@ -314,6 +314,6 @@ vec3 AISystem::calculate_velocity(Motion flyingGoombaMotion, Motion playerMotion
     float angle = atan2(fg_position.y - p_position.y, fg_position.x - p_position.x) * -1;
 
     float factor_x = 50;
-    float factor_y = 2.5f;
+    float factor_y = 1.75f;
     return { distance * cos(angle) * factor_x * -1, distance * sin(angle) * factor_y , angle };
 }
