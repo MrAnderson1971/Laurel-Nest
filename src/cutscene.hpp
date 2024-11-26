@@ -5,6 +5,7 @@
 #include <boost/optional.hpp>
 
 constexpr int LAST_ANIMATION_FRAME = 16;
+constexpr float MILISECONDS_PER_FRAME = 0.5f;
 
 class Cutscene : public GameState {
 public:
@@ -21,6 +22,7 @@ public:
 
 private:
 	bool hasLoaded;
-	float frame;
+	float seconds_passed;
+	int frameCount;
 	std::array<boost::optional<Sprite>, LAST_ANIMATION_FRAME> frames;
 };
