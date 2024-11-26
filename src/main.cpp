@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "render_system.hpp"
+#include   "render_system.hpp"
 #include "splash_screen_state.hpp"
 
 int main()
