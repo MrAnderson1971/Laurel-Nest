@@ -58,18 +58,22 @@ public:
     bool fontInit(const std::string& font_filename, unsigned int font_default_size);
     void renderText(std::string text, float x, float y, float scale, const glm::vec3& color, const glm::mat4& trans);
 
+    void doGlassBreakTransition(int count, size_t total);
+
 private:
     RenderSystem();
 
-    void loadShaders();
+    void loadShaders(const std::string& program, GLuint& shader_program);
     void setupVertices();
+    void setupGlassVertices();
     std::string readShaderFile(const std::string& filePath);
 
     GLFWwindow* window;
     GLuint shaderProgram;
+    GLuint glassShader;
     GLuint VAO, VBO, EBO;
+    GLuint glassVAO, glassVBO, glassEBO;
     glm::mat4 projection;
-    GLuint projectionLoc;
 
     // font elements
     std::map<char, Character> m_ftCharacters;
