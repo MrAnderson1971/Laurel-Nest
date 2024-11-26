@@ -9,7 +9,7 @@
 
 constexpr float player_speed = 1.0f * TPS;
 constexpr float player_jump_velocity = 3.7f * TPS; // adjust so you can reach the test platform
-constexpr float MAX_COYOTE_TIME = 0.1f;
+constexpr float MAX_COYOTE_TIME = 0.2f;
 
 // These are hardcoded to the dimensions of the entity texture
 // BB = bounding box

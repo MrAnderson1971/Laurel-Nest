@@ -320,14 +320,9 @@ void WorldSystem::handle_motions(float deltaTime) {
 
             // If this is the player, reset canJump before handling collisions
             if (entity == m_player) {
-                if (isGrounded) {
-                    coyoteTimer = MAX_COYOTE_TIME;
-                }
-                else {
-                    coyoteTimer -= deltaTime;
-                    if (coyoteTimer < 0.0f) {
-                        coyoteTimer = 0.0f;
-                    }
+                coyoteTimer -= deltaTime;
+                if (coyoteTimer < 0.0f) {
+                    coyoteTimer = 0.0f;
                 }
             }
 
