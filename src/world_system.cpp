@@ -44,14 +44,21 @@ WorldSystem::~WorldSystem() {
 }
 
 void WorldSystem::init() {
-    isChickenDead = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::IS_CHICKEN_DEAD), false);
+    // Create a new entity and register it in the ECSRegistry
+    SaveFile sf;
+    readFromSaveFile(SAVE_FILE_PATH, sf);
+    heartPowerUp_0 = sf.heart_power_up_0;
+    heartPowerUp_1 = sf.heart_power_up_1;
+    swordPowerUp_0 = sf.sword_power_up_0;
+    isChickenDead = sf.is_chicken_dead;
+    start_from_checkpoint = sf.start_from_checkpoint;
+    saved_this_instance = sf.saved_this_instance;
+    /*isChickenDead = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::IS_CHICKEN_DEAD), false);
     heartPowerUp_0 = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::HEART_POWER_UP_0), false);
     heartPowerUp_1 = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::HEART_POWER_UP_1), false);
     swordPowerUp_0 = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::HEART_POWER_UP_1), false);
     saved_this_instance = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::SAVED_THIS_INSTANCE), false);
-
-
-    start_from_checkpoint = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::START_FROM_CHECKPOINT),false);
+    start_from_checkpoint = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::START_FROM_CHECKPOINT),false);*/
     // Player
 
     // Add the Player component to the player entity    
@@ -70,18 +77,18 @@ void WorldSystem::init() {
 
     // Create and initialize a damage component for the sword
     Damage swordDamage;
-    swordDamage.damage_dealt = 1;
+    swordDamage.damage_dealt = sf.sword_damage;
     registry.damages.emplace(m_sword, swordDamage);
 
     // Create and initialize a Health component for the player
     Health playerHealth;
-    playerHealth.current_health = readIntFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::PLAYER_CURRENT_HEALTH), 3);
-    playerHealth.max_health = readIntFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::PLAYER_MAX_HEALTH), 3);
+    playerHealth.current_health = sf.player_current_health;
+    playerHealth.max_health = sf.player_max_health;
     registry.healths.emplace(m_player, playerHealth);
 
     // Create the HealthFlask for the player to heal with
     HealthFlask healthFlask;
-    healthFlask.num_uses = readIntFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::HEALTH_FLASK_USES), 3);
+    healthFlask.num_uses = sf.health_flask_uses;
     registry.healthFlasks.emplace(m_player, healthFlask);
 
     // Add gravity to the Player
@@ -152,14 +159,21 @@ void WorldSystem::init() {
     std::vector<bool> heartPowerUps;
     heartPowerUps.push_back(heartPowerUp_0);
     heartPowerUps.push_back(heartPowerUp_1);
-    for (int i = 0; i < heartPowerUps.size(); i++) {
-        if (heartPowerUps[i]) registry.remove_all_components_of(registry.heartPowerUp.entities[i]);
+    int x = 0;
+    int y = 0;
+    while (x < heartPowerUps.size()) {
+        if (heartPowerUps[x]) {
+            registry.remove_all_components_of(registry.heartPowerUp.entities[y]);
+        } else {
+            y++;
+        }
+        x++;
     }
 
     //TODO: sword
-    /*if (swordPowerUp) {
+    if (swordPowerUp_0) {
         registry.remove_all_components_of(registry.swordPowerUp.entities[0]);
-    }*/
+    }
     
 
     // esc instruction sprite
@@ -1224,7 +1238,6 @@ void WorldSystem::init_four_heart_status_bar() {
 }
 
 void WorldSystem::init_five_heart_status_bar() {
-    // Add new heart sprites (HEART_4_0 to HEART_4_4)
     if (registry.heartSprites.has(m_hearts)) {
         registry.heartSprites.remove(m_hearts);
     }
@@ -1244,7 +1257,6 @@ void WorldSystem::init_five_heart_status_bar() {
     TransformComponent heartSpriteTransform;
     heartSpriteTransform.position = glm::vec3(250.0f, 120.0f, 0.0); // Position remains unchanged
     heartSpriteTransform.scale = glm::vec3(HEARTS_FIVE_WIDTH, HEARTS_HEIGHT, 1.0); // Updated width used
-
     heartSpriteTransform.rotation = 0.0f;
     registry.transforms.emplace(m_hearts, std::move(heartSpriteTransform));
 }
@@ -1328,36 +1340,31 @@ void WorldSystem::write_to_save_file() {
     std::fstream saveFile;
     saveFile.open(SAVE_FILE_PATH, std::ios::out); // writing
     if (saveFile.is_open()) {
-        //saveFile << BoolToString(isGreatBirdDead) + "\n";
-        //saveFile << std::to_string(PelicanState) + "\n";
-        // MaxHealth
         Health player_health = registry.healths.get(m_player);
-        // Line 0: player max health
+        Damage player_damage = registry.damages.get(m_sword);
+        HealthFlask health_flask = registry.healthFlasks.get(m_player);
+
         saveFile << player_health.max_health << "\n";
-        // Line 1: player current health
+
         saveFile << player_health.current_health << "\n";
 
-        // Line 2:
-        HealthFlask health_flask = registry.healthFlasks.get(m_player);
         saveFile << health_flask.num_uses << "\n";
 
-        // Line 3:
+        saveFile << player_damage.damage_dealt << "\n";
+
         saveFile << BoolToString(heartPowerUp_0) << "\n";
 
         saveFile << BoolToString(heartPowerUp_1) << "\n";
 
         saveFile << BoolToString(swordPowerUp_0) << "\n";
 
-        // Line 4:
         saveFile << BoolToString(isChickenDead) << "\n";
 
-        // Line 5:
         saveFile << BoolToString(start_from_checkpoint) << "\n";
 
         saveFile << BoolToString(saved_this_instance) << "\n";
 
         saveFile.close();
-        std::cout << "Saved \n";
     }
     else {
         std::cout << "Couldnt write to save file \n";
