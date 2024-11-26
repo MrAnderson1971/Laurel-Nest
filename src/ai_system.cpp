@@ -144,19 +144,19 @@ void AISystem::flying_goomba_step(Entity player, Entity current_room, float elap
                                     fg_state.can_charge = true;
                                     fg_state.can_throw_projectile = true;
                                     if (can_flying_goomba_detect_player(flyingGoombaMotion, playerMotion)) {
-                                        if (fg_state.can_charge && fg_state.last_state == FlyingGoombaState::FLYING_GOOMBA_THROW_PROJECTILE) {
+                                        if (fg_state.can_charge && fg_state.last_attack == FlyingGoombaState::FLYING_GOOMBA_THROW_PROJECTILE) {
                                             fg_state.can_charge = false;
                                             fg_state.can_throw_projectile = false;
                                             fg_state.current_state = FlyingGoombaState::FLYING_GOOMBA_CHARGE;
-                                            fg_state.last_state = FlyingGoombaState::FLYING_GOOMBA_CHARGE;
+                                            fg_state.last_attack = FlyingGoombaState::FLYING_GOOMBA_CHARGE;
                                             flyingGoomba_Animation.setState(FlyingGoombaState::FLYING_GOOMBA_CHARGE);
                                             flying_goomba_charge(flyingGoombaMotion, playerMotion);
                                         }
-                                        else if (fg_state.can_throw_projectile && fg_state.last_state == FlyingGoombaState::FLYING_GOOMBA_CHARGE) {
+                                        else if (fg_state.can_throw_projectile && fg_state.last_attack == FlyingGoombaState::FLYING_GOOMBA_CHARGE) {
                                             fg_state.can_charge = false;
                                             fg_state.can_throw_projectile = false;
                                             fg_state.current_state = FlyingGoombaState::FLYING_GOOMBA_THROW_PROJECTILE;
-                                            fg_state.last_state = FlyingGoombaState::FLYING_GOOMBA_THROW_PROJECTILE;
+                                            fg_state.last_attack = FlyingGoombaState::FLYING_GOOMBA_THROW_PROJECTILE;
                                             flyingGoomba_Animation.setState(FlyingGoombaState::FLYING_GOOMBA_THROW_PROJECTILE);
                                             flyingGoombaMotion.velocity = { signof(flyingGoombaMotion.scale.x)*1,0 };
                                             flying_goomba_throw_spear(flyingGoombaMotion, playerMotion, current_room);
@@ -240,11 +240,8 @@ void AISystem::flying_goomba_charge(Motion& flyingGoombaMotion, Motion playerMot
 
 void AISystem::flying_goomba_throw_spear(Motion& flyingGoombaMotion, Motion playerMotion, Entity current_room) {
     vec3 v = AISystem::calculate_velocity(flyingGoombaMotion, playerMotion);
-    //flyingGoombaMotion.velocity = { 0,0 };
     flyingGoombaMotion.angle = v.z;
     AISystem::spawn_flying_goomba_spear(flyingGoombaMotion, v, current_room, 0);
-    //AISystem::spawn_flying_goomba_spear(flyingGoombaMotion, v, current_room, 7.f);
-    //AISystem::spawn_flying_goomba_spear(flyingGoombaMotion, v, current_room, -10.f);
 }
 
 void AISystem::spawn_flying_goomba_spear(Motion flyingGoombaMotion, vec3 X_Y_Angle, Entity current_room, float gap) {
@@ -267,7 +264,6 @@ void AISystem::spawn_flying_goomba_spear(Motion flyingGoombaMotion, vec3 X_Y_Ang
     registry.damages.emplace(spear, std::move(Damage{ 1 }));
     registry.hostiles.emplace(spear, std::move(Hostile()));
 
-    // TODO: maybe do this differently
     registry.rooms.get(current_room).insert(spear);
 }
 

@@ -186,7 +186,7 @@ enum class ProjectileType {
 
 struct GoombaFlyingState {
     FlyingGoombaState current_state;
-    FlyingGoombaState last_state;
+    FlyingGoombaState last_attack;
     bool detectedPlayer = false;
     bool can_charge = false;
     bool can_throw_projectile = false;
