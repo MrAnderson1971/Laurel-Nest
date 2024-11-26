@@ -12,7 +12,7 @@ Birdmantown::~Birdmantown() {
 void Birdmantown::init() {
     setRoomStrategy(std::make_unique<BMTEntranceRoomStrategy>());
     m_entrance_room = currentRoom->execute();
-    //start_room = m_entrance_room;
+    start_room = m_entrance_room;
 
     setRoomStrategy(std::make_unique<BMTRoom1Strategy>());
     m_room1 = currentRoom->execute();
@@ -44,7 +44,7 @@ void Birdmantown::init() {
 
     setRoomStrategy(std::make_unique<LNRoom1Strategy>());
     m_ln_room1 = currentRoom->execute();
-    start_room = m_ln_room1;
+    //start_room = m_ln_room1;
 
     setRoomStrategy(std::make_unique<LNBossRoomStrategy>());
     m_ln_boss_room = currentRoom->execute();
