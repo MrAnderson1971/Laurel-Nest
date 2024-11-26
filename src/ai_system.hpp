@@ -16,7 +16,9 @@ public:
 
     void static flying_goomba_step(Entity player, Entity current_room, float elapsed_time);
     bool static can_flying_goomba_detect_player(Motion flyingGoombaMotion, Motion playerMotion);
-    void static flying_goomba_charge(Motion& flyingGoombaMotion, Motion playerMotion);
-
+    static void flying_goomba_charge(Motion& flyingGoombaMotion, Motion playerMotion);
+    static void flying_goomba_throw_spear(Motion& flyingGoombaMotion, Motion playerMotion, Entity current_room);
+    static vec3 calculate_velocity(Motion flyingGoombaMotion, Motion playerMotion);
+    static void spawn_flying_goomba_spear(vec3 X_Y_Angle, Entity current_room);
     static void init_aim();
 };

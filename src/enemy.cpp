@@ -94,6 +94,7 @@ void GoombaFlying::init_sprite() {
 			g_texture_paths->at(TEXTURE_ASSET_ID::BIRDMAN_FLY3),
 			g_texture_paths->at(TEXTURE_ASSET_ID::BIRDMAN_FLY4),
 	};
+	std::vector<Sprite> throwingSprites = idleSprites;
 
 	Sprite deadSprite = g_texture_paths->at(TEXTURE_ASSET_ID::BIRDMAN_DEAD);
 	Sprite hitSprite = g_texture_paths->at(TEXTURE_ASSET_ID::BIRDMAN_HIT);
@@ -104,6 +105,7 @@ void GoombaFlying::init_sprite() {
 	deadSprites.push_back(deadSprite);
 
 	goombaAnimations.addState(FlyingGoombaState::FLYING_GOOMBA_IDLE, std::move(idleSprites));
+	goombaAnimations.addState(FlyingGoombaState::FLYING_GOOMBA_THROW_PROJECTILE, std::move(throwingSprites));
 	goombaAnimations.addState(FlyingGoombaState::FLYING_GOOMBA_CHARGE, std::move(chargeSprites));
 	goombaAnimations.addState(FlyingGoombaState::FLYING_GOOMBA_HIT, std::move(hitSprites));
 	goombaAnimations.addState(FlyingGoombaState::FLYING_GOOMBA_DEAD, std::move(deadSprites));
