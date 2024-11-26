@@ -373,6 +373,25 @@ enum class GEOMETRY_BUFFER_ID {
 };
 const int geometry_count = (int)GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
 
+enum class ROOM_ID {
+    CP_ENTRANCE,
+    CP_1,
+    CP_2,
+    CP_3,
+    CP_4,
+    CP_BOSS,
+    CP_EXIT,
+    BMT_ENTRANCE,
+    BMT_1,
+    BMT_2,
+    BMT_3,
+    BMT_4,
+    NPC_1,
+    NPC_3,
+    LN_1,
+    LN_BOSS
+};
+
 struct RenderRequest {
     TEXTURE_ASSET_ID used_texture = TEXTURE_ASSET_ID::TEXTURE_COUNT;
     EFFECT_ASSET_ID used_effect = EFFECT_ASSET_ID::EFFECT_COUNT;
@@ -415,6 +434,7 @@ struct MovingPlatform {
     bool vertical;
     vec2 startPos;
     vec2 endPos;
+    bool moving;
 };
 
 // Components used for Maps and Rooms
@@ -429,6 +449,8 @@ namespace std {
     };
 }
 struct Room {
+    ROOM_ID id;
+    bool clear;
     std::set<Entity> entities;
     std::shared_ptr<Mix_Music> music;
 

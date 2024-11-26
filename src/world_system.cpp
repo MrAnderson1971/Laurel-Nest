@@ -205,6 +205,11 @@ void WorldSystem::update(float deltaTime) {
     BossAISystem::step(m_player, deltaTime);
     BossAISystem::update_damaged_chicken_sprites(deltaTime);
 
+    // look for specific rooms with restrictions
+    if (registry.rooms.has(current_room) && registry.rooms.get(current_room).id == ROOM_ID::BMT_3 && !registry.rooms.get(current_room).clear) {
+        handle_bmt3();
+    }
+
     // TODO: make this its own function too??
     //Update bounding boxes for all the entities
     auto & bounding_boxes = registry.bounding_box;
@@ -226,7 +231,7 @@ void WorldSystem::handle_connections(float deltaTime) {
         for (auto& connection : list.doors) {
             if (physics.checkForCollision(m_player, connection.door, dir, over)) {
                 // check if in boss room and if boss is dead
-                if (!connection.limit || isChickenDead) {
+                if (!connection.limit || (registry.rooms.get(current_room).id == ROOM_ID::CP_BOSS && isChickenDead)) {
                     // set next room
                     // check for switching map
                     if (!connection.switchMap) {
@@ -337,18 +342,23 @@ void WorldSystem::handle_motions(float deltaTime) {
             // moving platform specific, keep platform within bounds
             if (registry.movingPlatform.has(entity) && registry.rooms.get(current_room).has(entity)) {
                 auto& mp = registry.movingPlatform.get(entity);
-                float mp_xpos = window_width_px;
-                float mp_ypos = window_height_px;
-                if (mp.vertical) {
-                    if (m.position.y < (mp.startPos.y * mp_ypos)) { 
-                        m.velocity.y = std::abs(m.velocity.y); 
+                if (mp.moving) {
+                    float mp_xpos = window_width_px;
+                    float mp_ypos = window_height_px;
+                    // vertical platforms
+                    if (mp.vertical) {
+                        // start = upper left
+                        if (m.position.y < (mp.startPos.y * mp_ypos)) {
+                            m.velocity.y = std::abs(m.velocity.y);
+                        }
+                        // end = lower right
+                        else if (m.position.y > (mp.endPos.y * mp_ypos)) {
+                            m.velocity.y = -std::abs(m.velocity.y);
+                        }
                     }
-                    else if (m.position.y > (mp.endPos.y * mp_ypos)) {
-                        m.velocity.y = -std::abs(m.velocity.y);
+                    else { // horizontal platforms
+                        if (m.position.x < (mp.startPos.x * mp_xpos) || m.position.x >(mp.endPos.x * mp_xpos)) m.velocity *= -1.f;
                     }
-                }
-                else {
-                    if (m.position.x < (mp.startPos.x * mp_xpos) || m.position.x > (mp.endPos.x * mp_xpos)) m.velocity *= -1.f;
                 }
             }
 
@@ -474,7 +484,8 @@ void WorldSystem::handle_collisions() {
             }
         }
 
-        if (registry.grounds.has(entity_other)) {
+        // gaurd against moving platform and flying goombas because i'm tired
+        if (registry.grounds.has(entity_other) && !(registry.movingPlatform.has(entity_other) && registry.flyingGoombaAnimations.has(entity))) {
             if (direction.x != 0 && thisMotion.velocity.x != 0) {
                 thisMotion.position.x -= overlap.x;
             } 
@@ -510,7 +521,7 @@ void WorldSystem::handle_collisions() {
 
         // change the flying goomba's animation when it impacts the ground
         if (registry.hostiles.has(entity) && registry.hostiles.get(entity).type == HostileType::GOOMBA_FLYING 
-            && registry.healths.has(entity) && registry.grounds.has(entity_other)) {
+            && registry.healths.has(entity) && registry.grounds.has(entity_other) && !registry.movingPlatform.has(entity_other)) {
             auto& goombaFlyingAnimation = registry.flyingGoombaAnimations.get(entity);
             goombaFlyingAnimation.setState(FlyingGoombaState::FLYING_GOOMBA_IDLE);
             GoombaFlyingState& g_state = registry.goombaFlyingStates.get(entity);
@@ -697,10 +708,28 @@ void WorldSystem::handle_saving() {
     do_save = false;
 }
 
+void WorldSystem::handle_bmt3() {
+    bool cleared = true;
+    for (auto entity : registry.rooms.get(current_room).entities) {
+        if (registry.goombaFlyingStates.has(entity) && registry.goombaFlyingStates.get(entity).current_state != FLYING_GOOMBA_DEAD) {
+            cleared = false;
+        }
+    }
+    if (cleared) {
+        for (auto entity : registry.rooms.get(current_room).entities) {
+            if (registry.movingPlatform.has(entity)) {
+                registry.movingPlatform.get(entity).moving = true;
+                registry.motions.get(entity).velocity = glm::vec2(0, 100.f);
+            }
+        }
+        registry.rooms.get(current_room).clear = true;
+    }
+}
+
 // move this elsewhere later
 std::string dialogue[7] = { "You, you! You're not a bird?",
 "Seeking the Crown of Claws, hmm?",
-"But the Chiken Clan left us.",
+"But the Chicken Clan left us.",
 "Everything below is covered in poop.",
 "The sewers are overflown,",
 "and the birds yearn for flesh.",
