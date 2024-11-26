@@ -243,8 +243,8 @@ void AISystem::flying_goomba_throw_spear(Motion& flyingGoombaMotion, Motion play
     //flyingGoombaMotion.velocity = { 0,0 };
     flyingGoombaMotion.angle = v.z;
     AISystem::spawn_flying_goomba_spear(flyingGoombaMotion, v, current_room, 0);
-    AISystem::spawn_flying_goomba_spear(flyingGoombaMotion, v, current_room, 10.f);
-    AISystem::spawn_flying_goomba_spear(flyingGoombaMotion, v, current_room, -10.f);
+    //AISystem::spawn_flying_goomba_spear(flyingGoombaMotion, v, current_room, 7.f);
+    //AISystem::spawn_flying_goomba_spear(flyingGoombaMotion, v, current_room, -10.f);
 }
 
 void AISystem::spawn_flying_goomba_spear(Motion flyingGoombaMotion, vec3 X_Y_Angle, Entity current_room, float gap) {
