@@ -17,7 +17,7 @@ public:
 
     Entity SetPlatform(Sprite platformSprite, float width, float height, float xPos, float yPos);
 
-	Entity SetMovingPlatform(Sprite platformSprite, bool vertical, float width, float height, float xPos, float yPos, vec2 startPos, vec2 endPos);
+	Entity SetMovingPlatform(Sprite platformSprite, bool vertical, float width, float height, float xPos, float yPos, vec2 startPos, vec2 endPos, bool moving);
 
 	Entity SetCheckpoint(float xPos, float yPos);
 

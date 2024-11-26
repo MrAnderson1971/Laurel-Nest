@@ -59,6 +59,7 @@ public:
 	void handle_ai();
 	void handle_saving();
 	void handle_pelican();
+	void handle_bmt3();
 
 	Entity switch_map();
 
