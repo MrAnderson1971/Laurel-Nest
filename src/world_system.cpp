@@ -246,7 +246,7 @@ void WorldSystem::handle_connections(float deltaTime) {
         for (auto& connection : list.doors) {
             // collision but only if player is in walking state
             auto& a = registry.playerAnimations.get(m_player);
-            if (physics.checkForCollision(m_player, connection.door, dir, over) && (a.getState() == PlayerState::WALKING || a.getState() == PlayerState::JUMPING)) {
+            if (physics.checkForCollision(m_player, connection.door, dir, over)) {
                 // check if in boss room and if boss is dead
                 if (!connection.limit || (registry.rooms.get(current_room).id == ROOM_ID::CP_BOSS && isChickenDead)) {
                     // set next room
@@ -546,6 +546,17 @@ void WorldSystem::handle_collisions() {
             patrol.movingRight = !patrol.movingRight;
         }
 
+        if(registry.walls.has(entity) && registry.hostiles.has(entity) && registry.hostiles.get(entity).type == HostileType::GOOMBA_FLYING){
+            Motion& m_fying_goomba = registry.motions.get(entity_other);
+            Motion& m_wall = registry.motions.get(entity);
+            float change = 0;
+            if(m_fying_goomba.position.x > 0){
+                change = -100;
+            }else{
+                change = 100;
+            }
+            m_fying_goomba.position.x = m_wall.position.x + change;
+        }
 
         // change the flying goomba's animation when it impacts the ground
         if (registry.hostiles.has(entity) && registry.hostiles.get(entity).type == HostileType::GOOMBA_FLYING 
