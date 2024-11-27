@@ -3,6 +3,7 @@
 #include "world_system.hpp"
 #include "options_menu.hpp"
 #include "cutscene.hpp"
+#include "serialize.hpp"
 #include <iostream>
 
 SplashScreenState::SplashScreenState() : hasLoaded(false) {}
@@ -46,10 +47,16 @@ void SplashScreenState::init()
 
 void SplashScreenState::on_key(int key, int, int action, int)
 {
-    if (action == GLFW_PRESS && !hasLoaded)
+    SaveFile sf;
+    readFromSaveFile(SAVE_FILE_PATH, sf);
+    if (sf.is_init && action == GLFW_PRESS && !hasLoaded)
     {
         hasLoaded = true;
         renderSystem.getGameStateManager()->changeState<Cutscene>();
+    }
+    else if (action == GLFW_PRESS && !hasLoaded) {
+        hasLoaded = true;
+        renderSystem.getGameStateManager()->changeState<WorldSystem>();
     }
 }
 
