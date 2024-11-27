@@ -19,6 +19,8 @@ public:
 
 	Entity SetMovingPlatform(Sprite platformSprite, bool vertical, float width, float height, float xPos, float yPos, vec2 startPos, vec2 endPos, bool moving);
 
+	Entity SetBGElem(Sprite elemSprite, float width, float height, float xPos, float yPos, float rot);
+	
 	Entity SetCheckpoint(float xPos, float yPos);
 
 	Entity SetPelican(float xPos, float yPos);
@@ -79,15 +81,15 @@ class BMTRoom4Strategy : public RoomStrategy {
 };
 
 // npc rooms
+class NPCRoom1Strategy : public RoomStrategy {
+	Entity execute() override;
+};
+
 class NPCRoom2Strategy : public RoomStrategy {
 	Entity execute() override;
 };
 
 class NPCRoom3Strategy : public RoomStrategy {
-	Entity execute() override;
-};
-
-class NPCRoom4Strategy : public RoomStrategy {
 	Entity execute() override;
 };
 
