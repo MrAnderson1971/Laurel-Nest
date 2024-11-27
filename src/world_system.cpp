@@ -533,6 +533,16 @@ void WorldSystem::handle_collisions() {
 
         if(registry.walls.has(entity) && registry.patrol_ais.has(entity_other)){
             Patrol_AI& patrol = registry.patrol_ais.get(entity_other);
+            Motion& m_goomba = registry.motions.get(entity_other);
+            Motion& m_wall = registry.motions.get(entity);
+            float change = 0;
+            bool movingRight = patrol.movingRight;
+            if(movingRight){
+                change = -100;
+            }else {
+                change = 100;
+            }
+            m_goomba.position.x = m_wall.position.x + change;
             patrol.movingRight = !patrol.movingRight;
         }
 

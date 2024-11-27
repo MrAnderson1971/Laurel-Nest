@@ -106,7 +106,7 @@ Entity CPRoom1Strategy::execute() {
     Entity m_platform2 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.21f, 0.65f);
 
     // note on bg: don't add motion
-    //registry.grounds.emplace(m_wall, std::move(Ground()));
+    registry.grounds.emplace(m_wall, std::move(Ground()));
     registry.grounds.emplace(m_ground, std::move(Ground()));
     registry.grounds.emplace(m_platform1, std::move(Ground()));
     registry.grounds.emplace(m_platform2, std::move(Ground()));
@@ -118,7 +118,7 @@ Entity CPRoom1Strategy::execute() {
     room.insert(m_bg);
     room.insert(m_arrow_en);
     room.insert(m_arrow2);
-    //room.insert(m_wall);
+    room.insert(m_wall);
     room.insert(m_ceiling);
     room.insert(m_ground);
     room.insert(m_platform1);
@@ -1157,6 +1157,8 @@ Entity RoomStrategy::SetWall(Sprite groundSprite, float left, float width, float
     BoundingBox bb = registry.bounding_box.get(m_ground);
     bb.height = groundSprite.height;
     bb.width = groundSprite.width;
+
+    registry.walls.emplace(m_ground);
 
     // return ground
     return m_ground;

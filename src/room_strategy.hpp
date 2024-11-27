@@ -28,6 +28,10 @@ public:
     // for testing
 	Entity SetDoorEx(float width, float height, float xPos, float yPos);
     //
+    Entity
+    SetMovingPlatform(Sprite platformSprite, bool vertical, float width, float height, float xPos, float yPos,
+                      vec2 start,
+                      vec2 end);
 };
 
 // cesspit
