@@ -1025,23 +1025,11 @@ Entity LNBossRoomStrategy::execute() {
     // arrow
     Entity m_arrow_ln = SetBGElem(renderSystem.loadTexture("arrow.PNG"), -0.3f, 0.3f, 0.05f, 0.87f, 0.f);
 
-    // spaceship
-    Entity m_greatbird;
-    Sprite greatbirdSprite(renderSystem.loadTexture("greatbird_idle.png"));
-    greatbirdSprite.width *= 1.2f;
-    greatbirdSprite.height *= 1.2f;
-    registry.sprites.emplace(m_greatbird, std::move(greatbirdSprite));
+    // platform for boss
+    Entity m_boss_platform = SetBGElem(renderSystem.loadTexture("greatbird_platform.PNG"), 1.f, 1.f, 0.5f, 0.86f, 0.0f);
 
-    // Create and initialize a TransformComponent for the spaceship
-    TransformComponent greatbirdTransform;
-    greatbirdTransform.position = glm::vec3(renderSystem.getWindowWidth() * 0.5f, renderSystem.getWindowHeight() * 0.72f, 0.0);
-    greatbirdTransform.scale = glm::vec3(greatbirdSprite.width, greatbirdSprite.height, 1.0);
-    greatbirdTransform.rotation = 0.0f;
-    registry.transforms.emplace(m_greatbird, std::move(greatbirdTransform));
-
-    // add spaceship to environment to render out later
-    Environment greatbirdObj;
-    registry.envObject.emplace(m_greatbird, std::move(greatbirdObj));
+    // greatbird boss
+    Entity m_greatbird = SetBGElem(renderSystem.loadTexture("greatbird_idle.PNG"), 1.f, 1.f, 0.5f, 0.65f, 0.0f);
 
     // ceiling
     Entity m_ceiling = SetCeiling(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_CEILING), 0.5f);
@@ -1056,6 +1044,7 @@ Entity LNBossRoomStrategy::execute() {
     room.insert(m_arrow_ln);
     room.insert(m_ceiling);
     room.insert(m_ground);
+    room.insert(m_boss_platform);
     room.insert(m_greatbird);
     room.setMusic(Mix_LoadMUS(audio_path("cesspit.wav").c_str()));
     registry.rooms.emplace(m_room, std::move(room));
