@@ -250,7 +250,7 @@ void WorldSystem::handle_connections(float deltaTime) {
         for (auto& connection : list.doors) {
             // collision but only if player is in walking state
             auto& a = registry.playerAnimations.get(m_player);
-            if (physics.checkForCollision(m_player, connection.door, dir, over) && (a.getState() == PlayerState::WALKING || a.getState() == PlayerState::JUMPING)) {
+            if (physics.checkForCollision(m_player, connection.door, dir, over) && a.getState() != PlayerState::ATTACKING && playerMotion.velocity != vec2(0.f, 0.f)) {
                 // check if in boss room and if boss is dead
                 //if (!connection.limit || (registry.rooms.get(current_room).id == ROOM_ID::CP_BOSS && isChickenDead)) {
                     // set next room
