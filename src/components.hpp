@@ -340,6 +340,8 @@ enum class TEXTURE_ASSET_ID {
     FIREBALL,                             // Fireball.png
     DOOR,                                 // Door.PNG
     BMT_BG,                               // BMTown_bg.PNG
+    CP_WALL,
+    BMT_WALL,
     BIRDMAN_CHARGE,
     BIRDMAN_DEAD,
     BIRDMAN_HIT,
@@ -520,4 +522,8 @@ struct MenuItem {
         float maxy = transformActive.position.y + halfbb.y;
         return minx <= pos.x && pos.x <= maxx && miny <= pos.y && pos.y <= maxy;
     }
+};
+
+struct Wall{
+
 };

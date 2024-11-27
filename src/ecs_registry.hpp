@@ -54,6 +54,7 @@ public:
     ComponentContainer<HeartPowerUp> heartPowerUp;
     ComponentContainer<SwordPowerUp> swordPowerUp;
     ComponentContainer<MenuItem> menuItems;
+    ComponentContainer<Wall> walls;
 
     // constructor that adds all containers for looping over them
     // IMPORTANT: Don't forget to add any newly added containers!
@@ -99,6 +100,7 @@ public:
         registry_list.push_back(&swordPowerUp);
         registry_list.push_back(&menuItems);
         registry_list.push_back(&pelican);
+        registry_list.push_back(&walls);
     }
 
     void clear_all_components() {

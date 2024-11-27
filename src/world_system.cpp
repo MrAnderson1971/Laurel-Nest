@@ -252,7 +252,7 @@ void WorldSystem::handle_connections(float deltaTime) {
             auto& a = registry.playerAnimations.get(m_player);
             if (physics.checkForCollision(m_player, connection.door, dir, over) && (a.getState() == PlayerState::WALKING || a.getState() == PlayerState::JUMPING)) {
                 // check if in boss room and if boss is dead
-                if (!connection.limit || (registry.rooms.get(current_room).id == ROOM_ID::CP_BOSS && isChickenDead)) {
+                //if (!connection.limit || (registry.rooms.get(current_room).id == ROOM_ID::CP_BOSS && isChickenDead)) {
                     // set next room
                     // check for switching map
                     if (!connection.switchMap) {
@@ -279,7 +279,7 @@ void WorldSystem::handle_connections(float deltaTime) {
                     else {
                         
                     }
-                }
+                //}
             }
         }
     }
@@ -538,6 +538,34 @@ void WorldSystem::handle_collisions() {
                     thisMotion.position.x += overlap.x;
                 }
             }
+        }
+
+        if(registry.walls.has(entity) && registry.patrol_ais.has(entity_other)){
+            Patrol_AI& patrol = registry.patrol_ais.get(entity_other);
+            Motion& m_goomba = registry.motions.get(entity_other);
+            Motion& m_wall = registry.motions.get(entity);
+            float change = 0;
+            bool movingRight = patrol.movingRight;
+            if(movingRight){
+                change = -100;
+            }else {
+                change = 100;
+            }
+            m_goomba.position.x = m_wall.position.x + change;
+            patrol.movingRight = !patrol.movingRight;
+        }
+
+        if(registry.walls.has(entity) && registry.hostiles.has(entity_other) && registry.hostiles.get(entity_other).type == HostileType::GOOMBA_FLYING){
+            Motion& m_fying_goomba = registry.motions.get(entity_other);
+            Motion& m_wall = registry.motions.get(entity);
+            float change = 0;
+//            if(m_fying_goomba.position.x > 0){
+//                change = -250;
+//            }else{
+//                change = 250;
+//            }
+            m_fying_goomba.position.x = m_wall.position.x + 200;
+            //m_fying_goomba.velocity.x *= -1;
         }
 
         // change the flying goomba's animation when it impacts the ground

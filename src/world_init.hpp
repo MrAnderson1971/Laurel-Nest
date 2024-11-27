@@ -56,6 +56,8 @@ inline std::unordered_map<TEXTURE_ASSET_ID, std::string> createTextureAssetMap()
         {TEXTURE_ASSET_ID::FIREBALL, "Fireball.png"},
         {TEXTURE_ASSET_ID::DOOR, "door.PNG"},
         {TEXTURE_ASSET_ID::BMT_BG, "BMTown_bg.PNG"},
+        {TEXTURE_ASSET_ID::CP_WALL, "cp_wall.PNG"},
+        {TEXTURE_ASSET_ID::BMT_WALL, "bmt_wall.PNG"},
         {TEXTURE_ASSET_ID::BIRDMAN_CHARGE, "birdman_charge.PNG"},
         {TEXTURE_ASSET_ID::BIRDMAN_DEAD, "birdman_dead.PNG"},
         {TEXTURE_ASSET_ID::BIRDMAN_HIT, "birdman_hit.PNG"},

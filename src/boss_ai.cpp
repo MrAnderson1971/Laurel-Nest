@@ -38,6 +38,11 @@ constexpr float DEATH_CHICKEN_HEIGHT = 0.6f * 565.f;
 bool walkLeft = false;
 bool walkRight = false;
 
+
+//bool canSuperFlame(Motion chickenMotion, Motion playerMotion){
+//
+//}
+
 bool canWalk(Motion& chickenMotion, Motion& playerMotion) {
 	if ((playerMotion.position.x <= renderSystem.getWindowWidth() / 3.f &&
 		playerMotion.position.x >= renderSystem.getWindowWidth() / 5.f &&
@@ -80,7 +85,7 @@ bool canPeck(Motion chickenMotion, Motion playerMotion, float time) {
     return false;
 }
 bool canFlame(Motion chickenMotion, Motion playerMotion) {
-	if (flame_cooldown <= 0 && chickenMotion.position.x > playerMotion.position.x + 700.f) {
+	if (flame_cooldown <= 0 && chickenMotion.position.x > playerMotion.position.x + 350.f) {
 		return true;
 	}
 	return false;
@@ -207,7 +212,7 @@ void BossAISystem::step(Entity player, float elapsed_time) {
 			else if (canFlame(chickenMotion, playerMotion)) {
 				current_state = STATE::FLAME;
 				a.setState(CHICKEN_FLAME);
-				flame_cooldown = 1050;
+				flame_cooldown = 600;
 				flame_attack(renderSystem.getWindowWidth() / 6.f);
 				flame_attack(renderSystem.getWindowWidth() / 3.f);
 				// flame_attack(renderSystem.getWindowWidth() * (2.f/3.f));
@@ -227,7 +232,7 @@ void BossAISystem::step(Entity player, float elapsed_time) {
 			else if (canFlame(chickenMotion, playerMotion)) {
 				current_state = STATE::FLAME;
 				a.setState(CHICKEN_FLAME);
-				flame_cooldown = 1050;
+				flame_cooldown = 600;
 				flame_attack(renderSystem.getWindowWidth() / 6.f);
 				flame_attack(renderSystem.getWindowWidth() / 3.f);
 				// flame_attack(renderSystem.getWindowWidth() * (2.f / 3.f));
