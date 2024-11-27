@@ -210,7 +210,7 @@ void AISystem::flying_goomba_charge(Motion& flyingGoombaMotion, Motion playerMot
     vec2 fg_position = flyingGoombaMotion.position;
     vec2 p_position = playerMotion.position;
 
-    float distance = static_cast<float>(sqrt((pow(fg_position.x - p_position.x, 2) + pow(fg_position.y - p_position.y, 2))));
+    float distance = calculate_distance(flyingGoombaMotion, playerMotion);
     float angle = atan2(fg_position.y - p_position.y, fg_position.x - p_position.x) * -1;
 
     float factor_x = 50;
@@ -219,10 +219,6 @@ void AISystem::flying_goomba_charge(Motion& flyingGoombaMotion, Motion playerMot
 
     flyingGoombaMotion.angle = angle;
 };
-
-
-
-
 
 void AISystem::group_behaviour(Entity player){
     // Make all goombas chase
@@ -250,12 +246,44 @@ void AISystem::group_behaviour(Entity player){
     aim = true;
 }
 
+void AISystem::swarm_goomba_keep_witihin_bounds(Entity swarmGoomba) {
+    const float margin_x = static_cast<float>(renderSystem.getWindowWidth() + 50);
+    const float margin_y = static_cast<float>(renderSystem.getWindowHeight() + 50);
+    const float turnFactor = 1;
+
+    Motion& swarmGoombaMotion = registry.motions.get(swarmGoomba);
+    vec2 position = swarmGoombaMotion.position;
+    vec2 velocity = swarmGoombaMotion.velocity;
+
+    if (position.x < margin_x) velocity.x += turnFactor;
+    if (position.x > renderSystem.getWindowWidth() - margin_x) velocity.x -= turnFactor;
+    if (position.y < margin_y) velocity.y += turnFactor;
+    if (position.y > renderSystem.getWindowHeight() - margin_y) velocity.x -= turnFactor;
+}
+
+void AISystem::swarm_goomba_fly_towards_centre(Entity swarmGoomba, std::vector<Entity> swarmGoombas) {
+    const float centeringFactor = 0.005f;
+
+    float center_x = 0;
+    float center_y = 0;
+    int numNeighbors = 0;
+
+    for (Entity otherSwarmGoomba : swarmGoombas) {
+        
+    }
+}
+
 float AISystem::get_angle(Entity e1, Entity e2){
     Motion m1 = registry.motions.get(e1);
     Motion m2 = registry.motions.get(e2);
     float x = abs(m1.position.x - m2.position.x);
     float y = abs(m1.position.y - m2.position.y);
     return atan(x/y);
+}
+
+
+float AISystem::calculate_distance(Motion motion_1, Motion motion_2) {
+    return static_cast<float>(sqrt((pow(motion_1.position.x - motion_2.position.x, 2) + pow(motion_1.position.y - motion_2.position.y, 2))));
 }
 
 void AISystem::init_aim(){

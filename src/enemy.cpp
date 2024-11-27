@@ -137,5 +137,32 @@ void GoombaFlying::init_components(float x, float y) {
 	registry.healths.emplace(entity, std::move(Health{ 4,4}));
 	registry.damages.emplace(entity, std::move(Damage{ 1 }));
 	registry.patrol_ais.emplace(entity, std::move(Patrol_AI()));
+}
 
+GoombaSwarm::GoombaSwarm() {
+	entity = Entity();
+}
+
+void GoombaSwarm::init_sprite() {
+	registry.sprites.emplace(entity, g_texture_paths->at(TEXTURE_ASSET_ID::CEILING_SPIT));
+}
+
+void GoombaSwarm::init_components(float x, float y) {
+	Motion goombaMotion;
+	goombaMotion.position = vec2(x, y);
+	goombaMotion.scale = GOOMBA_CEILING_SPIT_SCALE * 1.5f;
+	goombaMotion.velocity = { TPS , -TPS };
+	goombaMotion.old_velocity = goombaMotion.velocity;
+	registry.motions.emplace(entity, std::move(goombaMotion));
+
+	TransformComponent goombaTransform;
+	registry.transforms.emplace(entity, std::move(goombaTransform));
+
+	Hostile hostile;
+	hostile.type = HostileType::GOOMBA_SWARM;
+	registry.hostiles.emplace(entity, std::move(hostile));
+
+	registry.healths.emplace(entity, std::move(Health{ 1,1 }));
+	registry.damages.emplace(entity, std::move(Damage{ 1 }));
+	registry.patrol_ais.emplace(entity, std::move(Patrol_AI()));
 }

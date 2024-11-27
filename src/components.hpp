@@ -55,6 +55,7 @@ enum class HostileType {
     GOOMBA_LAND,
     GOOMBA_CEILING,
     GOOMBA_FLYING,
+    GOOMBA_SWARM
 };
 
 /* Template Animation component for animated sprites
