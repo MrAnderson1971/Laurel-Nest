@@ -521,3 +521,7 @@ struct MenuItem {
         return minx <= pos.x && pos.x <= maxx && miny <= pos.y && pos.y <= maxy;
     }
 };
+
+struct Wall{
+
+};

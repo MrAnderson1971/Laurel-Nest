@@ -531,6 +531,12 @@ void WorldSystem::handle_collisions() {
             }
         }
 
+        if(registry.walls.has(entity) && registry.patrol_ais.has(entity_other)){
+            Patrol_AI& patrol = registry.patrol_ais.get(entity_other);
+            patrol.movingRight = !patrol.movingRight;
+        }
+
+
         // change the flying goomba's animation when it impacts the ground
         if (registry.hostiles.has(entity) && registry.hostiles.get(entity).type == HostileType::GOOMBA_FLYING 
             && registry.healths.has(entity) && registry.grounds.has(entity_other) && !registry.movingPlatform.has(entity_other)) {

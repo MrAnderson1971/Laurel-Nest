@@ -89,11 +89,17 @@ Entity CPRoom1Strategy::execute() {
     // platform 2
     Entity m_platform2 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.18f, 0.65f);
 
+
+    //Wall
+    Entity m_wall = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::CP_WALL), 1.f, 0.6f, 0.6f, 0.f, 400.f);
+
+
     // note on bg: don't add motion
     registry.grounds.emplace(m_ground, std::move(Ground()));
     registry.grounds.emplace(m_platform1, std::move(Ground()));
     registry.grounds.emplace(m_platform2, std::move(Ground()));
-    
+    registry.grounds.emplace(m_wall, std::move(Ground()));
+
 
     GoombaLand g1 = GoombaLand();
     g1.init(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight()* 4.f / 5.f);
@@ -103,6 +109,7 @@ Entity CPRoom1Strategy::execute() {
     room.insert(m_ground);
     room.insert(m_platform1);
     room.insert(m_platform2);
+    room.insert(m_wall);
     room.insert(g1.entity);
     registry.rooms.emplace(m_room1, std::move(room));
     return m_room1;
