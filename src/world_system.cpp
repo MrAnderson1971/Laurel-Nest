@@ -184,13 +184,14 @@ void WorldSystem::init() {
         vec3(escSprite.width * 0.3f, escSprite.height * 0.3f, 1.f), 0.f
         });
 
-    Mix_ReserveChannels(3);
+    Mix_ReserveChannels(4);
     footstep_sound = Mix_LoadWAV(audio_path("footstep.wav").c_str());
     sword_sound = Mix_LoadWAV(audio_path("sword.wav").c_str());
     hurt_sound = Mix_LoadWAV(audio_path("hurt.wav").c_str());
     save_sound = Mix_LoadWAV(audio_path("save.wav").c_str());
     gun_click_sound = Mix_LoadWAV(audio_path("gun_click.wav").c_str());
-    if (!(footstep_sound && sword_sound && hurt_sound && save_sound && gun_click_sound)) {
+    flame_beak_shoot_sound = Mix_LoadWAV(audio_path("flame-beak-shoot.wav").c_str());
+    if (!(footstep_sound && sword_sound && hurt_sound && save_sound && gun_click_sound && flame_beak_shoot_sound)) {
         std::cerr << "Failed to load WAV file: " << Mix_GetError() << std::endl;
     }
 }
@@ -1093,6 +1094,7 @@ void WorldSystem::on_mouse_click(int button, int action, const glm::vec2&, int) 
                     registry.players.get(m_player).attacking = true;
                 }
             } else if (flameThrower_enabled) {
+                Mix_PlayChannel(FLAME_BEAK_SHOOT_CHANNEL, flame_beak_shoot_sound, 0);
                 useFlameThrower();
             }
             else {
@@ -1124,6 +1126,10 @@ void WorldSystem::cleanup() {
     if (gun_click_sound != nullptr) {
         Mix_FreeChunk(gun_click_sound);
         gun_click_sound = nullptr;
+    }
+    if (flame_beak_shoot_sound != nullptr) {
+        Mix_FreeChunk(flame_beak_shoot_sound);
+        flame_beak_shoot_sound = nullptr;
     }
     registry.clear_all_components();
 }
