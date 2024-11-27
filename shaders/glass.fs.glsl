@@ -47,9 +47,9 @@ void main() {
         }
     }
 
-    float lineIntensity = smoothstep(0.0, 0.005, secondMinDist - minDist);
+    float lineIntensity = smoothstep(0.0, 0.005 * keyframe , secondMinDist - minDist);
     float normalizedDist = length(uv - vec2(0.5)) / length(vec2(0.5));
-    float visibility = step(normalizedDist, keyframe + rand(uv) / 50.0);
+    float visibility = 1;
     float alpha = (1 - lineIntensity) * visibility;
 
     vec3 currentColor = texture(screenTexture, uv).rgb;
