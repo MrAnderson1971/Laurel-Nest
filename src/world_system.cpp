@@ -47,6 +47,7 @@ void WorldSystem::init() {
     // Create a new entity and register it in the ECSRegistry
     SaveFile sf;
     readFromSaveFile(SAVE_FILE_PATH, sf);
+    is_init = false;
     heartPowerUp_0 = sf.heart_power_up_0;
     heartPowerUp_1 = sf.heart_power_up_1;
     swordPowerUp_0 = sf.sword_power_up_0;
@@ -193,6 +194,9 @@ void WorldSystem::init() {
     if (!(footstep_sound && sword_sound && hurt_sound && save_sound && gun_click_sound)) {
         std::cerr << "Failed to load WAV file: " << Mix_GetError() << std::endl;
     }
+    Room& r = registry.rooms.get(current_room);
+    std::shared_ptr<Mix_Music> music = r.music;
+    Mix_PlayMusic(music.get(), 1);
 }
 
 void WorldSystem::update(float deltaTime) {
@@ -263,12 +267,17 @@ void WorldSystem::handle_connections(float deltaTime) {
                     physics.setRoom(current_room);
                     // set spawn point of player in new room
                     playerMotion.position = connection.nextSpawn;
-                    std::shared_ptr<Mix_Music> music = registry.rooms.get(current_room).music;
-                    if (music != nullptr && !isChickenDead) { // Begrudgingly putting this condition here so it only plays when the boss isn't dead.
+                    Room& r = registry.rooms.get(current_room);
+                    std::shared_ptr<Mix_Music> music = r.music;
+                    if (music != nullptr && !isChickenDead && r.id == ROOM_ID::CP_BOSS) { // Begrudgingly putting this condition here so it only plays when the boss isn't dead.
                         Mix_PlayMusic(music.get(), 1); // TODO: make it more scalable in the future because we can't keep this up.
                     }
+                    else if (music != nullptr && isChickenDead && r.id != ROOM_ID::CP_BOSS && continue_music) {
+                        continue_music = false;
+                        Mix_PlayMusic(music.get(), 1);
+                    }
                     else {
-                        Mix_HaltMusic();
+                        
                     }
                 //}
             }
@@ -1375,6 +1384,8 @@ void WorldSystem::write_to_save_file() {
         Health player_health = registry.healths.get(m_player);
         Damage player_damage = registry.damages.get(m_sword);
         HealthFlask health_flask = registry.healthFlasks.get(m_player);
+
+        saveFile << BoolToString(is_init) << "\n";
 
         saveFile << player_health.max_health << "\n";
 

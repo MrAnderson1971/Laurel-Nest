@@ -59,8 +59,10 @@ Entity CPEntranceRoomStrategy::execute() {
     room.insert(m_platform1);
     room.insert(m_platform2);
     room.insert(pelican);
+    room.setMusic(Mix_LoadMUS(audio_path("cesspit.wav").c_str()));
 
     registry.rooms.emplace(m_entrance_room, std::move(room));
+
 
     return m_entrance_room;
 }
@@ -124,6 +126,7 @@ Entity CPRoom1Strategy::execute() {
     room.insert(m_platform1);
     room.insert(m_platform2);
     room.insert(g1.entity);
+    room.setMusic(Mix_LoadMUS(audio_path("cesspit.wav").c_str()));
     registry.rooms.emplace(m_room1, std::move(room));
     return m_room1;
 }
@@ -187,6 +190,7 @@ Entity CPRoom2Strategy::execute() {
     room.insert(m_platform3);
     room.insert(m_platform4);
     room.insert(g1.entity);
+    room.setMusic(Mix_LoadMUS(audio_path("cesspit.wav").c_str()));
     registry.rooms.emplace(m_room2, std::move(room));
     return m_room2;
 }
@@ -256,6 +260,7 @@ Entity CPRoom3Strategy::execute() {
     room.insert(m_platform1);
     room.insert(m_platform2);
     room.insert(m_heart);
+    room.setMusic(Mix_LoadMUS(audio_path("cesspit.wav").c_str()));
     registry.rooms.emplace(m_room3, std::move(room));
     return m_room3;
 }
@@ -309,6 +314,7 @@ Entity CPRoom4Strategy::execute() {
     room.insert(g.entity);
     room.insert(g2.entity);
     room.insert(g3.entity);
+    room.setMusic(Mix_LoadMUS(audio_path("cesspit.wav").c_str()));
     registry.rooms.emplace(m_room4, std::move(room)); 
 
     return m_room4;
@@ -344,7 +350,7 @@ Entity CPBossRoomStrategy::execute() {
     room.insert(m_ceiling);
     room.insert(m_ground);
     room.insert(chicken);
-    room.setMusic(Mix_LoadMUS(audio_path("music.wav").c_str()));
+    room.setMusic(Mix_LoadMUS(audio_path("blazingChicken.wav").c_str()));
     registry.rooms.emplace(m_boss_room, std::move(room));
 
     return m_boss_room;
@@ -427,6 +433,7 @@ Entity CPExitRoomStrategy::execute() {
     room.insert(m_platform6);
     room.insert(m_platform7);
     room.insert(m_check_point);
+    room.setMusic(Mix_LoadMUS(audio_path("cesspit.wav").c_str()));
     registry.rooms.emplace(m_exit_room, std::move(room));
     return m_exit_room;
 }
@@ -508,6 +515,8 @@ Entity BMTEntranceRoomStrategy::execute() {
     room.insert(gc3.entity);
    // room.insert(gc4.entity);
 
+
+    room.setMusic(Mix_LoadMUS(audio_path("cesspit.wav").c_str()));
     registry.rooms.emplace(m_room, std::move(room));
 
     return m_room;
@@ -584,6 +593,8 @@ Entity BMTRoom1Strategy::execute() {
     room.insert(m_platform4);
     room.insert(m_platform5);
     room.insert(gc1.entity);
+
+    room.setMusic(Mix_LoadMUS(audio_path("cesspit.wav").c_str()));
 
     registry.rooms.emplace(m_room, std::move(room));
 
@@ -671,6 +682,8 @@ Entity BMTRoom2Strategy::execute() {
     //room.insert(gc1.entity);
     //room.insert(gc2.entity);
 
+    room.setMusic(Mix_LoadMUS(audio_path("cesspit.wav").c_str()));
+
     registry.rooms.emplace(m_room, std::move(room));
 
     return m_room;
@@ -734,6 +747,7 @@ Entity BMTRoom3Strategy::execute() {
     // room.insert(gf2.entity);
     //room.insert(gc2.entity);
   //  room.insert(gc3.entity);
+    room.setMusic(Mix_LoadMUS(audio_path("cesspit.wav").c_str()));
 
     registry.rooms.emplace(m_room, std::move(room));
 
@@ -836,6 +850,8 @@ Entity BMTRoom4Strategy::execute() {
     room.insert(gc1.entity);
     //room.insert(gc2.entity);
     room.insert(gc3.entity);
+
+    room.setMusic(Mix_LoadMUS(audio_path("cesspit.wav").c_str()));
 
     registry.rooms.emplace(m_room, std::move(room));
 
@@ -1041,6 +1057,7 @@ Entity LNBossRoomStrategy::execute() {
     room.insert(m_ceiling);
     room.insert(m_ground);
     room.insert(m_greatbird);
+    room.setMusic(Mix_LoadMUS(audio_path("cesspit.wav").c_str()));
     registry.rooms.emplace(m_room, std::move(room));
 
     return m_room;

@@ -3,6 +3,7 @@
 #include <string>
 
 enum class SAVEFILE_LINES {
+	IS_INIT,
 	PLAYER_MAX_HEALTH,
 	PLAYER_CURRENT_HEALTH,
 	HEALTH_FLASK_USES,
@@ -30,6 +31,7 @@ enum class SAVEFILE_LINES {
 //};
 
 struct SaveFile {
+	bool is_init;
 	int player_max_health = 3;
 	int player_current_health = 3;
 	int health_flask_uses = 3;

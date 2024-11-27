@@ -66,6 +66,11 @@ void readFromSaveFile(const std::string& filePath, SaveFile& sf) {
 		int value;
 		bool value_b;
 		switch (static_cast<SAVEFILE_LINES>(currentLine)) {
+		case SAVEFILE_LINES::IS_INIT:
+			if (iss >> std::boolalpha >> value_b) {
+				sf.is_init = value_b;
+			}
+			break;
 		case SAVEFILE_LINES::PLAYER_MAX_HEALTH:
 			if (iss >> value) {
 				sf.player_max_health = value;
