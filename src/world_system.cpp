@@ -1026,6 +1026,7 @@ void WorldSystem::processPlayerInput(int key, int action) {
 }
 
 void WorldSystem::useFlameThrower() {
+    Mix_PlayChannel(FLAME_BEAK_SHOOT_CHANNEL, flame_beak_shoot_sound, 0);
     auto& weapon = registry.weapons.get(m_flameThrower);
 
     Entity m_fireball = Entity();
@@ -1094,7 +1095,6 @@ void WorldSystem::on_mouse_click(int button, int action, const glm::vec2&, int) 
                     registry.players.get(m_player).attacking = true;
                 }
             } else if (flameThrower_enabled) {
-                Mix_PlayChannel(FLAME_BEAK_SHOOT_CHANNEL, flame_beak_shoot_sound, 0);
                 useFlameThrower();
             }
             else {
