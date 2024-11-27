@@ -98,6 +98,7 @@ private:
 
 	// saveables
 	
+	bool is_init = true;
 	bool heartPowerUp_0;
 	bool heartPowerUp_1;
 	bool swordPowerUp_0;
@@ -121,6 +122,7 @@ private:
 	bool skip_dialogue = false;
 	int pelicanIndex = 0;
 
+	bool continue_music = true;
 	bool do_save = false;
 	bool saved_this_instance;
 
