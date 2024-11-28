@@ -16,10 +16,10 @@ Entity CPEntranceRoomStrategy::execute() {
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::ENTRANCE_BG));
 
     // spaceship
-    Entity m_spaceship = SetBGElem(renderSystem.loadTexture("spaceship.png"), 0.5f, 0.5f, 0.1f, 0.38f, 0.f);
+    Entity m_spaceship = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::SPACESHIP), 0.5f, 0.5f, 0.1f, 0.38f, 0.f);
 
     // arrows
-    Entity m_arrow1 = SetBGElem(renderSystem.loadTexture("arrow.PNG"), 0.3f, 0.3f, 0.58f, 0.9f, 90.f);
+    Entity m_arrow1 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), 0.3f, 0.3f, 0.58f, 0.9f, 90.f);
 
     Entity m_wall_bound_left = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::CP_WALL), 1.f, 0.6f, 0.6f, 0.f, 1000.f);
 
@@ -90,8 +90,8 @@ Entity CPRoom1Strategy::execute() {
     registry.envObject.emplace(m_wall, std::move(wallObj));*/
 
     // arrows
-    Entity m_arrow_en = SetBGElem(renderSystem.loadTexture("arrow.PNG"), -0.3f, 0.3f, 0.03f, 0.25f, 90.f);
-    Entity m_arrow2 = SetBGElem(renderSystem.loadTexture("arrow.PNG"), 0.3f, 0.3f, 0.95f, 0.75f, 0.f);
+    Entity m_arrow_en = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), -0.3f, 0.3f, 0.03f, 0.25f, 90.f);
+    Entity m_arrow2 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), 0.3f, 0.3f, 0.95f, 0.75f, 0.f);
 
     Entity m_wall = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::CP_WALL), 1.f, 0.6f, 0.6f, 0.f, 400.f);
 
@@ -140,9 +140,9 @@ Entity CPRoom2Strategy::execute() {
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::CESSPIT_BG));
 
     // arrows
-    Entity m_arrow1 = SetBGElem(renderSystem.loadTexture("arrow.PNG"), -0.3f, 0.3f, 0.05f, 0.35f, 0.f);
-    Entity m_arrow3 = SetBGElem(renderSystem.loadTexture("arrow.PNG"), -0.3f, 0.3f, 0.5f, 0.95f, 270.f);
-    Entity m_arrow4 = SetBGElem(renderSystem.loadTexture("arrow.PNG"), 0.3f, 0.3f, 0.95f, 0.35f, 0.f);
+    Entity m_arrow1 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), -0.3f, 0.3f, 0.05f, 0.35f, 0.f);
+    Entity m_arrow3 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), -0.3f, 0.3f, 0.5f, 0.95f, 270.f);
+    Entity m_arrow4 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), 0.3f, 0.3f, 0.95f, 0.35f, 0.f);
 
     // ceiling
     Entity m_ceiling = SetCeiling(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_CEILING), 0.5f);
@@ -204,7 +204,7 @@ Entity CPRoom3Strategy::execute() {
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::CESSPIT_BG));
 
     // arrows
-    Entity m_arrow2 = SetBGElem(renderSystem.loadTexture("arrow.PNG"), 0.3f, 0.3f, 0.95f, 0.2f, 270.f);
+    Entity m_arrow2 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), 0.3f, 0.3f, 0.95f, 0.2f, 270.f);
 
     Entity m_wall_left = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::CP_WALL), 1.f, 0.8f, 0.8f, 0.f, 200.f);
 
@@ -224,7 +224,7 @@ Entity CPRoom3Strategy::execute() {
 
     // heart powerUp
     // TODO: add to texture_paths
-    Entity m_heart = SetPlatform(renderSystem.loadTexture("extra_heart.png"), 0.2f, 0.2f, 0.07f, 0.25f);
+    Entity m_heart = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::EXTRA_HEART), 0.2f, 0.2f, 0.07f, 0.25f);
 
     // ground
     Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 1.0f, 0.5f, 0.0f);
@@ -274,8 +274,8 @@ Entity CPRoom4Strategy::execute() {
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::CESSPIT_BG));
 
     // arrows
-    Entity m_arrow3 = SetBGElem(renderSystem.loadTexture("arrow.PNG"), -0.3f, 0.3f, 0.05f, 0.75f, 0.f);
-    Entity m_arrow_boss = SetBGElem(renderSystem.loadTexture("arrow.PNG"), 0.3f, 0.3f, 0.95f, 0.75f, 0.f);
+    Entity m_arrow3 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), -0.3f, 0.3f, 0.05f, 0.75f, 0.f);
+    Entity m_arrow_boss = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), 0.3f, 0.3f, 0.95f, 0.75f, 0.f);
 
     // ceiling
     Entity m_ceiling = SetCeiling(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_CEILING), 0.5f);
@@ -330,8 +330,8 @@ Entity CPBossRoomStrategy::execute() {
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::CESSPIT_BOSS_BG));
 
     // arrows
-    Entity m_arrow4 = SetBGElem(renderSystem.loadTexture("arrow.PNG"), -0.3f, 0.3f, 0.05f, 0.75f, 0.f);
-    Entity m_arrow_exit = SetBGElem(renderSystem.loadTexture("arrow.PNG"), 0.3f, 0.3f, 0.95f, 0.75f, 0.f);
+    Entity m_arrow4 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), -0.3f, 0.3f, 0.05f, 0.75f, 0.f);
+    Entity m_arrow_exit = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), 0.3f, 0.3f, 0.95f, 0.75f, 0.f);
 
     // ceiling
     Entity m_ceiling = SetCeiling(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_CEILING), 0.5f);
@@ -365,8 +365,8 @@ Entity CPExitRoomStrategy::execute() {
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::ENTRANCE_BG));
 
     // arrows
-    Entity m_arrow_boss = SetBGElem(renderSystem.loadTexture("arrow.PNG"), -0.3f, 0.3f, 0.05f, 0.85f, 0.f);
-    Entity m_arrow_bmt = SetBGElem(renderSystem.loadTexture("arrow.PNG"), -0.3f, 0.3f, 0.43f, 0.05f, 90.f);
+    Entity m_arrow_boss = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), -0.3f, 0.3f, 0.05f, 0.85f, 0.f);
+    Entity m_arrow_bmt = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), -0.3f, 0.3f, 0.43f, 0.05f, 90.f);
 
     // platform 1: mid left bottom
     Entity m_platform1 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.28f, 0.65f);
@@ -449,9 +449,9 @@ Entity BMTEntranceRoomStrategy::execute() {
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_BG));
 
     // arrows
-    Entity m_arrow_cp = SetBGElem(renderSystem.loadTexture("arrow.PNG"), 0.3f, 0.3f, 0.03f, 0.85f, 90.f);
-    Entity m_arrow_npc1 = SetBGElem(renderSystem.loadTexture("arrow.PNG"), 0.3f, 0.3f, 0.95f, 0.87f, 0.f);
-    Entity m_arrow1 = SetBGElem(renderSystem.loadTexture("arrow.PNG"), 0.3f, 0.3f, 0.97f, 0.2f, 270.f);
+    Entity m_arrow_cp = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), 0.3f, 0.3f, 0.03f, 0.85f, 90.f);
+    Entity m_arrow_npc1 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), 0.3f, 0.3f, 0.95f, 0.87f, 0.f);
+    Entity m_arrow1 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), 0.3f, 0.3f, 0.97f, 0.2f, 270.f);
 
     //walls
     Entity m_wall_left = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL), 1.f, 0.6f, 0.6f, 0.01f, 300.f);
@@ -532,10 +532,10 @@ Entity BMTRoom1Strategy::execute() {
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_BG));
 
     // arrows
-    Entity m_arrow_en = SetBGElem(renderSystem.loadTexture("arrow.PNG"), -0.3f, 0.3f, 0.97f, 0.9f, 270.f);
-    Entity m_arrow2 = SetBGElem(renderSystem.loadTexture("arrow.PNG"), -0.3f, 0.3f, 0.05f, 0.87f, 0.f);
-    Entity m_arrow3 = SetBGElem(renderSystem.loadTexture("arrow.PNG"), -0.3f, 0.3f, 0.05f, 0.4f, 0.f);
-    Entity m_arrow4 = SetBGElem(renderSystem.loadTexture("arrow.PNG"), 0.3f, 0.3f, 0.97f, 0.15f, 270.f);
+    Entity m_arrow_en = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), -0.3f, 0.3f, 0.97f, 0.9f, 270.f);
+    Entity m_arrow2 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), -0.3f, 0.3f, 0.05f, 0.87f, 0.f);
+    Entity m_arrow3 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), -0.3f, 0.3f, 0.05f, 0.4f, 0.f);
+    Entity m_arrow4 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), 0.3f, 0.3f, 0.97f, 0.15f, 270.f);
 
     // wall
     Entity m_wall = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL), 1.f, 0.6f, 0.6f, 0.99f, 500.f);
@@ -611,7 +611,7 @@ Entity BMTRoom2Strategy::execute() {
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_BG));
 
     // arrows
-    Entity m_arrow1 = SetBGElem(renderSystem.loadTexture("arrow.PNG"), 0.3f, 0.3f, 0.95f, 0.87f, 0.f);
+    Entity m_arrow1 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), 0.3f, 0.3f, 0.95f, 0.87f, 0.f);
 
     // wall
     Entity m_wall_bound = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL), 1.f, 0.6f, 0.6f, 0.01f, 1200.f);
@@ -639,31 +639,12 @@ Entity BMTRoom2Strategy::execute() {
     // ground
     Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 0.5f, 0.5f, 0.0f);
 
-    /*GoombaFlying gf = GoombaFlying();
-    gf.init(renderSystem.getWindowWidth() / 3.f, renderSystem.getWindowHeight() / 6.f);*/
-
-    /*// platform 3: goomba right
-    Entity m_platform3 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.85f, 0.0f);
-
-    // platform 4: goomba left
-    Entity m_platform4 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.4f, 0.0f);
-    
-    GoombaCeiling gc1 = GoombaCeiling();
-    gc1.init(renderSystem.getWindowWidth() * 0.85f, renderSystem.getWindowHeight() * 0.f + gc1.with_platform);
-    gc1.set_spit_timer(1.f);
-
-    GoombaCeiling gc2 = GoombaCeiling();
-    gc2.init(renderSystem.getWindowWidth() * 0.4f, renderSystem.getWindowHeight() * 0.f + gc2.with_platform );
-    gc2.set_spit_timer(1.75f);*/
-
     // note on bg: don't add motion
     registry.grounds.emplace(m_wall_bound, std::move(Ground()));
     registry.grounds.emplace(m_ground, std::move(Ground()));
     registry.grounds.emplace(m_wall, std::move(Ground()));
     registry.grounds.emplace(m_platform1, std::move(Ground()));
     registry.grounds.emplace(m_platform2, std::move(Ground()));
-    //registry.grounds.emplace(m_platform3, std::move(Ground()));
-    //registry.grounds.emplace(m_platform4, std::move(Ground()));
     registry.grounds.emplace(m_wall2, std::move(Ground()));
 
     room.insert(m_bg);
@@ -699,7 +680,7 @@ Entity BMTRoom3Strategy::execute() {
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_BG));
 
     // arrows
-    Entity m_arrow1 = SetBGElem(renderSystem.loadTexture("arrow.PNG"), 0.3f, 0.3f, 0.95f, 0.87f, 0.f);
+    Entity m_arrow1 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), 0.3f, 0.3f, 0.95f, 0.87f, 0.f);
 
     //walls
     Entity m_wall = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL), 1.f, 0.6f, 0.6f, 0.01f, 300.f);
@@ -709,21 +690,13 @@ Entity BMTRoom3Strategy::execute() {
 
     // sword powerUp
     // TODO: add to texture_paths
-    Entity m_sword = SetPlatform(renderSystem.loadTexture("sword_powerup.png"), 0.25f, 0.25f, 0.07f, 0.8f);
+    Entity m_sword = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::SWORD_POWERUP), 0.25f, 0.25f, 0.07f, 0.8f);
 
     // ground
     Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 0.5f, 0.5f, 0.0f);
 
     GoombaFlying gf1= GoombaFlying();
     gf1.init(renderSystem.getWindowWidth() - 50.0f, renderSystem.getWindowHeight()/3.f);
-
-//    GoombaFlying gf2 = GoombaFlying();
-//    gf2.init(renderSystem.getWindowWidth() * 2.f / 3.f, renderSystem.getWindowHeight() / 3.f);
-//    gf2.set_direction(false);
-
-//    GoombaCeiling gc1 = GoombaCeiling();
-//    gc1.init(renderSystem.getWindowWidth() * 1.f / 4.f, gc1.bottom_edge);
-//    gc1.set_spit_timer(2.f);
 
     GoombaFlying gf = GoombaFlying();
     gf.init(renderSystem.getWindowWidth() / 5.f, renderSystem.getWindowHeight() / 6.f);
@@ -764,9 +737,9 @@ Entity BMTRoom4Strategy::execute() {
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_BG));
 
     // arrows
-    Entity m_arrow1 = SetBGElem(renderSystem.loadTexture("arrow.PNG"), 0.3f, 0.3f, 0.03f, 0.9f, 90.f);
-    Entity m_arrow_npc3 = SetBGElem(renderSystem.loadTexture("arrow.PNG"), 0.3f, 0.3f, 0.95f, 0.87f, 0.f);
-    Entity m_arrow_ln = SetBGElem(renderSystem.loadTexture("arrow.PNG"), 0.3f, 0.3f, 0.97f, 0.15f, 270.f);
+    Entity m_arrow1 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), 0.3f, 0.3f, 0.03f, 0.9f, 90.f);
+    Entity m_arrow_npc3 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), 0.3f, 0.3f, 0.95f, 0.87f, 0.f);
+    Entity m_arrow_ln = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), 0.3f, 0.3f, 0.97f, 0.15f, 270.f);
 
     // walls
     Entity m_wall_left = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL), 1.f, 0.6f, 0.6f, 0.01f, 400.f);
@@ -868,7 +841,7 @@ Entity NPCRoom1Strategy::execute() {
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_BG));
 
     // arrows
-    Entity m_arrow_en = SetBGElem(renderSystem.loadTexture("arrow.PNG"), -0.3f, 0.3f, 0.05f, 0.87f, 0.f);
+    Entity m_arrow_en = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), -0.3f, 0.3f, 0.05f, 0.87f, 0.f);
 
     // wall
     Entity m_wall = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL), 1.f, 0.6f, 0.6f, 0.99f, 500.f);
@@ -936,7 +909,7 @@ Entity NPCRoom3Strategy::execute() {
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_BG));
 
     // arrows
-    Entity m_arrow4 = SetBGElem(renderSystem.loadTexture("arrow.PNG"), -0.3f, 0.3f, 0.05f, 0.87f, 0.f);
+    Entity m_arrow4 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), -0.3f, 0.3f, 0.05f, 0.87f, 0.f);
 
     // wall
     Entity m_wall = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL), 1.f, 0.6f, 0.6f, 0.99f, 500.f);
@@ -976,8 +949,8 @@ Entity LNRoom1Strategy::execute() {
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::LN_BG));
 
     // arrows
-    Entity m_arrow_bmt = SetBGElem(renderSystem.loadTexture("arrow.PNG"), 0.3f, 0.3f, 0.03f, 0.9f, 90.f);
-    Entity m_arrow_boss = SetBGElem(renderSystem.loadTexture("arrow.PNG"), 0.3f, 0.3f, 0.95f, 0.87f, 0.f);
+    Entity m_arrow_bmt = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), 0.3f, 0.3f, 0.03f, 0.9f, 90.f);
+    Entity m_arrow_boss = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), 0.3f, 0.3f, 0.95f, 0.87f, 0.f);
 
     // wall
     Entity m_wall = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL), 1.f, 0.6f, 0.6f, 0.01f, 500.f);
@@ -1023,13 +996,13 @@ Entity LNBossRoomStrategy::execute() {
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::LN_THRONE_BG));
 
     // arrow
-    Entity m_arrow_ln = SetBGElem(renderSystem.loadTexture("arrow.PNG"), -0.3f, 0.3f, 0.05f, 0.87f, 0.f);
+    Entity m_arrow_ln = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), -0.3f, 0.3f, 0.05f, 0.87f, 0.f);
 
     // platform for boss
-    Entity m_boss_platform = SetBGElem(renderSystem.loadTexture("greatbird_platform.PNG"), 1.f, 1.f, 0.5f, 0.86f, 0.0f);
+    Entity m_boss_platform = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::GREATBIRD_PLATFORM), 1.f, 1.f, 0.5f, 0.86f, 0.0f);
 
     // greatbird boss
-    Entity m_greatbird = SetBGElem(renderSystem.loadTexture("greatbird_idle.PNG"), 1.f, 1.f, 0.5f, 0.65f, 0.0f);
+    Entity m_greatbird = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::GREATBIRD_IDLE), 1.f, 1.f, 0.5f, 0.65f, 0.0f);
 
     // ceiling
     Entity m_ceiling = SetCeiling(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_CEILING), 0.5f);
@@ -1324,17 +1297,17 @@ Entity RoomStrategy::SetCheckpoint(float xPos, float yPos) {
 
 Entity RoomStrategy::SetPelican(float xPos, float yPos) {
     Entity pelican;
-    Sprite pelicanSprite(renderSystem.loadTexture("PelicanIdle.png"));
+    Sprite pelicanSprite(g_texture_paths->at(TEXTURE_ASSET_ID::PELICAN_IDLE));
     pelicanSprite.width /= 11;
     pelicanSprite.height /= 11;
-    registry.sprites.emplace(pelican, std::move(pelicanSprite));
 
     // Create and initialize a TransformComponent for the spaceship
     TransformComponent pelicanTransform;
     pelicanTransform.position = glm::vec3(xPos, yPos, 0.0);
     pelicanTransform.scale = glm::vec3(pelicanSprite.width, pelicanSprite.height, 1.0);
     pelicanTransform.rotation = 0.0f;
-    registry.transforms.emplace(pelican, std::move(pelicanTransform));
+    registry.transforms.emplace(pelican, pelicanTransform);
+    registry.sprites.emplace(pelican, pelicanSprite);
 
     Motion npcMotion;
     npcMotion.position = glm::vec2(xPos, yPos);
