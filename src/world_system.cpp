@@ -152,7 +152,7 @@ void WorldSystem::init() {
     regionManager->init();
     current_room = regionManager->setRegion(makeRegion<Cesspit>);
     //testing bmt
-    current_room = regionManager->setRegion(makeRegion<Birdmantown>);
+    //current_room = regionManager->setRegion(makeRegion<Birdmantown>);
     next_map = regionManager->setRegion(makeRegion<Birdmantown>);
     physics.setRoom(current_room);
 
@@ -185,14 +185,15 @@ void WorldSystem::init() {
         vec3(escSprite.width * 0.3f, escSprite.height * 0.3f, 1.f), 0.f
         });
 
-    Mix_ReserveChannels(3);
+    Mix_ReserveChannels(4);
     footstep_sound = Mix_LoadWAV(audio_path("footstep.wav").c_str());
     sword_sound = Mix_LoadWAV(audio_path("sword.wav").c_str());
     hurt_sound = Mix_LoadWAV(audio_path("hurt.wav").c_str());
     save_sound = Mix_LoadWAV(audio_path("save.wav").c_str());
     gun_click_sound = Mix_LoadWAV(audio_path("gun_click.wav").c_str());
     heal_sound = Mix_LoadWAV(audio_path("heal.wav").c_str());
-    if (!(footstep_sound && sword_sound && hurt_sound && save_sound && gun_click_sound && heal_sound)) {
+    flame_beak_shoot_sound = Mix_LoadWAV(audio_path("flame-beak-shoot.wav").c_str());
+    if (!(footstep_sound && sword_sound && hurt_sound && save_sound && gun_click_sound && flame_beak_shoot_sound && heal_sound)) {
         std::cerr << "Failed to load WAV file: " << Mix_GetError() << std::endl;
     }
     Room& r = registry.rooms.get(current_room);
@@ -559,13 +560,18 @@ void WorldSystem::handle_collisions() {
         if(registry.walls.has(entity) && registry.hostiles.has(entity_other) && registry.hostiles.get(entity_other).type == HostileType::GOOMBA_FLYING){
             Motion& m_fying_goomba = registry.motions.get(entity_other);
             Motion& m_wall = registry.motions.get(entity);
-            float change = 0;
-//            if(m_fying_goomba.position.x > 0){
-//                change = -250;
-//            }else{
-//                change = 250;
-//            }
-            m_fying_goomba.position.x = m_wall.position.x + 200;
+            if(registry.patrol_ais.has(entity_other)){
+                Patrol_AI& patrol = registry.patrol_ais.get(entity_other);
+                float change = 0;
+                bool movingRight = patrol.movingRight;
+                if(movingRight){
+                    change = -200;
+                }else {
+                    change = 200;
+                }
+                m_fying_goomba.position.x = m_wall.position.x + change;
+                patrol.movingRight = !patrol.movingRight;
+            }
             //m_fying_goomba.velocity.x *= -1;
         }
 
@@ -1123,6 +1129,7 @@ void WorldSystem::processPlayerInput(int key, int action) {
 }
 
 void WorldSystem::useFlameThrower() {
+    Mix_PlayChannel(FLAME_BEAK_SHOOT_CHANNEL, flame_beak_shoot_sound, 0);
     auto& weapon = registry.weapons.get(m_flameThrower);
 
     Entity m_fireball = Entity();
@@ -1229,6 +1236,9 @@ void WorldSystem::cleanup() {
     if (heal_sound != nullptr) {
         Mix_FreeChunk(heal_sound);
         heal_sound = nullptr;
+    if (flame_beak_shoot_sound != nullptr) {
+        Mix_FreeChunk(flame_beak_shoot_sound);
+        flame_beak_shoot_sound = nullptr;
     }
     registry.clear_all_components();
 }
