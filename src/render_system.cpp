@@ -485,7 +485,7 @@ void RenderSystem::renderLoop()
 
     // setup fonts
     std::string font_filename = PROJECT_SOURCE_DIR +
-        std::string("data/fonts/Kenney_Future.ttf");
+        std::string("data/fonts/Share-Bold.ttf");
     unsigned int font_default_size = 48;
     fontInit(font_filename, font_default_size);
     glm::vec3 font_color = glm::vec3(1.0, 1.0, 1.0);
