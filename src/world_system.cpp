@@ -984,7 +984,6 @@ void WorldSystem::render() {
 
 void WorldSystem::processPlayerInput(int key, int action) {
     // Escape key to close the window
-    std::cout << action << "\n";
     if (action == GLFW_RELEASE) {
         switch (key) {
         case GLFW_KEY_ESCAPE:
@@ -1108,7 +1107,6 @@ void WorldSystem::processPlayerInput(int key, int action) {
                     }
                     else {
                         HealTimer& h_timer = registry.healTimers.get(m_player);
-                        h_timer.last_elapsed_time = h_timer.elapsed_time;
                         h_timer.elapsed_time -= 11.f;
                         //std::cout << h_timer.elapsed_time << "\n";
                         interrupted_heal = false;
