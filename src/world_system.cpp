@@ -1011,10 +1011,10 @@ void WorldSystem::processPlayerInput(int key, int action) {
                 registry.healTimers.remove(m_player);
                 registry.playerAnimations.get(m_player).setState(PlayerState::IDLE);
                 std::cout << "resetting healing" << "\n";
+                interrupted_heal = false;
             }
-            break;
-        default:
             interrupted_heal = false;
+            break;
         }
     }
     else if (action == GLFW_PRESS) {
@@ -1076,6 +1076,9 @@ void WorldSystem::processPlayerInput(int key, int action) {
         case GLFW_KEY_F:
             Show_FPS = !Show_FPS;
             break;
+        case GLFW_KEY_H:
+            interrupted_heal = false;
+            return;
             // save
         case GLFW_KEY_V:
             do_save = true;
