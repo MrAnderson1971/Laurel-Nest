@@ -49,6 +49,7 @@ void Cesspit::init() {
         start_room = m_entrance_room;
     }
     
+    
     // set up all doors
     // entrance to npc coords = (0.03f, 0.42f, 1.f, 0.21f), entrance spawn = (0.9f, 0.3f)
     // entrance to room1
@@ -76,7 +77,7 @@ void Cesspit::init() {
 
     // room3 to room2
     ConnectionList list_3;
-    Connection door_3_to_2 = SetDoor(0.3f, 0.04f, 0.92f, 0.f, m_room2, vec2(renderSystem.getWindowWidth() * 0.58f, renderSystem.getWindowHeight() * 0.8f), false);
+    Connection door_3_to_2 = SetDoor(0.3f, 0.04f, 0.92f, 0.f, m_room2, vec2(renderSystem.getWindowWidth() * 0.68f, renderSystem.getWindowHeight() * 0.9f), false);
     list_3.doors.push_back(door_3_to_2);
 
     // room2 to room4
@@ -108,7 +109,7 @@ void Cesspit::init() {
 
     // cp to bmt
     // door coords = (0.3f, 0.03f, 0.5f, 0.f), spawn = (0.25f, 0.82f)
-    Connection door_cp_to_bmt = SetDoor(0.3f, 0.03f, 0.5f, 0.f, m_exit_room, vec2(renderSystem.getWindowWidth() * 0.25f, renderSystem.getWindowHeight() * 0.82f), false);
+    Connection door_cp_to_bmt = SetDoor(0.3f, 0.03f, 0.5f, 0.f, m_exit_room, vec2(renderSystem.getWindowWidth() * 0.13f, renderSystem.getWindowHeight() * 0.82f), false);
     door_cp_to_bmt.switchMap = true;
     list_ex.doors.push_back(door_cp_to_bmt);
 

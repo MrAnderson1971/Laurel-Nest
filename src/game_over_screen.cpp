@@ -62,7 +62,7 @@ void GameOverScreen::render()
     }
 
     if (transparency >= 1 - std::numeric_limits<float>::epsilon()) {
-        renderSystem.renderText("Press any key to continue.", window_width_px * 0.29f, window_height_px * 0.80f, 1.0f, vec3(1), mat4(1));
+        renderSystem.renderText("Press any key to continue.", window_width_px * 0.4f, window_height_px * 0.80f, 1.0f, vec3(1), mat4(1));
     }
 }
 

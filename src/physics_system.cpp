@@ -34,8 +34,28 @@ bool PhysicsSystem::checkForCollision(Entity e1, Entity e2, vec2& direction, vec
     vec2 half_size1;
     vec2 half_size2;
 
-    half_size1 = box1 / 2.f;
-    half_size2 = box2 / 2.f;
+    if(registry.bosses.has(e1)){
+        if(registry.healths.get(e1).current_health > 0){
+            half_size1 = (box1/2.f);
+            half_size1.y += 200.f;
+            half_size2 = box2 / 2.f;
+        }else{
+            half_size1 = box1 / 2.f;
+            half_size2 = box2 / 2.f;
+        }
+    }else if(registry.bosses.has(e2)){
+        if(registry.healths.get(e2).current_health > 0) {
+            half_size1 = (box1 / 2.f);
+            half_size2 = box2 / 2.f;
+            half_size2.y += 200.f;
+        }else{
+            half_size1 = box1 / 2.f;
+            half_size2 = box2 / 2.f;
+        }
+    }else{
+        half_size1 = box1 / 2.f;
+        half_size2 = box2 / 2.f;
+    }
 
     vec2 dp = motion1.position - motion2.position;
 

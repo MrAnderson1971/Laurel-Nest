@@ -57,7 +57,9 @@ inline std::unordered_map<TEXTURE_ASSET_ID, std::string> createTextureAssetMap()
         {TEXTURE_ASSET_ID::DOOR, "door.PNG"},
         {TEXTURE_ASSET_ID::BMT_BG, "BMTown_bg.PNG"},
         {TEXTURE_ASSET_ID::CP_WALL, "cp_wall.PNG"},
+        {TEXTURE_ASSET_ID::CP_WALL_SHORT, "cp_wall_short.PNG"},
         {TEXTURE_ASSET_ID::BMT_WALL, "bmt_wall.PNG"},
+        {TEXTURE_ASSET_ID::BMT_WALL_SHORT, "bmt_wall_short.PNG"},
         {TEXTURE_ASSET_ID::BIRDMAN_CHARGE, "birdman_charge.PNG"},
         {TEXTURE_ASSET_ID::BIRDMAN_DEAD, "birdman_dead.PNG"},
         {TEXTURE_ASSET_ID::BIRDMAN_HIT, "birdman_hit.PNG"},
@@ -70,7 +72,11 @@ inline std::unordered_map<TEXTURE_ASSET_ID, std::string> createTextureAssetMap()
         {TEXTURE_ASSET_ID::LN_BG, "LN_bg.PNG"},
         {TEXTURE_ASSET_ID::PELICAN_IDLE, "PelicanIdle.PNG"},
         {TEXTURE_ASSET_ID::PELICAN_TALK, "PelicanTalk.PNG"},
-        {TEXTURE_ASSET_ID::EXTRA_HEART, "extra_heart.png"}
+        {TEXTURE_ASSET_ID::EXTRA_HEART, "extra_heart.png"},
+        {TEXTURE_ASSET_ID::ARROW, "arrow.PNG"},
+        {TEXTURE_ASSET_ID::SWORD_POWERUP, "sword_powerup.png"},
+        {TEXTURE_ASSET_ID::GREATBIRD_PLATFORM, "greatbird_platform.PNG"},
+        {TEXTURE_ASSET_ID::GREATBIRD_IDLE, "greatbird_idle.PNG"},
     };
 }
 
