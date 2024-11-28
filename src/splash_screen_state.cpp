@@ -52,7 +52,7 @@ void SplashScreenState::on_key(int key, int, int action, int)
     if (sf.is_init && action == GLFW_PRESS && !hasLoaded)
     {
         hasLoaded = true;
-        renderSystem.getGameStateManager()->changeState<Cutscene>();
+        renderSystem.getGameStateManager()->changeState<OpeningCutscene>();
     }
     else if (action == GLFW_PRESS && !hasLoaded) {
         hasLoaded = true;
