@@ -341,7 +341,9 @@ enum class TEXTURE_ASSET_ID {
     DOOR,                                 // Door.PNG
     BMT_BG,                               // BMTown_bg.PNG
     CP_WALL,
+    CP_WALL_SHORT,
     BMT_WALL,
+    BMT_WALL_SHORT,
     BIRDMAN_CHARGE,
     BIRDMAN_DEAD,
     BIRDMAN_HIT,
