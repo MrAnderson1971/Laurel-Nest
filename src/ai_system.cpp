@@ -330,6 +330,12 @@ void AISystem::swarm_goomba_match_velocity(Entity swarmGoomba, std::vector<Entit
     }
 }
 
+void AISystem::swarm_goomba_limit_speed(Entity swarmGoomba) {
+    const float speed_limit = 15.f;
+
+    //float speed = 
+}
+
 float AISystem::get_angle(Entity e1, Entity e2){
     Motion m1 = registry.motions.get(e1);
     Motion m2 = registry.motions.get(e2);
