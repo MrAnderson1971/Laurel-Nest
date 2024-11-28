@@ -972,15 +972,15 @@ void WorldSystem::render() {
     // draw the text that appears when healing
     if (registry.healTimers.has(m_player) && interrupted_heal) {
         Motion player_motion = registry.motions.get(m_player);
-        float x_pos = player_motion.position.x - 150.f;
+        float x_pos = player_motion.position.x - 90.f;
         float y_pos = renderSystem.getWindowHeight() - player_motion.position.y - (WALKING_BB_HEIGHT / 2) - 20;
-        renderSystem.renderText("Heal is interrupted",x_pos, y_pos, 0.5f, vec3(1), mat4(1));
+        renderSystem.renderText("Heal Is Interrupted",x_pos, y_pos, 0.5f, vec3(1), mat4(1));
     }
     else if (registry.healTimers.has(m_player)) {
         Motion player_motion = registry.motions.get(m_player);
-        float x_pos = player_motion.position.x - 90.f;
+        float x_pos = player_motion.position.x - 60.f;
         float y_pos = renderSystem.getWindowHeight() - player_motion.position.y - (WALKING_BB_HEIGHT / 2) - 20;
-        renderSystem.renderText("Hold To heal", x_pos, y_pos, 0.5f, vec3(1), mat4(1));
+        renderSystem.renderText("Hold To Heal", x_pos, y_pos, 0.5f, vec3(1), mat4(1));
     }
 
     // lower left instructions to open pause menue
