@@ -964,8 +964,14 @@ void WorldSystem::render() {
 
     // draw the text that appears when healing
     if (registry.healTimers.has(m_player)) {
+        HealTimer h_timer = registry.healTimers.get(m_player);
         Motion player_motion = registry.motions.get(m_player);
-        renderSystem.renderText("Hold To heal", player_motion.position.x - 90.f, renderSystem.getWindowHeight() - player_motion.position.y - (WALKING_BB_HEIGHT/2) - 20, 0.5f, vec3(1), mat4(1));
+        if (h_timer.last_elapsed_time != h_timer.elapsed_time) {
+            renderSystem.renderText("Hold To heal", player_motion.position.x - 90.f, renderSystem.getWindowHeight() - player_motion.position.y - (WALKING_BB_HEIGHT / 2) - 20, 0.5f, vec3(1), mat4(1));
+        }
+        else {
+            renderSystem.renderText("Heal is interrupted", player_motion.position.x - 90.f, renderSystem.getWindowHeight() - player_motion.position.y - (WALKING_BB_HEIGHT / 2) - 20, 0.5f, vec3(1), mat4(1));
+        }
     }
 
     // lower left instructions to open pause menue
@@ -1082,21 +1088,24 @@ void WorldSystem::processPlayerInput(int key, int action) {
     else if (action == GLFW_REPEAT) {
         switch (key) {
         case GLFW_KEY_H:
-            if (registry.healths.has(m_player) && registry.healths.get(m_player).current_health != registry.healths.get(m_player).max_health) {
-                if (!registry.healTimers.has(m_player)) {
-                    registry.healTimers.emplace(m_player, HealTimer());
+            if (registry.playerAnimations.has(m_player) && registry.playerAnimations.get(m_player).getState() == PlayerState::IDLE) {
+                if (registry.healths.has(m_player) && registry.healths.get(m_player).current_health != registry.healths.get(m_player).max_health) {
+                    if (!registry.healTimers.has(m_player)) {
+                        registry.healTimers.emplace(m_player, HealTimer());
+                    }
+                    else if (registry.healTimers.get(m_player).elapsed_time <= 0) {
+                        player_get_healed();
+                        registry.healTimers.remove(m_player);
+                    }
+                    else {
+                        HealTimer& h_timer = registry.healTimers.get(m_player);
+                        h_timer.last_elapsed_time = h_timer.elapsed_time;
+                        h_timer.elapsed_time -= 11.f;
+                        //std::cout << h_timer.elapsed_time << "\n";
+                    }
                 }
-                else if (registry.healTimers.get(m_player).elapsed_time <= 0) {
-                    player_get_healed();
-                    registry.healTimers.remove(m_player);
-                }
-                else {
-                    HealTimer& h_timer = registry.healTimers.get(m_player);
-                    h_timer.elapsed_time -= 11.f;
-                    //std::cout << h_timer.elapsed_time << "\n";
-                }
-            }
             break;
+        }
         }
     }
 }

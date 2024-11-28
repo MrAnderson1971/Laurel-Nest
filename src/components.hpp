@@ -184,7 +184,7 @@ struct HealTimer
 {
     float max_time = 1000;
     float elapsed_time = max_time;
-    bool completed = false;
+    float last_elapsed_time;
 };
 
 enum class ProjectileType {
