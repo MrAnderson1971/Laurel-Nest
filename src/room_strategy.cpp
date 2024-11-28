@@ -68,6 +68,7 @@ Entity CPEntranceRoomStrategy::execute() {
     return m_entrance_room;
 }
 
+// on walking goomba
 Entity CPRoom1Strategy::execute() {
     Entity m_room1;
     // for handling transitions
@@ -133,6 +134,7 @@ Entity CPRoom1Strategy::execute() {
     return m_room1;
 }
 
+// ceiling goomba + ladder to lower room
 Entity CPRoom2Strategy::execute() {
     Entity m_room2;
     // for handling transitions
@@ -198,6 +200,7 @@ Entity CPRoom2Strategy::execute() {
     return m_room2;
 }
 
+// heart powerup
 Entity CPRoom3Strategy::execute() {
     Entity m_room3;
     // for handling transitions
@@ -227,7 +230,6 @@ Entity CPRoom3Strategy::execute() {
     Entity m_pipe3 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::PIPES), 0.6f, 0.6f, 0.53f, 1.0f);
 
     // heart powerUp
-    // TODO: add to texture_paths
     Entity m_heart = SetPlatform(renderSystem.loadTexture("extra_heart.png"), 0.2f, 0.2f, 0.07f, 0.25f);
 
     // ground
@@ -269,6 +271,7 @@ Entity CPRoom3Strategy::execute() {
     return m_room3;
 }
 
+// 2 walking goombas + ceiling goomba
 Entity CPRoom4Strategy::execute() {
     Entity m_room4;
     // for handling transitions
@@ -326,6 +329,7 @@ Entity CPRoom4Strategy::execute() {
 
 }
 
+// chicken boss
 Entity CPBossRoomStrategy::execute() {
     Entity m_boss_room;
     // for handling transitions
@@ -362,6 +366,7 @@ Entity CPBossRoomStrategy::execute() {
     return m_boss_room;
 }
 
+// ladder to bmt
 Entity CPExitRoomStrategy::execute() {
     Entity m_exit_room;
     // for handling transitions
@@ -446,7 +451,7 @@ Entity CPExitRoomStrategy::execute() {
 }
 
 
-//TODO: ladder to 1 + npc
+// ladder to 1 + npc
 Entity BMTEntranceRoomStrategy::execute() {
     Entity m_room;
     // for handling transitions
@@ -530,7 +535,7 @@ Entity BMTEntranceRoomStrategy::execute() {
     return m_room;
 }
 
-//TODO: ladder to entrance, 2, 3, and 4
+// ladder to entrance, 2, 3, and 4
 Entity BMTRoom1Strategy::execute() {
     Entity m_room;
     // for handling transitions
@@ -610,7 +615,7 @@ Entity BMTRoom1Strategy::execute() {
     return m_room;
 }
 
-//TODO: moving platforms
+// moving platforms + heart powerup
 Entity BMTRoom2Strategy::execute() {
     Entity m_room;
     // for handling transitions
@@ -638,6 +643,9 @@ Entity BMTRoom2Strategy::execute() {
     // start = (0.75f, 0.7f), end = (0.75f, 0.38f)
     //Entity m_platform2 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.75f, 0.35f);
     Entity m_platform2 = SetMovingPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), true, 0.1f, 0.2f, 0.75f, 0.35f, vec2(0.75f, 0.35f), vec2(0.75f, 0.75f), true);
+
+    // heart powerup
+    Entity m_heart = SetPlatform(renderSystem.loadTexture("extra_heart.png"), 0.2f, 0.2f, 0.07f, 0.3f);
 
     // wall
     //Entity m_wall = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.5f, 0.5f, 0.05f, 200.f);
@@ -675,6 +683,10 @@ Entity BMTRoom2Strategy::execute() {
     //registry.grounds.emplace(m_platform3, std::move(Ground()));
     //registry.grounds.emplace(m_platform4, std::move(Ground()));
     registry.grounds.emplace(m_wall2, std::move(Ground()));
+    registry.grounds.emplace(m_heart, std::move(Ground()));
+
+    // add heart
+    registry.heartPowerUp.emplace(m_heart, std::move(HeartPowerUp()));
 
     room.insert(m_bg);
     room.insert(m_arrow1);
@@ -682,6 +694,7 @@ Entity BMTRoom2Strategy::execute() {
     room.insert(m_ceiling);
     room.insert(m_ground);
     room.insert(m_wall);
+    room.insert(m_heart);
     room.insert(m_platform1);
     room.insert(m_platform2);
     //room.insert(m_platform3);
@@ -699,7 +712,7 @@ Entity BMTRoom2Strategy::execute() {
     return m_room;
 }
 
-//TODO: flying birdmen
+// flying birdmen + sword powerup
 Entity BMTRoom3Strategy::execute() {
     Entity m_room;
     // for handling transitions
@@ -771,7 +784,7 @@ Entity BMTRoom3Strategy::execute() {
     return m_room;
 }
 
-//TODO: ladder to boss + npc
+// ladder to boss + npc
 Entity BMTRoom4Strategy::execute() {
     Entity m_room;
     // for handling transitions
@@ -876,7 +889,7 @@ Entity BMTRoom4Strategy::execute() {
     return m_room;
 }
 
-//TODO M4
+//TODO: moving platforms + npc
 Entity NPCRoom1Strategy::execute() {
     Entity m_room;
     // for handling transitions
@@ -913,7 +926,7 @@ Entity NPCRoom1Strategy::execute() {
     return m_room;
 }
 
-//TODO M4
+// NO LONGER IN USE
 Entity NPCRoom2Strategy::execute() {
     Entity m_room;
     // for handling transitions
@@ -945,7 +958,7 @@ Entity NPCRoom2Strategy::execute() {
     return m_room;
 }
 
-//TODO M4
+//TODO: moving platform + npc
 Entity NPCRoom3Strategy::execute() {
     Entity m_room;
     // for handling transitions
@@ -986,7 +999,7 @@ Entity NPCRoom3Strategy::execute() {
     return m_room;
 }
 
-//TODO: npc?
+//TODO: special flying birdman?
 Entity LNRoom1Strategy::execute() {
     Entity m_room;
     // for handling transitions
@@ -1035,6 +1048,7 @@ Entity LNRoom1Strategy::execute() {
     return m_room;
 }
 
+// final boss
 Entity LNBossRoomStrategy::execute() {
     Entity m_room;
     // for handling transitions
