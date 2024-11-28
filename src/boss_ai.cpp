@@ -3,6 +3,8 @@
 #include "components.hpp"
 #include <iostream>
 
+#include "cutscene.hpp"
+
 // Ecah struct below reprsenets a state transition
 
 float can_peck_timer = 0.5f;
@@ -357,6 +359,7 @@ void BossAISystem::chicken_get_damaged(Entity weapon, bool& isDead) {
 			// TODO: SOMEHOW REMOVE THE MUSIC I (JETT) DONT KNOW HOW TO DO THAT
 			Mix_HaltMusic();
 			registry.gravity.emplace(chicken, Gravity());
+			renderSystem.getGameStateManager()->pauseState<PickupCutscene>();
 		}
 	}
 }
