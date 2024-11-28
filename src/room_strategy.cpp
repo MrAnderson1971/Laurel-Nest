@@ -145,34 +145,42 @@ Entity CPRoom2Strategy::execute() {
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::CESSPIT_BG));
 
     // arrows
-    Entity m_arrow1 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), -0.3f, 0.3f, 0.05f, 0.35f, 0.f);
-    Entity m_arrow3 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), -0.3f, 0.3f, 0.5f, 0.95f, 270.f);
-    Entity m_arrow4 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), 0.3f, 0.3f, 0.95f, 0.35f, 0.f);
+    Entity m_arrow1 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), -0.3f, 0.3f, 0.05f, 0.44f, 0.f);
+    Entity m_arrow3 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), 0.3f, 0.3f, 0.65f, 0.85f, 90.f);
+    Entity m_arrow4 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), 0.3f, 0.3f, 0.95f, 0.32f, 0.f);
 
     // ceiling
     Entity m_ceiling = SetCeiling(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_CEILING), 0.5f);
 
     // wall left
-    Entity m_wall_left = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_WALL),-1.f, 2.f, 1.f, 0.085F, 100.0f);
+    Entity m_wall_left = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_WALL),-0.7f, 2.f, 1.f, 0.135f, 0.0f);
 
     // wall right
-    Entity m_wall_right = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_WALL), 1.f, 2.f, 1.f, 0.945f, 100.0f);
+    Entity m_wall_right = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_WALL), 0.7f, 2.f, 1.f, 0.9f, 130.0f);
+
+    // pipe wall left
+    Entity m_pipe_left = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::CP_WALL_SHORT), 1.f, 0.7f, 0.7f, 0.355f, 300.0f);
+    
+    // pipe wall right
+    Entity m_pipe_right = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::CP_WALL_SHORT), 1.f, 0.6f, 0.6f, 0.45f, 50.0f);
 
     // platform 1: left
-    Entity m_platform1 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.35f, 0.5f);
+    Entity m_platform1 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.35f, 0.4f);
 
     // platform 2: right
-    Entity m_platform2 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.68f, 0.65f);
+    Entity m_platform2 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.68f, 0.55f);
 
     // platform 3: bottom left
-    Entity m_platform3 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.45f, 0.78f);
+    Entity m_platform3 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.45f, 0.68f);
 
     // platform 4: bottom right
-    Entity m_platform4 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.58f, 0.95f);
+    Entity m_platform4 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.58f, 0.85f);
 
     // note on bg: don't add motion
     registry.grounds.emplace(m_wall_left, std::move(Ground()));
     registry.grounds.emplace(m_wall_right, std::move(Ground()));
+    registry.grounds.emplace(m_pipe_left, std::move(Ground()));
+    registry.grounds.emplace(m_pipe_right, std::move(Ground()));
     registry.grounds.emplace(m_platform1, std::move(Ground()));
     registry.grounds.emplace(m_platform2, std::move(Ground()));
     registry.grounds.emplace(m_platform3, std::move(Ground()));
@@ -190,11 +198,14 @@ Entity CPRoom2Strategy::execute() {
     room.insert(m_ceiling);
     room.insert(m_wall_left);
     room.insert(m_wall_right);
+    room.insert(m_pipe_left);
+    room.insert(m_pipe_right);
     room.insert(m_platform1);
     room.insert(m_platform2);
     room.insert(m_platform3);
     room.insert(m_platform4);
     room.insert(g1.entity);
+
     room.setMusic(Mix_LoadMUS(audio_path("cesspit.wav").c_str()));
     registry.rooms.emplace(m_room2, std::move(room));
     return m_room2;
@@ -579,7 +590,7 @@ Entity BMTRoom1Strategy::execute() {
     Entity m_ground2 = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.5f, 0.5f, 0.f, 500.f);
 
     GoombaCeiling gc1 = GoombaCeiling();
-    gc1.init(renderSystem.getWindowWidth() * 1.f / 1.6f, gc1.bottom_edge);
+    gc1.init(renderSystem.getWindowWidth() * 0.63f, gc1.bottom_edge);
     gc1.set_spit_timer(1.f);
 
     // note on bg: don't add motion
@@ -713,7 +724,7 @@ Entity BMTRoom3Strategy::execute() {
     Entity m_ceiling = SetCeiling(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_CEILING), 0.5f);
 
     // sword powerUp
-    Entity m_sword = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::SWORD_POWERUP), 0.25f, 0.25f, 0.07f, 0.8f);
+    Entity m_sword = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::SWORD_POWERUP), 0.25f, 0.25f, 0.5f, 0.2f);
 
     // start = (0.5f, 0.42f), end = (0.5f, 0.73f)
     Entity m_platform = SetMovingPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), true, 0.1f, 0.2f, 0.5f, 0.0f, vec2(0.5f, 0.28f), vec2(0.5f, 0.73f), false);
@@ -778,6 +789,11 @@ Entity BMTRoom4Strategy::execute() {
     // ceiling
     Entity m_ceiling = SetCeiling(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_CEILING), 0.2f);
 
+    // blocks
+    Entity m_bound1 = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL_SHORT), 1.f, 0.6f, 0.6f, 0.3f, 200.f);
+    Entity m_bound2 = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL_SHORT), 1.f, 0.6f, 0.6f, 0.4f, 200.f);
+    Entity m_bound3 = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL_SHORT), 1.f, 0.55f, 0.55f, 0.55f, 0.f);
+
     // platform 1: low middle
     Entity m_platform1 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.5f, 0.75f);
 
@@ -823,6 +839,9 @@ Entity BMTRoom4Strategy::execute() {
     // note on bg: don't add motion
     registry.grounds.emplace(m_wall_left, std::move(Ground()));
     registry.grounds.emplace(m_wall_right, std::move(Ground()));
+    registry.grounds.emplace(m_bound1, std::move(Ground()));
+    registry.grounds.emplace(m_bound2, std::move(Ground()));
+    registry.grounds.emplace(m_bound3, std::move(Ground()));
     registry.grounds.emplace(m_ground, std::move(Ground()));
     registry.grounds.emplace(m_platform1, std::move(Ground()));
     registry.grounds.emplace(m_platform2, std::move(Ground()));
@@ -839,6 +858,9 @@ Entity BMTRoom4Strategy::execute() {
     room.insert(m_arrow_ln);
     room.insert(m_wall_left);
     room.insert(m_wall_right);
+    room.insert(m_bound1);
+    room.insert(m_bound2);
+    room.insert(m_bound3);
     room.insert(m_ceiling);
     room.insert(m_ground);
     room.insert(m_platform1);

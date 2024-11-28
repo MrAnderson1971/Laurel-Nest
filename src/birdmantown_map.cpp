@@ -12,11 +12,11 @@ Birdmantown::~Birdmantown() {
 void Birdmantown::init() {
     setRoomStrategy(std::make_unique<BMTEntranceRoomStrategy>());
     m_entrance_room = currentRoom->execute();
-    start_room = m_entrance_room;
+    //start_room = m_entrance_room;
 
     setRoomStrategy(std::make_unique<BMTRoom1Strategy>());
     m_room1 = currentRoom->execute();
-    //start_room = m_room1;
+    start_room = m_room1;
 
     setRoomStrategy(std::make_unique<BMTRoom2Strategy>());
     m_room2 = currentRoom->execute();
@@ -59,7 +59,7 @@ void Birdmantown::init() {
     list_en.doors.push_back(door_bmt_to_cp);
 
     // entrance to 1: (0.22f, 0.04f, 0.935f, 0.f), spawn = (0.77f, 0.8f)
-    Connection door_en_to_1 = SetDoor(0.22f, 0.04f, 0.935f, 0.f, m_room1, vec2(renderSystem.getWindowWidth() * 0.77f, renderSystem.getWindowHeight() * 0.8f), false);
+    Connection door_en_to_1 = SetDoor(0.22f, 0.04f, 0.935f, 0.f, m_room1, vec2(renderSystem.getWindowWidth() * 0.9f, renderSystem.getWindowHeight() * 0.8f), false);
     list_en.doors.push_back(door_en_to_1);
 
     // entrance to npc1: (0.03f, 0.5f, 1.f, 0.65f), spawn = (0.08f, 0.8f)
@@ -85,7 +85,7 @@ void Birdmantown::init() {
     list_1.doors.push_back(door_1_to_3);
 
     // 1 to 4: (0.42f, 0.04f, 0.9f, 0.f), spawn = (0.2f, 0.78f)
-    Connection door_1_to_4 = SetDoor(0.42f, 0.04f, 0.9f, 0.f, m_room4, vec2(renderSystem.getWindowWidth() * 0.2f, renderSystem.getWindowHeight() * 0.78f), false);
+    Connection door_1_to_4 = SetDoor(0.42f, 0.04f, 0.9f, 0.f, m_room4, vec2(renderSystem.getWindowWidth() * 0.125f, renderSystem.getWindowHeight() * 0.9f), false);
     list_1.doors.push_back(door_1_to_4);
 
     // 2 to 1: (0.03f, 0.8f, 1.0f, 0.5f), spawn = (0.08f, 0.8f)
@@ -113,7 +113,7 @@ void Birdmantown::init() {
     list_4.doors.push_back(door_4_to_1);
 
     // 4 to LN1: (0.4f, 0.04f, 0.88f, 0.f), spawn = (0.24f, 0.8f)
-    Connection door_4_to_ln1 = SetDoor(0.4f, 0.04f, 0.88f, 0.f, m_ln_room1, vec2(renderSystem.getWindowWidth() * 0.24f, renderSystem.getWindowHeight() * 0.8f), false);
+    Connection door_4_to_ln1 = SetDoor(0.4f, 0.04f, 0.88f, 0.f, m_ln_room1, vec2(renderSystem.getWindowWidth() * 0.13f, renderSystem.getWindowHeight() * 0.8f), false);
     list_4.doors.push_back(door_4_to_ln1);
 
     // 4 to npc3: (0.03f, 0.4f, 1.0f, 0.72f), spawn = (0.08f, 0.8f)
