@@ -516,12 +516,12 @@ void RenderSystem::renderLoop()
             prev_FPS_string = FPS_String;
             FPS_Last_Time = currentTime;
             if (Show_FPS) {
-                renderText(FPS_String, static_cast<float>(getWindowWidth() * 1.85), static_cast<float>(getWindowHeight() * 1.95), 1.0f, font_color, font_trans);
+                renderText(FPS_String, static_cast<float>(getWindowWidth() * 1.90), static_cast<float>(getWindowHeight() * 1.95), 1.0f, font_color, font_trans);
             }
         }
         else {
             if (Show_FPS) {
-                renderText(prev_FPS_string, static_cast<float>(getWindowWidth() * 1.85), static_cast<float>(getWindowHeight() * 1.95), 1.0f, font_color, font_trans);
+                renderText(prev_FPS_string, static_cast<float>(getWindowWidth() * 1.90), static_cast<float>(getWindowHeight() * 1.95), 1.0f, font_color, font_trans);
             }
         }
         // FPS limiting 

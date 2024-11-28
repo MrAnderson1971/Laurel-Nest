@@ -873,9 +873,9 @@ void WorldSystem::render() {
             float save_point_upper_bound_y = save_point_motion.position.y + save_point_motion.scale.y;
             if (save_point_lower_bound_x <= player_motion.position.x && player_motion.position.x < save_point_upper_bound_x
                 && save_point_lower_bound_y < player_motion.position.y && player_motion.position.y < save_point_upper_bound_y) {
-                double position_x = save_point_motion.position.x * 0.90;
+                double position_x = save_point_motion.position.x * 0.95;
                 double position_y = (renderSystem.getWindowHeight() -  save_point_motion.position.y) * 1.7;
-                renderSystem.renderText("Press V to Save", static_cast<float>(position_x), static_cast<float>(position_y), 0.5f, font_color, font_trans);
+                renderSystem.renderText("Press V To Save", static_cast<float>(position_x), static_cast<float>(position_y), 0.5f, font_color, font_trans);
             }
         }
 
@@ -895,9 +895,9 @@ void WorldSystem::render() {
             float npc_point_upper_bound_y = npc_point_motion.position.y + npc_point_motion.scale.y;
             if (npc_point_lower_bound_x <= player_motion.position.x && player_motion.position.x < npc_point_upper_bound_x
                 && npc_point_lower_bound_y < player_motion.position.y && player_motion.position.y < npc_point_upper_bound_y) {
-                double position_x = npc_point_motion.position.x - 100.f;
-                double position_y = npc_point_motion.position.y + 300.f;
-                renderSystem.renderText("Press T to talk", static_cast<float>(position_x), static_cast<float>(position_y),
+                double position_x = npc_point_motion.position.x - 75.f;
+                double position_y = renderSystem.getWindowHeight() - npc_point_motion.position.y - 140.f;
+                renderSystem.renderText("Press T To Talk", static_cast<float>(position_x), static_cast<float>(position_y),
                     0.5f, font_color, font_trans);                
             }
         }
@@ -939,7 +939,7 @@ void WorldSystem::render() {
     HealthFlask& flask = registry.healthFlasks.get(m_player);
     std::string num_uses = std::to_string(flask.num_uses);
     std::string uses_string = "Health Flask uses: " + num_uses;
-    renderSystem.renderText(uses_string, static_cast<float>(window_width_px * 0.045), static_cast<float>(window_height_px * 0.80), 0.5f, font_color, font_trans);
+    renderSystem.renderText(uses_string, static_cast<float>(window_width_px * 0.045), static_cast<float>(window_height_px * 0.80), 0.75f, font_color, font_trans);
 
 
     // Draw the flame thrower if the boss is killed
@@ -970,7 +970,7 @@ void WorldSystem::render() {
 
     // lower left instructions to open pause menue
     renderSystem.drawEntity(registry.sprites.get(m_esc), registry.transforms.get(m_esc));
-    renderSystem.renderText("for pause menu", window_width_px * 0.1f, window_height_px * 0.05f, 0.5f, vec3(1), mat4(1));
+    renderSystem.renderText("For Pause Menu", window_width_px * 0.1f, window_height_px * 0.05f, 0.5f, vec3(1), mat4(1));
 }
 
 void WorldSystem::processPlayerInput(int key, int action) {

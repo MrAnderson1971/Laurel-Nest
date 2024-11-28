@@ -133,5 +133,5 @@ void OptionsMenu::render() {
 
 	}
 	renderSystem.drawEntity(registry.sprites.get(esc_key), registry.transforms.get(esc_key));
-	renderSystem.renderText("to return to menu", window_width_px * 0.1f, window_height_px * 0.05f, 0.5f, vec3(1), mat4(1));
+	renderSystem.renderText("To Return To Menu", window_width_px * 0.1f, window_height_px * 0.05f, 0.5f, vec3(1), mat4(1));
 }
