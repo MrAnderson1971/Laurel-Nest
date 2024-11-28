@@ -1011,7 +1011,6 @@ void WorldSystem::processPlayerInput(int key, int action) {
                 registry.healTimers.remove(m_player);
                 registry.playerAnimations.get(m_player).setState(PlayerState::IDLE);
                 std::cout << "resetting healing" << "\n";
-                interrupted_heal = false;
             }
             interrupted_heal = false;
             break;
