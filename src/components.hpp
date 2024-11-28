@@ -355,6 +355,10 @@ enum class TEXTURE_ASSET_ID {
     PELICAN_IDLE,
     PELICAN_TALK,
     EXTRA_HEART,                          // extra_heart.png
+    ARROW,                              // arrow.png
+    SWORD_POWERUP,
+    GREATBIRD_PLATFORM,
+    GREATBIRD_IDLE,
     TEXTURE_COUNT                         // Count of all textures
 };
 constexpr int texture_count = static_cast<int>(TEXTURE_ASSET_ID::TEXTURE_COUNT);
