@@ -11,7 +11,8 @@ Entity CPEntranceRoomStrategy::execute() {
     Entity m_entrance_room;
     // for handling transitions
     Room room;
-    ConnectionList doors;
+    room.id = ROOM_ID::CP_ENTRANCE;
+    room.clear = true;
     // background
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::ENTRANCE_BG));
 
@@ -67,11 +68,13 @@ Entity CPEntranceRoomStrategy::execute() {
     return m_entrance_room;
 }
 
+// on walking goomba
 Entity CPRoom1Strategy::execute() {
     Entity m_room1;
     // for handling transitions
     Room room;
-
+    room.id = ROOM_ID::CP_1;
+    room.clear = true;
     // background
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::CESSPIT_BG));
 
@@ -131,11 +134,13 @@ Entity CPRoom1Strategy::execute() {
     return m_room1;
 }
 
+// ceiling goomba + ladder to lower room
 Entity CPRoom2Strategy::execute() {
     Entity m_room2;
     // for handling transitions
     Room room;
-
+    room.id = ROOM_ID::CP_2;
+    room.clear = true;
     // background
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::CESSPIT_BG));
 
@@ -195,11 +200,13 @@ Entity CPRoom2Strategy::execute() {
     return m_room2;
 }
 
+// heart powerup
 Entity CPRoom3Strategy::execute() {
     Entity m_room3;
     // for handling transitions
     Room room;
-
+    room.id = ROOM_ID::CP_3;
+    room.clear = true;
     // background
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::CESSPIT_BG));
 
@@ -223,7 +230,6 @@ Entity CPRoom3Strategy::execute() {
     Entity m_pipe3 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::PIPES), 0.6f, 0.6f, 0.53f, 1.0f);
 
     // heart powerUp
-    // TODO: add to texture_paths
     Entity m_heart = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::EXTRA_HEART), 0.2f, 0.2f, 0.07f, 0.25f);
 
     // ground
@@ -265,11 +271,13 @@ Entity CPRoom3Strategy::execute() {
     return m_room3;
 }
 
+// 2 walking goombas + ceiling goomba
 Entity CPRoom4Strategy::execute() {
     Entity m_room4;
     // for handling transitions
     Room room;
-
+    room.id = ROOM_ID::CP_4;
+    room.clear = true;
     // background
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::CESSPIT_BG));
 
@@ -321,11 +329,13 @@ Entity CPRoom4Strategy::execute() {
 
 }
 
+// chicken boss
 Entity CPBossRoomStrategy::execute() {
     Entity m_boss_room;
     // for handling transitions
     Room room;
-
+    room.id = ROOM_ID::CP_BOSS;
+    room.clear = true;
     // background
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::CESSPIT_BOSS_BG));
 
@@ -356,11 +366,13 @@ Entity CPBossRoomStrategy::execute() {
     return m_boss_room;
 }
 
+// ladder to bmt
 Entity CPExitRoomStrategy::execute() {
     Entity m_exit_room;
     // for handling transitions
     Room room;
-
+    room.id = ROOM_ID::CP_EXIT;
+    room.clear = true;
     // background
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::ENTRANCE_BG));
 
@@ -439,12 +451,13 @@ Entity CPExitRoomStrategy::execute() {
 }
 
 
-//TODO: ladder to 1 + npc
+// ladder to 1 + npc
 Entity BMTEntranceRoomStrategy::execute() {
     Entity m_room;
     // for handling transitions
     Room room;
-    ConnectionList doors;
+    room.id = ROOM_ID::BMT_ENTRANCE;
+    room.clear = true;
     // background
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_BG));
 
@@ -522,12 +535,13 @@ Entity BMTEntranceRoomStrategy::execute() {
     return m_room;
 }
 
-//TODO: ladder to entrance, 2, 3, and 4
+// ladder to entrance, 2, 3, and 4
 Entity BMTRoom1Strategy::execute() {
     Entity m_room;
     // for handling transitions
     Room room;
-    ConnectionList doors;
+    room.id = ROOM_ID::BMT_1;
+    room.clear = true;
     // background
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_BG));
 
@@ -601,12 +615,13 @@ Entity BMTRoom1Strategy::execute() {
     return m_room;
 }
 
-//TODO: moving platforms
+// moving platforms + heart powerup
 Entity BMTRoom2Strategy::execute() {
     Entity m_room;
     // for handling transitions
     Room room;
-    ConnectionList doors;
+    room.id = ROOM_ID::BMT_2;
+    room.clear = true;
     // background
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_BG));
 
@@ -622,16 +637,19 @@ Entity BMTRoom2Strategy::execute() {
     // platform 1: horizontal
     // start (0.2f, 0.38f), end (0.55f, 0.38f)
     //Entity m_platform1 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.32f, 0.75f);
-    Entity m_platform1 = SetMovingPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), true, 0.1f, 0.2f, 0.32f, 0.75f, vec2(0.32f, 0.35f), vec2(0.32f, 0.75f));
+    Entity m_platform1 = SetMovingPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), true, 0.1f, 0.2f, 0.36f, 0.75f, vec2(0.32f, 0.35f), vec2(0.32f, 0.75f), true);
 
     // platform 2: vertical
     // start = (0.75f, 0.7f), end = (0.75f, 0.38f)
     //Entity m_platform2 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.75f, 0.35f);
-    Entity m_platform2 = SetMovingPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), true, 0.1f, 0.2f, 0.75f, 0.35f, vec2(0.75f, 0.35f), vec2(0.75f, 0.75f));
+    Entity m_platform2 = SetMovingPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), true, 0.1f, 0.2f, 0.75f, 0.35f, vec2(0.75f, 0.35f), vec2(0.75f, 0.75f), true);
+
+    // heart powerup
+    Entity m_heart = SetPlatform(renderSystem.loadTexture("extra_heart.png"), 0.2f, 0.2f, 0.07f, 0.3f);
 
     // wall
     //Entity m_wall = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.5f, 0.5f, 0.05f, 200.f);
-    Entity m_wall = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_WALL), -1.f, 1.2f, 1.2f, 0.05f, 0.f);
+    Entity m_wall = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_WALL), -1.f, 1.2f, 1.2f, 0.12f, 0.f);
 
     //Entity m_wall = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.5f, 0.5f, 0.05f, 200.f);
     Entity m_wall2 = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_WALL), -1.f, 0.8f, 0.8f, 0.55f, 400.f);
@@ -646,6 +664,10 @@ Entity BMTRoom2Strategy::execute() {
     registry.grounds.emplace(m_platform1, std::move(Ground()));
     registry.grounds.emplace(m_platform2, std::move(Ground()));
     registry.grounds.emplace(m_wall2, std::move(Ground()));
+    registry.grounds.emplace(m_heart, std::move(Ground()));
+
+    // add heart
+    registry.heartPowerUp.emplace(m_heart, std::move(HeartPowerUp()));
 
     room.insert(m_bg);
     room.insert(m_arrow1);
@@ -653,6 +675,7 @@ Entity BMTRoom2Strategy::execute() {
     room.insert(m_ceiling);
     room.insert(m_ground);
     room.insert(m_wall);
+    room.insert(m_heart);
     room.insert(m_platform1);
     room.insert(m_platform2);
     //room.insert(m_platform3);
@@ -670,12 +693,13 @@ Entity BMTRoom2Strategy::execute() {
     return m_room;
 }
 
-//TODO: flying birdmen
+// flying birdmen + sword powerup
 Entity BMTRoom3Strategy::execute() {
     Entity m_room;
     // for handling transitions
     Room room;
-    ConnectionList doors;
+    room.id = ROOM_ID::BMT_3;
+    room.clear = false;
     // background
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_BG));
 
@@ -689,8 +713,10 @@ Entity BMTRoom3Strategy::execute() {
     Entity m_ceiling = SetCeiling(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_CEILING), 0.5f);
 
     // sword powerUp
-    // TODO: add to texture_paths
     Entity m_sword = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::SWORD_POWERUP), 0.25f, 0.25f, 0.07f, 0.8f);
+
+    // start = (0.5f, 0.42f), end = (0.5f, 0.73f)
+    Entity m_platform = SetMovingPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), true, 0.1f, 0.2f, 0.5f, 0.0f, vec2(0.5f, 0.28f), vec2(0.5f, 0.73f), false);
 
     // ground
     Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 0.5f, 0.5f, 0.0f);
@@ -705,9 +731,11 @@ Entity BMTRoom3Strategy::execute() {
     // note on bg: don't add motion
     registry.grounds.emplace(m_wall, std::move(Ground()));
     registry.grounds.emplace(m_ground, std::move(Ground()));
+    registry.grounds.emplace(m_platform, std::move(Ground()));
 
     // add sword
     registry.swordPowerUp.emplace(m_sword, std::move(SwordPowerUp()));
+
 
     room.insert(m_bg);
     room.insert(m_arrow1);
@@ -715,6 +743,7 @@ Entity BMTRoom3Strategy::execute() {
     room.insert(m_ceiling);
     room.insert(m_ground);
     room.insert(m_sword);
+    room.insert(m_platform);
     room.insert(gf1.entity);
     room.insert(gf.entity);
     // room.insert(gf2.entity);
@@ -727,12 +756,13 @@ Entity BMTRoom3Strategy::execute() {
     return m_room;
 }
 
-//TODO: ladder to boss + npc
+// ladder to boss + npc
 Entity BMTRoom4Strategy::execute() {
     Entity m_room;
     // for handling transitions
     Room room;
-    ConnectionList doors;
+    room.id = ROOM_ID::BMT_4;
+    room.clear = true;
     // background
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_BG));
 
@@ -831,12 +861,13 @@ Entity BMTRoom4Strategy::execute() {
     return m_room;
 }
 
-//TODO M4
+//TODO: moving platforms + npc
 Entity NPCRoom1Strategy::execute() {
     Entity m_room;
     // for handling transitions
     Room room;
-    ConnectionList doors;
+    room.id = ROOM_ID::NPC_1;
+    room.clear = true;
     // background
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_BG));
 
@@ -867,12 +898,12 @@ Entity NPCRoom1Strategy::execute() {
     return m_room;
 }
 
-//TODO M4
+// NO LONGER IN USE
 Entity NPCRoom2Strategy::execute() {
     Entity m_room;
     // for handling transitions
     Room room;
-    ConnectionList doors;
+    
     // background
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_BG));
 
@@ -899,12 +930,13 @@ Entity NPCRoom2Strategy::execute() {
     return m_room;
 }
 
-//TODO M4
+//TODO: moving platform + npc
 Entity NPCRoom3Strategy::execute() {
     Entity m_room;
     // for handling transitions
     Room room;
-    ConnectionList doors;
+    room.id = ROOM_ID::NPC_3;
+    room.clear = true;
     // background
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_BG));
 
@@ -939,12 +971,13 @@ Entity NPCRoom3Strategy::execute() {
     return m_room;
 }
 
-//TODO: npc?
+//TODO: special flying birdman?
 Entity LNRoom1Strategy::execute() {
     Entity m_room;
     // for handling transitions
     Room room;
-    ConnectionList doors;
+    room.id = ROOM_ID::LN_1;
+    room.clear = true;
     // background
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::LN_BG));
 
@@ -987,11 +1020,13 @@ Entity LNRoom1Strategy::execute() {
     return m_room;
 }
 
+// final boss
 Entity LNBossRoomStrategy::execute() {
     Entity m_room;
     // for handling transitions
     Room room;
-    ConnectionList doors;
+    room.id = ROOM_ID::LN_BOSS;
+    room.clear = true;
     // background
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::LN_THRONE_BG));
 
@@ -1177,7 +1212,7 @@ Entity RoomStrategy::SetPlatform(Sprite platformSprite, float width, float heigh
     return m_platform;
 }
 
-Entity RoomStrategy::SetMovingPlatform(Sprite platformSprite, bool vertical, float width, float height, float xPos, float yPos, vec2 start, vec2 end) {
+Entity RoomStrategy::SetMovingPlatform(Sprite platformSprite, bool vertical, float width, float height, float xPos, float yPos, vec2 start, vec2 end, bool moving) {
     Entity m_platform = Entity();
     registry.sprites.emplace(m_platform, platformSprite);
     width *= platformSprite.width;
@@ -1198,6 +1233,9 @@ Entity RoomStrategy::SetMovingPlatform(Sprite platformSprite, bool vertical, flo
     if (vertical) {
         platformMotion.velocity = glm::vec2(0, 100.f);
     }
+    if (!moving) {
+        platformMotion.velocity = glm::vec2(0, 0);
+    }
     platformMotion.scale = { width, height };
     registry.motions.emplace(m_platform, std::move(platformMotion));
 
@@ -1215,6 +1253,7 @@ Entity RoomStrategy::SetMovingPlatform(Sprite platformSprite, bool vertical, flo
     platformMove.vertical = vertical;
     platformMove.startPos = start;
     platformMove.endPos = end;
+    platformMove.moving = moving;
     registry.movingPlatform.emplace(m_platform, std::move(platformMove));
 
     // return ground
