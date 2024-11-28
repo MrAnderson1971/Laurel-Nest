@@ -527,6 +527,11 @@ void WorldSystem::handle_collisions() {
                 else if (direction.y < 0 && thisMotion.velocity.y < 0) {
                     thisMotion.position.y += overlap.y;
                     thisMotion.velocity.y = 0;
+
+                    if (registry.players.has(entity)) {
+                        isGrounded = false;
+                        thisMotion.velocity.y = std::min(thisMotion.velocity.y, 0.f);
+                    }
                 }
             }
         }
