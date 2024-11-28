@@ -35,7 +35,8 @@ void AISystem::step(Entity player_entity, Entity current_room)
                 if (patrol_component.landed) {
                     if (!patrol_component.chasing && player_distance_x < chaseRange && player_distance_y <= 100) {
                         patrol_component.chasing = true;
-                        if(registry.rooms.has(entity)){
+                        Room& r = registry.rooms.get(current_room);
+                        if(r.has(entity)){
                             group_behaviour(player_entity);
                         }
                         //                if (motion_player.position.x < motion.position.x) {

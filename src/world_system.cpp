@@ -152,7 +152,7 @@ void WorldSystem::init() {
     regionManager->init();
     current_room = regionManager->setRegion(makeRegion<Cesspit>);
     //testing bmt
-    current_room = regionManager->setRegion(makeRegion<Birdmantown>);
+    //current_room = regionManager->setRegion(makeRegion<Birdmantown>);
     next_map = regionManager->setRegion(makeRegion<Birdmantown>);
     physics.setRoom(current_room);
 
@@ -558,13 +558,18 @@ void WorldSystem::handle_collisions() {
         if(registry.walls.has(entity) && registry.hostiles.has(entity_other) && registry.hostiles.get(entity_other).type == HostileType::GOOMBA_FLYING){
             Motion& m_fying_goomba = registry.motions.get(entity_other);
             Motion& m_wall = registry.motions.get(entity);
-            float change = 0;
-//            if(m_fying_goomba.position.x > 0){
-//                change = -250;
-//            }else{
-//                change = 250;
-//            }
-            m_fying_goomba.position.x = m_wall.position.x + 200;
+            if(registry.patrol_ais.has(entity_other)){
+                Patrol_AI& patrol = registry.patrol_ais.get(entity_other);
+                float change = 0;
+                bool movingRight = patrol.movingRight;
+                if(movingRight){
+                    change = -200;
+                }else {
+                    change = 200;
+                }
+                m_fying_goomba.position.x = m_wall.position.x + change;
+                patrol.movingRight = !patrol.movingRight;
+            }
             //m_fying_goomba.velocity.x *= -1;
         }
 
