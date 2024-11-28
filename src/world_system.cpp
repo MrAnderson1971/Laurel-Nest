@@ -191,7 +191,8 @@ void WorldSystem::init() {
     hurt_sound = Mix_LoadWAV(audio_path("hurt.wav").c_str());
     save_sound = Mix_LoadWAV(audio_path("save.wav").c_str());
     gun_click_sound = Mix_LoadWAV(audio_path("gun_click.wav").c_str());
-    if (!(footstep_sound && sword_sound && hurt_sound && save_sound && gun_click_sound)) {
+    heal_sound = Mix_LoadWAV(audio_path("heal.wav").c_str());
+    if (!(footstep_sound && sword_sound && hurt_sound && save_sound && gun_click_sound && heal_sound)) {
         std::cerr << "Failed to load WAV file: " << Mix_GetError() << std::endl;
     }
     Room& r = registry.rooms.get(current_room);
@@ -963,15 +964,17 @@ void WorldSystem::render() {
     handle_pelican();
 
     // draw the text that appears when healing
-    if (registry.healTimers.has(m_player)) {
-        HealTimer h_timer = registry.healTimers.get(m_player);
+    if (registry.healTimers.has(m_player) && interrupted_heal) {
         Motion player_motion = registry.motions.get(m_player);
-        if (h_timer.last_elapsed_time != h_timer.elapsed_time) {
-            renderSystem.renderText("Hold To heal", player_motion.position.x - 90.f, renderSystem.getWindowHeight() - player_motion.position.y - (WALKING_BB_HEIGHT / 2) - 20, 0.5f, vec3(1), mat4(1));
-        }
-        else {
-            renderSystem.renderText("Heal is interrupted", player_motion.position.x - 90.f, renderSystem.getWindowHeight() - player_motion.position.y - (WALKING_BB_HEIGHT / 2) - 20, 0.5f, vec3(1), mat4(1));
-        }
+        float x_pos = player_motion.position.x - 150.f;
+        float y_pos = renderSystem.getWindowHeight() - player_motion.position.y - (WALKING_BB_HEIGHT / 2) - 20;
+        renderSystem.renderText("Heal is interrupted",x_pos, y_pos, 0.5f, vec3(1), mat4(1));
+    }
+    else if (registry.healTimers.has(m_player)) {
+        Motion player_motion = registry.motions.get(m_player);
+        float x_pos = player_motion.position.x - 90.f;
+        float y_pos = renderSystem.getWindowHeight() - player_motion.position.y - (WALKING_BB_HEIGHT / 2) - 20;
+        renderSystem.renderText("Hold To heal", x_pos, y_pos, 0.5f, vec3(1), mat4(1));
     }
 
     // lower left instructions to open pause menue
@@ -981,6 +984,7 @@ void WorldSystem::render() {
 
 void WorldSystem::processPlayerInput(int key, int action) {
     // Escape key to close the window
+    std::cout << action << "\n";
     if (action == GLFW_RELEASE) {
         switch (key) {
         case GLFW_KEY_ESCAPE:
@@ -1009,6 +1013,8 @@ void WorldSystem::processPlayerInput(int key, int action) {
                 std::cout << "resetting healing" << "\n";
             }
             break;
+        default:
+            interrupted_heal = false;
         }
     }
     else if (action == GLFW_PRESS) {
@@ -1084,6 +1090,7 @@ void WorldSystem::processPlayerInput(int key, int action) {
             }
             break;
         }
+        interrupted_heal = true;
     }
     else if (action == GLFW_REPEAT) {
         switch (key) {
@@ -1102,10 +1109,13 @@ void WorldSystem::processPlayerInput(int key, int action) {
                         h_timer.last_elapsed_time = h_timer.elapsed_time;
                         h_timer.elapsed_time -= 11.f;
                         //std::cout << h_timer.elapsed_time << "\n";
+                        interrupted_heal = false;
                     }
                 }
+            }
             break;
-        }
+        default:
+            interrupted_heal = true;
         }
     }
 }
@@ -1214,6 +1224,10 @@ void WorldSystem::cleanup() {
         Mix_FreeChunk(gun_click_sound);
         gun_click_sound = nullptr;
     }
+    if (heal_sound != nullptr) {
+        Mix_FreeChunk(heal_sound);
+        heal_sound = nullptr;
+    }
     registry.clear_all_components();
 }
 
@@ -1264,6 +1278,7 @@ void WorldSystem::player_get_healed() {
         player_health.current_health++;
         health_flask.num_uses--;
         registry.playerAnimations.get(m_player).setState(PlayerState::IDLE);
+        Mix_PlayChannel(HEAL_SOUND_CHANNEL, heal_sound, 0);
         update_status_bar(player_health.current_health);
         printf("You have %d uses of your health flask left \n", health_flask.num_uses);
     }

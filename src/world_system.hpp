@@ -33,6 +33,7 @@ constexpr int SWORD_CHANNEL = 0;
 constexpr int HURT_CHANNEL = 1;
 constexpr int SAVE_SOUND_CHANNEL = 2;
 constexpr int GUN_CLICK_CHANNEL = 3;
+constexpr int HEAL_SOUND_CHANNEL = 4;
 
 extern bool Show_FPS;
 extern bool isChickenDead;
@@ -95,7 +96,7 @@ private:
 	bool canAttack = true;
     bool isFlameThrowerEquipped = false;
     bool flameThrower_enabled = false;
-	bool player_is_healing = false;
+	bool interrupted_heal = false;
 
 	// saveables
 	
@@ -112,6 +113,7 @@ private:
 	Mix_Chunk* hurt_sound;
 	Mix_Chunk* save_sound;
 	Mix_Chunk* gun_click_sound;
+	Mix_Chunk* heal_sound;
     std::unique_ptr<std::unordered_map<TEXTURE_ASSET_ID, Sprite>> texture_paths;
 
 	// Font stuff
