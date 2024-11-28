@@ -18,6 +18,7 @@ public:
 
     void static swarm_goomba_keep_witihin_bounds(Entity swarmGoomba);
     void static swarm_goomba_fly_towards_centre(Entity swarmGoomba, std::vector<Entity> swarmGoombas);
+    void static swarm_goomba_avoid_others(Entity swarmGoomba, std::vector<Entity> swarmGoombas);
 
     float static calculate_distance(Motion motion_1, Motion motion_2);
     static float get_angle(Entity e1, Entity e2);

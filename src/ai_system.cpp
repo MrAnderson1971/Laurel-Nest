@@ -9,6 +9,7 @@ bool aim = false;
 //int second_charge;
 //
 //float can_charge_timer = 0.5f;
+constexpr float swarmGoomba_visualRange = 75.f;
 
 
 void AISystem::step(Entity player_entity, Entity current_room)
@@ -267,12 +268,44 @@ void AISystem::swarm_goomba_fly_towards_centre(Entity swarmGoomba, std::vector<E
     float center_x = 0;
     float center_y = 0;
     int numNeighbors = 0;
-
+    Motion& thisMotion = registry.motions.get(swarmGoomba);
     for (Entity otherSwarmGoomba : swarmGoombas) {
-        
+        Motion otherMotion = registry.motions.get(otherSwarmGoomba);
+        if (calculate_distance(thisMotion, otherMotion) < swarmGoomba_visualRange) {
+            center_x += otherMotion.position.x;
+            center_y += otherMotion.position.y;
+            numNeighbors++;
+        }
+    }
+
+    if (numNeighbors) {
+        center_x /= numNeighbors;
+        center_y /= numNeighbors;
+        thisMotion.velocity.x += (center_x - thisMotion.position.x) * centeringFactor;
+        thisMotion.velocity.y += (center_y - thisMotion.position.y) * centeringFactor;
     }
 }
 
+void AISystem::swarm_goomba_avoid_others(Entity swarmGoomba, std::vector<Entity> swarmGoombas) {
+    const float min_distance = 20.f;
+    const float avoidFactor = 0.05f;
+    float move_x = 0;
+    float move_y = 0;
+    Motion& thisMotion = registry.motions.get(swarmGoomba);
+    for (Entity otherSwarmGoomba : swarmGoombas) {
+        Motion otherMotion = registry.motions.get(otherSwarmGoomba);
+        if (otherSwarmGoomba != swarmGoomba) {
+            if (calculate_distance(thisMotion, otherMotion) < min_distance) {
+                move_x += thisMotion.position.x - otherMotion.position.x;
+                move_y += thisMotion.position.y - otherMotion.position.y;
+            }
+        }
+    }
+
+    thisMotion.velocity.x += move_x * avoidFactor;
+    thisMotion.velocity.y += move_y * avoidFactor;
+
+}
 float AISystem::get_angle(Entity e1, Entity e2){
     Motion m1 = registry.motions.get(e1);
     Motion m2 = registry.motions.get(e2);
