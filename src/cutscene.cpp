@@ -43,18 +43,14 @@ void OpeningCutscene::on_mouse_click(int, int, const vec2&, int) {}
 void OpeningCutscene::on_mouse_move(const vec2&) {}
 
 PickupCutscene::PickupCutscene() : frameCount(0), seconds_passed(0.f), transitionFrame(-0.5f), finishedCutscene(false) {
-    static bool hasLoaded = false;
-    if (!hasLoaded) {
-        hasLoaded = true;
-        std::array<std::future<Image>, LAST_PICKUP_ANIMATION_FRAME> images;
-        std::atomic<int> count;
-        for (int i = 0; i < LAST_PICKUP_ANIMATION_FRAME; i++) {
-            images[i] = loadImageData("pickup_animation/pick_up_" + std::to_string(i) + ".png", count);
-        }
+    std::array<std::future<Image>, LAST_PICKUP_ANIMATION_FRAME> images;
+    std::atomic<int> count;
+    for (int i = 0; i < LAST_PICKUP_ANIMATION_FRAME; i++) {
+        images[i] = loadImageData("pickup_animation/pick_up_" + std::to_string(i) + ".png", count);
+    }
 
-        for (int i = 0; i < LAST_PICKUP_ANIMATION_FRAME; i++) {
-            frames[i] = bindTexture(images[i].get());
-        }
+    for (int i = 0; i < LAST_PICKUP_ANIMATION_FRAME; i++) {
+        frames[i] = bindTexture(images[i].get());
     }
 }
 
