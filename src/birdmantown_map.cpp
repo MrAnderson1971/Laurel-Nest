@@ -12,7 +12,7 @@ Birdmantown::~Birdmantown() {
 void Birdmantown::init() {
     setRoomStrategy(std::make_unique<BMTEntranceRoomStrategy>());
     m_entrance_room = currentRoom->execute();
-    //start_room = m_entrance_room;
+    start_room = m_entrance_room;
 
     setRoomStrategy(std::make_unique<BMTRoom1Strategy>());
     m_room1 = currentRoom->execute();
@@ -50,7 +50,7 @@ void Birdmantown::init() {
 
     setRoomStrategy(std::make_unique<LNBossRoomStrategy>());
     m_ln_boss_room = currentRoom->execute();
-    start_room = m_ln_boss_room;
+    //start_room = m_ln_boss_room;
 
     // bmt to cp = (0.32f, 0.04f, 0.09f, 1.f), spawn = (0.08f, 0.17f)
     ConnectionList list_en;
