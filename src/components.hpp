@@ -32,7 +32,9 @@ enum PlayerState {
     WALKING,
     ATTACKING,
     JUMPING,
-    HIT
+    HIT,
+    HEALING,
+    HEALING_COMPLETE
 };
 
 enum ChickenState {
@@ -175,6 +177,14 @@ struct ProjectileTimer
 {
     float max_time;
     float elapsed_time;
+    
+};
+
+struct HealTimer
+{
+    float max_time = 1000;
+    float elapsed_time = max_time;
+    bool completed = false;
 };
 
 enum class ProjectileType {

@@ -95,6 +95,7 @@ private:
 	bool canAttack = true;
     bool isFlameThrowerEquipped = false;
     bool flameThrower_enabled = false;
+	bool player_is_healing = false;
 
 	// saveables
 	
