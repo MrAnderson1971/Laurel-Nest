@@ -301,11 +301,35 @@ void AISystem::swarm_goomba_avoid_others(Entity swarmGoomba, std::vector<Entity>
             }
         }
     }
-
     thisMotion.velocity.x += move_x * avoidFactor;
     thisMotion.velocity.y += move_y * avoidFactor;
-
 }
+
+void AISystem::swarm_goomba_match_velocity(Entity swarmGoomba, std::vector<Entity> swarmGoombas) {
+    const float matching_factor = 0.05f;
+
+    float avg_dx = 0;
+    float avg_dy = 0;
+    float numNeighbors = 0;
+    Motion& thisMotion = registry.motions.get(swarmGoomba);
+    for (Entity otherSwarmGoomba : swarmGoombas) {
+        Motion otherMotion = registry.motions.get(otherSwarmGoomba);
+        if (calculate_distance(thisMotion, otherMotion) < swarmGoomba_visualRange) {
+            avg_dx += otherMotion.velocity.x;
+            avg_dy += otherMotion.velocity.y;
+            numNeighbors++;
+        }
+    }
+
+    if (numNeighbors) {
+        avg_dx /= numNeighbors;
+        avg_dy /= numNeighbors;
+
+        thisMotion.velocity.x += (avg_dx - thisMotion.velocity.x) * matching_factor;
+        thisMotion.velocity.y += (avg_dy - thisMotion.velocity.y) * matching_factor;
+    }
+}
+
 float AISystem::get_angle(Entity e1, Entity e2){
     Motion m1 = registry.motions.get(e1);
     Motion m2 = registry.motions.get(e2);
