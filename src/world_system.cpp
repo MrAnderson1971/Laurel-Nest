@@ -1114,7 +1114,6 @@ void WorldSystem::processPlayerInput(int key, int action) {
                     else {
                         HealTimer& h_timer = registry.healTimers.get(m_player);
                         h_timer.elapsed_time -= 11.f;
-                        //std::cout << h_timer.elapsed_time << "\n";
                         interrupted_heal = false;
                     }
                 }
@@ -1234,6 +1233,7 @@ void WorldSystem::cleanup() {
     if (heal_sound != nullptr) {
         Mix_FreeChunk(heal_sound);
         heal_sound = nullptr;
+    }
     if (flame_beak_shoot_sound != nullptr) {
         Mix_FreeChunk(flame_beak_shoot_sound);
         flame_beak_shoot_sound = nullptr;
