@@ -25,7 +25,7 @@ bool isChickenDead = false;
 bool start_from_checkpoint = false;
 std::unordered_map<TEXTURE_ASSET_ID, Sprite>* g_texture_paths = nullptr;
 
-WorldSystem::WorldSystem() {
+WorldSystem::WorldSystem() : a_pressed(false), d_pressed(false) {
     regionManager = std::make_unique<RegionManager>();
 
     std::unordered_map<TEXTURE_ASSET_ID, Sprite> temp_texture_paths = loadTextures();
@@ -314,6 +314,11 @@ void WorldSystem::handle_motions(float deltaTime) {
 
             // Step 2: Update position based on velocity
             if (registry.players.has(entity)) {
+                if (a_pressed) {
+                    m.velocity.x = -player_speed;
+                } else if (d_pressed) {
+                    m.velocity.x = player_speed;
+                }
                 // Make the player's position stop once its head reaches the top of the window
                 if (m.velocity[0] != 0 && isGrounded) {
                     Mix_PlayChannel(-1, footstep_sound, 0);
@@ -512,7 +517,14 @@ void WorldSystem::handle_collisions() {
             if (direction.x != 0 && thisMotion.velocity.x != 0) {
                 thisMotion.velocity.x = 0;
                 thisMotion.position.x -= overlap.x;
-            } 
+            }
+            else if (registry.players.has(entity)) {
+                if (a_pressed) {
+                    thisMotion.velocity.x = -player_speed;
+                } else if (d_pressed) {
+                    thisMotion.velocity.x = player_speed;
+                }
+            }
             if (direction.y != 0) {
                 if (direction.y > 0 && thisMotion.velocity.y > 0) {
                     // Downward collision
@@ -1001,20 +1013,12 @@ void WorldSystem::processPlayerInput(int key, int action) {
             renderSystem.getGameStateManager()->pauseState<PauseState>();
             break;
         case GLFW_KEY_A:
-            if (registry.motions.has(m_player)) {
-                auto& motion = registry.motions.get(m_player);
-                if (motion.velocity[0] < 0) {  // Only stop leftward movement
-                    motion.velocity[0] = 0;
-                }
-            }
+            a_pressed = false;
+            registry.motions.get(m_player).velocity.x = 0.f;
             break;
         case GLFW_KEY_D:
-            if (registry.motions.has(m_player)) {
-                auto& motion = registry.motions.get(m_player);
-                if (motion.velocity[0] > 0) {  // Only stop rightward movement
-                    motion.velocity[0] = 0;
-                }
-            }
+            d_pressed = false;
+            registry.motions.get(m_player).velocity.x = 0.f;
             break;
         case GLFW_KEY_H:
             if (registry.healTimers.has(m_player)) {
@@ -1031,16 +1035,12 @@ void WorldSystem::processPlayerInput(int key, int action) {
             // move left/right
         case GLFW_KEY_A:
             if (!registry.healTimers.has(m_player)) {
-                if (registry.motions.has(m_player)) {
-                    registry.motions.get(m_player).velocity[0] = -player_speed;
-                }
+                a_pressed = true;
             }
             break;
         case GLFW_KEY_D:
             if (!registry.healTimers.has(m_player)) {
-                if (registry.motions.has(m_player)) {
-                    registry.motions.get(m_player).velocity[0] = player_speed;
-                }
+                d_pressed = true;
             }
             break;
         case GLFW_KEY_W:

@@ -135,6 +135,9 @@ private:
 
 	PhysicsSystem physics; // remove when physics is move to GameState
 
+	bool a_pressed;
+	bool d_pressed;
+	friend class PickupCutscene;
 };
 
 extern std::unordered_map<TEXTURE_ASSET_ID, Sprite>* g_texture_paths;
