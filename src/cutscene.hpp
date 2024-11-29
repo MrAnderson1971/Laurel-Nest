@@ -11,7 +11,7 @@ constexpr float SECONDS_PER_FRAME = 0.5f;
 class OpeningCutscene : public GameState {
 public:
 	OpeningCutscene();
-	~OpeningCutscene() override = default;
+	~OpeningCutscene() override;
 
 	void init() override {}
 	void cleanup() override {}
@@ -26,6 +26,13 @@ private:
 	float seconds_passed;
 	int frameCount;
 	std::array<boost::optional<Sprite>, LAST_OPENING_ANIMATION_FRAME> frames;
+
+	Entity tutorialEntity;
+	Entity control_keys;
+	Entity mouse_click;
+	Entity h_key;
+	Entity e_key;
+	Entity q_key;
 };
 
 class PickupCutscene : public GameState {
