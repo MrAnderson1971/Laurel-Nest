@@ -247,6 +247,8 @@ void AISystem::group_behaviour(Entity player){
     aim = true;
 }
 
+
+
 void AISystem::swarm_goomba_keep_witihin_bounds(Entity swarmGoomba) {
     const float margin_x = static_cast<float>(renderSystem.getWindowWidth() + 50);
     const float margin_y = static_cast<float>(renderSystem.getWindowHeight() + 50);
@@ -332,8 +334,13 @@ void AISystem::swarm_goomba_match_velocity(Entity swarmGoomba, std::vector<Entit
 
 void AISystem::swarm_goomba_limit_speed(Entity swarmGoomba) {
     const float speed_limit = 15.f;
-
-    //float speed = 
+    Motion& sg_motion = registry.motions.get(swarmGoomba);
+    const float speed = static_cast<float>(sqrt(pow(sg_motion.velocity.x, 2) + pow(sg_motion.velocity.y, 2)));
+    
+    if (speed > speed_limit) {
+        sg_motion.velocity.x = (sg_motion.velocity.x / speed) * speed_limit;
+        sg_motion.velocity.y = (sg_motion.velocity.y / speed) * speed_limit;
+    }
 }
 
 float AISystem::get_angle(Entity e1, Entity e2){

@@ -16,6 +16,7 @@ public:
     bool static can_flying_goomba_detect_player(Motion flyingGoombaMotion, Motion playerMotion);
     void static flying_goomba_charge(Motion& flyingGoombaMotion, Motion playerMotion);
 
+    void static swarm_goomba_step(Entity current_room);
     void static swarm_goomba_keep_witihin_bounds(Entity swarmGoomba);
     void static swarm_goomba_fly_towards_centre(Entity swarmGoomba, std::vector<Entity> swarmGoombas);
     void static swarm_goomba_avoid_others(Entity swarmGoomba, std::vector<Entity> swarmGoombas);
