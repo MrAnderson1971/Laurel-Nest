@@ -899,20 +899,48 @@ Entity NPCRoom1Strategy::execute() {
     // wall
     Entity m_wall = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL), 1.f, 0.6f, 0.6f, 0.99f, 500.f);
 
+    // more walls
+    Entity m_wall_block1 = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL_SHORT), 1.f, 0.6f, 0.6f, 0.15f, (float)renderSystem.getWindowHeight() - 300.f);
+    Entity m_wall_block2 = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL), 1.f, 0.6f, 0.6f, 0.33f, 150.f);
+    Entity m_wall_block3 = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL_SHORT), 1.f, 0.6f, 0.6f, 0.51f, (float)renderSystem.getWindowHeight() - 300.f);
+    Entity m_wall_block4 = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL), 1.f, 0.6f, 0.6f, 0.69f, 150.f);
+
     // ceiling
     Entity m_ceiling = SetCeiling(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_CEILING), 0.5f);
+
+    // platforms: start(top) = 0.35f, end(bottom) = 0.85f
+    Entity m_platform_npc1 = SetMovingPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), true, 0.1f, 0.2f, 0.24f, 0.85f, vec2(0.24f, 0.35f), vec2(0.24f, 0.85f), true);
+    Entity m_platform_npc2 = SetMovingPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), true, 0.1f, 0.2f, 0.42f, 0.35f, vec2(0.42f, 0.35f), vec2(0.42f, 0.85f), true);
+    Entity m_platform_npc3 = SetMovingPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), true, 0.1f, 0.2f, 0.6f, 0.85f, vec2(0.6f, 0.35f), vec2(0.6f, 0.85f), true);
+    Entity m_platform_npc4 = SetMovingPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), true, 0.1f, 0.2f, 0.78f, 0.35f, vec2(0.78f, 0.35f), vec2(0.78f, 0.85f), true);
 
     // ground
     Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 0.5f, 0.5f, 0.0f);
 
     // note on bg: don't add motion
     registry.grounds.emplace(m_wall, std::move(Ground()));
+    registry.grounds.emplace(m_platform_npc1, std::move(Ground()));
+    registry.grounds.emplace(m_platform_npc2, std::move(Ground()));
+    registry.grounds.emplace(m_platform_npc3, std::move(Ground()));
+    registry.grounds.emplace(m_platform_npc4, std::move(Ground()));
+    registry.grounds.emplace(m_wall_block1, std::move(Ground()));
+    registry.grounds.emplace(m_wall_block2, std::move(Ground()));
+    registry.grounds.emplace(m_wall_block3, std::move(Ground()));
+    registry.grounds.emplace(m_wall_block4, std::move(Ground()));
     registry.grounds.emplace(m_ground, std::move(Ground()));
 
     room.insert(m_bg);
     room.insert(m_arrow_en);
     room.insert(m_wall);
     room.insert(m_ceiling);
+    room.insert(m_platform_npc1);
+    room.insert(m_platform_npc2);
+    room.insert(m_platform_npc3);
+    room.insert(m_platform_npc4);
+    room.insert(m_wall_block1);
+    room.insert(m_wall_block2);
+    room.insert(m_wall_block3);
+    room.insert(m_wall_block4);
     room.insert(m_ground);
 
     registry.rooms.emplace(m_room, std::move(room));
@@ -968,19 +996,45 @@ Entity NPCRoom3Strategy::execute() {
     // wall
     Entity m_wall = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL), 1.f, 0.6f, 0.6f, 0.99f, 500.f);
 
+    // more walls
+    Entity m_wall_block1 = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL_SHORT), 1.f, 0.55f, 0.55f, 0.3f, renderSystem.getWindowHeight() * 0.5f);
+    Entity m_wall_block2 = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL_SHORT), 1.f, 0.55f, 0.55f, 0.5f, renderSystem.getWindowHeight() * 0.5f);
+    Entity m_wall_block3 = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL_SHORT), 1.f, 0.55f, 0.55f, 0.7f, renderSystem.getWindowHeight() * 0.5f);
+    Entity m_wall_block4 = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL_SHORT), 1.f, 0.55f, 0.55f, 0.8f, renderSystem.getWindowHeight() * 0.5f);
+
     // ceiling
     Entity m_ceiling = SetCeiling(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_CEILING), 0.5f);
+
+    // platforms
+    Entity m_platform_npc1 = SetMovingPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), true, 0.1f, 0.2f, 0.2f, 0.25f, vec2(0.2f, 0.25f), vec2(0.2f, 0.85f), true);
+    Entity m_platform_npc2 = SetMovingPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), true, 0.1f, 0.2f, 0.4f, 0.45f, vec2(0.4f, 0.25f), vec2(0.4f, 0.85f), true);
+    Entity m_platform_npc3 = SetMovingPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), true, 0.1f, 0.2f, 0.6f, 0.65f, vec2(0.6f, 0.25f), vec2(0.6f, 0.85f), true);
+    Entity m_platform_npc4 = SetMovingPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), true, 0.1f, 0.2f, 0.8f, 0.85f, vec2(0.8f, 0.25f), vec2(0.8f, 0.85f), true);
 
     // ground
     Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 0.5f, 0.5f, 0.0f);
 
     // note on bg: don't add motion
     registry.grounds.emplace(m_wall, std::move(Ground()));
+    registry.grounds.emplace(m_wall_block1, std::move(Ground()));
+    registry.grounds.emplace(m_wall_block2, std::move(Ground()));
+    registry.grounds.emplace(m_wall_block3, std::move(Ground()));
+    registry.grounds.emplace(m_platform_npc1, std::move(Ground()));
+    registry.grounds.emplace(m_platform_npc2, std::move(Ground()));
+    registry.grounds.emplace(m_platform_npc3, std::move(Ground()));
+    registry.grounds.emplace(m_platform_npc4, std::move(Ground()));
     registry.grounds.emplace(m_ground, std::move(Ground()));
 
     room.insert(m_bg);
     room.insert(m_arrow4);
     room.insert(m_wall);
+    room.insert(m_wall_block1);
+    room.insert(m_wall_block2);
+    room.insert(m_wall_block3);
+    room.insert(m_platform_npc1);
+    room.insert(m_platform_npc2);
+    room.insert(m_platform_npc3);
+    room.insert(m_platform_npc4);
     room.insert(m_ceiling);
     room.insert(m_ground);
 
