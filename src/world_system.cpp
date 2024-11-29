@@ -150,9 +150,9 @@ void WorldSystem::init() {
      
     // Initialize the region
     regionManager->init();
-    current_room = regionManager->setRegion(makeRegion<Cesspit>);
+    //current_room = regionManager->setRegion(makeRegion<Cesspit>);
     //testing bmt
-    //current_room = regionManager->setRegion(makeRegion<Birdmantown>);
+    current_room = regionManager->setRegion(makeRegion<Birdmantown>);
     next_map = regionManager->setRegion(makeRegion<Birdmantown>);
     physics.setRoom(current_room);
 
@@ -221,6 +221,7 @@ void WorldSystem::update(float deltaTime) {
     GoombaLogic::update_goomba_projectile_timer(deltaTime, current_room);
     GoombaLogic::update_damaged_goomba_sprites(deltaTime);
     AISystem::flying_goomba_step(m_player, current_room, deltaTime);
+    AISystem::swarm_goomba_step(current_room);
     BossAISystem::step(m_player, deltaTime);
     BossAISystem::update_damaged_chicken_sprites(deltaTime);
 
@@ -349,6 +350,13 @@ void WorldSystem::handle_motions(float deltaTime) {
                     coyoteTimer = MAX_COYOTE_TIME;
                 }
             }
+
+            // Guard against the swarm goombas for flying out of the top of the screen
+            if (m.position[1] < 0 && registry.hostiles.has(entity) && registry.hostiles.get(entity).type == HostileType::GOOMBA_SWARM) {
+                m.position[1] = 0;
+                m.velocity.y = 0;
+            }
+
 
             m.position[0] = clamp(m.position[0], 0, window_width_px);
 
@@ -555,16 +563,32 @@ void WorldSystem::handle_collisions() {
             patrol.movingRight = !patrol.movingRight;
         }
 
-        if(registry.walls.has(entity) && registry.hostiles.has(entity_other) && registry.hostiles.get(entity_other).type == HostileType::GOOMBA_FLYING){
-            Motion& m_fying_goomba = registry.motions.get(entity_other);
+        if (registry.walls.has(entity) && registry.hostiles.has(entity_other)) {
+            Motion& goomba_motion = registry.motions.get(entity_other);
             Motion& m_wall = registry.motions.get(entity);
             float change = 0;
+            if (registry.hostiles.get(entity_other).type == HostileType::GOOMBA_SWARM) {
+                if (signof(goomba_motion.velocity.x)) {
+                    goomba_motion.position.x = m_wall.position.x + 100;
+                }
+                else {
+                    goomba_motion.position.x = m_wall.position.x - 100;
+                }
+            }
+            else if (registry.hostiles.get(entity_other).type == HostileType::GOOMBA_FLYING) {
+                if (signof(goomba_motion.velocity.x)) {
+                    goomba_motion.position.x = m_wall.position.x + 200;
+                }
+                else {
+                    goomba_motion.position.x = m_wall.position.x - 200;
+                }
+            }
 //            if(m_fying_goomba.position.x > 0){
 //                change = -250;
 //            }else{
 //                change = 250;
 //            }
-            m_fying_goomba.position.x = m_wall.position.x + 200;
+            //goomba_motion.position.x = m_wall.position.x + 200;
             //m_fying_goomba.velocity.x *= -1;
         }
 

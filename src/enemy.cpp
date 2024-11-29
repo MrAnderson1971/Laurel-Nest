@@ -151,7 +151,7 @@ void GoombaSwarm::init_components(float x, float y) {
 	Motion goombaMotion;
 	goombaMotion.position = vec2(x, y);
 	goombaMotion.scale = GOOMBA_CEILING_SPIT_SCALE * 1.5f;
-	goombaMotion.velocity = { TPS , -TPS };
+	goombaMotion.velocity = { TPS , TPS };
 	goombaMotion.old_velocity = goombaMotion.velocity;
 	registry.motions.emplace(entity, std::move(goombaMotion));
 

@@ -455,6 +455,7 @@ struct Room {
     ROOM_ID id;
     bool clear;
     std::set<Entity> entities;
+    std::set<Entity> swarm_goombas;
     std::shared_ptr<Mix_Music> music;
 
     void setMusic(Mix_Music* m) {
@@ -473,6 +474,16 @@ struct Room {
 
     bool has(Entity entity) {
         return entities.count(entity) > 0;
+    }
+
+    void insert_swarm_goomba(Entity entity) {
+        if (swarm_goombas.count(entity) == 0) {
+            swarm_goombas.insert(entity);
+        }
+    }
+
+    bool has_swarm_goombas() {
+        return !swarm_goombas.empty();
     }
 };
 

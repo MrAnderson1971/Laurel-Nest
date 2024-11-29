@@ -18,9 +18,9 @@ public:
 
     void static swarm_goomba_step(Entity current_room);
     void static swarm_goomba_keep_witihin_bounds(Entity swarmGoomba);
-    void static swarm_goomba_fly_towards_centre(Entity swarmGoomba, std::vector<Entity> swarmGoombas);
-    void static swarm_goomba_avoid_others(Entity swarmGoomba, std::vector<Entity> swarmGoombas);
-    void static swarm_goomba_match_velocity(Entity swarmGoomba, std::vector<Entity> swarmGoombas);
+    void static swarm_goomba_fly_towards_centre(Entity swarmGoomba, std::set<Entity> swarmGoombas);
+    void static swarm_goomba_avoid_others(Entity swarmGoomba, std::set<Entity> swarmGoombas);
+    void static swarm_goomba_match_velocity(Entity swarmGoomba, std::set<Entity> swarmGoombas);
     void static swarm_goomba_limit_speed(Entity swarmGoomba);
 
 
