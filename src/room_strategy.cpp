@@ -188,7 +188,7 @@ Entity CPRoom2Strategy::execute() {
 
     // Ceiling Goomba
     GoombaCeiling g1 = GoombaCeiling();
-    g1.init(renderSystem.getWindowWidth() / 2.0f, g1.bottom_edge);
+    g1.init(renderSystem.getWindowWidth() * 0.47F, g1.bottom_edge);
     g1.set_spit_timer(1.f);
 
     room.insert(m_bg);
