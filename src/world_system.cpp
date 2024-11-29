@@ -191,8 +191,9 @@ void WorldSystem::init() {
     hurt_sound = Mix_LoadWAV(audio_path("hurt.wav").c_str());
     save_sound = Mix_LoadWAV(audio_path("save.wav").c_str());
     gun_click_sound = Mix_LoadWAV(audio_path("gun_click.wav").c_str());
+    heal_sound = Mix_LoadWAV(audio_path("heal.wav").c_str());
     flame_beak_shoot_sound = Mix_LoadWAV(audio_path("flame-beak-shoot.wav").c_str());
-    if (!(footstep_sound && sword_sound && hurt_sound && save_sound && gun_click_sound && flame_beak_shoot_sound)) {
+    if (!(footstep_sound && sword_sound && hurt_sound && save_sound && gun_click_sound && flame_beak_shoot_sound && heal_sound)) {
         std::cerr << "Failed to load WAV file: " << Mix_GetError() << std::endl;
     }
     Room& r = registry.rooms.get(current_room);
@@ -968,6 +969,20 @@ void WorldSystem::render() {
 
     handle_pelican();
 
+    // draw the text that appears when healing
+    if (registry.healTimers.has(m_player) && interrupted_heal) {
+        Motion player_motion = registry.motions.get(m_player);
+        float x_pos = player_motion.position.x - 90.f;
+        float y_pos = renderSystem.getWindowHeight() - player_motion.position.y - (WALKING_BB_HEIGHT / 2) - 20;
+        renderSystem.renderText("Heal Is Interrupted",x_pos, y_pos, 0.5f, vec3(1), mat4(1));
+    }
+    else if (registry.healTimers.has(m_player)) {
+        Motion player_motion = registry.motions.get(m_player);
+        float x_pos = player_motion.position.x - 60.f;
+        float y_pos = renderSystem.getWindowHeight() - player_motion.position.y - (WALKING_BB_HEIGHT / 2) - 20;
+        renderSystem.renderText("Hold To Heal", x_pos, y_pos, 0.5f, vec3(1), mat4(1));
+    }
+
     // lower left instructions to open pause menue
     renderSystem.drawEntity(registry.sprites.get(m_esc), registry.transforms.get(m_esc));
     renderSystem.renderText("For Pause Menu", window_width_px * 0.1f, window_height_px * 0.05f, 0.5f, vec3(1), mat4(1));
@@ -996,60 +1011,78 @@ void WorldSystem::processPlayerInput(int key, int action) {
                 }
             }
             break;
+        case GLFW_KEY_H:
+            if (registry.healTimers.has(m_player)) {
+                registry.healTimers.remove(m_player);
+                registry.playerAnimations.get(m_player).setState(PlayerState::IDLE);
+                std::cout << "resetting healing" << "\n";
+            }
+            interrupted_heal = false;
+            break;
         }
     }
     else if (action == GLFW_PRESS) {
         switch (key) {
             // move left/right
         case GLFW_KEY_A:
-            if (registry.motions.has(m_player)) {
-                registry.motions.get(m_player).velocity[0] = -player_speed;
+            if (!registry.healTimers.has(m_player)) {
+                if (registry.motions.has(m_player)) {
+                    registry.motions.get(m_player).velocity[0] = -player_speed;
+                }
             }
             break;
         case GLFW_KEY_D:
-            if (registry.motions.has(m_player)) {
-                registry.motions.get(m_player).velocity[0] = player_speed;
+            if (!registry.healTimers.has(m_player)) {
+                if (registry.motions.has(m_player)) {
+                    registry.motions.get(m_player).velocity[0] = player_speed;
+                }
             }
             break;
         case GLFW_KEY_W:
         case GLFW_KEY_SPACE:
-            if (registry.motions.has(m_player)) {
-                auto& playerMotion = registry.motions.get(m_player);
-                if (coyoteTimer > 0.f) {  // Ensure the player can only jump if grounded
-                    playerMotion.velocity[1] = -player_jump_velocity;  // Apply jump velocity
-                    coyoteTimer = 0.f;
-                    isGrounded = false;
+            if (!registry.healTimers.has(m_player)) {
+                if (registry.motions.has(m_player)) {
+                    auto& playerMotion = registry.motions.get(m_player);
+                    if (coyoteTimer > 0.f) {  // Ensure the player can only jump if grounded
+                        playerMotion.velocity[1] = -player_jump_velocity;  // Apply jump velocity
+                        coyoteTimer = 0.f;
+                        isGrounded = false;
+                    }
                 }
-
             }
             break;
         case GLFW_KEY_S:
-            if (registry.motions.has(m_player)) {
-                auto& playerMotion = registry.motions.get(m_player);
-                playerMotion.velocity[1] += player_speed * 2.0f; // Increase downward velocity
+            if (!registry.healTimers.has(m_player)) {
+                if (registry.motions.has(m_player)) {
+                    auto& playerMotion = registry.motions.get(m_player);
+                    playerMotion.velocity[1] += player_speed * 2.0f; // Increase downward velocity
+                }
             }
-            break;
-            // Heal
-        case GLFW_KEY_H:
-            player_get_healed();
-            break;
+            break;            
             // Equip / unequip flamethrower
         case GLFW_KEY_E:
             if (isChickenDead) {
-                if (!registry.players.get(m_player).attacking) {
-                    isFlameThrowerEquipped = true;
+                if (!registry.healTimers.has(m_player)) {
+                    if (!registry.players.get(m_player).attacking) {
+                        isFlameThrowerEquipped = true;
+                    }
                 }
             }
             break;
         case GLFW_KEY_Q:
             if (isChickenDead) {
-                isFlameThrowerEquipped = false;
+                if (!registry.healTimers.has(m_player)) {
+                    isFlameThrowerEquipped = false;
+                }
             }
             break;
             // show/hide FPS counter
         case GLFW_KEY_F:
             Show_FPS = !Show_FPS;
             break;
+        case GLFW_KEY_H:
+            interrupted_heal = false;
+            return;
             // save
         case GLFW_KEY_V:
             do_save = true;
@@ -1063,6 +1096,31 @@ void WorldSystem::processPlayerInput(int key, int action) {
                 pelican_talk = !pelican_talk;
             }
             break;
+        }
+        interrupted_heal = true;
+    }
+    else if (action == GLFW_REPEAT) {
+        switch (key) {
+        case GLFW_KEY_H:
+            if (registry.playerAnimations.has(m_player) && registry.playerAnimations.get(m_player).getState() == PlayerState::IDLE) {
+                if (registry.healths.has(m_player) && registry.healths.get(m_player).current_health != registry.healths.get(m_player).max_health) {
+                    if (!registry.healTimers.has(m_player)) {
+                        registry.healTimers.emplace(m_player, HealTimer());
+                    }
+                    else if (registry.healTimers.get(m_player).elapsed_time <= 0) {
+                        player_get_healed();
+                        registry.healTimers.remove(m_player);
+                    }
+                    else {
+                        HealTimer& h_timer = registry.healTimers.get(m_player);
+                        h_timer.elapsed_time -= 11.f;
+                        interrupted_heal = false;
+                    }
+                }
+            }
+            break;
+        default:
+            interrupted_heal = true;
         }
     }
 }
@@ -1126,21 +1184,24 @@ void WorldSystem::on_mouse_move(const glm::vec2&) {
 void WorldSystem::on_mouse_click(int button, int action, const glm::vec2&, int) {
     if (action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_LEFT) {
         if (registry.combat.has(m_player)) {
-            if (!isFlameThrowerEquipped) {
-                if (canAttack) {  // Ensure the player can attack
-                    // make a call to bounding boxes here
-                    std::cout << "is attacking" << std::endl;
-                    Mix_PlayChannel(SWORD_CHANNEL, sword_sound, 0);
-                    canAttack = false;  // Prevent further attacks for a time
-                    auto &c = registry.combat.get(m_player);
-                    c.frames = c.max_frames;
-                    registry.players.get(m_player).attacking = true;
+            if (!registry.healTimers.has(m_player)) {
+                if (!isFlameThrowerEquipped) {
+                    if (canAttack) {  // Ensure the player can attack
+                        // make a call to bounding boxes here
+                        std::cout << "is attacking" << std::endl;
+                        Mix_PlayChannel(SWORD_CHANNEL, sword_sound, 0);
+                        canAttack = false;  // Prevent further attacks for a time
+                        auto& c = registry.combat.get(m_player);
+                        c.frames = c.max_frames;
+                        registry.players.get(m_player).attacking = true;
+                    }
                 }
-            } else if (flameThrower_enabled) {
-                useFlameThrower();
-            }
-            else {
-                Mix_PlayChannel(GUN_CLICK_CHANNEL, gun_click_sound, 0);
+                else if (flameThrower_enabled) {
+                    useFlameThrower();
+                }
+                else {
+                    Mix_PlayChannel(GUN_CLICK_CHANNEL, gun_click_sound, 0);
+                }
             }
         }
     }
@@ -1168,6 +1229,10 @@ void WorldSystem::cleanup() {
     if (gun_click_sound != nullptr) {
         Mix_FreeChunk(gun_click_sound);
         gun_click_sound = nullptr;
+    }
+    if (heal_sound != nullptr) {
+        Mix_FreeChunk(heal_sound);
+        heal_sound = nullptr;
     }
     if (flame_beak_shoot_sound != nullptr) {
         Mix_FreeChunk(flame_beak_shoot_sound);
@@ -1222,6 +1287,8 @@ void WorldSystem::player_get_healed() {
     if (health_flask.num_uses > 0 && player_health.max_health > player_health.current_health) {
         player_health.current_health++;
         health_flask.num_uses--;
+        registry.playerAnimations.get(m_player).setState(PlayerState::IDLE);
+        Mix_PlayChannel(HEAL_SOUND_CHANNEL, heal_sound, 0);
         update_status_bar(player_health.current_health);
         printf("You have %d uses of your health flask left \n", health_flask.num_uses);
     }
