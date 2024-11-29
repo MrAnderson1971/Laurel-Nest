@@ -97,10 +97,10 @@ void SplashScreenState::render() {
     renderMenuItem(registry.menuItems.get(optionsEntity), mouse_pos);
     renderMenuItem(registry.menuItems.get(quitEntity), mouse_pos);
 
-    renderSystem.renderText("Press any key to start.", window_width_px * 0.4f, window_height_px * 0.80f, 1.0f, vec3(1), mat4(1));
+    renderSystem.renderText("Press Any Key To Start", window_width_px * 0.4f, window_height_px * 0.80f, 1.0f, vec3(1), mat4(1));
 
     renderSystem.drawEntity(registry.sprites.get(esc_key), registry.transforms.get(esc_key));
-    renderSystem.renderText("for pause menu", window_width_px * 0.1f, window_height_px * 0.05f, 0.5f, vec3(1), mat4(1));
+    renderSystem.renderText("For Pause Menu", window_width_px * 0.1f, window_height_px * 0.05f, 0.5f, vec3(1), mat4(1));
 }
 
 void SplashScreenState::cleanup() {

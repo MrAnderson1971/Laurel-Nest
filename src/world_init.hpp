@@ -85,7 +85,7 @@ inline void drawLoadingScreen(int count, size_t total) {
     glClear(GL_COLOR_BUFFER_BIT);
     std::stringstream ss;
     ss << std::fixed << std::setprecision(2) << (static_cast<float>(count) / total * 100.0f);
-    renderSystem.renderText("Loading: " + ss.str() + "%", window_width_px / 2.f, window_height_px / 2.f,
+    renderSystem.renderText("Loading: " + ss.str() + "%", window_width_px * 0.43f, window_height_px / 2.f,
         1.f, vec3(1), mat4(1));
     glfwSwapBuffers(renderSystem.getWindow());
     glfwPollEvents();

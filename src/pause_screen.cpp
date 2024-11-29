@@ -145,7 +145,7 @@ void PauseState::render() {
     renderMenuItem(registry.menuItems.get(quitEntity), mouse_pos);
 
     renderSystem.drawEntity(registry.sprites.get(esc_key), registry.transforms.get(esc_key));
-    renderSystem.renderText("to resume game", window_width_px * 0.1f, window_height_px * 0.05f, 0.5f, vec3(1), mat4(1));
+    renderSystem.renderText("To Resume Game", window_width_px * 0.1f, window_height_px * 0.05f, 0.5f, vec3(1), mat4(1));
 }
 
 void PauseState::on_mouse_click(int button, int action, const glm::vec2& position, int mods) {
