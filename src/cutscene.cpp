@@ -55,7 +55,7 @@ OpeningCutscene::OpeningCutscene() : frameCount(0), seconds_passed(0.f), hasLoad
     renderSystem.renderText("left click mouse to attack", window_width_px * 0.25f, window_height_px * 0.62f, 0.8f, vec3(1), mat4(1));
 
     renderSystem.drawEntity(registry.sprites.get(h_key), registry.transforms.get(h_key));
-    renderSystem.renderText("key to restore health up to 3 times", window_width_px * 0.25f, window_height_px * 0.48f, 0.8f, vec3(1), mat4(1));
+    renderSystem.renderText("hold to restore health up to 3 times", window_width_px * 0.25f, window_height_px * 0.48f, 0.8f, vec3(1), mat4(1));
 
     renderSystem.renderText("after defeating the Flame Chicken", window_width_px * 0.3f, window_height_px * 0.33f, 0.6f, vec3(1), mat4(1));
 
