@@ -510,6 +510,7 @@ void WorldSystem::handle_collisions() {
         // gaurd against moving platform and flying goombas because i'm tired
         if (registry.grounds.has(entity_other) && !(registry.movingPlatform.has(entity_other) && registry.flyingGoombaAnimations.has(entity))) {
             if (direction.x != 0 && thisMotion.velocity.x != 0) {
+                thisMotion.velocity.x = 0;
                 thisMotion.position.x -= overlap.x;
             } 
             if (direction.y != 0) {
