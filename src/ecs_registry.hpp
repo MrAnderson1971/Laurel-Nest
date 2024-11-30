@@ -48,6 +48,8 @@ public:
     ComponentContainer<Patrol_AI> patrol_ais;
 
     ComponentContainer<Pelican> pelican;
+    ComponentContainer<Elder> elder;
+    ComponentContainer<Kat> kat;
 
     ComponentContainer<Room> rooms;
     ComponentContainer<Connection> doors;
@@ -102,6 +104,8 @@ public:
         registry_list.push_back(&swordPowerUp);
         registry_list.push_back(&menuItems);
         registry_list.push_back(&pelican);
+        registry_list.push_back(&elder);
+        registry_list.push_back(&kat);
         registry_list.push_back(&walls);
     }
 
