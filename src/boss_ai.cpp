@@ -3,10 +3,14 @@
 #include "components.hpp"
 #include <iostream>
 
+#include "cutscene.hpp"
+
 // Ecah struct below reprsenets a state transition
 
 float can_peck_timer = 0.5f;
 float last_peck = 0;
+
+
 
 
 enum class STATE {
@@ -38,10 +42,17 @@ constexpr float DEATH_CHICKEN_HEIGHT = 0.6f * 565.f;
 bool walkLeft = false;
 bool walkRight = false;
 
+bool superFlameDone = false;
 
-//bool canSuperFlame(Motion chickenMotion, Motion playerMotion){
-//
-//}
+
+bool canSuperFlame(Motion chickenMotion, Motion playerMotion){
+    Health health = registry.healths.get(chicken);
+    if(!superFlameDone && health.current_health <= 5){
+        superFlameDone = true;
+        return true;
+    }
+    return false;
+}
 
 bool canWalk(Motion& chickenMotion, Motion& playerMotion) {
 	if ((playerMotion.position.x <= renderSystem.getWindowWidth() / 3.f &&
@@ -213,10 +224,34 @@ void BossAISystem::step(Entity player, float elapsed_time) {
 				current_state = STATE::FLAME;
 				a.setState(CHICKEN_FLAME);
 				flame_cooldown = 600;
-				flame_attack(renderSystem.getWindowWidth() / 6.f);
-				flame_attack(renderSystem.getWindowWidth() / 3.f);
-				// flame_attack(renderSystem.getWindowWidth() * (2.f/3.f));
-				flame_attack(renderSystem.getWindowWidth() * (5.f / 6.f));
+                if(canSuperFlame(chickenMotion, playerMotion)){
+
+                    float pos1 = chickenMotion.position.x - 100.f;
+                    float pos2 = chickenMotion.position.x - 200.f;
+                    float pos3 = chickenMotion.position.x - 300.f;
+                    float pos4 = chickenMotion.position.x - 400.f;
+                    float pos5 = chickenMotion.position.x - 500.f;
+                    if(pos1 != playerMotion.position.x){
+                        flame_attack(pos1);
+                    }
+                    if(pos2 != playerMotion.position.x){
+                        flame_attack(pos2);
+                    }
+                    if(pos3 != playerMotion.position.x){
+                        flame_attack(pos3);
+                    }
+                    if(pos4 != playerMotion.position.x){
+                        flame_attack(pos4);
+                    }
+                    if(pos5 != playerMotion.position.x){
+                        flame_attack(pos5);
+                    }
+                }else{
+                    flame_attack(renderSystem.getWindowWidth() / 6.f);
+                    flame_attack(renderSystem.getWindowWidth() / 3.f);
+                    // flame_attack(renderSystem.getWindowWidth() * (2.f/3.f));
+                    flame_attack(renderSystem.getWindowWidth() * (5.f / 6.f));
+                }
 			}
 
 		}
@@ -336,7 +371,7 @@ void BossAISystem::render() {
 	}
 }
 
-void BossAISystem::chicken_get_damaged(Entity weapon, bool& isDead) {
+void BossAISystem::chicken_get_damaged(Entity weapon, bool& isDead, bool& a_pressed, bool& d_pressed, Entity& player) {
 	Health& chicken_health = registry.healths.get(chicken);
 	Damage& weapon_damage = registry.damages.get(weapon);
 	// if (chicken_health.current_health - weapon_damage.damage_dealt >= 0) {
@@ -354,9 +389,12 @@ void BossAISystem::chicken_get_damaged(Entity weapon, bool& isDead) {
 		if (chicken_health.current_health <= 0) {
 			registry.damages.remove(chicken);
 			isDead = true;
-			// TODO: SOMEHOW REMOVE THE MUSIC I (JETT) DONT KNOW HOW TO DO THAT
+			a_pressed = false;
+			d_pressed = false;
+			registry.motions.get(player).velocity.x = 0;
 			Mix_HaltMusic();
 			registry.gravity.emplace(chicken, Gravity());
+			renderSystem.getGameStateManager()->pauseState<PickupCutscene>();
 		}
 	}
 }

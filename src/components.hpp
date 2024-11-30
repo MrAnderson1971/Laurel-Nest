@@ -32,7 +32,7 @@ enum PlayerState {
     WALKING,
     ATTACKING,
     JUMPING,
-    HIT
+    HIT,
 };
 
 enum ChickenState {
@@ -47,6 +47,7 @@ enum ChickenState {
 enum FlyingGoombaState {
     FLYING_GOOMBA_IDLE,
     FLYING_GOOMBA_CHARGE,
+    FLYING_GOOMBA_THROW_PROJECTILE,
     FLYING_GOOMBA_HIT,
     FLYING_GOOMBA_DEAD
 };
@@ -162,8 +163,15 @@ struct SavePoint
 
 };
 
+// NPCs
 struct Pelican {
     bool isAlive;
+};
+
+struct Elder {
+};
+
+struct Kat {
 };
 
 // A timer that will be associated to when the player can get damaged again 
@@ -176,18 +184,27 @@ struct ProjectileTimer
 {
     float max_time;
     float elapsed_time;
+    
+};
+
+struct HealTimer
+{
+    float max_time = 499;
+    float elapsed_time = max_time;
 };
 
 enum class ProjectileType {
     FIREBALL,
-    SPIT
+    SPIT,
+    SPEAR
 };
 
 struct GoombaFlyingState {
     FlyingGoombaState current_state;
-    FlyingGoombaState last_state;
+    FlyingGoombaState last_attack;
     bool detectedPlayer = false;
     bool can_charge = false;
+    bool can_throw_projectile = false;
     bool animationDone = false;
     float idle_flying_altitude;
 };
@@ -342,7 +359,9 @@ enum class TEXTURE_ASSET_ID {
     DOOR,                                 // Door.PNG
     BMT_BG,                               // BMTown_bg.PNG
     CP_WALL,
+    CP_WALL_SHORT,
     BMT_WALL,
+    BMT_WALL_SHORT,
     BIRDMAN_CHARGE,
     BIRDMAN_DEAD,
     BIRDMAN_HIT,
@@ -356,6 +375,13 @@ enum class TEXTURE_ASSET_ID {
     PELICAN_IDLE,
     PELICAN_TALK,
     EXTRA_HEART,                          // extra_heart.png
+    ARROW,                              // arrow.png
+    SWORD_POWERUP,
+    GREATBIRD_PLATFORM,
+    GREATBIRD_IDLE,
+    BIRDMAN_ELDER,
+    OGRE_KAT_1,
+    OGRE_KAT_2,
     TEXTURE_COUNT                         // Count of all textures
 };
 constexpr int texture_count = static_cast<int>(TEXTURE_ASSET_ID::TEXTURE_COUNT);
