@@ -583,14 +583,14 @@ void WorldSystem::handle_collisions() {
                         change = -200;
                     }
                     else if (registry.hostiles.get(entity_other).type == HostileType::GOOMBA_LAND) {
-                        change = -200;
+                        change = -150;
                     }
                 }else {
                     if (registry.hostiles.get(entity_other).type == HostileType::GOOMBA_FLYING) {
                         change = 200;
                     }
                     else if (registry.hostiles.get(entity_other).type == HostileType::GOOMBA_LAND) {
-                        change = 200;
+                        change = 150;
                     }
                 }
                 m_fying_goomba.position.x = m_wall.position.x + change;
