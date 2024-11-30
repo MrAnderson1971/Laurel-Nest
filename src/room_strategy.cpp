@@ -241,6 +241,13 @@ Entity CPRoom3Strategy::execute() {
     // platform 2: bottom
     Entity m_platform2 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.77f, 0.6f);
 
+    //Enemies
+    Entity m_platform_g1 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.3f, 0.f, 0.f);
+    GoombaCeiling g1 = GoombaCeiling();
+    g1.init((0.3f * renderSystem.getWindowWidth()), (0.07f * renderSystem.getWindowHeight()));
+    g1.set_spit_timer(0.7f);
+
+
     // note on bg: don't add motion
     registry.grounds.emplace(m_wall_left, std::move(Ground()));
     registry.grounds.emplace(m_wall_right, std::move(Ground()));
@@ -266,6 +273,8 @@ Entity CPRoom3Strategy::execute() {
     room.insert(m_platform1);
     room.insert(m_platform2);
     room.insert(m_heart);
+    room.insert(g1.entity);
+    room.insert(m_platform_g1);
     room.setMusic(Mix_LoadMUS(audio_path("cesspit.wav").c_str()));
     registry.rooms.emplace(m_room3, std::move(room));
     return m_room3;
