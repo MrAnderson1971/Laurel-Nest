@@ -1065,10 +1065,11 @@ Entity NPCRoom3Strategy::execute() {
     Room room;
 
     // background
-    Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_BG));
+    Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::LN_BG));
 
-    // wall
-    Entity m_wall = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL), 1.f, 0.6f, 0.6f, 0.01f, 500.f);
+    // arrows
+    Entity m_arrow_ln1 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), -0.3f, 0.3f, 0.05f, 0.87f, 0.f);
+    Entity m_arrow_boss = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), 0.3f, 0.3f, 0.95f, 0.87f, 0.f);
 
     // ceiling
     Entity m_ceiling = SetCeiling(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_CEILING), 0.5f);
@@ -1077,13 +1078,14 @@ Entity NPCRoom3Strategy::execute() {
     Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 0.5f, 0.5f, 0.0f);
 
     // note on bg: don't add motion
-    registry.grounds.emplace(m_wall, std::move(Ground()));
     registry.grounds.emplace(m_ground, std::move(Ground()));
-
+    registry.grounds.emplace(m_arrow_ln1, std::move(Ground()));
+    registry.grounds.emplace(m_arrow_boss, std::move(Ground()));
 
     room.insert(m_bg);
-    room.insert(m_wall);
     room.insert(m_ceiling);
+    room.insert(m_arrow_ln1);
+    room.insert(m_arrow_boss);
     room.insert(m_ground);
 
     registry.rooms.emplace(m_room, std::move(room));
