@@ -174,7 +174,12 @@ bool playerMeshCollide(Entity player, Entity other, vec2& direction, vec2& overl
             direction = vec2((minOverlapAxis.x > 0) ? 1.0f : -1.0f, 0.0f);
         }
         else {
-            direction = vec2(0.0f, (minOverlapAxis.y > 0) ? 1.0f : -1.0f);
+            if (motion1.position.y < motion.position.y) {
+                direction = vec2(0.0f, 1.0f);
+            }
+            else {
+                direction = vec2(0.0f, -1.0f);
+            }
         }
         overlap = direction * minOverlap;
         return true;

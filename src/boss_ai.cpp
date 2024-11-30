@@ -369,7 +369,7 @@ void BossAISystem::render() {
 	}
 }
 
-void BossAISystem::chicken_get_damaged(Entity weapon, bool& isDead) {
+void BossAISystem::chicken_get_damaged(Entity weapon, bool& isDead, bool& a_pressed, bool& d_pressed, Entity& player) {
 	Health& chicken_health = registry.healths.get(chicken);
 	Damage& weapon_damage = registry.damages.get(weapon);
 	// if (chicken_health.current_health - weapon_damage.damage_dealt >= 0) {
@@ -387,7 +387,9 @@ void BossAISystem::chicken_get_damaged(Entity weapon, bool& isDead) {
 		if (chicken_health.current_health <= 0) {
 			registry.damages.remove(chicken);
 			isDead = true;
-			// TODO: SOMEHOW REMOVE THE MUSIC I (JETT) DONT KNOW HOW TO DO THAT
+			a_pressed = false;
+			d_pressed = false;
+			registry.motions.get(player).velocity.x = 0;
 			Mix_HaltMusic();
 			registry.gravity.emplace(chicken, Gravity());
 			renderSystem.getGameStateManager()->pauseState<PickupCutscene>();

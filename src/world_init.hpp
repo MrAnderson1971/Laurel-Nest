@@ -2,6 +2,7 @@
 #include <unordered_map>
 #include <iomanip>
 #include <sstream>
+#include <components.hpp>
 
 inline std::unordered_map<TEXTURE_ASSET_ID, std::string> createTextureAssetMap() {
     return {
@@ -76,6 +77,9 @@ inline std::unordered_map<TEXTURE_ASSET_ID, std::string> createTextureAssetMap()
         {TEXTURE_ASSET_ID::ARROW, "arrow.PNG"},
         {TEXTURE_ASSET_ID::SWORD_POWERUP, "sword_powerup.png"},
         {TEXTURE_ASSET_ID::GREATBIRD_PLATFORM, "greatbird_platform.PNG"},
+        {TEXTURE_ASSET_ID::BIRDMAN_ELDER, "BirdmanElder.png"},
+        {TEXTURE_ASSET_ID::OGRE_KAT_1, "kat1.png"},
+        {TEXTURE_ASSET_ID::OGRE_KAT_2, "kat2.png"},
         {TEXTURE_ASSET_ID::GREATBIRD_IDLE, "greatbird_idle.PNG"},
     };
 }
