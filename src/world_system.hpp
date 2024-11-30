@@ -66,6 +66,8 @@ public:
 	void handle_pelican();
 	void handle_bmt3();
 
+	void draw_npc_interact(Entity obj);
+
 	Entity switch_map();
 
 private:
@@ -123,9 +125,13 @@ private:
 	glm::mat4 font_trans;
 
 	// NPC stuff
-	bool pelican_talk = false;
 	bool skip_dialogue = false;
+
+	bool pelican_talk = false;
+	// move these into components
 	int pelicanIndex = 0;
+	int ogreTimer = 0;
+	int ogreCount = 0;
 
 	bool continue_music = true;
 	bool do_save = false;

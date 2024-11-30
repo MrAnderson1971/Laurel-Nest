@@ -196,9 +196,6 @@ void WorldSystem::init() {
     if (!(footstep_sound && sword_sound && hurt_sound && save_sound && gun_click_sound && flame_beak_shoot_sound && heal_sound)) {
         std::cerr << "Failed to load WAV file: " << Mix_GetError() << std::endl;
     }
-    Room& r = registry.rooms.get(current_room);
-    std::shared_ptr<Mix_Music> music = r.music;
-    Mix_PlayMusic(music.get(), 1);
 }
 
 void WorldSystem::update(float deltaTime) {
@@ -241,6 +238,14 @@ void WorldSystem::update(float deltaTime) {
 
     // Update physics, modify gamestate to handle this elsewhere
     physics.step(deltaTime);
+
+    // update music
+    if (continue_music && registry.rooms.has(current_room)) {
+        Room& r = registry.rooms.get(current_room);
+        std::shared_ptr<Mix_Music> music = r.music;
+        Mix_PlayMusic(music.get(), 1);
+        continue_music = false;
+    }
 }
 
 void WorldSystem::handle_connections(float deltaTime) {
@@ -265,23 +270,23 @@ void WorldSystem::handle_connections(float deltaTime) {
                         next_map = current_room;
                         current_room = next_room;
                     }
-                    AISystem::init_aim();
                     physics.setRoom(current_room);
+                    AISystem::init_aim();
+                    
                     // set spawn point of player in new room
                     playerMotion.position = connection.nextSpawn;
+
+                    // handle music
                     Room& r = registry.rooms.get(current_room);
                     std::shared_ptr<Mix_Music> music = r.music;
-                    if (music != nullptr && !isChickenDead && r.id == ROOM_ID::CP_BOSS) { // Begrudgingly putting this condition here so it only plays when the boss isn't dead.
-                        Mix_PlayMusic(music.get(), 1); // TODO: make it more scalable in the future because we can't keep this up.
+                    if (music != nullptr &&  r.id == ROOM_ID::CP_BOSS && !isChickenDead) {
+                        Mix_PlayMusic(music.get(), 1);
+                        continue_music = true;
                     }
-                    else if (music != nullptr && isChickenDead && r.id != ROOM_ID::CP_BOSS && continue_music) {
-                        continue_music = false;
+                    // No need to check if boss is alive, the game ends when it dies
+                    if (music != nullptr && r.id == ROOM_ID::LN_BOSS) {
                         Mix_PlayMusic(music.get(), 1);
                     }
-                    else {
-                        
-                    }
-                //}
             }
         }
     }
@@ -897,27 +902,29 @@ void WorldSystem::render() {
             }
         }
 
-        // TODO KUTER
-        // Draw npcs
+        // Draw Pelican
         if (registry.pelican.has(obj) && registry.transforms.has(obj) && registry.sprites.has(obj)) {
             auto& transform = registry.transforms.get(obj);
             auto& sprite = registry.sprites.get(obj);
             renderSystem.drawEntity(sprite, transform);
+            draw_npc_interact(obj);
+        }
+        // Draw Elder
+        if (registry.elder.has(obj) && registry.transforms.has(obj) && registry.sprites.has(obj)) {
+            auto& transform = registry.transforms.get(obj);
+            auto& sprite = registry.sprites.get(obj);
+            renderSystem.drawEntity(sprite, transform);
+            draw_npc_interact(obj);
+        }
 
-            // check if the player is within range of the savepoint
-            Motion player_motion = registry.motions.get(m_player);
-            Motion npc_point_motion = registry.motions.get(obj);
-            float npc_point_lower_bound_x = npc_point_motion.position.x - npc_point_motion.scale.x;
-            float npc_point_upper_bound_x = npc_point_motion.position.x + npc_point_motion.scale.x;
-            float npc_point_lower_bound_y = npc_point_motion.position.y - npc_point_motion.scale.y;
-            float npc_point_upper_bound_y = npc_point_motion.position.y + npc_point_motion.scale.y;
-            if (npc_point_lower_bound_x <= player_motion.position.x && player_motion.position.x < npc_point_upper_bound_x
-                && npc_point_lower_bound_y < player_motion.position.y && player_motion.position.y < npc_point_upper_bound_y) {
-                double position_x = npc_point_motion.position.x - 75.f;
-                double position_y = renderSystem.getWindowHeight() - npc_point_motion.position.y - 140.f;
-                renderSystem.renderText("Press T To Talk", static_cast<float>(position_x), static_cast<float>(position_y),
-                    0.5f, font_color, font_trans);                
-            }
+        // Draw Ogre
+        if (registry.kat.has(obj) && registry.transforms.has(obj) && registry.sprites.has(obj)) {
+            auto& transform = registry.transforms.get(obj);
+            auto& sprite = registry.sprites.get(obj);
+            
+            renderSystem.drawEntity(sprite, transform);
+            draw_npc_interact(obj);
+            
         }
 
         GoombaLogic::goomba_flying_render(obj);
@@ -1161,7 +1168,7 @@ void WorldSystem::useFlameThrower() {
    registry.transforms.emplace(m_fireball, std::move(fireballTransform));
 
    Damage fireballDamage;
-   fireballDamage.damage_dealt = 5;
+   fireballDamage.damage_dealt = 2;
    registry.damages.emplace(m_fireball, fireballDamage);
 
    BoundingBox fireballBB;
@@ -1494,5 +1501,22 @@ void WorldSystem::write_to_save_file() {
     }
     else {
         std::cout << "Couldnt write to save file \n";
+    }
+}
+
+void WorldSystem::draw_npc_interact(Entity obj) {
+    // check if the player is within range of the savepoint
+    Motion player_motion = registry.motions.get(m_player);
+    Motion npc_point_motion = registry.motions.get(obj);
+    float npc_point_lower_bound_x = npc_point_motion.position.x - npc_point_motion.scale.x;
+    float npc_point_upper_bound_x = npc_point_motion.position.x + npc_point_motion.scale.x;
+    float npc_point_lower_bound_y = npc_point_motion.position.y - npc_point_motion.scale.y;
+    float npc_point_upper_bound_y = npc_point_motion.position.y + npc_point_motion.scale.y;
+    if (npc_point_lower_bound_x <= player_motion.position.x && player_motion.position.x < npc_point_upper_bound_x
+        && npc_point_lower_bound_y < player_motion.position.y && player_motion.position.y < npc_point_upper_bound_y) {
+        double position_x = npc_point_motion.position.x - 75.f;
+        double position_y = renderSystem.getWindowHeight() - npc_point_motion.position.y - 140.f;
+        renderSystem.renderText("Press T To Talk", static_cast<float>(position_x), static_cast<float>(position_y),
+            0.5f, font_color, font_trans);
     }
 }

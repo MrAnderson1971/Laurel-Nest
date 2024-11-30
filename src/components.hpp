@@ -161,8 +161,15 @@ struct SavePoint
 
 };
 
+// NPCs
 struct Pelican {
     bool isAlive;
+};
+
+struct Elder {
+};
+
+struct Kat {
 };
 
 // A timer that will be associated to when the player can get damaged again 
@@ -368,6 +375,9 @@ enum class TEXTURE_ASSET_ID {
     SWORD_POWERUP,
     GREATBIRD_PLATFORM,
     GREATBIRD_IDLE,
+    BIRDMAN_ELDER,
+    OGRE_KAT_1,
+    OGRE_KAT_2,
     TEXTURE_COUNT                         // Count of all textures
 };
 constexpr int texture_count = static_cast<int>(TEXTURE_ASSET_ID::TEXTURE_COUNT);
