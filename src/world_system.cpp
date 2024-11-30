@@ -618,7 +618,7 @@ void WorldSystem::handle_collisions() {
                 if (registry.bosses.has(entity_other)) {
                     Boss& boss = registry.bosses.get(entity_other);
                     boss.boxType = BoxType::HIT_BOX;
-                    BossAISystem::chicken_get_damaged(m_sword, isChickenDead);
+                    BossAISystem::chicken_get_damaged(m_sword, isChickenDead, a_pressed, d_pressed, m_player);
                 } else {
                     GoombaLogic::goomba_get_damaged(entity_other, m_sword);
                 }
@@ -649,7 +649,7 @@ void WorldSystem::handle_collisions() {
             if (registry.bosses.has(entity_other)) {
                 Boss& boss = registry.bosses.get(entity_other);
                 boss.boxType = BoxType::BODY_BOX;
-                BossAISystem::chicken_get_damaged(entity, isChickenDead);
+                BossAISystem::chicken_get_damaged(entity, isChickenDead, a_pressed, d_pressed, m_player);
                 registry.remove_all_components_of(entity);
             }
         }
