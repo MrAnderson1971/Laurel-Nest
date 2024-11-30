@@ -7,6 +7,7 @@
 #include "world_system.hpp"
 #include "serialize.hpp"
 
+
 Entity CPEntranceRoomStrategy::execute() {
     Entity m_entrance_room;
     // for handling transitions
@@ -112,22 +113,9 @@ Entity CPRoom1Strategy::execute() {
     registry.grounds.emplace(m_ground, std::move(Ground()));
     registry.grounds.emplace(m_platform1, std::move(Ground()));
     registry.grounds.emplace(m_platform2, std::move(Ground()));
-    
 
-    //GoombaLand g1 = GoombaLand();
-    //g1.init(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight()* 4.f / 5.f);
-
-    GoombaSwarm gs1 = GoombaSwarm();
-    gs1.init(renderSystem.getWindowWidth() * 0.5f - 10.f, renderSystem.getWindowHeight() * 0.5f + 5.f);
-
-    GoombaSwarm gs2 = GoombaSwarm();
-    gs2.init(renderSystem.getWindowWidth() * 0.5f -5.f , renderSystem.getWindowHeight() * 0.5f - 10.f);
-
-    GoombaSwarm gs3 = GoombaSwarm();
-    gs3.init(renderSystem.getWindowWidth() * 0.5f +5.f, renderSystem.getWindowHeight() * 0.5f +10.f);
-
-    GoombaSwarm gs4 = GoombaSwarm();
-    gs4.init(renderSystem.getWindowWidth() * 0.5f + 10.f , renderSystem.getWindowHeight() * 0.5f - 5.f);
+    GoombaLand g1 = GoombaLand();
+    g1.init(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight()* 4.f / 5.f);
 
     room.insert(m_bg);
     room.insert(m_arrow_en);
@@ -138,16 +126,6 @@ Entity CPRoom1Strategy::execute() {
     room.insert(m_platform1);
     room.insert(m_platform2);
     //room.insert(g1.entity);
-    room.insert(gs1.entity);
-    room.insert(gs2.entity);
-    room.insert(gs3.entity);
-    room.insert(gs4.entity);
-
-    room.insert_swarm_goomba(gs1.entity);
-    room.insert_swarm_goomba(gs2.entity);
-    room.insert_swarm_goomba(gs3.entity);
-    room.insert_swarm_goomba(gs4.entity);
-
 
     room.setMusic(Mix_LoadMUS(audio_path("cesspit.wav").c_str()));
     registry.rooms.emplace(m_room1, std::move(room));
@@ -284,6 +262,49 @@ Entity CPRoom3Strategy::execute() {
     room.insert(m_platform2);
     room.insert(m_heart);
     room.setMusic(Mix_LoadMUS(audio_path("cesspit.wav").c_str()));
+
+    GoombaSwarm gs1 = GoombaSwarm();
+    gs1.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() - 200) * uniform_dist(rng));
+
+    GoombaSwarm gs2 = GoombaSwarm();
+    gs2.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() - 200) * uniform_dist(rng));
+
+    GoombaSwarm gs3 = GoombaSwarm();
+    gs3.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() - 200) * uniform_dist(rng));
+
+    GoombaSwarm gs4 = GoombaSwarm();
+    gs4.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() - 200) * uniform_dist(rng));
+
+    GoombaSwarm gs5 = GoombaSwarm();
+    gs5.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() - 200) * uniform_dist(rng));
+
+    GoombaSwarm gs6 = GoombaSwarm();
+    gs6.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() - 200) * uniform_dist(rng));
+
+    GoombaSwarm gs7 = GoombaSwarm();
+    gs7.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() - 200) * uniform_dist(rng));
+
+    GoombaSwarm gs8 = GoombaSwarm();
+    gs8.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() - 200) * uniform_dist(rng));
+
+    room.insert(gs1.entity);
+    room.insert(gs2.entity);
+    room.insert(gs3.entity);
+    room.insert(gs4.entity);
+    room.insert(gs5.entity);
+    room.insert(gs6.entity);
+    room.insert(gs7.entity);
+    room.insert(gs8.entity);
+
+    room.insert_swarm_goomba(gs1.entity);
+    room.insert_swarm_goomba(gs2.entity);
+    room.insert_swarm_goomba(gs3.entity);
+    room.insert_swarm_goomba(gs4.entity);
+    room.insert_swarm_goomba(gs5.entity);
+    room.insert_swarm_goomba(gs6.entity);
+    room.insert_swarm_goomba(gs7.entity);
+    room.insert_swarm_goomba(gs8.entity);
+
     registry.rooms.emplace(m_room3, std::move(room));
     return m_room3;
 }
@@ -771,48 +792,7 @@ Entity BMTRoom3Strategy::execute() {
     // room.insert(gf2.entity);
     //room.insert(gc2.entity);
   //  room.insert(gc3.entity);
-    GoombaSwarm gs1 = GoombaSwarm();
-    gs1.init(renderSystem.getWindowWidth() * 0.5f - 300.f, renderSystem.getWindowHeight() * 0.5f + 50.f);
-
-    GoombaSwarm gs2 = GoombaSwarm();
-    gs2.init(renderSystem.getWindowWidth() * 0.5f - 100.f, renderSystem.getWindowHeight() * 0.5f - 400.f);
-
-    GoombaSwarm gs3 = GoombaSwarm();
-    gs3.init(renderSystem.getWindowWidth() * 0.5f + 50.f, renderSystem.getWindowHeight() * 0.5f + 450.f);
-
-    GoombaSwarm gs4 = GoombaSwarm();
-    gs4.init(renderSystem.getWindowWidth() * 0.5f + 500.f, renderSystem.getWindowHeight() * 0.5f - 50.f);
-
-    GoombaSwarm gs5 = GoombaSwarm();
-    gs5.init(renderSystem.getWindowWidth() * 0.5f - 150.f, renderSystem.getWindowHeight() * 0.5f + 85.f);
-
-    GoombaSwarm gs6 = GoombaSwarm();
-    gs6.init(renderSystem.getWindowWidth() * 0.5f - 250.f, renderSystem.getWindowHeight() * 0.5f - 350.f);
-
-    GoombaSwarm gs7 = GoombaSwarm();
-    gs7.init(renderSystem.getWindowWidth() * 0.5f + 99.f, renderSystem.getWindowHeight() * 0.5f + 350.f);
-
-    GoombaSwarm gs8 = GoombaSwarm();
-    gs8.init(renderSystem.getWindowWidth() * 0.5f + 650.f, renderSystem.getWindowHeight() * 0.5f - 290.f);
-
-    room.insert(gs1.entity);
-    room.insert(gs2.entity);
-    room.insert(gs3.entity);
-    room.insert(gs4.entity);
-    room.insert(gs5.entity);
-    room.insert(gs6.entity);
-    room.insert(gs7.entity);
-    room.insert(gs8.entity);
-
-    room.insert_swarm_goomba(gs1.entity);
-    room.insert_swarm_goomba(gs2.entity);
-    room.insert_swarm_goomba(gs3.entity);
-    room.insert_swarm_goomba(gs4.entity);
-    room.insert_swarm_goomba(gs5.entity);
-    room.insert_swarm_goomba(gs6.entity);
-    room.insert_swarm_goomba(gs7.entity);
-    room.insert_swarm_goomba(gs8.entity);
-
+    
 
     room.setMusic(Mix_LoadMUS(audio_path("cesspit.wav").c_str()));
 

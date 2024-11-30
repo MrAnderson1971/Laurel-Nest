@@ -1,6 +1,7 @@
 #pragma once
 #include "common.hpp"
 #include <memory>
+#include <random>
 #include "ecs.hpp"
 #include "game_state.hpp"
 #include "render_system.hpp"
@@ -130,6 +131,12 @@ private:
 
 	PhysicsSystem physics; // remove when physics is move to GameState
 
+	
+
 };
 
 extern std::unordered_map<TEXTURE_ASSET_ID, Sprite>* g_texture_paths;
+
+// C++ random number generator
+extern std::default_random_engine rng;
+extern std::uniform_real_distribution<float> uniform_dist; // number between 0..1

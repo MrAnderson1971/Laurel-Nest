@@ -144,14 +144,23 @@ GoombaSwarm::GoombaSwarm() {
 }
 
 void GoombaSwarm::init_sprite() {
-	registry.sprites.emplace(entity, g_texture_paths->at(TEXTURE_ASSET_ID::CEILING_SPIT));
+	registry.sprites.emplace(entity, g_texture_paths->at(TEXTURE_ASSET_ID::GOOMBA_WALK_IDLE));
 }
 
 void GoombaSwarm::init_components(float x, float y) {
+
 	Motion goombaMotion;
 	goombaMotion.position = vec2(x, y);
 	goombaMotion.scale = GOOMBA_CEILING_SPIT_SCALE * 1.5f;
-	goombaMotion.velocity = { TPS , TPS };
+	float v_x = TPS;
+	float v_y = TPS;
+	if (uniform_dist(rng) < 0.5) {
+		v_x *= -1;
+	}
+	if (uniform_dist(rng) < 0.5) {
+		v_y *= -1;
+	}
+	goombaMotion.velocity = { v_x , v_y };
 	goombaMotion.old_velocity = goombaMotion.velocity;
 	registry.motions.emplace(entity, std::move(goombaMotion));
 

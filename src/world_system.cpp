@@ -24,6 +24,8 @@ bool Show_FPS = true;
 bool isChickenDead = false;
 bool start_from_checkpoint = false;
 std::unordered_map<TEXTURE_ASSET_ID, Sprite>* g_texture_paths = nullptr;
+std::default_random_engine rng = std::default_random_engine(std::random_device()());
+std::uniform_real_distribution<float> uniform_dist(0, 1);
 
 WorldSystem::WorldSystem() {
     regionManager = std::make_unique<RegionManager>();
@@ -150,9 +152,9 @@ void WorldSystem::init() {
      
     // Initialize the region
     regionManager->init();
-    //current_room = regionManager->setRegion(makeRegion<Cesspit>);
+    current_room = regionManager->setRegion(makeRegion<Cesspit>);
     //testing bmt
-    current_room = regionManager->setRegion(makeRegion<Birdmantown>);
+    //current_room = regionManager->setRegion(makeRegion<Birdmantown>);
     next_map = regionManager->setRegion(makeRegion<Birdmantown>);
     physics.setRoom(current_room);
 
@@ -217,13 +219,14 @@ void WorldSystem::update(float deltaTime) {
             weapon.cooldown -= deltaTime;
         }
     }
-
+    
     GoombaLogic::update_goomba_projectile_timer(deltaTime, current_room);
     GoombaLogic::update_damaged_goomba_sprites(deltaTime);
     AISystem::flying_goomba_step(m_player, current_room, deltaTime);
     AISystem::swarm_goomba_step(current_room);
     BossAISystem::step(m_player, deltaTime);
     BossAISystem::update_damaged_chicken_sprites(deltaTime);
+    
 
     // look for specific rooms with restrictions
     if (registry.rooms.has(current_room) && registry.rooms.get(current_room).id == ROOM_ID::BMT_3 && !registry.rooms.get(current_room).clear) {
@@ -352,11 +355,12 @@ void WorldSystem::handle_motions(float deltaTime) {
             }
 
             // Guard against the swarm goombas for flying out of the top of the screen
-            if (m.position[1] < 0 && registry.hostiles.has(entity) && registry.hostiles.get(entity).type == HostileType::GOOMBA_SWARM) {
-                m.position[1] = 0;
-                m.velocity.y = 0;
+            if (m.position[1] < 25 && registry.hostiles.has(entity) && registry.hostiles.get(entity).type == HostileType::GOOMBA_SWARM) {
+                m.position[1] = 25;
+                if (m.velocity.y < 0) {
+                    m.velocity.y *= -1;;
+                }
             }
-
 
             m.position[0] = clamp(m.position[0], 0, window_width_px);
 
@@ -523,7 +527,6 @@ void WorldSystem::handle_collisions() {
                     // Downward collision
                     thisMotion.position.y -= overlap.y;
                     thisMotion.velocity.y = 0;
-
                     if (registry.players.has(entity)) {
                         // Player has collided with the ground
                         isGrounded = true;
@@ -548,6 +551,13 @@ void WorldSystem::handle_collisions() {
             }
         }
 
+        if (registry.hostiles.has(entity) && registry.hostiles.get(entity).type == HostileType::GOOMBA_SWARM
+            && registry.grounds.has(entity_other)) {
+            if (thisMotion.velocity.y > 0) {
+                thisMotion.velocity.y *= -1;
+            }
+        }
+
         if(registry.walls.has(entity) && registry.patrol_ais.has(entity_other)){
             Patrol_AI& patrol = registry.patrol_ais.get(entity_other);
             Motion& m_goomba = registry.motions.get(entity_other);
@@ -569,10 +579,10 @@ void WorldSystem::handle_collisions() {
             float change = 0;
             if (registry.hostiles.get(entity_other).type == HostileType::GOOMBA_SWARM) {
                 if (signof(goomba_motion.velocity.x)) {
-                    goomba_motion.position.x = m_wall.position.x + 100;
+                    goomba_motion.position.x = m_wall.position.x + 75;
                 }
                 else {
-                    goomba_motion.position.x = m_wall.position.x - 100;
+                    goomba_motion.position.x = m_wall.position.x - 75;
                 }
             }
             else if (registry.hostiles.get(entity_other).type == HostileType::GOOMBA_FLYING) {
@@ -615,7 +625,7 @@ void WorldSystem::handle_collisions() {
                     boss.boxType = BoxType::HIT_BOX;
                     BossAISystem::chicken_get_damaged(m_sword, isChickenDead);
                 } else {
-                    GoombaLogic::goomba_get_damaged(entity_other, m_sword);
+                    GoombaLogic::goomba_get_damaged(entity_other, m_sword, current_room);
                 }
                 if (!registry.invinciblityTimers.has(m_player)) {
                     InvincibilityTimer& timer = registry.invinciblityTimers.emplace(m_player);
@@ -637,8 +647,10 @@ void WorldSystem::handle_collisions() {
         if (registry.projectiles.has(entity) && registry.projectiles.get(entity).type == ProjectileType::FIREBALL && isFlameThrowerEquipped) {
             if (registry.hostiles.has(entity_other) && registry.damages.has(entity)) {
                 if (registry.healths.has(entity_other) && registry.healths.get(entity_other).current_health > 0) {
-                    GoombaLogic::goomba_get_damaged(entity_other, entity);
-                    registry.remove_all_components_of(entity);  // Remove fireball upon hit
+                    GoombaLogic::goomba_get_damaged(entity_other, entity, current_room);
+                    if (registry.hostiles.get(entity_other).type != HostileType::GOOMBA_SWARM) {
+                        registry.remove_all_components_of(entity);  // Remove fireball upon hit unless its a swarm goomba
+                    }
                 }
             }
             if (registry.bosses.has(entity_other)) {
@@ -665,8 +677,9 @@ void WorldSystem::handle_collisions() {
         }
 
         // Once the ceiling goomba is dead. change its sprite to the dead sprite
-        if (registry.hostiles.has(entity) && registry.hostiles.get(entity).type == HostileType::GOOMBA_CEILING && !registry.healths.has(entity) && registry.grounds.has(entity_other)) {
-            GoombaLogic::goomba_ceiling_splat(entity);
+        if (registry.hostiles.has(entity) && (registry.hostiles.get(entity).type == HostileType::GOOMBA_CEILING || registry.hostiles.get(entity).type == HostileType::GOOMBA_SWARM) &&
+            !registry.healths.has(entity) && registry.grounds.has(entity_other)) {
+            GoombaLogic::goomba_ceiling_swarm_splat(entity);
         }
 
         // handle extra heart powerup, restore all health and remove heart entity
