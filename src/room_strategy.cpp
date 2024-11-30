@@ -163,9 +163,9 @@ Entity CPRoom2Strategy::execute() {
     Entity m_platform4 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.58f, 0.85f);
 
     // Ceiling Goomba
-    Entity m_platform_g1 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.5f, 0.f, 0.f);
+    Entity m_platform_g1 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.47f, 0.f, 0.f);
     GoombaCeiling g1 = GoombaCeiling();
-    g1.init(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() * 0.07f);
+    g1.init(renderSystem.getWindowWidth() * 0.47f, renderSystem.getWindowHeight() * 0.07f);
     g1.set_spit_timer(1.f);
 
     // note on bg: don't add motion
