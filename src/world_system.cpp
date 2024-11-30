@@ -338,6 +338,7 @@ void WorldSystem::handle_motions(float deltaTime) {
             }
             else {
                 if (registry.rooms.has(current_room) && registry.rooms.get(current_room).has(entity)) {
+                    //registry.list_all_components_of(entity);
                     m.position += m.velocity * deltaTime;
                 }
             }
@@ -512,7 +513,11 @@ void WorldSystem::handle_collisions() {
             auto projectileType2 = registry.projectiles.get(entity_other).type;
 
             if ((projectileType1 == ProjectileType::SPIT && projectileType2 == ProjectileType::FIREBALL) ||
-                (projectileType1 == ProjectileType::FIREBALL && projectileType2 == ProjectileType::SPIT)) {
+                (projectileType1 == ProjectileType::FIREBALL && projectileType2 == ProjectileType::SPIT) || 
+                (projectileType1 == ProjectileType::SPIT && projectileType2 == ProjectileType::SPEAR) ||
+                (projectileType1 == ProjectileType::SPEAR && projectileType2 == ProjectileType::SPIT) ||
+                (projectileType1 == ProjectileType::FIREBALL && projectileType2 == ProjectileType::SPEAR) ||
+                (projectileType1 == ProjectileType::SPEAR && projectileType2 == ProjectileType::FIREBALL)) {
                 continue;
             }
         }
@@ -564,22 +569,9 @@ void WorldSystem::handle_collisions() {
             }
         }
 
-        if(registry.walls.has(entity) && registry.patrol_ais.has(entity_other)){
-            Patrol_AI& patrol = registry.patrol_ais.get(entity_other);
-            Motion& m_goomba = registry.motions.get(entity_other);
-            Motion& m_wall = registry.motions.get(entity);
-            float change = 0;
-            bool movingRight = patrol.movingRight;
-            if(movingRight){
-                change = -100;
-            }else {
-                change = 100;
-            }
-            m_goomba.position.x = m_wall.position.x + change;
-            patrol.movingRight = !patrol.movingRight;
-        }
 
-        if(registry.walls.has(entity) && registry.hostiles.has(entity_other) && registry.hostiles.get(entity_other).type == HostileType::GOOMBA_FLYING){
+        // Handle the goombas when they collide with a wall
+        if(registry.walls.has(entity) && registry.hostiles.has(entity_other)){
             Motion& m_fying_goomba = registry.motions.get(entity_other);
             Motion& m_wall = registry.motions.get(entity);
             if(registry.patrol_ais.has(entity_other)){
@@ -587,9 +579,19 @@ void WorldSystem::handle_collisions() {
                 float change = 0;
                 bool movingRight = patrol.movingRight;
                 if(movingRight){
-                    change = -200;
+                    if (registry.hostiles.get(entity_other).type == HostileType::GOOMBA_FLYING) {
+                        change = -200;
+                    }
+                    else if (registry.hostiles.get(entity_other).type == HostileType::GOOMBA_LAND) {
+                        change = -150;
+                    }
                 }else {
-                    change = 200;
+                    if (registry.hostiles.get(entity_other).type == HostileType::GOOMBA_FLYING) {
+                        change = 200;
+                    }
+                    else if (registry.hostiles.get(entity_other).type == HostileType::GOOMBA_LAND) {
+                        change = 150;
+                    }
                 }
                 m_fying_goomba.position.x = m_wall.position.x + change;
                 patrol.movingRight = !patrol.movingRight;
@@ -599,7 +601,7 @@ void WorldSystem::handle_collisions() {
 
         // change the flying goomba's animation when it impacts the ground
         if (registry.hostiles.has(entity) && registry.hostiles.get(entity).type == HostileType::GOOMBA_FLYING 
-            && registry.healths.has(entity) && registry.grounds.has(entity_other) && !registry.movingPlatform.has(entity_other)) {
+            && registry.healths.has(entity) && (registry.grounds.has(entity_other) || registry.doors.has(entity_other)) && !registry.movingPlatform.has(entity_other)) {
             auto& goombaFlyingAnimation = registry.flyingGoombaAnimations.get(entity);
             goombaFlyingAnimation.setState(FlyingGoombaState::FLYING_GOOMBA_IDLE);
             GoombaFlyingState& g_state = registry.goombaFlyingStates.get(entity);
@@ -607,7 +609,7 @@ void WorldSystem::handle_collisions() {
             g_state.animationDone = true;
             Motion& g_motion = registry.motions.get(entity);
             g_motion.scale = GOOMBA_FLYING_FLY_SCALE;
-            g_motion.velocity.x = g_motion.old_velocity.x;
+            //g_motion.velocity.x = g_motion.old_velocity.x;
         }
 
         if (registry.players.has(entity) && registry.damages.has(entity_other)) {
@@ -654,9 +656,9 @@ void WorldSystem::handle_collisions() {
             }
         }
 
-        // Remove the spit attack from ceiling goomba after it has hit the player or the ground
-        if (registry.projectiles.has(entity) && registry.projectiles.get(entity).type == ProjectileType::SPIT
-        && (registry.players.has(entity_other) || registry.grounds.has(entity_other))) {
+        // Remove the spit attack from ceiling goomba or the spear attack from the birdman after it has hit the player or the ground
+        if (registry.projectiles.has(entity) && (registry.projectiles.get(entity).type == ProjectileType::SPIT || registry.projectiles.get(entity).type == ProjectileType::SPEAR)
+        && (registry.players.has(entity_other) || registry.grounds.has(entity_other) || registry.doors.has(entity_other))) {
             registry.remove_all_components_of(entity);
         }
 
@@ -735,7 +737,10 @@ void WorldSystem::handle_ai() {
                     m.velocity.x = 3 * TPS;
                 }
                 else {
-                    m.velocity.x = 1 * TPS;
+                    if (!(registry.hostiles.has(e) && registry.hostiles.get(e).type == HostileType::GOOMBA_FLYING &&
+                        registry.goombaFlyingStates.has(e) && registry.goombaFlyingStates.get(e).current_state == FlyingGoombaState::FLYING_GOOMBA_THROW_PROJECTILE)) {
+                        m.velocity.x = 1 * TPS;
+                    }
                 }
             }
             else {
@@ -743,7 +748,10 @@ void WorldSystem::handle_ai() {
                     m.velocity.x = -3 * TPS;
                 }
                 else {
-                    m.velocity.x = -1 * TPS;
+                    if (!(registry.hostiles.has(e) && registry.hostiles.get(e).type == HostileType::GOOMBA_FLYING &&
+                        registry.goombaFlyingStates.has(e) && registry.goombaFlyingStates.get(e).current_state == FlyingGoombaState::FLYING_GOOMBA_THROW_PROJECTILE)) {
+                        m.velocity.x = -1 * TPS;
+                    }
                 }
             }
         }

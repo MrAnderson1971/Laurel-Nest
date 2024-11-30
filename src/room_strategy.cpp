@@ -735,13 +735,29 @@ Entity BMTRoom3Strategy::execute() {
 
     // ground
     Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 0.5f, 0.5f, 0.0f);
+//    GoombaFlying gf2 = GoombaFlying();
+//    gf2.init(renderSystem.getWindowWidth() * 2.f / 3.f, renderSystem.getWindowHeight() / 3.f);
+//    gf2.set_direction(false);
 
-    GoombaFlying gf1= GoombaFlying();
-    gf1.init(renderSystem.getWindowWidth() - 50.0f, renderSystem.getWindowHeight()/3.f);
+//    GoombaCeiling gc1 = GoombaCeiling();
+//    gc1.init(renderSystem.getWindowWidth() * 1.f / 4.f, gc1.bottom_edge);
+//    gc1.set_spit_timer(2.f);
 
     GoombaFlying gf = GoombaFlying();
     gf.init(renderSystem.getWindowWidth() / 5.f, renderSystem.getWindowHeight() / 6.f);
+    // By default, the initial attack is the charge
+    gf.set_initial_attack(FlyingGoombaState::FLYING_GOOMBA_THROW_PROJECTILE);
 
+    GoombaFlying gf1 = GoombaFlying();
+    gf1.init(renderSystem.getWindowWidth() - 50.0f, renderSystem.getWindowHeight() / 3.f);
+
+    GoombaLand gl1 = GoombaLand();
+    gl1.init(renderSystem.getWindowWidth() / 5.f, renderSystem.getWindowHeight() * (2.f / 3.f));
+
+
+    GoombaLand gl2 = GoombaLand();
+    gl2.init(renderSystem.getWindowWidth() / 2.f, renderSystem.getWindowHeight() / 2.f);
+    gl2.set_direction(false);
 
     // note on bg: don't add motion
     registry.grounds.emplace(m_wall, std::move(Ground()));
@@ -761,6 +777,8 @@ Entity BMTRoom3Strategy::execute() {
     room.insert(m_platform);
     room.insert(gf1.entity);
     room.insert(gf.entity);
+    room.insert(gl1.entity);
+    room.insert(gl2.entity);
     // room.insert(gf2.entity);
     //room.insert(gc2.entity);
   //  room.insert(gc3.entity);

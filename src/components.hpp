@@ -47,6 +47,7 @@ enum ChickenState {
 enum FlyingGoombaState {
     FLYING_GOOMBA_IDLE,
     FLYING_GOOMBA_CHARGE,
+    FLYING_GOOMBA_THROW_PROJECTILE,
     FLYING_GOOMBA_HIT,
     FLYING_GOOMBA_DEAD
 };
@@ -193,14 +194,16 @@ struct HealTimer
 
 enum class ProjectileType {
     FIREBALL,
-    SPIT
+    SPIT,
+    SPEAR
 };
 
 struct GoombaFlyingState {
     FlyingGoombaState current_state;
-    FlyingGoombaState last_state;
+    FlyingGoombaState last_attack;
     bool detectedPlayer = false;
     bool can_charge = false;
+    bool can_throw_projectile = false;
     bool animationDone = false;
     float idle_flying_altitude;
 };
