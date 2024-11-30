@@ -59,6 +59,7 @@ public:
     void renderText(std::string text, float x, float y, float scale, const glm::vec3& color, const glm::mat4& trans);
 
     void doGlassBreakTransition(int count, size_t total);
+    void captureScreen();
 
 private:
     RenderSystem();
@@ -66,6 +67,7 @@ private:
     void loadShaders(const std::string& program, GLuint& shader_program);
     void setupVertices();
     void setupGlassVertices();
+    void setupFrameBuffer();
     std::string readShaderFile(const std::string& filePath);
 
     GLFWwindow* window;
@@ -73,6 +75,7 @@ private:
     GLuint glassShader;
     GLuint VAO, VBO, EBO;
     GLuint glassVAO, glassVBO, glassEBO;
+    GLuint screenFBO, screenTexture;
     glm::mat4 projection;
 
     // font elements

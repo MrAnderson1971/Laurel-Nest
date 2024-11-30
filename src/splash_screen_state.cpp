@@ -3,6 +3,7 @@
 #include "world_system.hpp"
 #include "options_menu.hpp"
 #include "cutscene.hpp"
+#include "serialize.hpp"
 #include <iostream>
 
 SplashScreenState::SplashScreenState() : hasLoaded(false) {}
@@ -46,10 +47,16 @@ void SplashScreenState::init()
 
 void SplashScreenState::on_key(int key, int, int action, int)
 {
-    if (action == GLFW_PRESS && !hasLoaded)
+    SaveFile sf;
+    readFromSaveFile(SAVE_FILE_PATH, sf);
+    if (sf.is_init && action == GLFW_PRESS && !hasLoaded)
     {
         hasLoaded = true;
-        renderSystem.getGameStateManager()->changeState<Cutscene>();
+        renderSystem.getGameStateManager()->changeState<OpeningCutscene>();
+    }
+    else if (action == GLFW_PRESS && !hasLoaded) {
+        hasLoaded = true;
+        renderSystem.getGameStateManager()->changeState<WorldSystem>();
     }
 }
 
@@ -90,10 +97,10 @@ void SplashScreenState::render() {
     renderMenuItem(registry.menuItems.get(optionsEntity), mouse_pos);
     renderMenuItem(registry.menuItems.get(quitEntity), mouse_pos);
 
-    renderSystem.renderText("Press any key to start.", window_width_px * 0.29f, window_height_px * 0.80f, 1.0f, vec3(1), mat4(1));
+    renderSystem.renderText("Press Any Key To Start", window_width_px * 0.4f, window_height_px * 0.80f, 1.0f, vec3(1), mat4(1));
 
     renderSystem.drawEntity(registry.sprites.get(esc_key), registry.transforms.get(esc_key));
-    renderSystem.renderText("for pause menu", window_width_px * 0.1f, window_height_px * 0.05f, 0.5f, vec3(1), mat4(1));
+    renderSystem.renderText("For Pause Menu", window_width_px * 0.1f, window_height_px * 0.05f, 0.5f, vec3(1), mat4(1));
 }
 
 void SplashScreenState::cleanup() {

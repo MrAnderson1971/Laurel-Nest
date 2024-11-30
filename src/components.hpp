@@ -32,7 +32,7 @@ enum PlayerState {
     WALKING,
     ATTACKING,
     JUMPING,
-    HIT
+    HIT,
 };
 
 enum ChickenState {
@@ -162,8 +162,15 @@ struct SavePoint
 
 };
 
+// NPCs
 struct Pelican {
     bool isAlive;
+};
+
+struct Elder {
+};
+
+struct Kat {
 };
 
 // A timer that will be associated to when the player can get damaged again 
@@ -176,6 +183,13 @@ struct ProjectileTimer
 {
     float max_time;
     float elapsed_time;
+    
+};
+
+struct HealTimer
+{
+    float max_time = 499;
+    float elapsed_time = max_time;
 };
 
 enum class ProjectileType {
@@ -343,6 +357,10 @@ enum class TEXTURE_ASSET_ID {
     FIREBALL,                             // Fireball.png
     DOOR,                                 // Door.PNG
     BMT_BG,                               // BMTown_bg.PNG
+    CP_WALL,
+    CP_WALL_SHORT,
+    BMT_WALL,
+    BMT_WALL_SHORT,
     BIRDMAN_CHARGE,
     BIRDMAN_DEAD,
     BIRDMAN_HIT,
@@ -356,6 +374,13 @@ enum class TEXTURE_ASSET_ID {
     PELICAN_IDLE,
     PELICAN_TALK,
     EXTRA_HEART,                          // extra_heart.png
+    ARROW,                              // arrow.png
+    SWORD_POWERUP,
+    GREATBIRD_PLATFORM,
+    GREATBIRD_IDLE,
+    BIRDMAN_ELDER,
+    OGRE_KAT_1,
+    OGRE_KAT_2,
     TEXTURE_COUNT                         // Count of all textures
 };
 constexpr int texture_count = static_cast<int>(TEXTURE_ASSET_ID::TEXTURE_COUNT);
@@ -523,4 +548,8 @@ struct MenuItem {
         float maxy = transformActive.position.y + halfbb.y;
         return minx <= pos.x && pos.x <= maxx && miny <= pos.y && pos.y <= maxy;
     }
+};
+
+struct Wall{
+
 };

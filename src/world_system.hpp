@@ -33,6 +33,8 @@ constexpr int SWORD_CHANNEL = 0;
 constexpr int HURT_CHANNEL = 1;
 constexpr int SAVE_SOUND_CHANNEL = 2;
 constexpr int GUN_CLICK_CHANNEL = 3;
+constexpr int HEAL_SOUND_CHANNEL = 4;
+constexpr int FLAME_BEAK_SHOOT_CHANNEL = 5;
 
 extern bool Show_FPS;
 extern bool isChickenDead;
@@ -63,6 +65,8 @@ public:
 	void handle_saving();
 	void handle_pelican();
 	void handle_bmt3();
+
+	void draw_npc_interact(Entity obj);
 
 	Entity switch_map();
 
@@ -95,9 +99,11 @@ private:
 	bool canAttack = true;
     bool isFlameThrowerEquipped = false;
     bool flameThrower_enabled = false;
+	bool interrupted_heal = false;
 
 	// saveables
 	
+	bool is_init = true;
 	bool heartPowerUp_0;
 	bool heartPowerUp_1;
 	bool swordPowerUp_0;
@@ -110,6 +116,8 @@ private:
 	Mix_Chunk* hurt_sound;
 	Mix_Chunk* save_sound;
 	Mix_Chunk* gun_click_sound;
+	Mix_Chunk* heal_sound;
+	Mix_Chunk* flame_beak_shoot_sound;
     std::unique_ptr<std::unordered_map<TEXTURE_ASSET_ID, Sprite>> texture_paths;
 
 	// Font stuff
@@ -117,10 +125,15 @@ private:
 	glm::mat4 font_trans;
 
 	// NPC stuff
-	bool pelican_talk = false;
 	bool skip_dialogue = false;
-	int pelicanIndex = 0;
 
+	bool pelican_talk = false;
+	// move these into components
+	int pelicanIndex = 0;
+	int ogreTimer = 0;
+	int ogreCount = 0;
+
+	bool continue_music = true;
 	bool do_save = false;
 	bool saved_this_instance;
 
@@ -128,6 +141,9 @@ private:
 
 	PhysicsSystem physics; // remove when physics is move to GameState
 
+	bool a_pressed;
+	bool d_pressed;
+	friend class PickupCutscene;
 };
 
 extern std::unordered_map<TEXTURE_ASSET_ID, Sprite>* g_texture_paths;

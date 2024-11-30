@@ -38,7 +38,8 @@ if (IS_OS_MAC)
     link_directories(/opt/homebrew/lib)
 endif()
 
-add_executable(${PROJECT_NAME} ${SOURCE_FILES})
+add_executable(${PROJECT_NAME} ${SOURCE_FILES}
+        src/cutscene.cpp)
 
 target_include_directories(${PROJECT_NAME} PUBLIC src/)
 

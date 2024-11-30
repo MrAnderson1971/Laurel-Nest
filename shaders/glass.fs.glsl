@@ -5,7 +5,7 @@ in vec2 vUV;
 out vec4 FragColor;
 
 uniform float keyframe;
-
+uniform sampler2D screenTexture;
 #define GRID_SIZE 10
 
 float rand(vec2 coord) {
@@ -47,10 +47,13 @@ void main() {
         }
     }
 
-    float lineIntensity = smoothstep(0.0, 0.005, secondMinDist - minDist);
+    float lineIntensity = smoothstep(0.0, 0.005 * keyframe , secondMinDist - minDist);
     float normalizedDist = length(uv - vec2(0.5)) / length(vec2(0.5));
-    float visibility = step(1 - normalizedDist, keyframe);
+    float visibility = 1;
     float alpha = (1 - lineIntensity) * visibility;
-    vec3 lineColor = vec3(0);
+
+    vec3 currentColor = texture(screenTexture, uv).rgb;
+    vec3 lineColor = 1.0 - currentColor;
+
     FragColor = vec4(lineColor, alpha);
 }

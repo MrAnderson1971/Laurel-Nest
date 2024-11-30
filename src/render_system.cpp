@@ -101,6 +101,7 @@ bool RenderSystem::initOpenGL(int width, int height, const std::string& title)
     loadShaders("glass", glassShader);
     setupVertices();
     setupGlassVertices();
+    setupFrameBuffer();
 
     // Set GLFW callbacks for input handling
     glfwSetKeyCallback(window, keyCallbackRedirect);
@@ -484,7 +485,7 @@ void RenderSystem::renderLoop()
 
     // setup fonts
     std::string font_filename = PROJECT_SOURCE_DIR +
-        std::string("data/fonts/Kenney_Future.ttf");
+        std::string("data/fonts/Share-Bold.ttf");
     unsigned int font_default_size = 48;
     fontInit(font_filename, font_default_size);
     glm::vec3 font_color = glm::vec3(1.0, 1.0, 1.0);
@@ -515,12 +516,12 @@ void RenderSystem::renderLoop()
             prev_FPS_string = FPS_String;
             FPS_Last_Time = currentTime;
             if (Show_FPS) {
-                renderText(FPS_String, static_cast<float>(getWindowWidth() * 1.85), static_cast<float>(getWindowHeight() * 1.95), 1.0f, font_color, font_trans);
+                renderText(FPS_String, static_cast<float>(getWindowWidth() * 1.90), static_cast<float>(getWindowHeight() * 1.95), 1.0f, font_color, font_trans);
             }
         }
         else {
             if (Show_FPS) {
-                renderText(prev_FPS_string, static_cast<float>(getWindowWidth() * 1.85), static_cast<float>(getWindowHeight() * 1.95), 1.0f, font_color, font_trans);
+                renderText(prev_FPS_string, static_cast<float>(getWindowWidth() * 1.90), static_cast<float>(getWindowHeight() * 1.95), 1.0f, font_color, font_trans);
             }
         }
         // FPS limiting 
@@ -535,9 +536,31 @@ void RenderSystem::renderLoop()
     }
 }
 
+void RenderSystem::setupFrameBuffer() {
+    glGenTextures(1, &screenTexture);
+    glBindTexture(GL_TEXTURE_2D, screenTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, window_width_px, window_height_px, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void RenderSystem::captureScreen() {
+    glBindTexture(GL_TEXTURE_2D, screenTexture);
+    glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, window_width_px, window_height_px, 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 void RenderSystem::doGlassBreakTransition(int count, size_t total) {
+    glBindTexture(GL_TEXTURE_2D, screenTexture);
+    glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, window_width_px, window_height_px, 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
     glUseProgram(glassShader);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, screenTexture);
     glUniform1f(glGetUniformLocation(glassShader, "keyframe"), static_cast<float>(count) / total);
+    glUniform1i(glGetUniformLocation(glassShader, "screenTexture"), 0);
     glBindVertexArray(glassVAO);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
