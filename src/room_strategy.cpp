@@ -78,20 +78,6 @@ Entity CPRoom1Strategy::execute() {
     // background
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::CESSPIT_BG));
 
-    // wall TODO: figure out how to make solid without breaking goomba
-    /*
-    Entity m_wall;
-    Sprite wallBSprite = g_texture_paths->at(TEXTURE_ASSET_ID::CP_WALL);
-    TransformComponent bgTransform;
-    bgTransform.position = glm::vec3(renderSystem.getWindowWidth() * 0.f, renderSystem.getWindowHeight() * 0.5f, 0.0);
-    bgTransform.scale = glm::vec3(wallBSprite.width * 1.f, wallBSprite.height * 1.f, 1.0);
-    bgTransform.rotation = 0.0f;
-    registry.sprites.emplace(m_wall, wallBSprite);
-    registry.transforms.emplace(m_wall, std::move(bgTransform));
-
-    Environment wallObj;
-    registry.envObject.emplace(m_wall, std::move(wallObj));*/
-
     // arrows
     Entity m_arrow_en = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), -0.3f, 0.3f, 0.03f, 0.25f, 90.f);
     Entity m_arrow2 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), 0.3f, 0.3f, 0.95f, 0.75f, 0.f);
@@ -177,7 +163,7 @@ Entity CPRoom2Strategy::execute() {
     Entity m_platform4 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.58f, 0.85f);
 
     // Ceiling Goomba
-    Entity m_platform_g1 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.5f, 0.f);
+    Entity m_platform_g1 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.5f, 0.f, 0.f);
     GoombaCeiling g1 = GoombaCeiling();
     g1.init(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() * 0.07f);
     g1.set_spit_timer(1.f);
@@ -191,7 +177,7 @@ Entity CPRoom2Strategy::execute() {
     registry.grounds.emplace(m_platform2, std::move(Ground()));
     registry.grounds.emplace(m_platform3, std::move(Ground()));
     registry.grounds.emplace(m_platform4, std::move(Ground()));
-    registry.grounds.emplace(m_platform_g1, std::move(Ground()));
+    //registry.grounds.emplace(m_platform_g1, std::move(Ground()));
 
     room.insert(m_bg);
     room.insert(m_arrow1);
@@ -312,7 +298,7 @@ Entity CPRoom4Strategy::execute() {
     Entity m_platform2 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.2f, 0.6f);
     
     // Goombas
-    Entity m_platform_g = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.5f, 0.f);
+    Entity m_platform_g = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.5f, 0.f, 0.f);
     GoombaCeiling g = GoombaCeiling();
     g.init(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() * 0.07f);
     g.set_spit_timer(1.f);
@@ -325,7 +311,7 @@ Entity CPRoom4Strategy::execute() {
     registry.grounds.emplace(m_ground, std::move(Ground()));
     registry.grounds.emplace(m_platform1, std::move(Ground()));
     registry.grounds.emplace(m_platform2, std::move(Ground()));
-    registry.grounds.emplace(m_platform_g, std::move(Ground()));
+    //registry.grounds.emplace(m_platform_g, std::move(Ground()));
 
     room.insert(m_bg);
     room.insert(m_arrow3);
@@ -500,19 +486,19 @@ Entity BMTEntranceRoomStrategy::execute() {
     Entity m_platform3 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.95f, 0.35f);
 
     // ceiling goombas
-    Entity m_platform_g1 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.4f, 0.f);
+    Entity m_platform_g1 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.4f, 0.f, 0.f);
     GoombaCeiling gc1 = GoombaCeiling();
-    gc1.init(static_cast<float>(renderSystem.getWindowWidth() * 0.4), gc1.bottom_edge);
+    gc1.init(static_cast<float>(renderSystem.getWindowWidth() * 0.4), renderSystem.getWindowHeight() * 0.07f);
     gc1.set_spit_timer(1.2f);
 
-    Entity m_platform_g2 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.55f, 0.f);
+    Entity m_platform_g2 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.55f, 0.f, 0.f);
     GoombaCeiling gc2 = GoombaCeiling();
-    gc2.init(static_cast<float>(renderSystem.getWindowWidth() * 0.55), gc2.bottom_edge);
+    gc2.init(static_cast<float>(renderSystem.getWindowWidth() * 0.55), renderSystem.getWindowHeight() * 0.07f);
     gc2.set_spit_timer(0.6f);
 
-    Entity m_platform_g3 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.7f, 0.f);
+    Entity m_platform_g3 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.7f, 0.f, 0.f);
     GoombaCeiling gc3 = GoombaCeiling();
-    gc3.init(static_cast<float>(renderSystem.getWindowWidth() * 0.7), gc3.bottom_edge);
+    gc3.init(static_cast<float>(renderSystem.getWindowWidth() * 0.7), renderSystem.getWindowHeight() * 0.07f);
     gc3.set_spit_timer(1.2f);
 
     // ground
@@ -529,9 +515,9 @@ Entity BMTEntranceRoomStrategy::execute() {
     registry.grounds.emplace(m_platform1, std::move(Ground()));
     registry.grounds.emplace(m_platform2, std::move(Ground()));
     registry.grounds.emplace(m_platform3, std::move(Ground()));
-    registry.grounds.emplace(m_platform_g1, std::move(Ground()));
-    registry.grounds.emplace(m_platform_g2, std::move(Ground()));
-    registry.grounds.emplace(m_platform_g3, std::move(Ground()));
+    //registry.grounds.emplace(m_platform_g1, std::move(Ground()));
+    //registry.grounds.emplace(m_platform_g2, std::move(Ground()));
+    //registry.grounds.emplace(m_platform_g3, std::move(Ground()));
 
     room.insert(m_bg);
     room.insert(m_arrow_cp);
@@ -604,7 +590,7 @@ Entity BMTRoom1Strategy::execute() {
     Entity m_ground2 = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.5f, 0.5f, 0.f, 500.f);
 
     // ceiling goomba
-    Entity m_platform_g = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.63f, 0.f);
+    Entity m_platform_g = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.63f, 0.f, 0.f);
     GoombaCeiling gc1 = GoombaCeiling();
     gc1.init(renderSystem.getWindowWidth() * 0.63f, renderSystem.getWindowHeight() * 0.07f);
     gc1.set_spit_timer(1.f);
@@ -618,7 +604,7 @@ Entity BMTRoom1Strategy::execute() {
     registry.grounds.emplace(m_platform3, std::move(Ground()));
     registry.grounds.emplace(m_platform4, std::move(Ground()));
     registry.grounds.emplace(m_platform5, std::move(Ground()));
-    registry.grounds.emplace(m_platform_g, std::move(Ground()));
+    //registry.grounds.emplace(m_platform_g, std::move(Ground()));
 
     room.insert(m_bg);
     room.insert(m_arrow_en);
@@ -843,7 +829,7 @@ Entity BMTRoom4Strategy::execute() {
 //    GoombaFlying gf1 = GoombaFlying();
 //    gf1.init(renderSystem.getWindowWidth() * 4.f/ 5.f, renderSystem.getWindowHeight() / 8.f);
     // ceiling goomba
-    Entity m_platform_g1 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 1.f / 4.f, 0.f);
+    Entity m_platform_g1 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 1.f / 4.f, 0.f, 0.f);
     GoombaCeiling gc1 = GoombaCeiling();
     gc1.init(renderSystem.getWindowWidth() * 1.f / 4.f, renderSystem.getWindowHeight() * 0.07f);
     gc1.set_spit_timer(2.f);
@@ -852,7 +838,7 @@ Entity BMTRoom4Strategy::execute() {
 //    gc2.init(renderSystem.getWindowWidth() * 2.f / 4.f, gc2.bottom_edge);
 //    gc2.set_spit_timer(1.25f);
 
-    Entity m_platform_g3 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 3.f / 4.f, 0.f);
+    Entity m_platform_g3 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 3.f / 4.f, 0.f, 0.f);
     GoombaCeiling gc3 = GoombaCeiling();
     gc3.init(renderSystem.getWindowWidth() * 3.f / 4.f, renderSystem.getWindowHeight() * 0.07f);
     gc3.set_spit_timer(2.5f);
@@ -872,8 +858,8 @@ Entity BMTRoom4Strategy::execute() {
     registry.grounds.emplace(m_platform6, std::move(Ground()));
     registry.grounds.emplace(m_platform7, std::move(Ground()));
     registry.grounds.emplace(m_platform8, std::move(Ground()));
-    registry.grounds.emplace(m_platform_g1, std::move(Ground()));
-    registry.grounds.emplace(m_platform_g3, std::move(Ground()));
+    //registry.grounds.emplace(m_platform_g1, std::move(Ground()));
+    //registry.grounds.emplace(m_platform_g3, std::move(Ground()));
 
     room.insert(m_bg);
     room.insert(m_arrow1);
@@ -946,12 +932,14 @@ Entity NPCRoom1Strategy::execute() {
     Entity elder = SetBirdmanElder(renderSystem.getWindowWidth() - 150.f, renderSystem.getWindowHeight() - 216.f);
 
     // some goombas for excitement
+    Entity m_platform_g1 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.33f, 0.f, 0.f);
+    Entity m_platform_g2 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.69f, 0.f, 0.f);
     GoombaCeiling gc1 = GoombaCeiling();
     GoombaCeiling gc2 = GoombaCeiling();
-    GoombaCeiling gc3 = GoombaCeiling();
+    //GoombaCeiling gc3 = GoombaCeiling();
     //GoombaCeiling gc4 = GoombaCeiling();
-    gc1.init(static_cast<float>(renderSystem.getWindowWidth() * 0.33f), gc1.bottom_edge);
-    gc2.init(static_cast<float>(renderSystem.getWindowWidth() * 0.69f), gc2.bottom_edge);
+    gc1.init(static_cast<float>(renderSystem.getWindowWidth() * 0.33f), renderSystem.getWindowHeight() * 0.07f);
+    gc2.init(static_cast<float>(renderSystem.getWindowWidth() * 0.69f), renderSystem.getWindowHeight() * 0.07f);
     //gc3.init(static_cast<float>(renderSystem.getWindowWidth() * 0.42), gc3.bottom_edge);
     //gc4.init(static_cast<float>(renderSystem.getWindowWidth() * 0.23), gc4.bottom_edge);
     gc1.set_spit_timer(0.9f);
@@ -982,6 +970,8 @@ Entity NPCRoom1Strategy::execute() {
     room.insert(m_arrow_en);
     room.insert(m_wall);
     room.insert(m_ceiling);
+    room.insert(m_platform_g1);
+    room.insert(m_platform_g2);
     room.insert(m_platform_npc1);
     room.insert(m_platform_npc2);
     room.insert(m_platform_npc3);
@@ -997,7 +987,7 @@ Entity NPCRoom1Strategy::execute() {
     return m_room;
 }
 
-//TODO: moving platform + npc
+//TODO: corpses + npc
 Entity NPCRoom2Strategy::execute() {
     Entity m_room;
     // for handling transitions
