@@ -697,10 +697,15 @@ void WorldSystem::handle_collisions() {
             registry.remove_all_components_of(entity);
         }
 
-        // Once the ceiling goomba is dead. change its sprite to the dead sprite
+        // Once the ceiling or swarm goomba is dead. change its sprite to the dead sprite
         if (registry.hostiles.has(entity) && (registry.hostiles.get(entity).type == HostileType::GOOMBA_CEILING || registry.hostiles.get(entity).type == HostileType::GOOMBA_SWARM) &&
             !registry.healths.has(entity) && registry.grounds.has(entity_other)) {
             GoombaLogic::goomba_ceiling_swarm_splat(entity);
+        }
+
+        // To ensure that if the flying or swarm goomba fall into the door, their bodies dont stay floating within it
+        if (registry.hostiles.has(entity) && !registry.healths.has(entity) && registry.doors.has(entity_other)) {
+            registry.remove_all_components_of(entity);
         }
 
         // handle extra heart powerup, restore all health and remove heart entity

@@ -199,5 +199,7 @@ Connection Birdmantown::SetDoor(float width, float height, float xPos, float yPo
     doorConnection.limit = isLimited;
     doorConnection.switchMap = false;
 
+    registry.doors.emplace(m_door, doorConnection);
+
     return doorConnection;
 }

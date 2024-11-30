@@ -716,6 +716,48 @@ Entity BMTRoom2Strategy::execute() {
     // ground
     Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 0.5f, 0.5f, 0.0f);
 
+    GoombaSwarm gs1 = GoombaSwarm();
+    gs1.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() - 200) * uniform_dist(rng));
+
+    GoombaSwarm gs2 = GoombaSwarm();
+    gs2.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() - 200) * uniform_dist(rng));
+
+    GoombaSwarm gs3 = GoombaSwarm();
+    gs3.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() - 200) * uniform_dist(rng));
+
+    GoombaSwarm gs4 = GoombaSwarm();
+    gs4.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() - 200) * uniform_dist(rng));
+
+    GoombaSwarm gs5 = GoombaSwarm();
+    gs5.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() - 200) * uniform_dist(rng));
+
+    GoombaSwarm gs6 = GoombaSwarm();
+    gs6.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() - 200) * uniform_dist(rng));
+
+    GoombaSwarm gs7 = GoombaSwarm();
+    gs7.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() - 200) * uniform_dist(rng));
+
+    GoombaSwarm gs8 = GoombaSwarm();
+    gs8.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() - 200) * uniform_dist(rng));
+
+    room.insert(gs1.entity);
+    room.insert(gs2.entity);
+    room.insert(gs3.entity);
+    room.insert(gs4.entity);
+    room.insert(gs5.entity);
+    room.insert(gs6.entity);
+    room.insert(gs7.entity);
+    room.insert(gs8.entity);
+
+    room.insert_swarm_goomba(gs1.entity);
+    room.insert_swarm_goomba(gs2.entity);
+    room.insert_swarm_goomba(gs3.entity);
+    room.insert_swarm_goomba(gs4.entity);
+    room.insert_swarm_goomba(gs5.entity);
+    room.insert_swarm_goomba(gs6.entity);
+    room.insert_swarm_goomba(gs7.entity);
+    room.insert_swarm_goomba(gs8.entity);
+
     // note on bg: don't add motion
     registry.grounds.emplace(m_wall_bound, std::move(Ground()));
     registry.grounds.emplace(m_ground, std::move(Ground()));
@@ -1490,6 +1532,8 @@ Entity RoomStrategy::SetDoorEx(float width, float height, float xPos, float yPos
     BoundingBox bb = registry.bounding_box.get(m_door);
     bb.height = doorSprite.height;
     bb.width = doorSprite.width;
+
+    registry.doors.emplace(m_door, Connection());
 
     return m_door;
 }

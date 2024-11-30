@@ -158,5 +158,7 @@ Connection Cesspit::SetDoor(float width, float height, float xPos, float yPos, E
     doorConnection.limit = isLimited;
     doorConnection.switchMap = false;
 
+    registry.doors.emplace(m_door, doorConnection);
+
     return doorConnection;
 }
