@@ -569,22 +569,9 @@ void WorldSystem::handle_collisions() {
             }
         }
 
-        if(registry.walls.has(entity) && registry.patrol_ais.has(entity_other)){
-            Patrol_AI& patrol = registry.patrol_ais.get(entity_other);
-            Motion& m_goomba = registry.motions.get(entity_other);
-            Motion& m_wall = registry.motions.get(entity);
-            float change = 0;
-            bool movingRight = patrol.movingRight;
-            if(movingRight){
-                change = -100;
-            }else {
-                change = 100;
-            }
-            m_goomba.position.x = m_wall.position.x + change;
-            patrol.movingRight = !patrol.movingRight;
-        }
 
-        if(registry.walls.has(entity) && registry.hostiles.has(entity_other) && registry.hostiles.get(entity_other).type == HostileType::GOOMBA_FLYING){
+        // Handle the goombas when they collide with a wall
+        if(registry.walls.has(entity) && registry.hostiles.has(entity_other)){
             Motion& m_fying_goomba = registry.motions.get(entity_other);
             Motion& m_wall = registry.motions.get(entity);
             if(registry.patrol_ais.has(entity_other)){
@@ -592,9 +579,19 @@ void WorldSystem::handle_collisions() {
                 float change = 0;
                 bool movingRight = patrol.movingRight;
                 if(movingRight){
-                    change = -200;
+                    if (registry.hostiles.get(entity_other).type == HostileType::GOOMBA_FLYING) {
+                        change = -200;
+                    }
+                    else if (registry.hostiles.get(entity_other).type == HostileType::GOOMBA_LAND) {
+                        change = -200;
+                    }
                 }else {
-                    change = 200;
+                    if (registry.hostiles.get(entity_other).type == HostileType::GOOMBA_FLYING) {
+                        change = 200;
+                    }
+                    else if (registry.hostiles.get(entity_other).type == HostileType::GOOMBA_LAND) {
+                        change = 200;
+                    }
                 }
                 m_fying_goomba.position.x = m_wall.position.x + change;
                 patrol.movingRight = !patrol.movingRight;
@@ -604,7 +601,7 @@ void WorldSystem::handle_collisions() {
 
         // change the flying goomba's animation when it impacts the ground
         if (registry.hostiles.has(entity) && registry.hostiles.get(entity).type == HostileType::GOOMBA_FLYING 
-            && registry.healths.has(entity) && registry.grounds.has(entity_other) && !registry.movingPlatform.has(entity_other)) {
+            && registry.healths.has(entity) && (registry.grounds.has(entity_other) || registry.doors.has(entity_other)) && !registry.movingPlatform.has(entity_other)) {
             auto& goombaFlyingAnimation = registry.flyingGoombaAnimations.get(entity);
             goombaFlyingAnimation.setState(FlyingGoombaState::FLYING_GOOMBA_IDLE);
             GoombaFlyingState& g_state = registry.goombaFlyingStates.get(entity);
@@ -661,7 +658,7 @@ void WorldSystem::handle_collisions() {
 
         // Remove the spit attack from ceiling goomba or the spear attack from the birdman after it has hit the player or the ground
         if (registry.projectiles.has(entity) && (registry.projectiles.get(entity).type == ProjectileType::SPIT || registry.projectiles.get(entity).type == ProjectileType::SPEAR)
-        && (registry.players.has(entity_other) || registry.grounds.has(entity_other))) {
+        && (registry.players.has(entity_other) || registry.grounds.has(entity_other) || registry.doors.has(entity_other))) {
             registry.remove_all_components_of(entity);
         }
 
