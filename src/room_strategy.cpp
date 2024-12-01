@@ -1025,20 +1025,26 @@ Entity NPCRoom2Strategy::execute() {
     // wall
     Entity m_wall = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL), 1.f, 0.6f, 0.6f, 0.99f, 500.f);
 
-    // more walls
-    // Entity m_wall_block1 = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL_SHORT), 1.f, 0.55f, 0.55f, 0.3f, renderSystem.getWindowHeight() * 0.5f);
-    // Entity m_wall_block2 = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL_SHORT), 1.f, 0.55f, 0.55f, 0.5f, renderSystem.getWindowHeight() * 0.5f);
-    // Entity m_wall_block3 = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL_SHORT), 1.f, 0.55f, 0.55f, 0.7f, renderSystem.getWindowHeight() * 0.5f);
-    // Entity m_wall_block4 = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL_SHORT), 1.f, 0.55f, 0.55f, 0.8f, renderSystem.getWindowHeight() * 0.5f);
-
     // ceiling
     Entity m_ceiling = SetCeiling(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_CEILING), 0.5f);
+
+    // more walls
+    Entity m_wall_block1 = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL_SHORT), 1.f, 0.25f, 0.25f, 0.15f, 240.f);
+    Entity m_wall_block2 = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL_SHORT), 1.f, 0.25f, 0.25f, 0.29f, 480.f);
+    Entity m_wall_block3 = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL_SHORT), 1.f, 0.25f, 0.25f, 0.43f, 720.f);
+    Entity m_wall_block4 = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL_SHORT), -1.f, 0.25f, 0.25f, 0.57f, 720.f);
+    Entity m_wall_block5 = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL_SHORT), -1.f, 0.25f, 0.25f, 0.71f, 480.f);
 
     // platforms
     // Entity m_platform_npc1 = SetMovingPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), true, 0.1f, 0.2f, 0.2f, 0.25f, vec2(0.2f, 0.25f), vec2(0.2f, 0.85f), true);
     // Entity m_platform_npc2 = SetMovingPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), true, 0.1f, 0.2f, 0.4f, 0.45f, vec2(0.4f, 0.25f), vec2(0.4f, 0.85f), true);
     // Entity m_platform_npc3 = SetMovingPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), true, 0.1f, 0.2f, 0.6f, 0.65f, vec2(0.6f, 0.25f), vec2(0.6f, 0.85f), true);
     // Entity m_platform_npc4 = SetMovingPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), true, 0.1f, 0.2f, 0.8f, 0.85f, vec2(0.8f, 0.25f), vec2(0.8f, 0.85f), true);
+    Entity m_platform1 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.22f, 0.7f);
+    Entity m_platform2 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.36f, 0.475f);
+    Entity m_platform3 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.5f, 0.25f);
+    Entity m_platform4 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.64f, 0.475f);
+    Entity m_platform5 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.78f, 0.7f);
 
     // ground
     Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 0.5f, 0.5f, 0.0f);
@@ -1047,22 +1053,28 @@ Entity NPCRoom2Strategy::execute() {
     Entity ogre = SetOgreKat(renderSystem.getWindowWidth() / 2.f, renderSystem.getWindowHeight() - 247.f);
 
     // Dead Birds!! They are dead :(
-    Entity poor_bird_1 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::GOOMBA_DEAD), 0.3f, 0.3f, 0.4f, 0.87f, 0.f);
-    Entity poor_bird_2 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::GOOMBA_DEAD), -0.3f, 0.3f, 0.6f, 0.87f, 0.f);
+    Entity poor_bird_1 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::BIRDMAN_DEAD), 0.4f, 0.4f, 0.3f, 0.87f, 0.f);
+    Entity poor_bird_2 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::GOOMBA_DEAD), -0.3f, 0.3f, 0.2f, 0.87f, 0.f);
     Entity poor_bird_3 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::GOOMBA_DEAD), 0.3f, 0.3f, 0.7f, 0.87f, 0.f);
-    Entity poor_bird_4 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::BIRDMAN_DEAD), -0.4f, 0.4f, 0.2f, 0.87f, 0.f);
+    Entity poor_bird_4 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::BIRDMAN_DEAD), -0.4f, 0.4f, 0.6f, 0.87f, 0.f);
     Entity poor_bird_5 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::BIRDMAN_DEAD), 0.4f, 0.4f, 0.1f, 0.87f, 0.f);
-    Entity poor_bird_6 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::GOOMBA_DEAD), 0.7f, 0.7f, 0.85f, 0.82f, 0.f);
+    Entity poor_bird_6 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::BIRDMAN_DEAD), -0.4f, 0.4f, 0.8f, 0.87f, 0.f);
+    Entity poor_bird_7 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::GOOMBA_DEAD), 0.3f, 0.3f, 0.85f, 0.87f, 0.f);
+    Entity poor_bird_8 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::GOOMBA_DEAD), -0.3f, 0.3f, 0.9f, 0.87f, 0.f);
+    Entity poor_bird_9 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::GOOMBA_DEAD), 0.3f, 0.3f, 0.4f, 0.87f, 0.f);
 
     // note on bg: don't add motion
     registry.grounds.emplace(m_wall, std::move(Ground()));
-    // registry.grounds.emplace(m_wall_block1, std::move(Ground()));
-    // registry.grounds.emplace(m_wall_block2, std::move(Ground()));
-    // registry.grounds.emplace(m_wall_block3, std::move(Ground()));
-    // registry.grounds.emplace(m_platform_npc1, std::move(Ground()));
-    // registry.grounds.emplace(m_platform_npc2, std::move(Ground()));
-    // registry.grounds.emplace(m_platform_npc3, std::move(Ground()));
-    // registry.grounds.emplace(m_platform_npc4, std::move(Ground()));
+    registry.grounds.emplace(m_wall_block1, std::move(Ground()));
+    registry.grounds.emplace(m_wall_block2, std::move(Ground()));
+    registry.grounds.emplace(m_wall_block3, std::move(Ground()));
+    registry.grounds.emplace(m_wall_block4, std::move(Ground()));
+    registry.grounds.emplace(m_wall_block5, std::move(Ground()));
+    registry.grounds.emplace(m_platform1, std::move(Ground()));
+    registry.grounds.emplace(m_platform2, std::move(Ground()));
+    registry.grounds.emplace(m_platform3, std::move(Ground()));
+    registry.grounds.emplace(m_platform4, std::move(Ground()));
+    registry.grounds.emplace(m_platform5, std::move(Ground()));
     registry.grounds.emplace(m_ground, std::move(Ground()));
 
     room.insert(ogre);
@@ -1072,16 +1084,22 @@ Entity NPCRoom2Strategy::execute() {
     room.insert(poor_bird_4);
     room.insert(poor_bird_5);
     room.insert(poor_bird_6);
+    room.insert(poor_bird_7);
+    room.insert(poor_bird_8);
+    room.insert(poor_bird_9);
     room.insert(m_bg);
     room.insert(m_arrow4);
     room.insert(m_wall);
-    // room.insert(m_wall_block1);
-    // room.insert(m_wall_block2);
-    // room.insert(m_wall_block3);
-    // room.insert(m_platform_npc1);
-    // room.insert(m_platform_npc2);
-    // room.insert(m_platform_npc3);
-    // room.insert(m_platform_npc4);
+    room.insert(m_wall_block1);
+    room.insert(m_wall_block2);
+    room.insert(m_wall_block3);
+    room.insert(m_wall_block4);
+    room.insert(m_wall_block5);
+    room.insert(m_platform1);
+    room.insert(m_platform2);
+    room.insert(m_platform3);
+    room.insert(m_platform4);
+    room.insert(m_platform5);
     room.insert(m_ceiling);
     room.insert(m_ground);
     //room.insert(ogre);
