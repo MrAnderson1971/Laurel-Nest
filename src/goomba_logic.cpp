@@ -43,6 +43,8 @@ void GoombaLogic::goomba_swarm_death(Entity hostile, Entity current_room) {
     registry.damages.remove(hostile);
     registry.patrol_ais.remove(hostile);
     registry.healths.remove(hostile);
+
+    registry.list_all_components_of(hostile);
 }
 
 void GoombaLogic::goomba_land_death(Entity hostile) {

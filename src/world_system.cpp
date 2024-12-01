@@ -209,15 +209,8 @@ void WorldSystem::update(float deltaTime) {
     update_damaged_player_sprites(deltaTime);
     handle_ai();
     handle_saving();
-
-    if (registry.weapons.has(m_flameThrower)) {
-        auto& weapon = registry.weapons.get(m_flameThrower);
-        if (weapon.cooldown <= 0) {
-            flameThrower_enabled = true;
-        } else {
-            weapon.cooldown -= deltaTime;
-        }
-    }
+    handle_hostiles_in_doors();
+    handle_flamethrower(deltaTime);
     
     GoombaLogic::update_goomba_projectile_timer(deltaTime, current_room);
     GoombaLogic::update_damaged_goomba_sprites(deltaTime);
@@ -538,7 +531,12 @@ void WorldSystem::handle_collisions() {
         if (registry.grounds.has(entity_other) && !(registry.movingPlatform.has(entity_other) && registry.flyingGoombaAnimations.has(entity))) {
             if (direction.x != 0 && thisMotion.velocity.x != 0) {
                 thisMotion.velocity.x = 0;
-                thisMotion.position.x -= overlap.x;
+                if (direction.x > 0) {
+                    thisMotion.position.x -= overlap.x;
+                }
+                else {
+                    thisMotion.position.x += overlap.x;
+                }
             }
             else if (registry.players.has(entity)) {
                 if (a_pressed) {
@@ -580,7 +578,7 @@ void WorldSystem::handle_collisions() {
             }
         }
 
-
+        // Make the swarm goomba bounce off the ground
         if (registry.hostiles.has(entity) && registry.hostiles.get(entity).type == HostileType::GOOMBA_SWARM
             && registry.grounds.has(entity_other)) {
             if (thisMotion.velocity.y > 0) {
@@ -701,11 +699,6 @@ void WorldSystem::handle_collisions() {
         if (registry.hostiles.has(entity) && (registry.hostiles.get(entity).type == HostileType::GOOMBA_CEILING || registry.hostiles.get(entity).type == HostileType::GOOMBA_SWARM) &&
             !registry.healths.has(entity) && registry.grounds.has(entity_other)) {
             GoombaLogic::goomba_ceiling_swarm_splat(entity);
-        }
-
-        // To ensure that if the flying or swarm goomba fall into the door, their bodies dont stay floating within it
-        if (registry.hostiles.has(entity) && !registry.healths.has(entity) && registry.doors.has(entity_other)) {
-            registry.remove_all_components_of(entity);
         }
 
         // handle extra heart powerup, restore all health and remove heart entity
@@ -844,6 +837,7 @@ void WorldSystem::handle_bmt3() {
     }
 }
 
+
 // move this elsewhere later
 std::string dialogue[7] = { "You, you! You're not a bird?",
 "Seeking the Crown of Claws, hmm?",
@@ -898,6 +892,31 @@ void WorldSystem::handle_pelican() {
         }
     }
     //pelican_talk = false;
+}
+
+void WorldSystem::handle_hostiles_in_doors() {
+    if (registry.rooms.has(current_room)) {
+        for (Entity entity : registry.rooms.get(current_room).entities) {
+            if (registry.hostiles.has(entity) && registry.motions.has(entity) && !registry.healths.has(entity)) {
+                Motion hostile_motion = registry.motions.get(entity);
+                if (hostile_motion.position.y > renderSystem.getWindowHeight() - 10) {
+                    registry.remove_all_components_of(entity);
+                }
+            }
+        }
+    }
+}
+
+void WorldSystem::handle_flamethrower(float deltaTime) {
+    if (registry.weapons.has(m_flameThrower)) {
+        auto& weapon = registry.weapons.get(m_flameThrower);
+        if (weapon.cooldown <= 0) {
+            flameThrower_enabled = true;
+        }
+        else {
+            weapon.cooldown -= deltaTime;
+        }
+    }
 }
 
 void WorldSystem::render() {

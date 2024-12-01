@@ -66,6 +66,8 @@ public:
 	void handle_saving();
 	void handle_pelican();
 	void handle_bmt3();
+	void handle_hostiles_in_doors();
+	void handle_flamethrower(float deltaTime);
 
 	void draw_npc_interact(Entity obj);
 
