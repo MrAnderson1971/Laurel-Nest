@@ -1282,7 +1282,8 @@ void WorldSystem::processPlayerInput(int key, int action) {
         switch (key) {
         case GLFW_KEY_H:
             if (registry.playerAnimations.has(m_player) && registry.playerAnimations.get(m_player).getState() == PlayerState::IDLE) {
-                if (registry.healths.has(m_player) && registry.healths.get(m_player).current_health != registry.healths.get(m_player).max_health) {
+                if (registry.healths.has(m_player) && registry.healths.get(m_player).current_health != registry.healths.get(m_player).max_health
+                    && registry.healthFlasks.has(m_player) && registry.healthFlasks.get(m_player).num_uses > 0) {
                     if (!registry.healTimers.has(m_player)) {
                         registry.healTimers.emplace(m_player, HealTimer());
                     }
