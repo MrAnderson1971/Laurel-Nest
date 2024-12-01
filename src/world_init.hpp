@@ -31,6 +31,7 @@ inline std::unordered_map<TEXTURE_ASSET_ID, std::string> createTextureAssetMap()
         {TEXTURE_ASSET_ID::CEILING_SPIT, "ceiling_spit.png"},
         {TEXTURE_ASSET_ID::SPLASH_SCREEN, "splash_screen.png"},
         {TEXTURE_ASSET_ID::DEMO_GROUND, "demo_ground.png"},
+        {TEXTURE_ASSET_ID::DEMO_GROUND_SMASH, "demo_ground_smash.png"},
         {TEXTURE_ASSET_ID::DEMO_WALL, "demo_wall.png"},
         {TEXTURE_ASSET_ID::DEMO_CEILING, "demo_ceiling.png"},
         {TEXTURE_ASSET_ID::HEART_3, "heart_3.png"},
