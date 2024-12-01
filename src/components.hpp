@@ -44,6 +44,15 @@ enum ChickenState {
     CHICKEN_DEATH
 };
 
+enum GBState {
+    GB_IDLE,
+    GB_SMASH,
+    GB_SPEAR_SINGLe,
+    GB_SPEAR_MULTIPLE,
+    GB_NUKE,
+    GB_DEATH
+};
+
 enum FlyingGoombaState {
     FLYING_GOOMBA_IDLE,
     FLYING_GOOMBA_CHARGE,
@@ -340,7 +349,8 @@ enum class TEXTURE_ASSET_ID {
     CEILING_SPIT,                         // ceiling_spit.png 
     SPLASH_SCREEN,                        // splash_screen.png
     DEMO_GROUND,                          // demo_ground.png
-    DEMO_WALL,                            // demo_wall.png
+    DEMO_GROUND_SMASH,
+    DEMO_WALL,                      // demo_wall.png
     DEMO_CEILING,                         // demo_ceiling.png
     HEART_3,                              // heart_3.png
     HEART_2,                              // heart_2.png

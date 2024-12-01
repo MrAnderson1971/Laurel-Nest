@@ -259,7 +259,7 @@ void WorldSystem::handle_connections(float deltaTime) {
             auto& a = registry.playerAnimations.get(m_player);
             if (physics.checkForCollision(m_player, connection.door, dir, over) && a.getState() != PlayerState::ATTACKING && playerMotion.velocity != vec2(0.f, 0.f)) {
                 // check if in boss room and if boss is dead
-                //if (!connection.limit || (registry.rooms.get(current_room).id == ROOM_ID::CP_BOSS && isChickenDead)) {
+                if (registry.rooms.get(current_room).id != ROOM_ID::CP_BOSS || (registry.rooms.get(current_room).id == ROOM_ID::CP_BOSS && isChickenDead)) {
                     // set next room
                     // check for switching map
                     if (!connection.switchMap) {
@@ -272,21 +272,25 @@ void WorldSystem::handle_connections(float deltaTime) {
                     }
                     physics.setRoom(current_room);
                     AISystem::init_aim();
-                    
+
                     // set spawn point of player in new room
                     playerMotion.position = connection.nextSpawn;
-
+                    
                     // handle music
                     Room& r = registry.rooms.get(current_room);
                     std::shared_ptr<Mix_Music> music = r.music;
-                    if (music != nullptr &&  r.id == ROOM_ID::CP_BOSS && !isChickenDead) {
+                    if (music != nullptr && r.id == ROOM_ID::CP_BOSS && !isChickenDead) {
                         Mix_PlayMusic(music.get(), 1);
                         continue_music = true;
                     }
+
+
                     // No need to check if boss is alive, the game ends when it dies
                     if (music != nullptr && r.id == ROOM_ID::LN_BOSS) {
                         Mix_PlayMusic(music.get(), 1);
                     }
+                
+                }
             }
         }
     }
