@@ -242,9 +242,11 @@ void WorldSystem::update(float deltaTime) {
     // update music
     if (continue_music && registry.rooms.has(current_room)) {
         Room& r = registry.rooms.get(current_room);
-        std::shared_ptr<Mix_Music> music = r.music;
-        Mix_PlayMusic(music.get(), 1);
-        continue_music = false;
+        if (r.id != ROOM_ID::CP_BOSS) {
+            std::shared_ptr<Mix_Music> music = r.music;
+            Mix_PlayMusic(music.get(), 1);
+            continue_music = false;
+        }
     }
 }
 
