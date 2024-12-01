@@ -29,6 +29,8 @@ constexpr float FLAME_THROWER_WIDTH = 0.2f * 418.f;
 constexpr float FLAME_THROWER_HEIGHT = 0.2f * 272.f;
 constexpr float FIREBALL_WIDTH = 0.4f * 422.f;
 constexpr float FIREBALL_HEIGHT = 0.4f * 339.f;
+constexpr float PLUS_HEART_WIDTH = 0.4f * 168.f;
+constexpr float PLUS_HEART_HEIGHT = 0.4f * 150.f;
 
 constexpr int SWORD_CHANNEL = 0;
 constexpr int HURT_CHANNEL = 1;
@@ -62,6 +64,7 @@ public:
 	void handle_connections(float deltaTime);
 	void handle_collisions();
 	void handle_invinciblity(float deltaTime);
+	void handle_plus_heart(float deltaTime);
 	void handle_bad_timers(float deltaTime);
 	void handle_ai();
 	void handle_saving();
@@ -86,6 +89,7 @@ private:
 
 	void player_get_damaged(Entity hostile);
 	void player_get_healed();
+	void create_heal_up_sprite();
 
     void update_damaged_player_sprites(float delta_time);
 

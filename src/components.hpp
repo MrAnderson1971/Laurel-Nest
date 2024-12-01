@@ -209,8 +209,14 @@ struct ProjectileTimer
 
 struct HealTimer
 {
-    float max_time = 0.25;
-    float elapsed_time = max_time;
+    static constexpr float max_time = 0.25f;
+    float counter_ms = 0.25;
+};
+
+struct PlusHeartTimer
+{
+    float counter_ms = 500;
+
 };
 
 enum class ProjectileType {
@@ -403,6 +409,7 @@ enum class TEXTURE_ASSET_ID {
     BIRDMAN_ELDER,
     OGRE_KAT_1,
     OGRE_KAT_2,
+    PLUS_HEART,
     SPIKE,
     TEXTURE_COUNT                         // Count of all textures
 };
