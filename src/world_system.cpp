@@ -202,6 +202,7 @@ void WorldSystem::init() {
 
 void WorldSystem::update(float deltaTime) {
     deltaTime = min(deltaTime, max_delta_time); // so if there's a lag spike the movement doesn't become so large you phase through walls
+    AISystem::flying_goomba_step(m_player, current_room, deltaTime);
     handle_connections(deltaTime);
     handle_motions(deltaTime);
     handle_collisions();
@@ -214,7 +215,6 @@ void WorldSystem::update(float deltaTime) {
     
     GoombaLogic::update_goomba_projectile_timer(deltaTime, current_room);
     GoombaLogic::update_damaged_goomba_sprites(deltaTime);
-    AISystem::flying_goomba_step(m_player, current_room, deltaTime);
     AISystem::swarm_goomba_step(current_room);
     BossAISystem::step(m_player, deltaTime);
     BossAISystem::update_damaged_chicken_sprites(deltaTime);
