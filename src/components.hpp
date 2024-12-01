@@ -432,6 +432,7 @@ enum class ROOM_ID {
     BMT_2,
     BMT_3,
     BMT_4,
+    BMT_5,
     NPC_1,
     NPC_3,
     LN_1,

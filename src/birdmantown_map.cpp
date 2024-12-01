@@ -20,7 +20,7 @@ void Birdmantown::init() {
 
     setRoomStrategy(std::make_unique<BMTRoom2Strategy>());
     m_room2 = currentRoom->execute();
-    start_room = m_room2;
+    //start_room = m_room2;
 
     setRoomStrategy(std::make_unique<BMTRoom3Strategy>());
     m_room3 = currentRoom->execute();
@@ -29,6 +29,10 @@ void Birdmantown::init() {
     setRoomStrategy(std::make_unique<BMTRoom4Strategy>());
     m_room4 = currentRoom->execute();
     //start_room = m_room4;
+
+    setRoomStrategy(std::make_unique<BMTRoom5Strategy>());
+    m_room5 = currentRoom->execute();
+    //start_room = m_room5;
 
     setRoomStrategy(std::make_unique<NPCRoom1Strategy>());
     m_npc_room1 = currentRoom->execute();
@@ -115,14 +119,23 @@ void Birdmantown::init() {
     Connection door_4_to_ln1 = SetDoor(0.4f, 0.04f, 0.88f, 0.f, m_ln_room1, vec2(renderSystem.getWindowWidth() * 0.13f, renderSystem.getWindowHeight() * 0.8f));
     list_4.doors.push_back(door_4_to_ln1);
 
-    // 4 to npc3: (0.03f, 0.4f, 1.0f, 0.72f), spawn = (0.08f, 0.8f)
-    Connection door_4_to_npc2 = SetDoor(0.03f, 0.4f, 1.0f, 0.72f, m_npc_room2, vec2(renderSystem.getWindowWidth() * 0.08f, renderSystem.getWindowHeight() * 0.8f));
-    list_4.doors.push_back(door_4_to_npc2);
+    // 4 to 5: (0.03f, 0.4f, 1.0f, 0.72f), spawn = (0.08f, 0.3f)
+    Connection door_4_to_5 = SetDoor(0.03f, 0.4f, 1.0f, 0.72f, m_room5, vec2(renderSystem.getWindowWidth() * 0.08f, renderSystem.getWindowHeight() * 0.3f));
+    list_4.doors.push_back(door_4_to_5);
 
-    // npc3 to 4: (0.03f, 0.8f, 0.f, 0.5f), spawn = (0.92f, 0.8f) 
+    // 5 to 4: (0.03f, 0.3f, 0.f, 0.22f), spawn = (0.92f, 0.8f)
+    ConnectionList list_5;
+    Connection door_5_to_4 = SetDoor(0.03f, 0.3f, 0.f, 0.22f, m_room4, vec2(renderSystem.getWindowWidth() * 0.92f, renderSystem.getWindowHeight() * 0.8f));
+    list_5.doors.push_back(door_5_to_4);
+    
+    // 5 to npc2: (0.03f, 0.4f, 1.0f, 0.72f), spawn = (0.08f, 0.8f)
+    Connection door_5_to_npc2 = SetDoor(0.03f, 0.4f, 1.0f, 0.72f, m_npc_room2, vec2(renderSystem.getWindowWidth() * 0.08f, renderSystem.getWindowHeight() * 0.8f));
+    list_5.doors.push_back(door_5_to_npc2);
+
+    // npc2 to 5: (0.03f, 0.8f, 0.f, 0.5f), spawn = (0.92f, 0.8f) 
     ConnectionList list_npc2;
-    Connection door_npc2_to_4 = SetDoor(0.03f, 0.8f, 0.f, 0.5f, m_room4, vec2(renderSystem.getWindowWidth() * 0.92f, renderSystem.getWindowHeight() * 0.8f));
-    list_npc2.doors.push_back(door_npc2_to_4);
+    Connection door_npc2_to_5 = SetDoor(0.03f, 0.8f, 0.f, 0.5f, m_room5, vec2(renderSystem.getWindowWidth() * 0.92f, renderSystem.getWindowHeight() * 0.8f));
+    list_npc2.doors.push_back(door_npc2_to_5);
 
     // LN1 to 4: (0.35f, 0.04f, 0.1f, 1.f), spawn = (0.92f, 0.18f)
     ConnectionList list_ln1;
@@ -156,6 +169,7 @@ void Birdmantown::init() {
     registry.doorList.emplace(m_room2, std::move(list_2));
     registry.doorList.emplace(m_room3, std::move(list_3));
     registry.doorList.emplace(m_room4, std::move(list_4));
+    registry.doorList.emplace(m_room5, std::move(list_5));
     registry.doorList.emplace(m_npc_room1, std::move(list_npc1));
     registry.doorList.emplace(m_npc_room2, std::move(list_npc2));
     registry.doorList.emplace(m_npc_room3, std::move(list_npc3));

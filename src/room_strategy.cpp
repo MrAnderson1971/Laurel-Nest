@@ -1022,98 +1022,215 @@ Entity BMTRoom4Strategy::execute() {
     return m_room;
 }
 
-//TODO: moving platforms + npc
-Entity NPCRoom1Strategy::execute() {
+// swarm room before npc2
+Entity BMTRoom5Strategy::execute() {
     Entity m_room;
     // for handling transitions
     Room room;
-    room.id = ROOM_ID::NPC_1;
+    room.id = ROOM_ID::BMT_5;
     room.clear = true;
     // background
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_BG));
 
     // arrows
-    Entity m_arrow_en = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), -0.3f, 0.3f, 0.05f, 0.87f, 0.f);
+    Entity m_arrow4 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), -0.3f, 0.3f, 0.05f, 0.3f, 0.f);
+    Entity m_arrow_npc3 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), 0.3f, 0.3f, 0.95f, 0.87f, 0.f);
 
     // wall
-    Entity m_wall = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL), 1.f, 0.6f, 0.6f, 0.99f, 500.f);
-
-    // more walls
-    Entity m_wall_block1 = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL_SHORT), 1.f, 0.6f, 0.6f, 0.15f, (float)renderSystem.getWindowHeight() - 300.f);
-    Entity m_wall_block2 = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL), 1.f, 0.6f, 0.6f, 0.33f, 50.f);
-    Entity m_wall_block3 = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL_SHORT), 1.f, 0.6f, 0.6f, 0.51f, (float)renderSystem.getWindowHeight() - 300.f);
-    Entity m_wall_block4 = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL), 1.f, 0.6f, 0.6f, 0.69f, 50.f);
+    Entity m_wall = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL), 1.f, 0.6f, 0.6f, 0.01f, 0.f);
 
     // ceiling
     Entity m_ceiling = SetCeiling(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_CEILING), 0.5f);
 
-    // platforms: start(top) = 0.35f, end(bottom) = 0.85f
-    Entity m_platform_npc1 = SetMovingPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), true, 0.1f, 0.2f, 0.24f, 0.85f, vec2(0.24f, 0.35f), vec2(0.24f, 0.85f), true);
-    Entity m_platform_npc2 = SetMovingPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), true, 0.1f, 0.2f, 0.42f, 0.35f, vec2(0.42f, 0.35f), vec2(0.42f, 0.85f), true);
-    Entity m_platform_npc3 = SetMovingPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), true, 0.1f, 0.2f, 0.6f, 0.85f, vec2(0.6f, 0.35f), vec2(0.6f, 0.85f), true);
-    Entity m_platform_npc4 = SetMovingPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), true, 0.1f, 0.2f, 0.78f, 0.35f, vec2(0.78f, 0.35f), vec2(0.78f, 0.85f), true);
+    // platform 1
+    Entity m_platform1 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.05f, 0.4f);
+
+    // platform 2
+    Entity m_platform2 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.2f, 0.6f);
+
+    // platform 3
+    Entity m_platform3 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.35f, 0.3f);
+
+    // platform 4
+    Entity m_platform4 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.5f, 0.5f);
+
+    // platform 5
+    Entity m_platform5 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.65f, 0.8f);
+
+    // platform 6
+    Entity m_platform6 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.8f, 0.65f);
 
     // ground
     Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 0.5f, 0.5f, 0.0f);
 
-    // Pelican
-    Entity elder = SetBirdmanElder(renderSystem.getWindowWidth() - 150.f, renderSystem.getWindowHeight() - 216.f);
+    // swarm goombas
+    GoombaSwarm gs1 = GoombaSwarm();
+    gs1.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
 
-    // some goombas for excitement
-    Entity m_platform_g1 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.33f, 0.f, 0.f);
-    Entity m_platform_g2 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.69f, 0.f, 0.f);
-    GoombaCeiling gc1 = GoombaCeiling();
-    GoombaCeiling gc2 = GoombaCeiling();
-    //GoombaCeiling gc3 = GoombaCeiling();
-    //GoombaCeiling gc4 = GoombaCeiling();
-    gc1.init(static_cast<float>(renderSystem.getWindowWidth() * 0.33f), renderSystem.getWindowHeight() * 0.07f);
-    gc2.init(static_cast<float>(renderSystem.getWindowWidth() * 0.69f), renderSystem.getWindowHeight() * 0.07f);
-    //gc3.init(static_cast<float>(renderSystem.getWindowWidth() * 0.42), gc3.bottom_edge);
-    //gc4.init(static_cast<float>(renderSystem.getWindowWidth() * 0.23), gc4.bottom_edge);
-    gc1.set_spit_timer(0.9f);
-    gc2.set_spit_timer(1.1f);
-    //gc3.set_spit_timer(1.2f);
-    //gc4.set_spit_timer(1.5f);
+    GoombaSwarm gs2 = GoombaSwarm();
+    gs2.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
+
+    GoombaSwarm gs3 = GoombaSwarm();
+    gs3.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
+
+    GoombaSwarm gs4 = GoombaSwarm();
+    gs4.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
+
+    GoombaSwarm gs5 = GoombaSwarm();
+    gs5.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
+
+    GoombaSwarm gs6 = GoombaSwarm();
+    gs6.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
+
+    GoombaSwarm gs7 = GoombaSwarm();
+    gs7.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
+
+    GoombaSwarm gs8 = GoombaSwarm();
+    gs8.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
+
+    room.insert(gs1.entity);
+    room.insert(gs2.entity);
+    room.insert(gs3.entity);
+    room.insert(gs4.entity);
+    room.insert(gs5.entity);
+    room.insert(gs6.entity);
+    room.insert(gs7.entity);
+    room.insert(gs8.entity);
+
+    room.insert_swarm_goomba(gs1.entity);
+    room.insert_swarm_goomba(gs2.entity);
+    room.insert_swarm_goomba(gs3.entity);
+    room.insert_swarm_goomba(gs4.entity);
+    room.insert_swarm_goomba(gs5.entity);
+    room.insert_swarm_goomba(gs6.entity);
+    room.insert_swarm_goomba(gs7.entity);
+    room.insert_swarm_goomba(gs8.entity);
+    
 
     // note on bg: don't add motion
     registry.grounds.emplace(m_wall, std::move(Ground()));
-    registry.grounds.emplace(m_platform_npc1, std::move(Ground()));
-    registry.grounds.emplace(m_platform_npc2, std::move(Ground()));
-    registry.grounds.emplace(m_platform_npc3, std::move(Ground()));
-    registry.grounds.emplace(m_platform_npc4, std::move(Ground()));
-    registry.grounds.emplace(m_wall_block1, std::move(Ground()));
-    registry.grounds.emplace(m_wall_block2, std::move(Ground()));
-    registry.grounds.emplace(m_wall_block3, std::move(Ground()));
-    registry.grounds.emplace(m_wall_block4, std::move(Ground()));
     registry.grounds.emplace(m_ground, std::move(Ground()));
+    registry.grounds.emplace(m_platform1, std::move(Ground()));
+    registry.grounds.emplace(m_platform2, std::move(Ground()));
+    registry.grounds.emplace(m_platform3, std::move(Ground()));
+    registry.grounds.emplace(m_platform4, std::move(Ground()));
+    registry.grounds.emplace(m_platform5, std::move(Ground()));
+    registry.grounds.emplace(m_platform6, std::move(Ground()));
+    //registry.grounds.emplace(m_platform_g1, std::move(Ground()));
+    //registry.grounds.emplace(m_platform_g3, std::move(Ground()));
 
-    // NPC
-   // Entity elder = SetBirdmanElder(renderSystem.getWindowWidth() - 200.f, renderSystem.getWindowHeight() - 747.f);
-    room.insert(elder);
-    room.insert(gc1.entity);
-    room.insert(gc2.entity);
-    //room.insert(gc3.entity);
-    //room.insert(gc4.entity);
     room.insert(m_bg);
-    room.insert(m_arrow_en);
+    room.insert(m_arrow4);
+    room.insert(m_arrow_npc3);
     room.insert(m_wall);
     room.insert(m_ceiling);
-    room.insert(m_platform_g1);
-    room.insert(m_platform_g2);
-    room.insert(m_platform_npc1);
-    room.insert(m_platform_npc2);
-    room.insert(m_platform_npc3);
-    room.insert(m_platform_npc4);
-    room.insert(m_wall_block1);
-    room.insert(m_wall_block2);
-    room.insert(m_wall_block3);
-    room.insert(m_wall_block4);
     room.insert(m_ground);
+    room.insert(m_platform1);
+    room.insert(m_platform2);
+    room.insert(m_platform3);
+    room.insert(m_platform4);
+    room.insert(m_platform5);
+    room.insert(m_platform6);
+
+    room.setMusic(Mix_LoadMUS(audio_path("cesspit.wav").c_str()));
 
     registry.rooms.emplace(m_room, std::move(room));
 
     return m_room;
 }
+
+//TODO: moving platforms + npc
+Entity NPCRoom1Strategy::execute(){
+    Entity m_room;
+// for handling transitions
+Room room;
+room.id = ROOM_ID::NPC_1;
+room.clear = true;
+// background
+Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_BG));
+
+// arrows
+Entity m_arrow_en = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), -0.3f, 0.3f, 0.05f, 0.87f, 0.f);
+
+// wall
+Entity m_wall = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL), 1.f, 0.6f, 0.6f, 0.99f, 500.f);
+
+// more walls
+Entity m_wall_block1 = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL_SHORT), 1.f, 0.6f, 0.6f, 0.15f, (float)renderSystem.getWindowHeight() - 300.f);
+Entity m_wall_block2 = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL), 1.f, 0.6f, 0.6f, 0.33f, 50.f);
+Entity m_wall_block3 = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL_SHORT), 1.f, 0.6f, 0.6f, 0.51f, (float)renderSystem.getWindowHeight() - 300.f);
+Entity m_wall_block4 = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL), 1.f, 0.6f, 0.6f, 0.69f, 50.f);
+
+// ceiling
+Entity m_ceiling = SetCeiling(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_CEILING), 0.5f);
+
+// platforms: start(top) = 0.35f, end(bottom) = 0.85f
+Entity m_platform_npc1 = SetMovingPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), true, 0.1f, 0.2f, 0.24f, 0.85f, vec2(0.24f, 0.35f), vec2(0.24f, 0.85f), true);
+Entity m_platform_npc2 = SetMovingPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), true, 0.1f, 0.2f, 0.42f, 0.35f, vec2(0.42f, 0.35f), vec2(0.42f, 0.85f), true);
+Entity m_platform_npc3 = SetMovingPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), true, 0.1f, 0.2f, 0.6f, 0.85f, vec2(0.6f, 0.35f), vec2(0.6f, 0.85f), true);
+Entity m_platform_npc4 = SetMovingPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), true, 0.1f, 0.2f, 0.78f, 0.35f, vec2(0.78f, 0.35f), vec2(0.78f, 0.85f), true);
+
+// ground
+Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 0.5f, 0.5f, 0.0f);
+
+// Pelican
+Entity elder = SetBirdmanElder(renderSystem.getWindowWidth() - 150.f, renderSystem.getWindowHeight() - 216.f);
+
+// some goombas for excitement
+Entity m_platform_g1 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.33f, 0.f, 0.f);
+Entity m_platform_g2 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.69f, 0.f, 0.f);
+GoombaCeiling gc1 = GoombaCeiling();
+GoombaCeiling gc2 = GoombaCeiling();
+//GoombaCeiling gc3 = GoombaCeiling();
+//GoombaCeiling gc4 = GoombaCeiling();
+gc1.init(static_cast<float>(renderSystem.getWindowWidth() * 0.33f), renderSystem.getWindowHeight() * 0.07f);
+gc2.init(static_cast<float>(renderSystem.getWindowWidth() * 0.69f), renderSystem.getWindowHeight() * 0.07f);
+//gc3.init(static_cast<float>(renderSystem.getWindowWidth() * 0.42), gc3.bottom_edge);
+//gc4.init(static_cast<float>(renderSystem.getWindowWidth() * 0.23), gc4.bottom_edge);
+gc1.set_spit_timer(0.9f);
+gc2.set_spit_timer(1.1f);
+//gc3.set_spit_timer(1.2f);
+//gc4.set_spit_timer(1.5f);
+
+// note on bg: don't add motion
+registry.grounds.emplace(m_wall, std::move(Ground()));
+registry.grounds.emplace(m_platform_npc1, std::move(Ground()));
+registry.grounds.emplace(m_platform_npc2, std::move(Ground()));
+registry.grounds.emplace(m_platform_npc3, std::move(Ground()));
+registry.grounds.emplace(m_platform_npc4, std::move(Ground()));
+registry.grounds.emplace(m_wall_block1, std::move(Ground()));
+registry.grounds.emplace(m_wall_block2, std::move(Ground()));
+registry.grounds.emplace(m_wall_block3, std::move(Ground()));
+registry.grounds.emplace(m_wall_block4, std::move(Ground()));
+registry.grounds.emplace(m_ground, std::move(Ground()));
+
+// NPC
+// Entity elder = SetBirdmanElder(renderSystem.getWindowWidth() - 200.f, renderSystem.getWindowHeight() - 747.f);
+ room.insert(elder);
+ room.insert(gc1.entity);
+ room.insert(gc2.entity);
+ //room.insert(gc3.entity);
+ //room.insert(gc4.entity);
+ room.insert(m_bg);
+ room.insert(m_arrow_en);
+ room.insert(m_wall);
+ room.insert(m_ceiling);
+ room.insert(m_platform_g1);
+ room.insert(m_platform_g2);
+ room.insert(m_platform_npc1);
+ room.insert(m_platform_npc2);
+ room.insert(m_platform_npc3);
+ room.insert(m_platform_npc4);
+ room.insert(m_wall_block1);
+ room.insert(m_wall_block2);
+ room.insert(m_wall_block3);
+ room.insert(m_wall_block4);
+ room.insert(m_ground);
+
+ registry.rooms.emplace(m_room, std::move(room));
+
+ return m_room;
+    }
 
 //TODO: corpses + npc
 Entity NPCRoom2Strategy::execute() {
@@ -1297,6 +1414,38 @@ Entity LNRoom1Strategy::execute() {
     // note on bg: don't add motion
     registry.grounds.emplace(m_wall, std::move(Ground()));
     registry.grounds.emplace(m_ground, std::move(Ground()));
+
+    /*GoombaSwarm gs1 = GoombaSwarm();
+    gs1.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
+
+    GoombaSwarm gs2 = GoombaSwarm();
+    gs2.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
+
+    GoombaSwarm gs3 = GoombaSwarm();
+    gs3.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
+
+    GoombaSwarm gs4 = GoombaSwarm();
+    gs4.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
+
+    GoombaSwarm gs5 = GoombaSwarm();
+    gs5.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
+
+    GoombaSwarm gs6 = GoombaSwarm();
+    gs6.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
+
+    room.insert(gs1.entity);
+    room.insert(gs2.entity);
+    room.insert(gs3.entity);
+    room.insert(gs4.entity);
+    room.insert(gs5.entity);
+    room.insert(gs6.entity);
+
+    room.insert_swarm_goomba(gs1.entity);
+    room.insert_swarm_goomba(gs2.entity);
+    room.insert_swarm_goomba(gs3.entity);
+    room.insert_swarm_goomba(gs4.entity);
+    room.insert_swarm_goomba(gs5.entity);
+    room.insert_swarm_goomba(gs6.entity);*/
 
     GoombaSwarm gs1 = GoombaSwarm();
     gs1.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
