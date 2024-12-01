@@ -6,9 +6,14 @@
 #include "serialize.hpp"
 #include <iostream>
 
-SplashScreenState::SplashScreenState() : hasLoaded(false) {}
+SplashScreenState::SplashScreenState() : hasLoaded(false), music(Mix_LoadMUS(audio_path("title.wav").c_str())) {
+}
 
 SplashScreenState::~SplashScreenState() {
+    if (music != nullptr) {
+        Mix_FreeMusic(music);
+        music = nullptr;
+    }
     SplashScreenState::cleanup();
 }
 
@@ -43,6 +48,7 @@ void SplashScreenState::init()
         vec3(renderSystem.getWindowWidth() * 0.08f, renderSystem.getWindowHeight() * 0.94f, 0.f),
         vec3(escSprite.width * 0.3f, escSprite.height * 0.3f, 1.f), 0.f
         });
+    Mix_PlayMusic(music, -1);
 }
 
 void SplashScreenState::on_key(int key, int, int action, int)
@@ -104,5 +110,9 @@ void SplashScreenState::render() {
 }
 
 void SplashScreenState::cleanup() {
-    registry.clear_all_components();
+    registry.remove_all_components_of(splashScreenEntity);
+    registry.remove_all_components_of(namesEntity);
+    registry.remove_all_components_of(quitEntity);
+    registry.remove_all_components_of(optionsEntity);
+    registry.remove_all_components_of(esc_key);
 }

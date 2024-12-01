@@ -517,7 +517,6 @@ struct Connection {
     Entity door;
     Entity nextRoom;
     vec2 nextSpawn;
-    bool limit;
     bool switchMap;
 };
 

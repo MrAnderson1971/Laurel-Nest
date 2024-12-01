@@ -8,10 +8,16 @@ constexpr int LAST_OPENING_ANIMATION_FRAME = 18;
 constexpr int LAST_PICKUP_ANIMATION_FRAME = 6;
 constexpr float SECONDS_PER_FRAME = 0.5f;
 
-class OpeningCutscene : public GameState {
+template<int Frames>
+struct Cutscene : public GameState {
+protected:
+	static constexpr int totalFrames = Frames;
+};
+
+class OpeningCutscene : public Cutscene<LAST_OPENING_ANIMATION_FRAME> {
 public:
 	OpeningCutscene();
-	~OpeningCutscene() override = default;
+	~OpeningCutscene() override;
 
 	void init() override {}
 	void cleanup() override {}
@@ -23,12 +29,20 @@ public:
 
 private:
 	bool hasLoaded;
+	bool isShowingTutorial;
 	float seconds_passed;
 	int frameCount;
-	std::array<boost::optional<Sprite>, LAST_OPENING_ANIMATION_FRAME> frames;
+	std::array<boost::optional<Sprite>, totalFrames> frames;
+
+	Entity tutorialEntity;
+	Entity control_keys;
+	Entity mouse_click;
+	Entity h_key;
+	Entity e_key;
+	Entity q_key;
 };
 
-class PickupCutscene : public GameState {
+class PickupCutscene : public Cutscene<LAST_PICKUP_ANIMATION_FRAME> {
 public:
 	PickupCutscene();
 	~PickupCutscene() override = default;
@@ -46,5 +60,5 @@ private:
 	int frameCount;
 	float transitionFrame;
 	bool finishedCutscene;
-	std::array<boost::optional<Sprite>, LAST_PICKUP_ANIMATION_FRAME> frames;
+	std::array<boost::optional<Sprite>, totalFrames> frames;
 };

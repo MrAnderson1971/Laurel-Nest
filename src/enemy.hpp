@@ -15,6 +15,7 @@ public:
 	};
 
 	void set_direction(bool dir);
+	void set_health(const int num);
 
 private:
 	virtual void init_sprite() = 0;

@@ -239,9 +239,11 @@ void WorldSystem::update(float deltaTime) {
     // update music
     if (continue_music && registry.rooms.has(current_room)) {
         Room& r = registry.rooms.get(current_room);
-        std::shared_ptr<Mix_Music> music = r.music;
-        Mix_PlayMusic(music.get(), 1);
-        continue_music = false;
+        if (r.id != ROOM_ID::CP_BOSS) {
+            std::shared_ptr<Mix_Music> music = r.music;
+            Mix_PlayMusic(music.get(), 1);
+            continue_music = false;
+        }
     }
 }
 
@@ -256,7 +258,7 @@ void WorldSystem::handle_connections(float deltaTime) {
             auto& a = registry.playerAnimations.get(m_player);
             if (physics.checkForCollision(m_player, connection.door, dir, over) && a.getState() != PlayerState::ATTACKING && playerMotion.velocity != vec2(0.f, 0.f)) {
                 // check if in boss room and if boss is dead
-                //if (!connection.limit || (registry.rooms.get(current_room).id == ROOM_ID::CP_BOSS && isChickenDead)) {
+                if (registry.rooms.get(current_room).id != ROOM_ID::CP_BOSS || (registry.rooms.get(current_room).id == ROOM_ID::CP_BOSS && isChickenDead)) {
                     // set next room
                     // check for switching map
                     if (!connection.switchMap) {
@@ -269,21 +271,25 @@ void WorldSystem::handle_connections(float deltaTime) {
                     }
                     physics.setRoom(current_room);
                     AISystem::init_aim();
-                    
+
                     // set spawn point of player in new room
                     playerMotion.position = connection.nextSpawn;
-
+                    
                     // handle music
                     Room& r = registry.rooms.get(current_room);
                     std::shared_ptr<Mix_Music> music = r.music;
-                    if (music != nullptr &&  r.id == ROOM_ID::CP_BOSS && !isChickenDead) {
+                    if (music != nullptr && r.id == ROOM_ID::CP_BOSS && !isChickenDead) {
                         Mix_PlayMusic(music.get(), 1);
                         continue_music = true;
                     }
+
+
                     // No need to check if boss is alive, the game ends when it dies
                     if (music != nullptr && r.id == ROOM_ID::LN_BOSS) {
                         Mix_PlayMusic(music.get(), 1);
                     }
+                
+                }
             }
         }
     }
@@ -1025,6 +1031,11 @@ void WorldSystem::render() {
     std::string uses_string = "Health Flask uses: " + num_uses;
     renderSystem.renderText(uses_string, static_cast<float>(window_width_px * 0.045), static_cast<float>(window_height_px * 0.80), 0.75f, font_color, font_trans);
 
+    // text for sword power up
+    if (swordPowerUp_0) {
+        std::string uses_string_sword = "2X Attack Power!";
+        renderSystem.renderText(uses_string_sword, static_cast<float>(window_width_px * 0.045), static_cast<float>(window_height_px * 0.77), 0.75f, font_color, font_trans);
+    }
 
     // Draw the flame thrower if the boss is killed
     if (registry.transforms.has(m_flameThrower) && registry.sprites.has(m_flameThrower))
@@ -1227,7 +1238,7 @@ void WorldSystem::useFlameThrower() {
    registry.transforms.emplace(m_fireball, std::move(fireballTransform));
 
    Damage fireballDamage;
-   fireballDamage.damage_dealt = 2;
+   fireballDamage.damage_dealt = 3;
    registry.damages.emplace(m_fireball, fireballDamage);
 
    BoundingBox fireballBB;
