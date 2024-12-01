@@ -216,10 +216,12 @@ void WorldSystem::update(float deltaTime) {
     GoombaLogic::update_damaged_goomba_sprites(deltaTime);
     AISystem::flying_goomba_step(m_player, current_room, deltaTime);
     AISystem::swarm_goomba_step(current_room);
-    BossAISystem::step(m_player, deltaTime);
-    BossAISystem::update_damaged_chicken_sprites(deltaTime);
+    // Only step if the player is in the Chicken boss room
+    if (registry.rooms.has(current_room) && registry.rooms.get(current_room).id == ROOM_ID::CP_BOSS) {
+        BossAISystem::step(m_player, deltaTime);
+        BossAISystem::update_damaged_chicken_sprites(deltaTime);
+    }
     
-
     // look for specific rooms with restrictions
     if (registry.rooms.has(current_room) && registry.rooms.get(current_room).id == ROOM_ID::BMT_3 && !registry.rooms.get(current_room).clear) {
         handle_bmt3();
