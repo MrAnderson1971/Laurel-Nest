@@ -62,6 +62,7 @@ public:
 	void handle_connections(float deltaTime);
 	void handle_collisions();
 	void handle_invinciblity(float deltaTime);
+	void handle_bad_timers(float deltaTime);
 	void handle_ai();
 	void handle_saving();
 	void handle_pelican();
