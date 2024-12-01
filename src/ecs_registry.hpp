@@ -17,6 +17,7 @@ public:
     ComponentContainer<Damage> damages;
     ComponentContainer<RecentlyDamagedTimer> recentDamageTimers;
     ComponentContainer<InvincibilityTimer> invinciblityTimers;
+    ComponentContainer<PlusHeartTimer> plusHeartTimers;
     ComponentContainer<HealTimer> healTimers;
     ComponentContainer<ProjectileTimer> projectileTimers;
     ComponentContainer<Projectile> projectiles;
@@ -37,6 +38,7 @@ public:
     ComponentContainer<GoombaFlyingState> goombaFlyingStates;
     ComponentContainer<Animation<PlayerState>> playerAnimations;
     ComponentContainer<Animation<ChickenState>> chickenAnimations;
+    ComponentContainer<Animation<GBState>> gbAnimations;
     ComponentContainer<Animation<FlyingGoombaState>> flyingGoombaAnimations;
     ComponentContainer<Gravity> gravity;
     ComponentContainer<Patrol_AI> patrol;
@@ -51,6 +53,9 @@ public:
     ComponentContainer<Elder> elder;
     ComponentContainer<Kat> kat;
 
+    ComponentContainer<BadObj> badObjs;
+    ComponentContainer<BadObjTimer> badObjTimers;
+
     ComponentContainer<Room> rooms;
     ComponentContainer<Connection> doors;
     ComponentContainer<ConnectionList> doorList;
@@ -63,6 +68,7 @@ public:
     // IMPORTANT: Don't forget to add any newly added containers!
     ECSRegistry()
     {
+        registry_list.push_back(&plusHeartTimers);
         registry_list.push_back(&healTimers);
         registry_list.push_back(&goombaFlyingStates);
         registry_list.push_back(&savePoints);
@@ -107,6 +113,9 @@ public:
         registry_list.push_back(&elder);
         registry_list.push_back(&kat);
         registry_list.push_back(&walls);
+        registry_list.push_back(&badObjs);
+        registry_list.push_back(&badObjTimers);
+        registry_list.push_back(&gbAnimations);
     }
 
     void clear_all_components() {

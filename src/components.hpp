@@ -47,11 +47,10 @@ enum ChickenState {
 enum GBState {
     GB_IDLE,
     GB_SMASH,
-    GB_SPEAR_SINGLe,
-    GB_SPEAR_MULTIPLE,
-    GB_NUKE,
+    GB_HIT,
     GB_DEATH
 };
+
 
 enum FlyingGoombaState {
     FLYING_GOOMBA_IDLE,
@@ -65,15 +64,7 @@ enum class HostileType {
     GOOMBA_LAND,
     GOOMBA_CEILING,
     GOOMBA_FLYING,
-};
-
-enum class GreatBird {
-    IDLE,
-    SMASH,
-    SPEAR_SINGLE,
-    SPEAR_MANY,
-    NUKE,
-    DEATH,
+    GOOMBA_SWARM
 };
 
 /* Template Animation component for animated sprites
@@ -191,6 +182,18 @@ struct Elder {
 struct Kat {
 };
 
+// spears and yellow ground for the Gb
+struct BadObj {
+};
+
+struct BadObjTimer {
+    float max_time;
+    float elapsed_time = 0.f;
+    float stall;
+    bool isActive = false;
+    int damage;
+};
+
 // A timer that will be associated to when the player can get damaged again 
 struct InvincibilityTimer
 {
@@ -206,8 +209,14 @@ struct ProjectileTimer
 
 struct HealTimer
 {
-    float max_time = 499;
-    float elapsed_time = max_time;
+    static constexpr float max_time = 0.25f;
+    float counter_ms = 0.25;
+};
+
+struct PlusHeartTimer
+{
+    float counter_ms = 500;
+
 };
 
 enum class ProjectileType {
@@ -350,7 +359,7 @@ enum class TEXTURE_ASSET_ID {
     SPLASH_SCREEN,                        // splash_screen.png
     DEMO_GROUND,                          // demo_ground.png
     DEMO_GROUND_SMASH,
-    DEMO_WALL,                      // demo_wall.png
+    DEMO_WALL,                            // demo_wall.png
     DEMO_CEILING,                         // demo_ceiling.png
     HEART_3,                              // heart_3.png
     HEART_2,                              // heart_2.png
@@ -400,6 +409,8 @@ enum class TEXTURE_ASSET_ID {
     BIRDMAN_ELDER,
     OGRE_KAT_1,
     OGRE_KAT_2,
+    PLUS_HEART,
+    SPIKE,
     TEXTURE_COUNT                         // Count of all textures
 };
 constexpr int texture_count = static_cast<int>(TEXTURE_ASSET_ID::TEXTURE_COUNT);
@@ -433,6 +444,7 @@ enum class ROOM_ID {
     BMT_2,
     BMT_3,
     BMT_4,
+    BMT_5,
     NPC_1,
     NPC_3,
     LN_1,
@@ -499,6 +511,7 @@ struct Room {
     ROOM_ID id;
     bool clear;
     std::set<Entity> entities;
+    std::set<Entity> swarm_goombas;
     std::shared_ptr<Mix_Music> music;
 
     void setMusic(Mix_Music* m) {
@@ -518,13 +531,22 @@ struct Room {
     bool has(Entity entity) {
         return entities.count(entity) > 0;
     }
+
+    void insert_swarm_goomba(Entity entity) {
+        if (swarm_goombas.count(entity) == 0) {
+            swarm_goombas.insert(entity);
+        }
+    }
+
+    bool has_swarm_goombas() {
+        return !swarm_goombas.empty();
+    }
 };
 
 struct Connection {
     Entity door;
     Entity nextRoom;
     vec2 nextSpawn;
-    bool limit;
     bool switchMap;
 };
 

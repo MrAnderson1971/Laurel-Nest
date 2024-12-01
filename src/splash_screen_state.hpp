@@ -23,4 +23,7 @@ private:
     Entity optionsEntity;
     Entity esc_key;
     bool hasLoaded;
+    Mix_Music* music;
 };
+
+extern std::unique_ptr<Sprite> backgroundImage;

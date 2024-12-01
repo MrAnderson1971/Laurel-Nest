@@ -1,6 +1,7 @@
 #pragma once
 #include "common.hpp"
 #include <memory>
+#include <random>
 #include "ecs.hpp"
 #include "game_state.hpp"
 #include "render_system.hpp"
@@ -28,6 +29,8 @@ constexpr float FLAME_THROWER_WIDTH = 0.2f * 418.f;
 constexpr float FLAME_THROWER_HEIGHT = 0.2f * 272.f;
 constexpr float FIREBALL_WIDTH = 0.4f * 422.f;
 constexpr float FIREBALL_HEIGHT = 0.4f * 339.f;
+constexpr float PLUS_HEART_WIDTH = 0.4f * 168.f;
+constexpr float PLUS_HEART_HEIGHT = 0.4f * 150.f;
 
 constexpr int SWORD_CHANNEL = 0;
 constexpr int HURT_CHANNEL = 1;
@@ -61,10 +64,14 @@ public:
 	void handle_connections(float deltaTime);
 	void handle_collisions();
 	void handle_invinciblity(float deltaTime);
+	void handle_plus_heart(float deltaTime);
+	void handle_bad_timers(float deltaTime);
 	void handle_ai();
 	void handle_saving();
 	void handle_pelican();
 	void handle_bmt3();
+	void handle_hostiles_in_doors();
+	void handle_flamethrower(float deltaTime);
 
 	void draw_npc_interact(Entity obj);
 
@@ -82,6 +89,7 @@ private:
 
 	void player_get_damaged(Entity hostile);
 	void player_get_healed();
+	void create_heal_up_sprite();
 
     void update_damaged_player_sprites(float delta_time);
 
@@ -94,6 +102,7 @@ private:
 	void update_status_bar(int num_hearts);
 	void upgrade_player_health();
 
+	float ws_delta_time;
     float coyoteTimer = 0.f;
     bool isGrounded = false;
 	bool canAttack = true;
@@ -146,3 +155,7 @@ private:
 };
 
 extern std::unordered_map<TEXTURE_ASSET_ID, Sprite>* g_texture_paths;
+
+// C++ random number generator
+extern std::default_random_engine rng;
+extern std::uniform_real_distribution<float> uniform_dist; // number between 0..1

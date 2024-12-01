@@ -115,21 +115,21 @@ void OptionsMenu::render() {
 		renderSystem.drawEntity(registry.sprites.get(tutorialEntity), registry.transforms.get(tutorialEntity));
 
 		renderSystem.drawEntity(registry.sprites.get(control_keys), registry.transforms.get(control_keys));
-		renderSystem.renderText("keys to control player movement", window_width_px * 0.3f, window_height_px * 0.8f, 0.8f, vec3(1), mat4(1));
+		renderSystem.renderText("Keys To Control Player Movement", window_width_px * 0.3f, window_height_px * 0.8f, 0.8f, vec3(1), mat4(1));
 		
 		renderSystem.drawEntity(registry.sprites.get(mouse_click), registry.transforms.get(mouse_click));
-		renderSystem.renderText("left click mouse to attack", window_width_px * 0.25f, window_height_px * 0.62f, 0.8f, vec3(1), mat4(1));
+		renderSystem.renderText("Left Click Mouse To Attack", window_width_px * 0.25f, window_height_px * 0.62f, 0.8f, vec3(1), mat4(1));
 		
 		renderSystem.drawEntity(registry.sprites.get(h_key), registry.transforms.get(h_key));
-		renderSystem.renderText("key to restore health up to 3 times", window_width_px * 0.25f, window_height_px * 0.48f, 0.8f, vec3(1), mat4(1));
+		renderSystem.renderText("Hold For 2 Seconds To Restore Health Up To 3 Times", window_width_px * 0.25f, window_height_px * 0.48f, 0.8f, vec3(1), mat4(1));
 		
-		renderSystem.renderText("after defeating the Flame Chicken", window_width_px * 0.3f, window_height_px * 0.33f, 0.6f, vec3(1), mat4(1));
+		renderSystem.renderText("After Defeating The Flame Chicken", window_width_px * 0.3f, window_height_px * 0.37f, 1.0f, vec3(1), mat4(1));
 		
 		renderSystem.drawEntity(registry.sprites.get(e_key), registry.transforms.get(e_key));
-		renderSystem.renderText("key to equip flamethrower", window_width_px * 0.2f, window_height_px * 0.25f, 0.8f, vec3(1), mat4(1));
+		renderSystem.renderText("Key To Equip Beak of Fire", window_width_px * 0.18f, window_height_px * 0.25f, 0.8f, vec3(1), mat4(1));
 		
 		renderSystem.drawEntity(registry.sprites.get(q_key), registry.transforms.get(q_key));
-		renderSystem.renderText("key to unequip", window_width_px * 0.7f, window_height_px * 0.25f, 0.8f, vec3(1), mat4(1));
+		renderSystem.renderText("Key To Unequip", window_width_px * 0.7f, window_height_px * 0.25f, 0.8f, vec3(1), mat4(1));
 
 	}
 	renderSystem.drawEntity(registry.sprites.get(esc_key), registry.transforms.get(esc_key));

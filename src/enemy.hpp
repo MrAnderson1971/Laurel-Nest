@@ -15,6 +15,7 @@ public:
 	};
 
 	void set_direction(bool dir);
+	void set_health(const int num);
 
 private:
 	virtual void init_sprite() = 0;
@@ -44,6 +45,14 @@ class GoombaFlying : public Enemy {
 public:
 	GoombaFlying();
 	void set_initial_attack(FlyingGoombaState state);
+private:
+	void init_sprite() override;
+	void init_components(float x, float y) override;
+};
+
+class GoombaSwarm : public Enemy {
+public:
+	GoombaSwarm();
 private:
 	void init_sprite() override;
 	void init_components(float x, float y) override;

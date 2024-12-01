@@ -20,7 +20,7 @@ enum class STATE {
 	DEATH = HIT + 1
 };
 
-STATE current_state;
+static STATE current_state;
 Entity boss_room;
 Entity chicken;
 float flame_cooldown = 0;
@@ -245,10 +245,10 @@ void BossAISystem::step(Entity player, float elapsed_time) {
                         flame_attack(pos5);
                     }
                 }else{
-                    flame_attack(renderSystem.getWindowWidth() / 6.f);
-                    flame_attack(renderSystem.getWindowWidth() / 3.f);
+                    flame_attack(renderSystem.getWindowWidth() * uniform_dist(rng));
+                    flame_attack(renderSystem.getWindowWidth() * uniform_dist(rng));
                     // flame_attack(renderSystem.getWindowWidth() * (2.f/3.f));
-                    flame_attack(renderSystem.getWindowWidth() * (5.f / 6.f));
+                    flame_attack(renderSystem.getWindowWidth() * uniform_dist(rng));
                 }
 			}
 
@@ -266,10 +266,10 @@ void BossAISystem::step(Entity player, float elapsed_time) {
 				current_state = STATE::FLAME;
 				a.setState(CHICKEN_FLAME);
 				flame_cooldown = 1.5f;
-				flame_attack(renderSystem.getWindowWidth() / 6.f);
-				flame_attack(renderSystem.getWindowWidth() / 3.f);
+				flame_attack(renderSystem.getWindowWidth() * uniform_dist(rng));
+				flame_attack(renderSystem.getWindowWidth() * uniform_dist(rng));
 				// flame_attack(renderSystem.getWindowWidth() * (2.f / 3.f));
-				flame_attack(renderSystem.getWindowWidth() * (5.f / 6.f));
+				flame_attack(renderSystem.getWindowWidth() * uniform_dist(rng));
 			}
 			else {
 				current_state = STATE::IDLE;

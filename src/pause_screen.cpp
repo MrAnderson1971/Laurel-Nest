@@ -17,6 +17,8 @@ void MenuState::render() {
     // Clear the screen
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
+    TransformComponent transform{ vec3(window_width_px / 2.f, window_height_px / 2.f, 0.f), vec3(window_width_px, window_height_px, 1.f), 0.f };
+    renderSystem.drawEntity(*backgroundImage, transform);
 }
 
 PauseState::PauseState(): timePassed(0) {}

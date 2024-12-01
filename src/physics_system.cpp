@@ -6,6 +6,8 @@
 #include <thread>
 #include <mutex>
 
+#include "world_system.hpp"
+
 // Returns the local bounding coordinates scaled by the current size of the entity
 
 void PhysicsSystem::setRoom(Entity newRoom) {
@@ -97,12 +99,11 @@ void projectOntoAxis(const std::vector<vec2>& points, const vec2& axis, float& m
 bool playerMeshCollide(Entity player, Entity other, vec2& direction, vec2& overlap) {
     auto& motion = registry.motions.get(other);
     auto& motion1 = registry.motions.get(player);
-    PlayerState state = registry.playerAnimations.get(player).currentState;
-    const Mesh& mesh = registry.playerMeshes.get(player).stateMeshes[state];
+    const Mesh& mesh = registry.playerMeshes.get(player).stateMeshes[PlayerState::WALKING];
 
     // Transform player's mesh vertices to world space
     Transform trans;
-    trans.translate(motion1.position).rotate(motion1.angle).scale(abs(motion1.scale));
+    trans.translate(motion1.position).rotate(motion1.angle).scale({WALKING_BB_WIDTH, WALKING_BB_HEIGHT});
 
     std::vector<vec2> transformedVertices;
     transformedVertices.reserve(mesh.vertices.size());
