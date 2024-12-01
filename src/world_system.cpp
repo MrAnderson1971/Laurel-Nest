@@ -1167,7 +1167,11 @@ void WorldSystem::render() {
         Motion player_motion = registry.motions.get(m_player);
         float x_pos = player_motion.position.x - 60.f;
         float y_pos = renderSystem.getWindowHeight() - player_motion.position.y - (WALKING_BB_HEIGHT / 2) - 20;
-        renderSystem.renderText("Hold To Heal", x_pos, y_pos, 0.5f, vec3(1), mat4(1));
+        std::stringstream ss;
+        auto& healTimer = registry.healTimers.get(m_player);
+        ss << "Hold to Heal: " << std::fixed << std::setprecision(2)
+        << clamp((healTimer.max_time - healTimer.elapsed_time) / healTimer.max_time * 100.f, 0, 100) << "%";
+        renderSystem.renderText(ss.str(), x_pos, y_pos, 0.5f, vec3(1), mat4(1));
     }
 
     // lower left instructions to open pause menue
