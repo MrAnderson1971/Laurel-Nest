@@ -1405,6 +1405,7 @@ Entity LNRoom1Strategy::execute() {
     GoombaFlying gf1 = GoombaFlying();
     gf1.init(renderSystem.getWindowWidth() / 5.f, renderSystem.getWindowHeight() / 6.f);
     gf1.set_health(6);
+    gf1.set_initial_attack(FlyingGoombaState::FLYING_GOOMBA_THROW_PROJECTILE);
 
     GoombaFlying gf2 = GoombaFlying();
     gf2.init(renderSystem.getWindowWidth() * (3.f / 4.f), renderSystem.getWindowHeight() / 6.f);
