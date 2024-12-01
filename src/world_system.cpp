@@ -572,7 +572,13 @@ void WorldSystem::handle_collisions() {
                 if (direction.y > 0 && thisMotion.velocity.y > 0) {
                     // Downward collision
                     thisMotion.position.y -= overlap.y;
-                    thisMotion.velocity.y = 0;
+                    if (registry.hostiles.has(entity) && registry.hostiles.get(entity).type == HostileType::GOOMBA_SWARM &&
+                        registry.healths.has(entity)) {
+                        thisMotion.velocity.y *= -1;
+                    }
+                    else {
+                        thisMotion.velocity.y = 0;
+                    }
                     if (registry.players.has(entity)) {
                         // Player has collided with the ground
                         isGrounded = true;
