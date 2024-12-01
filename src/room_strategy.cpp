@@ -512,47 +512,26 @@ Entity BMTEntranceRoomStrategy::execute() {
     gc3.set_spit_timer(1.2f);
 
     GoombaSwarm gs1 = GoombaSwarm();
-    gs1.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() - 200) * uniform_dist(rng));
+    gs1.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.5f) * uniform_dist(rng));
 
     GoombaSwarm gs2 = GoombaSwarm();
-    gs2.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() - 200) * uniform_dist(rng));
+    gs2.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.5f) * uniform_dist(rng));
 
     GoombaSwarm gs3 = GoombaSwarm();
-    gs3.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() - 200) * uniform_dist(rng));
+    gs3.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.5f) * uniform_dist(rng));
 
     GoombaSwarm gs4 = GoombaSwarm();
-    gs4.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() - 200) * uniform_dist(rng));
-
-    GoombaSwarm gs5 = GoombaSwarm();
-    gs5.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() - 200) * uniform_dist(rng));
-
-    GoombaSwarm gs6 = GoombaSwarm();
-    gs6.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() - 200) * uniform_dist(rng));
-
-    GoombaSwarm gs7 = GoombaSwarm();
-    gs7.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() - 200) * uniform_dist(rng));
-
-    GoombaSwarm gs8 = GoombaSwarm();
-    gs8.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() - 200) * uniform_dist(rng));
+    gs4.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.5f) * uniform_dist(rng));
 
     room.insert(gs1.entity);
     room.insert(gs2.entity);
     room.insert(gs3.entity);
     room.insert(gs4.entity);
-    room.insert(gs5.entity);
-    room.insert(gs6.entity);
-    room.insert(gs7.entity);
-    room.insert(gs8.entity);
 
     room.insert_swarm_goomba(gs1.entity);
     room.insert_swarm_goomba(gs2.entity);
     room.insert_swarm_goomba(gs3.entity);
     room.insert_swarm_goomba(gs4.entity);
-    room.insert_swarm_goomba(gs5.entity);
-    room.insert_swarm_goomba(gs6.entity);
-    room.insert_swarm_goomba(gs7.entity);
-    room.insert_swarm_goomba(gs8.entity);
-
 
     // ground
     Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 0.5f, 0.7f, 0.0f);
@@ -648,6 +627,28 @@ Entity BMTRoom1Strategy::execute() {
     gc1.init(renderSystem.getWindowWidth() * 0.63f, renderSystem.getWindowHeight() * 0.07f);
     gc1.set_spit_timer(1.f);
 
+    GoombaSwarm gs1 = GoombaSwarm();
+    gs1.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
+
+    GoombaSwarm gs2 = GoombaSwarm();
+    gs2.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
+
+    GoombaSwarm gs3 = GoombaSwarm();
+    gs3.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
+
+    GoombaSwarm gs4 = GoombaSwarm();
+    gs4.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
+
+    room.insert(gs1.entity);
+    room.insert(gs2.entity);
+    room.insert(gs3.entity);
+    room.insert(gs4.entity);
+
+    room.insert_swarm_goomba(gs1.entity);
+    room.insert_swarm_goomba(gs2.entity);
+    room.insert_swarm_goomba(gs3.entity);
+    room.insert_swarm_goomba(gs4.entity);
+
     // note on bg: don't add motion
     registry.grounds.emplace(m_wall, std::move(Ground()));
     registry.grounds.emplace(m_ground1, std::move(Ground()));
@@ -724,48 +725,6 @@ Entity BMTRoom2Strategy::execute() {
 
     // ground
     Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 0.5f, 0.5f, 0.0f);
-
-    GoombaSwarm gs1 = GoombaSwarm();
-    gs1.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() - 200) * uniform_dist(rng));
-
-    GoombaSwarm gs2 = GoombaSwarm();
-    gs2.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() - 200) * uniform_dist(rng));
-
-    GoombaSwarm gs3 = GoombaSwarm();
-    gs3.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() - 200) * uniform_dist(rng));
-
-    GoombaSwarm gs4 = GoombaSwarm();
-    gs4.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() - 200) * uniform_dist(rng));
-
-    GoombaSwarm gs5 = GoombaSwarm();
-    gs5.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() - 200) * uniform_dist(rng));
-
-    GoombaSwarm gs6 = GoombaSwarm();
-    gs6.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() - 200) * uniform_dist(rng));
-
-    GoombaSwarm gs7 = GoombaSwarm();
-    gs7.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() - 200) * uniform_dist(rng));
-
-    GoombaSwarm gs8 = GoombaSwarm();
-    gs8.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() - 200) * uniform_dist(rng));
-
-    room.insert(gs1.entity);
-    room.insert(gs2.entity);
-    room.insert(gs3.entity);
-    room.insert(gs4.entity);
-    room.insert(gs5.entity);
-    room.insert(gs6.entity);
-    room.insert(gs7.entity);
-    room.insert(gs8.entity);
-
-    room.insert_swarm_goomba(gs1.entity);
-    room.insert_swarm_goomba(gs2.entity);
-    room.insert_swarm_goomba(gs3.entity);
-    room.insert_swarm_goomba(gs4.entity);
-    room.insert_swarm_goomba(gs5.entity);
-    room.insert_swarm_goomba(gs6.entity);
-    room.insert_swarm_goomba(gs7.entity);
-    room.insert_swarm_goomba(gs8.entity);
 
     // note on bg: don't add motion
     registry.grounds.emplace(m_wall_bound, std::move(Ground()));
@@ -858,6 +817,47 @@ Entity BMTRoom3Strategy::execute() {
     // add sword
     registry.swordPowerUp.emplace(m_sword, std::move(SwordPowerUp()));
 
+    GoombaSwarm gs1 = GoombaSwarm();
+    gs1.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
+
+    GoombaSwarm gs2 = GoombaSwarm();
+    gs2.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
+
+    GoombaSwarm gs3 = GoombaSwarm();
+    gs3.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
+
+    GoombaSwarm gs4 = GoombaSwarm();
+    gs4.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
+
+    GoombaSwarm gs5 = GoombaSwarm();
+    gs5.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
+
+    GoombaSwarm gs6 = GoombaSwarm();
+    gs6.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
+
+    GoombaSwarm gs7 = GoombaSwarm();
+    gs7.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
+
+    GoombaSwarm gs8 = GoombaSwarm();
+    gs8.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
+
+    room.insert(gs1.entity);
+    room.insert(gs2.entity);
+    room.insert(gs3.entity);
+    room.insert(gs4.entity);
+    room.insert(gs5.entity);
+    room.insert(gs6.entity);
+    room.insert(gs7.entity);
+    room.insert(gs8.entity);
+
+    room.insert_swarm_goomba(gs1.entity);
+    room.insert_swarm_goomba(gs2.entity);
+    room.insert_swarm_goomba(gs3.entity);
+    room.insert_swarm_goomba(gs4.entity);
+    room.insert_swarm_goomba(gs5.entity);
+    room.insert_swarm_goomba(gs6.entity);
+    room.insert_swarm_goomba(gs7.entity);
+    room.insert_swarm_goomba(gs8.entity);
 
     room.insert(m_bg);
     room.insert(m_arrow1);
@@ -1271,6 +1271,38 @@ Entity LNRoom1Strategy::execute() {
     // note on bg: don't add motion
     registry.grounds.emplace(m_wall, std::move(Ground()));
     registry.grounds.emplace(m_ground, std::move(Ground()));
+
+    GoombaSwarm gs1 = GoombaSwarm();
+    gs1.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
+
+    GoombaSwarm gs2 = GoombaSwarm();
+    gs2.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
+
+    GoombaSwarm gs3 = GoombaSwarm();
+    gs3.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
+
+    GoombaSwarm gs4 = GoombaSwarm();
+    gs4.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
+
+    GoombaSwarm gs5 = GoombaSwarm();
+    gs5.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
+
+    GoombaSwarm gs6 = GoombaSwarm();
+    gs6.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
+
+    room.insert(gs1.entity);
+    room.insert(gs2.entity);
+    room.insert(gs3.entity);
+    room.insert(gs4.entity);
+    room.insert(gs5.entity);
+    room.insert(gs6.entity);
+
+    room.insert_swarm_goomba(gs1.entity);
+    room.insert_swarm_goomba(gs2.entity);
+    room.insert_swarm_goomba(gs3.entity);
+    room.insert_swarm_goomba(gs4.entity);
+    room.insert_swarm_goomba(gs5.entity);
+    room.insert_swarm_goomba(gs6.entity);
 
     room.insert(m_bg);
     room.insert(m_arrow_bmt);
