@@ -716,16 +716,17 @@ void WorldSystem::handle_collisions() {
             if (registry.bosses.has(entity_other)) {
                 Boss& boss = registry.bosses.get(entity_other);
                 boss.boxType = BoxType::BODY_BOX;
+
                 if (!isChickenDead) {
                     BossAISystem::chicken_get_damaged(entity, isChickenDead, a_pressed, d_pressed, m_player);
+                    registry.remove_all_components_of(entity);
                 }
                 else // if Great Bird 
                 {
                     bool mock;
                     GreatBossAISystem::gb_get_damaged(entity, mock, a_pressed, d_pressed, m_player);
+                    registry.remove_all_components_of(entity);
                 }
-                
-                registry.remove_all_components_of(entity);
             }
         }
 
