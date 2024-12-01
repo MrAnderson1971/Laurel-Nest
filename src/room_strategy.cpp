@@ -511,7 +511,8 @@ Entity BMTEntranceRoomStrategy::execute() {
     gc3.init(static_cast<float>(renderSystem.getWindowWidth() * 0.7), renderSystem.getWindowHeight() * 0.07f);
     gc3.set_spit_timer(1.2f);
 
-    GoombaSwarm gs1 = GoombaSwarm();
+    // swarm goombas
+    /*GoombaSwarm gs1 = GoombaSwarm();
     gs1.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.5f) * uniform_dist(rng));
 
     GoombaSwarm gs2 = GoombaSwarm();
@@ -531,7 +532,8 @@ Entity BMTEntranceRoomStrategy::execute() {
     room.insert_swarm_goomba(gs1.entity);
     room.insert_swarm_goomba(gs2.entity);
     room.insert_swarm_goomba(gs3.entity);
-    room.insert_swarm_goomba(gs4.entity);
+    room.insert_swarm_goomba(gs4.entity);*/
+    
 
     // ground
     Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 0.5f, 0.7f, 0.0f);
@@ -622,11 +624,11 @@ Entity BMTRoom1Strategy::execute() {
     Entity m_ground2 = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.5f, 0.5f, 0.f, 500.f);
 
     // ceiling goomba
-    Entity m_platform_g = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.63f, 0.f, 0.f);
+    /*Entity m_platform_g = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.63f, 0.f, 0.f);
     GoombaCeiling gc1 = GoombaCeiling();
     gc1.init(renderSystem.getWindowWidth() * 0.63f, renderSystem.getWindowHeight() * 0.07f);
-    gc1.set_spit_timer(1.f);
-
+    gc1.set_spit_timer(1.f);*/
+    
     GoombaSwarm gs1 = GoombaSwarm();
     gs1.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
 
@@ -648,6 +650,7 @@ Entity BMTRoom1Strategy::execute() {
     room.insert_swarm_goomba(gs2.entity);
     room.insert_swarm_goomba(gs3.entity);
     room.insert_swarm_goomba(gs4.entity);
+    
 
     // note on bg: don't add motion
     registry.grounds.emplace(m_wall, std::move(Ground()));
@@ -674,8 +677,8 @@ Entity BMTRoom1Strategy::execute() {
     room.insert(m_platform3);
     room.insert(m_platform4);
     room.insert(m_platform5);
-    room.insert(m_platform_g);
-    room.insert(gc1.entity);
+    //room.insert(m_platform_g);
+    //room.insert(gc1.entity);
 
     room.setMusic(Mix_LoadMUS(audio_path("cesspit.wav").c_str()));
 
@@ -716,6 +719,17 @@ Entity BMTRoom2Strategy::execute() {
     // heart powerup
     Entity m_heart = SetPlatform(renderSystem.loadTexture("extra_heart.png"), 0.2f, 0.2f, 0.07f, 0.3f);
 
+    // ceiling goombas
+    Entity m_platform_g1 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.275f, 0.f, 0.f);
+    GoombaCeiling gc1 = GoombaCeiling();
+    gc1.init(renderSystem.getWindowWidth() * 0.275f, renderSystem.getWindowHeight() * 0.07f);
+    gc1.set_spit_timer(0.8f);
+
+    Entity m_platform_g2 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.835f, 0.f, 0.f);
+    GoombaCeiling gc2 = GoombaCeiling();
+    gc2.init(renderSystem.getWindowWidth() * 0.835f, renderSystem.getWindowHeight() * 0.07f);
+    gc2.set_spit_timer(1.f);
+
     // wall
     //Entity m_wall = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.5f, 0.5f, 0.05f, 200.f);
     Entity m_wall = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_WALL), -1.f, 1.2f, 1.2f, 0.12f, 0.f);
@@ -752,8 +766,10 @@ Entity BMTRoom2Strategy::execute() {
     room.insert(m_wall2);
 
     //room.insert(gf.entity);
-    //room.insert(gc1.entity);
-    //room.insert(gc2.entity);
+    room.insert(m_platform_g1);
+    room.insert(m_platform_g2);
+    room.insert(gc1.entity);
+    room.insert(gc2.entity);
 
     room.setMusic(Mix_LoadMUS(audio_path("cesspit.wav").c_str()));
 
@@ -817,7 +833,8 @@ Entity BMTRoom3Strategy::execute() {
     // add sword
     registry.swordPowerUp.emplace(m_sword, std::move(SwordPowerUp()));
 
-    GoombaSwarm gs1 = GoombaSwarm();
+    // swarm goombas
+    /*GoombaSwarm gs1 = GoombaSwarm();
     gs1.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
 
     GoombaSwarm gs2 = GoombaSwarm();
@@ -857,8 +874,8 @@ Entity BMTRoom3Strategy::execute() {
     room.insert_swarm_goomba(gs5.entity);
     room.insert_swarm_goomba(gs6.entity);
     room.insert_swarm_goomba(gs7.entity);
-    room.insert_swarm_goomba(gs8.entity);
-
+    room.insert_swarm_goomba(gs8.entity);*/
+    
     room.insert(m_bg);
     room.insert(m_arrow1);
     room.insert(m_wall);
@@ -1117,22 +1134,23 @@ Entity NPCRoom2Strategy::execute() {
     Entity m_ceiling = SetCeiling(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_CEILING), 0.5f);
 
     // more walls
-    Entity m_wall_block1 = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL_SHORT), 1.f, 0.25f, 0.25f, 0.15f, 240.f);
+    /*Entity m_wall_block1 = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL_SHORT), 1.f, 0.25f, 0.25f, 0.15f, 240.f);
     Entity m_wall_block2 = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL_SHORT), 1.f, 0.25f, 0.25f, 0.29f, 480.f);
     Entity m_wall_block3 = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL_SHORT), 1.f, 0.25f, 0.25f, 0.43f, 720.f);
     Entity m_wall_block4 = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL_SHORT), -1.f, 0.25f, 0.25f, 0.57f, 720.f);
-    Entity m_wall_block5 = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL_SHORT), -1.f, 0.25f, 0.25f, 0.71f, 480.f);
+    Entity m_wall_block5 = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL_SHORT), -1.f, 0.25f, 0.25f, 0.71f, 480.f);*/
+    
 
     // platforms
     // Entity m_platform_npc1 = SetMovingPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), true, 0.1f, 0.2f, 0.2f, 0.25f, vec2(0.2f, 0.25f), vec2(0.2f, 0.85f), true);
     // Entity m_platform_npc2 = SetMovingPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), true, 0.1f, 0.2f, 0.4f, 0.45f, vec2(0.4f, 0.25f), vec2(0.4f, 0.85f), true);
     // Entity m_platform_npc3 = SetMovingPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), true, 0.1f, 0.2f, 0.6f, 0.65f, vec2(0.6f, 0.25f), vec2(0.6f, 0.85f), true);
     // Entity m_platform_npc4 = SetMovingPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), true, 0.1f, 0.2f, 0.8f, 0.85f, vec2(0.8f, 0.25f), vec2(0.8f, 0.85f), true);
-    Entity m_platform1 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.22f, 0.7f);
-    Entity m_platform2 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.36f, 0.475f);
+    Entity m_platform1 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.15f, 0.32f);
+    Entity m_platform2 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.325f, 0.4f);
     Entity m_platform3 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.5f, 0.25f);
-    Entity m_platform4 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.64f, 0.475f);
-    Entity m_platform5 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.78f, 0.7f);
+    Entity m_platform4 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.675f, 0.29f);
+    Entity m_platform5 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.85f, 0.43f);
 
     // ground
     Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 0.5f, 0.5f, 0.0f);
@@ -1141,6 +1159,7 @@ Entity NPCRoom2Strategy::execute() {
     Entity ogre = SetOgreKat(renderSystem.getWindowWidth() / 2.f, renderSystem.getWindowHeight() - 247.f);
 
     // Dead Birds!! They are dead :(
+    Entity poor_bird_8 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::GOOMBA_DEAD), -0.7f, 0.7f, 0.9f, 0.818f, 0.f);
     Entity poor_bird_1 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::BIRDMAN_DEAD), 0.4f, 0.4f, 0.3f, 0.87f, 0.f);
     Entity poor_bird_2 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::GOOMBA_DEAD), -0.3f, 0.3f, 0.2f, 0.87f, 0.f);
     Entity poor_bird_3 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::GOOMBA_DEAD), 0.3f, 0.3f, 0.7f, 0.87f, 0.f);
@@ -1148,16 +1167,19 @@ Entity NPCRoom2Strategy::execute() {
     Entity poor_bird_5 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::BIRDMAN_DEAD), 0.4f, 0.4f, 0.1f, 0.87f, 0.f);
     Entity poor_bird_6 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::BIRDMAN_DEAD), -0.4f, 0.4f, 0.8f, 0.87f, 0.f);
     Entity poor_bird_7 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::GOOMBA_DEAD), 0.3f, 0.3f, 0.85f, 0.87f, 0.f);
-    Entity poor_bird_8 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::GOOMBA_DEAD), -0.3f, 0.3f, 0.9f, 0.87f, 0.f);
     Entity poor_bird_9 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::GOOMBA_DEAD), 0.3f, 0.3f, 0.4f, 0.87f, 0.f);
+
+    Entity poor_bird_10 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::GOOMBA_DEAD), -0.3f, 0.3f, 0.325f, 0.325f, 0.f);
+    Entity poor_bird_11 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::GOOMBA_DEAD), 0.3f, 0.3f, 0.5f, 0.175f, 0.f);
+    Entity poor_bird_12 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::GOOMBA_DEAD), 0.3f, 0.3f, 0.85f, 0.355f, 0.f);
 
     // note on bg: don't add motion
     registry.grounds.emplace(m_wall, std::move(Ground()));
     //registry.grounds.emplace(m_wall_block1, std::move(Ground()));
-    registry.grounds.emplace(m_wall_block2, std::move(Ground()));
-    registry.grounds.emplace(m_wall_block3, std::move(Ground()));
-    registry.grounds.emplace(m_wall_block4, std::move(Ground()));
-    registry.grounds.emplace(m_wall_block5, std::move(Ground()));
+    //registry.grounds.emplace(m_wall_block2, std::move(Ground()));
+    //registry.grounds.emplace(m_wall_block3, std::move(Ground()));
+    //registry.grounds.emplace(m_wall_block4, std::move(Ground()));
+    //registry.grounds.emplace(m_wall_block5, std::move(Ground()));
     registry.grounds.emplace(m_platform1, std::move(Ground()));
     registry.grounds.emplace(m_platform2, std::move(Ground()));
     registry.grounds.emplace(m_platform3, std::move(Ground()));
@@ -1175,14 +1197,17 @@ Entity NPCRoom2Strategy::execute() {
     room.insert(poor_bird_7);
     room.insert(poor_bird_8);
     room.insert(poor_bird_9);
+    room.insert(poor_bird_10);
+    room.insert(poor_bird_11);
+    room.insert(poor_bird_12);
     room.insert(m_bg);
     room.insert(m_arrow4);
     room.insert(m_wall);
     //room.insert(m_wall_block1);
-    room.insert(m_wall_block2);
-    room.insert(m_wall_block3);
-    room.insert(m_wall_block4);
-    room.insert(m_wall_block5);
+    //room.insert(m_wall_block2);
+    //room.insert(m_wall_block3);
+    //room.insert(m_wall_block4);
+    //room.insert(m_wall_block5);
     room.insert(m_platform1);
     room.insert(m_platform2);
     room.insert(m_platform3);
