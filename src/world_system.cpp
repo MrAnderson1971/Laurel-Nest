@@ -261,7 +261,7 @@ void WorldSystem::handle_connections(float deltaTime) {
             auto& a = registry.playerAnimations.get(m_player);
             if (physics.checkForCollision(m_player, connection.door, dir, over) && a.getState() != PlayerState::ATTACKING && playerMotion.velocity != vec2(0.f, 0.f)) {
                 // check if in boss room and if boss is dead
-                //if (registry.rooms.get(current_room).id != ROOM_ID::CP_BOSS || (registry.rooms.get(current_room).id == ROOM_ID::CP_BOSS && isChickenDead)) {
+                if (registry.rooms.get(current_room).id != ROOM_ID::CP_BOSS || (registry.rooms.get(current_room).id == ROOM_ID::CP_BOSS && isChickenDead)) {
                     // set next room
                     // check for switching map
                     if (!connection.switchMap) {
@@ -277,7 +277,7 @@ void WorldSystem::handle_connections(float deltaTime) {
 
                     // set spawn point of player in new room
                     playerMotion.position = connection.nextSpawn;
-                //}
+                }
                 // handle music
                 Room& r = registry.rooms.get(current_room);
                 std::shared_ptr<Mix_Music> music = r.music;
