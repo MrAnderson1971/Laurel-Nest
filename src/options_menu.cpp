@@ -121,7 +121,7 @@ void OptionsMenu::render() {
 		renderSystem.renderText("Left Click Mouse To Attack", window_width_px * 0.25f, window_height_px * 0.62f, 0.8f, vec3(1), mat4(1));
 		
 		renderSystem.drawEntity(registry.sprites.get(h_key), registry.transforms.get(h_key));
-		renderSystem.renderText("Hold For 1.5 Seconds To Restore Health Up To 3 Times", window_width_px * 0.25f, window_height_px * 0.48f, 0.8f, vec3(1), mat4(1));
+		renderSystem.renderText("Hold For 2 Seconds To Restore Health Up To 3 Times", window_width_px * 0.25f, window_height_px * 0.48f, 0.8f, vec3(1), mat4(1));
 		
 		renderSystem.renderText("After Defeating The Flame Chicken", window_width_px * 0.3f, window_height_px * 0.37f, 1.0f, vec3(1), mat4(1));
 		
