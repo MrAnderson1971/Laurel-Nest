@@ -295,36 +295,26 @@ void GreatBossAISystem::render() {
 void GreatBossAISystem::gb_get_damaged(Entity weapon, bool& isDead, bool& a_pressed, bool& d_pressed, Entity& player) {
     Health& gb_health = registry.healths.get(greatBird);
     Damage& weapon_damage = registry.damages.get(weapon);
-    // if (chicken_health.current_health - weapon_damage.damage_dealt >= 0) {
     if (gb_health.current_health > 0) {
-        if (gb_health.current_health - weapon_damage.damage_dealt > 0 && !registry.invinciblityTimers.has(greatBird)) {
-            if (!registry.recentDamageTimers.has(greatBird)) {
-                registry.recentDamageTimers.emplace(greatBird, RecentlyDamagedTimer());
+        if (!registry.invinciblityTimers.has(greatBird)) {
+            gb_health.current_health -= weapon_damage.damage_dealt;
+            if (gb_health.current_health - weapon_damage.damage_dealt > 0) {
+                if (!registry.recentDamageTimers.has(greatBird)) {
+                    registry.recentDamageTimers.emplace(greatBird, RecentlyDamagedTimer());
+                }
+                registry.gbAnimations.get(greatBird).setState(GB_HIT);
+                current_state = gSTATE::HIT;
+                InvincibilityTimer& timer = registry.invinciblityTimers.emplace(greatBird, InvincibilityTimer());
+                timer.counter_ms = 1000.f;
             }
-            registry.gbAnimations.get(greatBird).setState(GB_HIT);
-            current_state = gSTATE::HIT;
-        }
-        InvincibilityTimer& timer = registry.invinciblityTimers.emplace(greatBird, InvincibilityTimer());
-        timer.counter_ms = 1000.f;
-        gb_health.current_health -= weapon_damage.damage_dealt;
-        printf("Great Bird now has %d hearts\n", gb_health.current_health);
-        if (gb_health.current_health <= 0) {
-            registry.damages.remove(greatBird);
-            isDead = true;
-            a_pressed = false;
-            d_pressed = false;
-            registry.motions.get(player).velocity.x = 0;
-            Mix_HaltMusic();
-            registry.gravity.emplace(greatBird, Gravity());
-
-            // TODO end cutscne
-            // also finish the game and erase data
-            // renderSystem.getGameStateManager()->pauseState<>();
-        }
-        else {
-            if (registry.motions.has(greatBird)) {
-                Motion& gbm = registry.motions.get(greatBird);
-                //gbm.position.y += 50.f;
+            else {
+                registry.damages.remove(greatBird);
+                isDead = true;
+                a_pressed = false;
+                d_pressed = false;
+                registry.motions.get(player).velocity.x = 0;
+                Mix_HaltMusic();
+                registry.gravity.emplace(greatBird, Gravity());
             }
         }
     }
