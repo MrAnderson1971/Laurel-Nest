@@ -25,7 +25,7 @@ bool isChickenDead = false;
 bool start_from_checkpoint = false;
 std::unordered_map<TEXTURE_ASSET_ID, Sprite>* g_texture_paths = nullptr;
 
-WorldSystem::WorldSystem() {
+WorldSystem::WorldSystem() : a_pressed(false), d_pressed(false) {
     regionManager = std::make_unique<RegionManager>();
 
     std::unordered_map<TEXTURE_ASSET_ID, Sprite> temp_texture_paths = loadTextures();
@@ -191,13 +191,11 @@ void WorldSystem::init() {
     hurt_sound = Mix_LoadWAV(audio_path("hurt.wav").c_str());
     save_sound = Mix_LoadWAV(audio_path("save.wav").c_str());
     gun_click_sound = Mix_LoadWAV(audio_path("gun_click.wav").c_str());
+    heal_sound = Mix_LoadWAV(audio_path("heal.wav").c_str());
     flame_beak_shoot_sound = Mix_LoadWAV(audio_path("flame-beak-shoot.wav").c_str());
-    if (!(footstep_sound && sword_sound && hurt_sound && save_sound && gun_click_sound && flame_beak_shoot_sound)) {
+    if (!(footstep_sound && sword_sound && hurt_sound && save_sound && gun_click_sound && flame_beak_shoot_sound && heal_sound)) {
         std::cerr << "Failed to load WAV file: " << Mix_GetError() << std::endl;
     }
-    Room& r = registry.rooms.get(current_room);
-    std::shared_ptr<Mix_Music> music = r.music;
-    Mix_PlayMusic(music.get(), 1);
 }
 
 void WorldSystem::update(float deltaTime) {
@@ -240,6 +238,14 @@ void WorldSystem::update(float deltaTime) {
 
     // Update physics, modify gamestate to handle this elsewhere
     physics.step(deltaTime);
+
+    // update music
+    if (continue_music && registry.rooms.has(current_room)) {
+        Room& r = registry.rooms.get(current_room);
+        std::shared_ptr<Mix_Music> music = r.music;
+        Mix_PlayMusic(music.get(), 1);
+        continue_music = false;
+    }
 }
 
 void WorldSystem::handle_connections(float deltaTime) {
@@ -264,23 +270,23 @@ void WorldSystem::handle_connections(float deltaTime) {
                         next_map = current_room;
                         current_room = next_room;
                     }
-                    AISystem::init_aim();
                     physics.setRoom(current_room);
+                    AISystem::init_aim();
+                    
                     // set spawn point of player in new room
                     playerMotion.position = connection.nextSpawn;
+
+                    // handle music
                     Room& r = registry.rooms.get(current_room);
                     std::shared_ptr<Mix_Music> music = r.music;
-                    if (music != nullptr && !isChickenDead && r.id == ROOM_ID::CP_BOSS) { // Begrudgingly putting this condition here so it only plays when the boss isn't dead.
-                        Mix_PlayMusic(music.get(), 1); // TODO: make it more scalable in the future because we can't keep this up.
+                    if (music != nullptr &&  r.id == ROOM_ID::CP_BOSS && !isChickenDead) {
+                        Mix_PlayMusic(music.get(), 1);
+                        continue_music = true;
                     }
-                    else if (music != nullptr && isChickenDead && r.id != ROOM_ID::CP_BOSS && continue_music) {
-                        continue_music = false;
+                    // No need to check if boss is alive, the game ends when it dies
+                    if (music != nullptr && r.id == ROOM_ID::LN_BOSS) {
                         Mix_PlayMusic(music.get(), 1);
                     }
-                    else {
-                        
-                    }
-                //}
             }
         }
     }
@@ -313,6 +319,11 @@ void WorldSystem::handle_motions(float deltaTime) {
 
             // Step 2: Update position based on velocity
             if (registry.players.has(entity)) {
+                if (a_pressed) {
+                    m.velocity.x = -player_speed;
+                } else if (d_pressed) {
+                    m.velocity.x = player_speed;
+                }
                 // Make the player's position stop once its head reaches the top of the window
                 if (m.velocity[0] != 0 && isGrounded) {
                     Mix_PlayChannel(-1, footstep_sound, 0);
@@ -327,6 +338,7 @@ void WorldSystem::handle_motions(float deltaTime) {
             }
             else {
                 if (registry.rooms.has(current_room) && registry.rooms.get(current_room).has(entity)) {
+                    //registry.list_all_components_of(entity);
                     m.position += m.velocity * deltaTime;
                 }
             }
@@ -501,7 +513,11 @@ void WorldSystem::handle_collisions() {
             auto projectileType2 = registry.projectiles.get(entity_other).type;
 
             if ((projectileType1 == ProjectileType::SPIT && projectileType2 == ProjectileType::FIREBALL) ||
-                (projectileType1 == ProjectileType::FIREBALL && projectileType2 == ProjectileType::SPIT)) {
+                (projectileType1 == ProjectileType::FIREBALL && projectileType2 == ProjectileType::SPIT) || 
+                (projectileType1 == ProjectileType::SPIT && projectileType2 == ProjectileType::SPEAR) ||
+                (projectileType1 == ProjectileType::SPEAR && projectileType2 == ProjectileType::SPIT) ||
+                (projectileType1 == ProjectileType::FIREBALL && projectileType2 == ProjectileType::SPEAR) ||
+                (projectileType1 == ProjectileType::SPEAR && projectileType2 == ProjectileType::FIREBALL)) {
                 continue;
             }
         }
@@ -509,8 +525,16 @@ void WorldSystem::handle_collisions() {
         // gaurd against moving platform and flying goombas because i'm tired
         if (registry.grounds.has(entity_other) && !(registry.movingPlatform.has(entity_other) && registry.flyingGoombaAnimations.has(entity))) {
             if (direction.x != 0 && thisMotion.velocity.x != 0) {
+                thisMotion.velocity.x = 0;
                 thisMotion.position.x -= overlap.x;
-            } 
+            }
+            else if (registry.players.has(entity)) {
+                if (a_pressed) {
+                    thisMotion.velocity.x = -player_speed;
+                } else if (d_pressed) {
+                    thisMotion.velocity.x = player_speed;
+                }
+            }
             if (direction.y != 0) {
                 if (direction.y > 0 && thisMotion.velocity.y > 0) {
                     // Downward collision
@@ -525,7 +549,11 @@ void WorldSystem::handle_collisions() {
                 }
                 else if (direction.y < 0 && thisMotion.velocity.y < 0) {
                     thisMotion.position.y += overlap.y;
-                    thisMotion.velocity.y = 0;
+
+                    if (registry.players.has(entity)) {
+                        isGrounded = false;
+                        thisMotion.velocity.y = std::max(thisMotion.velocity.y, 0.f);
+                    }
                 }
             }
         }
@@ -541,22 +569,9 @@ void WorldSystem::handle_collisions() {
             }
         }
 
-        if(registry.walls.has(entity) && registry.patrol_ais.has(entity_other)){
-            Patrol_AI& patrol = registry.patrol_ais.get(entity_other);
-            Motion& m_goomba = registry.motions.get(entity_other);
-            Motion& m_wall = registry.motions.get(entity);
-            float change = 0;
-            bool movingRight = patrol.movingRight;
-            if(movingRight){
-                change = -100;
-            }else {
-                change = 100;
-            }
-            m_goomba.position.x = m_wall.position.x + change;
-            patrol.movingRight = !patrol.movingRight;
-        }
 
-        if(registry.walls.has(entity) && registry.hostiles.has(entity_other) && registry.hostiles.get(entity_other).type == HostileType::GOOMBA_FLYING){
+        // Handle the goombas when they collide with a wall
+        if(registry.walls.has(entity) && registry.hostiles.has(entity_other)){
             Motion& m_fying_goomba = registry.motions.get(entity_other);
             Motion& m_wall = registry.motions.get(entity);
             if(registry.patrol_ais.has(entity_other)){
@@ -564,9 +579,19 @@ void WorldSystem::handle_collisions() {
                 float change = 0;
                 bool movingRight = patrol.movingRight;
                 if(movingRight){
-                    change = -200;
+                    if (registry.hostiles.get(entity_other).type == HostileType::GOOMBA_FLYING) {
+                        change = -200;
+                    }
+                    else if (registry.hostiles.get(entity_other).type == HostileType::GOOMBA_LAND) {
+                        change = -150;
+                    }
                 }else {
-                    change = 200;
+                    if (registry.hostiles.get(entity_other).type == HostileType::GOOMBA_FLYING) {
+                        change = 200;
+                    }
+                    else if (registry.hostiles.get(entity_other).type == HostileType::GOOMBA_LAND) {
+                        change = 150;
+                    }
                 }
                 m_fying_goomba.position.x = m_wall.position.x + change;
                 patrol.movingRight = !patrol.movingRight;
@@ -576,7 +601,7 @@ void WorldSystem::handle_collisions() {
 
         // change the flying goomba's animation when it impacts the ground
         if (registry.hostiles.has(entity) && registry.hostiles.get(entity).type == HostileType::GOOMBA_FLYING 
-            && registry.healths.has(entity) && registry.grounds.has(entity_other) && !registry.movingPlatform.has(entity_other)) {
+            && registry.healths.has(entity) && (registry.grounds.has(entity_other) || registry.doors.has(entity_other)) && !registry.movingPlatform.has(entity_other)) {
             auto& goombaFlyingAnimation = registry.flyingGoombaAnimations.get(entity);
             goombaFlyingAnimation.setState(FlyingGoombaState::FLYING_GOOMBA_IDLE);
             GoombaFlyingState& g_state = registry.goombaFlyingStates.get(entity);
@@ -584,7 +609,7 @@ void WorldSystem::handle_collisions() {
             g_state.animationDone = true;
             Motion& g_motion = registry.motions.get(entity);
             g_motion.scale = GOOMBA_FLYING_FLY_SCALE;
-            g_motion.velocity.x = g_motion.old_velocity.x;
+            //g_motion.velocity.x = g_motion.old_velocity.x;
         }
 
         if (registry.players.has(entity) && registry.damages.has(entity_other)) {
@@ -595,7 +620,7 @@ void WorldSystem::handle_collisions() {
                 if (registry.bosses.has(entity_other)) {
                     Boss& boss = registry.bosses.get(entity_other);
                     boss.boxType = BoxType::HIT_BOX;
-                    BossAISystem::chicken_get_damaged(m_sword, isChickenDead);
+                    BossAISystem::chicken_get_damaged(m_sword, isChickenDead, a_pressed, d_pressed, m_player);
                 } else {
                     GoombaLogic::goomba_get_damaged(entity_other, m_sword);
                 }
@@ -626,14 +651,14 @@ void WorldSystem::handle_collisions() {
             if (registry.bosses.has(entity_other)) {
                 Boss& boss = registry.bosses.get(entity_other);
                 boss.boxType = BoxType::BODY_BOX;
-                BossAISystem::chicken_get_damaged(entity, isChickenDead);
+                BossAISystem::chicken_get_damaged(entity, isChickenDead, a_pressed, d_pressed, m_player);
                 registry.remove_all_components_of(entity);
             }
         }
 
-        // Remove the spit attack from ceiling goomba after it has hit the player or the ground
-        if (registry.projectiles.has(entity) && registry.projectiles.get(entity).type == ProjectileType::SPIT
-        && (registry.players.has(entity_other) || registry.grounds.has(entity_other))) {
+        // Remove the spit attack from ceiling goomba or the spear attack from the birdman after it has hit the player or the ground
+        if (registry.projectiles.has(entity) && (registry.projectiles.get(entity).type == ProjectileType::SPIT || registry.projectiles.get(entity).type == ProjectileType::SPEAR)
+        && (registry.players.has(entity_other) || registry.grounds.has(entity_other) || registry.doors.has(entity_other))) {
             registry.remove_all_components_of(entity);
         }
 
@@ -712,7 +737,10 @@ void WorldSystem::handle_ai() {
                     m.velocity.x = 3 * TPS;
                 }
                 else {
-                    m.velocity.x = 1 * TPS;
+                    if (!(registry.hostiles.has(e) && registry.hostiles.get(e).type == HostileType::GOOMBA_FLYING &&
+                        registry.goombaFlyingStates.has(e) && registry.goombaFlyingStates.get(e).current_state == FlyingGoombaState::FLYING_GOOMBA_THROW_PROJECTILE)) {
+                        m.velocity.x = 1 * TPS;
+                    }
                 }
             }
             else {
@@ -720,7 +748,10 @@ void WorldSystem::handle_ai() {
                     m.velocity.x = -3 * TPS;
                 }
                 else {
-                    m.velocity.x = -1 * TPS;
+                    if (!(registry.hostiles.has(e) && registry.hostiles.get(e).type == HostileType::GOOMBA_FLYING &&
+                        registry.goombaFlyingStates.has(e) && registry.goombaFlyingStates.get(e).current_state == FlyingGoombaState::FLYING_GOOMBA_THROW_PROJECTILE)) {
+                        m.velocity.x = -1 * TPS;
+                    }
                 }
             }
         }
@@ -873,33 +904,35 @@ void WorldSystem::render() {
             float save_point_upper_bound_y = save_point_motion.position.y + save_point_motion.scale.y;
             if (save_point_lower_bound_x <= player_motion.position.x && player_motion.position.x < save_point_upper_bound_x
                 && save_point_lower_bound_y < player_motion.position.y && player_motion.position.y < save_point_upper_bound_y) {
-                double position_x = save_point_motion.position.x * 0.90;
+                double position_x = save_point_motion.position.x * 0.95;
                 double position_y = (renderSystem.getWindowHeight() -  save_point_motion.position.y) * 1.7;
-                renderSystem.renderText("Press V to Save", static_cast<float>(position_x), static_cast<float>(position_y), 0.5f, font_color, font_trans);
+                renderSystem.renderText("Press V To Save", static_cast<float>(position_x), static_cast<float>(position_y), 0.5f, font_color, font_trans);
             }
         }
 
-        // TODO KUTER
-        // Draw npcs
+        // Draw Pelican
         if (registry.pelican.has(obj) && registry.transforms.has(obj) && registry.sprites.has(obj)) {
             auto& transform = registry.transforms.get(obj);
             auto& sprite = registry.sprites.get(obj);
             renderSystem.drawEntity(sprite, transform);
+            draw_npc_interact(obj);
+        }
+        // Draw Elder
+        if (registry.elder.has(obj) && registry.transforms.has(obj) && registry.sprites.has(obj)) {
+            auto& transform = registry.transforms.get(obj);
+            auto& sprite = registry.sprites.get(obj);
+            renderSystem.drawEntity(sprite, transform);
+            draw_npc_interact(obj);
+        }
 
-            // check if the player is within range of the savepoint
-            Motion player_motion = registry.motions.get(m_player);
-            Motion npc_point_motion = registry.motions.get(obj);
-            float npc_point_lower_bound_x = npc_point_motion.position.x - npc_point_motion.scale.x;
-            float npc_point_upper_bound_x = npc_point_motion.position.x + npc_point_motion.scale.x;
-            float npc_point_lower_bound_y = npc_point_motion.position.y - npc_point_motion.scale.y;
-            float npc_point_upper_bound_y = npc_point_motion.position.y + npc_point_motion.scale.y;
-            if (npc_point_lower_bound_x <= player_motion.position.x && player_motion.position.x < npc_point_upper_bound_x
-                && npc_point_lower_bound_y < player_motion.position.y && player_motion.position.y < npc_point_upper_bound_y) {
-                double position_x = npc_point_motion.position.x - 100.f;
-                double position_y = npc_point_motion.position.y + 300.f;
-                renderSystem.renderText("Press T to talk", static_cast<float>(position_x), static_cast<float>(position_y),
-                    0.5f, font_color, font_trans);                
-            }
+        // Draw Ogre
+        if (registry.kat.has(obj) && registry.transforms.has(obj) && registry.sprites.has(obj)) {
+            auto& transform = registry.transforms.get(obj);
+            auto& sprite = registry.sprites.get(obj);
+            
+            renderSystem.drawEntity(sprite, transform);
+            draw_npc_interact(obj);
+            
         }
 
         GoombaLogic::goomba_flying_render(obj);
@@ -939,7 +972,7 @@ void WorldSystem::render() {
     HealthFlask& flask = registry.healthFlasks.get(m_player);
     std::string num_uses = std::to_string(flask.num_uses);
     std::string uses_string = "Health Flask uses: " + num_uses;
-    renderSystem.renderText(uses_string, static_cast<float>(window_width_px * 0.045), static_cast<float>(window_height_px * 0.80), 0.5f, font_color, font_trans);
+    renderSystem.renderText(uses_string, static_cast<float>(window_width_px * 0.045), static_cast<float>(window_height_px * 0.80), 0.75f, font_color, font_trans);
 
 
     // Draw the flame thrower if the boss is killed
@@ -968,9 +1001,23 @@ void WorldSystem::render() {
 
     handle_pelican();
 
+    // draw the text that appears when healing
+    if (registry.healTimers.has(m_player) && interrupted_heal) {
+        Motion player_motion = registry.motions.get(m_player);
+        float x_pos = player_motion.position.x - 90.f;
+        float y_pos = renderSystem.getWindowHeight() - player_motion.position.y - (WALKING_BB_HEIGHT / 2) - 20;
+        renderSystem.renderText("Heal Is Interrupted",x_pos, y_pos, 0.5f, vec3(1), mat4(1));
+    }
+    else if (registry.healTimers.has(m_player)) {
+        Motion player_motion = registry.motions.get(m_player);
+        float x_pos = player_motion.position.x - 60.f;
+        float y_pos = renderSystem.getWindowHeight() - player_motion.position.y - (WALKING_BB_HEIGHT / 2) - 20;
+        renderSystem.renderText("Hold To Heal", x_pos, y_pos, 0.5f, vec3(1), mat4(1));
+    }
+
     // lower left instructions to open pause menue
     renderSystem.drawEntity(registry.sprites.get(m_esc), registry.transforms.get(m_esc));
-    renderSystem.renderText("for pause menu", window_width_px * 0.1f, window_height_px * 0.05f, 0.5f, vec3(1), mat4(1));
+    renderSystem.renderText("For Pause Menu", window_width_px * 0.1f, window_height_px * 0.05f, 0.5f, vec3(1), mat4(1));
 }
 
 void WorldSystem::processPlayerInput(int key, int action) {
@@ -981,20 +1028,20 @@ void WorldSystem::processPlayerInput(int key, int action) {
             renderSystem.getGameStateManager()->pauseState<PauseState>();
             break;
         case GLFW_KEY_A:
-            if (registry.motions.has(m_player)) {
-                auto& motion = registry.motions.get(m_player);
-                if (motion.velocity[0] < 0) {  // Only stop leftward movement
-                    motion.velocity[0] = 0;
-                }
-            }
+            a_pressed = false;
+            registry.motions.get(m_player).velocity.x = 0.f;
             break;
         case GLFW_KEY_D:
-            if (registry.motions.has(m_player)) {
-                auto& motion = registry.motions.get(m_player);
-                if (motion.velocity[0] > 0) {  // Only stop rightward movement
-                    motion.velocity[0] = 0;
-                }
+            d_pressed = false;
+            registry.motions.get(m_player).velocity.x = 0.f;
+            break;
+        case GLFW_KEY_H:
+            if (registry.healTimers.has(m_player)) {
+                registry.healTimers.remove(m_player);
+                registry.playerAnimations.get(m_player).setState(PlayerState::IDLE);
+                std::cout << "resetting healing" << "\n";
             }
+            interrupted_heal = false;
             break;
         }
     }
@@ -1002,54 +1049,60 @@ void WorldSystem::processPlayerInput(int key, int action) {
         switch (key) {
             // move left/right
         case GLFW_KEY_A:
-            if (registry.motions.has(m_player)) {
-                registry.motions.get(m_player).velocity[0] = -player_speed;
+            if (!registry.healTimers.has(m_player)) {
+                a_pressed = true;
             }
             break;
         case GLFW_KEY_D:
-            if (registry.motions.has(m_player)) {
-                registry.motions.get(m_player).velocity[0] = player_speed;
+            if (!registry.healTimers.has(m_player)) {
+                d_pressed = true;
             }
             break;
         case GLFW_KEY_W:
         case GLFW_KEY_SPACE:
-            if (registry.motions.has(m_player)) {
-                auto& playerMotion = registry.motions.get(m_player);
-                if (coyoteTimer > 0.f) {  // Ensure the player can only jump if grounded
-                    playerMotion.velocity[1] = -player_jump_velocity;  // Apply jump velocity
-                    coyoteTimer = 0.f;
-                    isGrounded = false;
+            if (!registry.healTimers.has(m_player)) {
+                if (registry.motions.has(m_player)) {
+                    auto& playerMotion = registry.motions.get(m_player);
+                    if (coyoteTimer > 0.f) {  // Ensure the player can only jump if grounded
+                        playerMotion.velocity[1] = -player_jump_velocity;  // Apply jump velocity
+                        coyoteTimer = 0.f;
+                        isGrounded = false;
+                    }
                 }
-
             }
             break;
         case GLFW_KEY_S:
-            if (registry.motions.has(m_player)) {
-                auto& playerMotion = registry.motions.get(m_player);
-                playerMotion.velocity[1] += player_speed * 2.0f; // Increase downward velocity
+            if (!registry.healTimers.has(m_player)) {
+                if (registry.motions.has(m_player)) {
+                    auto& playerMotion = registry.motions.get(m_player);
+                    playerMotion.velocity[1] += player_speed * 2.0f; // Increase downward velocity
+                }
             }
-            break;
-            // Heal
-        case GLFW_KEY_H:
-            player_get_healed();
-            break;
+            break;            
             // Equip / unequip flamethrower
         case GLFW_KEY_E:
             if (isChickenDead) {
-                if (!registry.players.get(m_player).attacking) {
-                    isFlameThrowerEquipped = true;
+                if (!registry.healTimers.has(m_player)) {
+                    if (!registry.players.get(m_player).attacking) {
+                        isFlameThrowerEquipped = true;
+                    }
                 }
             }
             break;
         case GLFW_KEY_Q:
             if (isChickenDead) {
-                isFlameThrowerEquipped = false;
+                if (!registry.healTimers.has(m_player)) {
+                    isFlameThrowerEquipped = false;
+                }
             }
             break;
             // show/hide FPS counter
         case GLFW_KEY_F:
             Show_FPS = !Show_FPS;
             break;
+        case GLFW_KEY_H:
+            interrupted_heal = false;
+            return;
             // save
         case GLFW_KEY_V:
             do_save = true;
@@ -1063,6 +1116,31 @@ void WorldSystem::processPlayerInput(int key, int action) {
                 pelican_talk = !pelican_talk;
             }
             break;
+        }
+        interrupted_heal = true;
+    }
+    else if (action == GLFW_REPEAT) {
+        switch (key) {
+        case GLFW_KEY_H:
+            if (registry.playerAnimations.has(m_player) && registry.playerAnimations.get(m_player).getState() == PlayerState::IDLE) {
+                if (registry.healths.has(m_player) && registry.healths.get(m_player).current_health != registry.healths.get(m_player).max_health) {
+                    if (!registry.healTimers.has(m_player)) {
+                        registry.healTimers.emplace(m_player, HealTimer());
+                    }
+                    else if (registry.healTimers.get(m_player).elapsed_time <= 0) {
+                        player_get_healed();
+                        registry.healTimers.remove(m_player);
+                    }
+                    else {
+                        HealTimer& h_timer = registry.healTimers.get(m_player);
+                        h_timer.elapsed_time -= 11.f;
+                        interrupted_heal = false;
+                    }
+                }
+            }
+            break;
+        default:
+            interrupted_heal = true;
         }
     }
 }
@@ -1098,7 +1176,7 @@ void WorldSystem::useFlameThrower() {
    registry.transforms.emplace(m_fireball, std::move(fireballTransform));
 
    Damage fireballDamage;
-   fireballDamage.damage_dealt = 5;
+   fireballDamage.damage_dealt = 2;
    registry.damages.emplace(m_fireball, fireballDamage);
 
    BoundingBox fireballBB;
@@ -1126,21 +1204,24 @@ void WorldSystem::on_mouse_move(const glm::vec2&) {
 void WorldSystem::on_mouse_click(int button, int action, const glm::vec2&, int) {
     if (action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_LEFT) {
         if (registry.combat.has(m_player)) {
-            if (!isFlameThrowerEquipped) {
-                if (canAttack) {  // Ensure the player can attack
-                    // make a call to bounding boxes here
-                    std::cout << "is attacking" << std::endl;
-                    Mix_PlayChannel(SWORD_CHANNEL, sword_sound, 0);
-                    canAttack = false;  // Prevent further attacks for a time
-                    auto &c = registry.combat.get(m_player);
-                    c.frames = c.max_frames;
-                    registry.players.get(m_player).attacking = true;
+            if (!registry.healTimers.has(m_player)) {
+                if (!isFlameThrowerEquipped) {
+                    if (canAttack) {  // Ensure the player can attack
+                        // make a call to bounding boxes here
+                        std::cout << "is attacking" << std::endl;
+                        Mix_PlayChannel(SWORD_CHANNEL, sword_sound, 0);
+                        canAttack = false;  // Prevent further attacks for a time
+                        auto& c = registry.combat.get(m_player);
+                        c.frames = c.max_frames;
+                        registry.players.get(m_player).attacking = true;
+                    }
                 }
-            } else if (flameThrower_enabled) {
-                useFlameThrower();
-            }
-            else {
-                Mix_PlayChannel(GUN_CLICK_CHANNEL, gun_click_sound, 0);
+                else if (flameThrower_enabled) {
+                    useFlameThrower();
+                }
+                else {
+                    Mix_PlayChannel(GUN_CLICK_CHANNEL, gun_click_sound, 0);
+                }
             }
         }
     }
@@ -1168,6 +1249,10 @@ void WorldSystem::cleanup() {
     if (gun_click_sound != nullptr) {
         Mix_FreeChunk(gun_click_sound);
         gun_click_sound = nullptr;
+    }
+    if (heal_sound != nullptr) {
+        Mix_FreeChunk(heal_sound);
+        heal_sound = nullptr;
     }
     if (flame_beak_shoot_sound != nullptr) {
         Mix_FreeChunk(flame_beak_shoot_sound);
@@ -1222,6 +1307,8 @@ void WorldSystem::player_get_healed() {
     if (health_flask.num_uses > 0 && player_health.max_health > player_health.current_health) {
         player_health.current_health++;
         health_flask.num_uses--;
+        registry.playerAnimations.get(m_player).setState(PlayerState::IDLE);
+        Mix_PlayChannel(HEAL_SOUND_CHANNEL, heal_sound, 0);
         update_status_bar(player_health.current_health);
         printf("You have %d uses of your health flask left \n", health_flask.num_uses);
     }
@@ -1422,5 +1509,22 @@ void WorldSystem::write_to_save_file() {
     }
     else {
         std::cout << "Couldnt write to save file \n";
+    }
+}
+
+void WorldSystem::draw_npc_interact(Entity obj) {
+    // check if the player is within range of the savepoint
+    Motion player_motion = registry.motions.get(m_player);
+    Motion npc_point_motion = registry.motions.get(obj);
+    float npc_point_lower_bound_x = npc_point_motion.position.x - npc_point_motion.scale.x;
+    float npc_point_upper_bound_x = npc_point_motion.position.x + npc_point_motion.scale.x;
+    float npc_point_lower_bound_y = npc_point_motion.position.y - npc_point_motion.scale.y;
+    float npc_point_upper_bound_y = npc_point_motion.position.y + npc_point_motion.scale.y;
+    if (npc_point_lower_bound_x <= player_motion.position.x && player_motion.position.x < npc_point_upper_bound_x
+        && npc_point_lower_bound_y < player_motion.position.y && player_motion.position.y < npc_point_upper_bound_y) {
+        double position_x = npc_point_motion.position.x - 75.f;
+        double position_y = renderSystem.getWindowHeight() - npc_point_motion.position.y - 140.f;
+        renderSystem.renderText("Press T To Talk", static_cast<float>(position_x), static_cast<float>(position_y),
+            0.5f, font_color, font_trans);
     }
 }

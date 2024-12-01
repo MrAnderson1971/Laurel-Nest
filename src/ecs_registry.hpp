@@ -17,6 +17,7 @@ public:
     ComponentContainer<Damage> damages;
     ComponentContainer<RecentlyDamagedTimer> recentDamageTimers;
     ComponentContainer<InvincibilityTimer> invinciblityTimers;
+    ComponentContainer<HealTimer> healTimers;
     ComponentContainer<ProjectileTimer> projectileTimers;
     ComponentContainer<Projectile> projectiles;
     ComponentContainer<Weapon> weapons;
@@ -47,6 +48,8 @@ public:
     ComponentContainer<Patrol_AI> patrol_ais;
 
     ComponentContainer<Pelican> pelican;
+    ComponentContainer<Elder> elder;
+    ComponentContainer<Kat> kat;
 
     ComponentContainer<Room> rooms;
     ComponentContainer<Connection> doors;
@@ -60,6 +63,7 @@ public:
     // IMPORTANT: Don't forget to add any newly added containers!
     ECSRegistry()
     {
+        registry_list.push_back(&healTimers);
         registry_list.push_back(&goombaFlyingStates);
         registry_list.push_back(&savePoints);
         registry_list.push_back(&healths);
@@ -100,6 +104,8 @@ public:
         registry_list.push_back(&swordPowerUp);
         registry_list.push_back(&menuItems);
         registry_list.push_back(&pelican);
+        registry_list.push_back(&elder);
+        registry_list.push_back(&kat);
         registry_list.push_back(&walls);
     }
 

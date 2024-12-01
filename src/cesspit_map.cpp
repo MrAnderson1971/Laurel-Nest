@@ -59,7 +59,7 @@ void Cesspit::init() {
     
     // room1 to entrance
     ConnectionList list_1;
-    Connection door_1_to_en = SetDoor(0.2f, 0.04f, 0.05f, 0.f, m_entrance_room, vec2(renderSystem.getWindowWidth() * 0.75f, renderSystem.getWindowHeight() * 0.75f), false);
+    Connection door_1_to_en = SetDoor(0.2f, 0.04f, 0.05f, 0.f, m_entrance_room, vec2(renderSystem.getWindowWidth() * 0.675f, renderSystem.getWindowHeight() * 0.9f), false);
     list_1.doors.push_back(door_1_to_en);
     
     // room1 to room2

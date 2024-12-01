@@ -2,6 +2,7 @@
 #include <unordered_map>
 #include <iomanip>
 #include <sstream>
+#include <components.hpp>
 
 inline std::unordered_map<TEXTURE_ASSET_ID, std::string> createTextureAssetMap() {
     return {
@@ -76,6 +77,9 @@ inline std::unordered_map<TEXTURE_ASSET_ID, std::string> createTextureAssetMap()
         {TEXTURE_ASSET_ID::ARROW, "arrow.PNG"},
         {TEXTURE_ASSET_ID::SWORD_POWERUP, "sword_powerup.png"},
         {TEXTURE_ASSET_ID::GREATBIRD_PLATFORM, "greatbird_platform.PNG"},
+        {TEXTURE_ASSET_ID::BIRDMAN_ELDER, "BirdmanElder.png"},
+        {TEXTURE_ASSET_ID::OGRE_KAT_1, "kat1.png"},
+        {TEXTURE_ASSET_ID::OGRE_KAT_2, "kat2.png"},
         {TEXTURE_ASSET_ID::GREATBIRD_IDLE, "greatbird_idle.PNG"},
     };
 }
@@ -85,7 +89,7 @@ inline void drawLoadingScreen(int count, size_t total) {
     glClear(GL_COLOR_BUFFER_BIT);
     std::stringstream ss;
     ss << std::fixed << std::setprecision(2) << (static_cast<float>(count) / total * 100.0f);
-    renderSystem.renderText("Loading: " + ss.str() + "%", window_width_px / 2.f, window_height_px / 2.f,
+    renderSystem.renderText("Loading: " + ss.str() + "%", window_width_px * 0.43f, window_height_px / 2.f,
         1.f, vec3(1), mat4(1));
     glfwSwapBuffers(renderSystem.getWindow());
     glfwPollEvents();
