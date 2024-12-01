@@ -1405,6 +1405,7 @@ Entity LNRoom1Strategy::execute() {
     GoombaFlying gf1 = GoombaFlying();
     gf1.init(renderSystem.getWindowWidth() / 5.f, renderSystem.getWindowHeight() / 6.f);
     gf1.set_health(6);
+    gf1.set_initial_attack(FlyingGoombaState::FLYING_GOOMBA_THROW_PROJECTILE);
 
     GoombaFlying gf2 = GoombaFlying();
     gf2.init(renderSystem.getWindowWidth() * (3.f / 4.f), renderSystem.getWindowHeight() / 6.f);
@@ -1483,7 +1484,7 @@ Entity LNBossRoomStrategy::execute() {
     Entity m_boss_platform = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::GREATBIRD_PLATFORM), 1.f, 1.f, 0.5f, 0.86f, 0.0f);
 
     // greatbird boss
-    //Entity m_greatbird = GreatBossAISystem::init(m_room);
+    Entity m_greatbird = GreatBossAISystem::init(m_room);
     //SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::GREATBIRD_IDLE), 1.f, 1.f, 0.5f, 0.65f, 0.0f);
 
     // ceiling
@@ -1500,7 +1501,7 @@ Entity LNBossRoomStrategy::execute() {
     room.insert(m_ceiling);
     room.insert(m_ground);
     room.insert(m_boss_platform);
-    // room.insert(m_greatbird);
+    room.insert(m_greatbird);
     room.setMusic(Mix_LoadMUS(audio_path("greatBird.wav").c_str()));
     registry.rooms.emplace(m_room, std::move(room));
 

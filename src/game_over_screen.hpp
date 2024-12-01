@@ -1,7 +1,8 @@
 #pragma once
 #include "game_state.hpp"
+#include "pause_state.hpp"
 
-class GameOverScreen : public GameState {
+class GameOverScreen : public MenuState {
 public:
     GameOverScreen();
     ~GameOverScreen();

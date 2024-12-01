@@ -203,11 +203,13 @@ void WorldSystem::init() {
 
 void WorldSystem::update(float deltaTime) {
     deltaTime = min(deltaTime, max_delta_time); // so if there's a lag spike the movement doesn't become so large you phase through walls
+    ws_delta_time = deltaTime;
     handle_connections(deltaTime);
     handle_motions(deltaTime);
     handle_collisions();
     handle_invinciblity(deltaTime);
     handle_plus_heart(deltaTime);
+    handle_bad_timers(deltaTime);
     update_damaged_player_sprites(deltaTime);
     handle_ai();
     handle_saving();
@@ -225,8 +227,8 @@ void WorldSystem::update(float deltaTime) {
     }
 
     if (registry.rooms.has(current_room) && registry.rooms.get(current_room).id == ROOM_ID::LN_BOSS) {
-        //GreatBossAISystem::step(m_player, deltaTime);
-        //GreatBossAISystem::update_damaged_gb_sprites(deltaTime);
+        GreatBossAISystem::step(m_player, deltaTime, current_room);
+        GreatBossAISystem::update_damaged_gb_sprites(deltaTime);
     }
     
     // look for specific rooms with restrictions
@@ -265,9 +267,11 @@ void WorldSystem::handle_connections(float deltaTime) {
         for (auto& connection : list.doors) {
             // collision but only if player is in walking state
             auto& a = registry.playerAnimations.get(m_player);
-            if (physics.checkForCollision(m_player, connection.door, dir, over) && a.getState() != PlayerState::ATTACKING && playerMotion.velocity != vec2(0.f, 0.f)) {
+            if (physics.checkForCollision(m_player, connection.door, dir, over) 
+                && a.getState() != PlayerState::ATTACKING && playerMotion.velocity != vec2(0.f, 0.f)) {
                 // check if in boss room and if boss is dead
-                if (registry.rooms.get(current_room).id != ROOM_ID::CP_BOSS || (registry.rooms.get(current_room).id == ROOM_ID::CP_BOSS && isChickenDead)) {
+                if (registry.rooms.get(current_room).id != ROOM_ID::CP_BOSS 
+                    || (registry.rooms.get(current_room).id == ROOM_ID::CP_BOSS && isChickenDead)) {
                     // set next room
                     // check for switching map
                     if (!connection.switchMap) {
@@ -292,7 +296,6 @@ void WorldSystem::handle_connections(float deltaTime) {
                         continue_music = true;
                     }
 
-
                     // No need to check if boss is alive, the game ends when it dies
                     if (music != nullptr && r.id == ROOM_ID::LN_BOSS) {
                         Mix_PlayMusic(music.get(), 1);
@@ -313,7 +316,8 @@ void WorldSystem::handle_motions(float deltaTime) {
             auto& m = registry.motions.get(entity);
 
             // Step 1: Apply gravity if not grounded
-            if (registry.gravity.has(entity) && ( registry.players.has(entity) || (registry.rooms.has(current_room) && registry.rooms.get(current_room).has(entity)))) {
+            if (registry.gravity.has(entity) && ( registry.players.has(entity) || 
+                (registry.rooms.has(current_room) && registry.rooms.get(current_room).has(entity)))) {
                 auto& g = registry.gravity.get(entity);
                 m.velocity.y += g.acceleration * deltaTime;
             }
@@ -569,7 +573,13 @@ void WorldSystem::handle_collisions() {
                 if (direction.y > 0 && thisMotion.velocity.y > 0) {
                     // Downward collision
                     thisMotion.position.y -= overlap.y;
-                    thisMotion.velocity.y = 0;
+                    if (registry.hostiles.has(entity) && registry.hostiles.get(entity).type == HostileType::GOOMBA_SWARM &&
+                        registry.healths.has(entity)) {
+                        thisMotion.velocity.y *= -1;
+                    }
+                    else {
+                        thisMotion.velocity.y = 0;
+                    }
                     if (registry.players.has(entity)) {
                         // Player has collided with the ground
                         isGrounded = true;
@@ -587,16 +597,28 @@ void WorldSystem::handle_collisions() {
             }
         }
 
-        if ((registry.bosses.has(entity_other) &&
-                registry.chickenAnimations.get(entity_other).currentState != CHICKEN_DEATH)) {
+        if ((registry.bosses.has(entity_other) && registry.chickenAnimations.has(entity) &&
+            registry.chickenAnimations.get(entity_other).currentState != CHICKEN_DEATH)) {
             if (direction.x != 0) {
                 if (direction.x > 0 && thisMotion.velocity.x > 0) {
                     thisMotion.position.x -= overlap.x;
-                } else if (direction.x < 0 && thisMotion.velocity.x < 0) {
+                }
+                else if (direction.x < 0 && thisMotion.velocity.x < 0) {
                     thisMotion.position.x += overlap.x;
                 }
             }
         }
+        /*if ((registry.bosses.has(entity_other) && registry.gbAnimations.has(entity) &&
+            registry.gbAnimations.get(entity_other).currentState != GB_DEATH)) {
+            if (direction.x != 0) {
+                if (direction.x > 0 && thisMotion.velocity.x > 0) {
+                    thisMotion.position.x -= overlap.x;
+                }
+                else if (direction.x < 0 && thisMotion.velocity.x < 0) {
+                    thisMotion.position.x += overlap.x;
+                }
+            }
+        }*/
 
         // Make the swarm goomba bounce off the ground
         if (registry.hostiles.has(entity) && registry.hostiles.get(entity).type == HostileType::GOOMBA_SWARM
@@ -659,24 +681,31 @@ void WorldSystem::handle_collisions() {
                 continue;
             }
             if (registry.players.get(m_player).attacking) {
-                if (registry.bosses.has(entity_other)) {
+                if (registry.bosses.has(entity_other) && !isChickenDead) {
                     Boss& boss = registry.bosses.get(entity_other);
                     boss.boxType = BoxType::HIT_BOX;
                     BossAISystem::chicken_get_damaged(m_sword, isChickenDead, a_pressed, d_pressed, m_player);
+                }
+                else if (registry.bosses.has(entity_other) && isChickenDead) {
+                    Boss& boss = registry.bosses.get(entity_other);
+                    boss.boxType = BoxType::HIT_BOX;
+                    bool mock;
+                    GreatBossAISystem::gb_get_damaged(m_sword, mock, a_pressed, d_pressed, m_player);
                 } else {
                     GoombaLogic::goomba_get_damaged(entity_other, m_sword, current_room);
                 }
+
                 if (!registry.invinciblityTimers.has(m_player)) {
                     InvincibilityTimer& timer = registry.invinciblityTimers.emplace(m_player);
                     timer.counter_ms = 250.f;
                 }
                 registry.players.get(m_player).attacking = false;
             } else {
-                if (registry.bosses.has(entity_other)) {
+                if (registry.bosses.has(entity_other) && !isChickenDead) {
                     Boss& boss = registry.bosses.get(entity_other);
                     boss.boxType = BoxType::ATTACK_BOX;
                 }
-                if (!registry.invinciblityTimers.has(entity)) {
+                if (!registry.invinciblityTimers.has(entity) && registry.damages.get(entity_other).damage_dealt > 0) {
                     player_get_damaged(entity_other);
                 }
             }
@@ -695,8 +724,17 @@ void WorldSystem::handle_collisions() {
             if (registry.bosses.has(entity_other)) {
                 Boss& boss = registry.bosses.get(entity_other);
                 boss.boxType = BoxType::BODY_BOX;
-                BossAISystem::chicken_get_damaged(entity, isChickenDead, a_pressed, d_pressed, m_player);
-                registry.remove_all_components_of(entity);
+
+                if (!isChickenDead) {
+                    BossAISystem::chicken_get_damaged(entity, isChickenDead, a_pressed, d_pressed, m_player);
+                    registry.remove_all_components_of(entity);
+                }
+                else // if Great Bird 
+                {
+                    bool mock;
+                    GreatBossAISystem::gb_get_damaged(entity, mock, a_pressed, d_pressed, m_player);
+                    registry.remove_all_components_of(entity);
+                }
             }
         }
 
@@ -775,6 +813,28 @@ void WorldSystem::handle_plus_heart(float deltaTime) {
 
     for (auto& e : to_remove) {
         registry.plusHeartTimers.remove(e);
+    }
+}
+          
+          
+void WorldSystem::handle_bad_timers(float deltaTime) {
+    std::vector<Entity> to_remove;
+    for (auto& e : registry.badObjTimers.entities) {
+        auto& i = registry.badObjTimers.get(e);
+        i.elapsed_time += deltaTime * 1000;
+        if (i.elapsed_time > i.max_time) {
+            to_remove.push_back(e);
+        }
+    }
+
+    for (auto& e : to_remove) {
+        if (registry.badObjs.has(e)) {
+            registry.badObjs.remove(e);
+        }
+        if (registry.damages.has(e)) {
+            registry.damages.remove(e);
+        }
+        registry.badObjTimers.remove(e);
     }
 }
 
@@ -963,6 +1023,8 @@ void WorldSystem::render() {
     // Loop twice to ensure the background gets rendered first
 
     Room& room = registry.rooms.get(current_room);
+
+    // unfortunately we need to have 3 for loops to ensure drawing order, could be optimized I guess - kuter
     for (auto& obj : room.entities) {
         // Draw Objects
         if (registry.envObject.has(obj) && registry.transforms.has(obj) && registry.sprites.has(obj))
@@ -971,8 +1033,40 @@ void WorldSystem::render() {
             auto& sprite = registry.sprites.get(obj);
             renderSystem.drawEntity(sprite, transform);
         }
-
     }
+
+    // unfortunately we need to have 3 for loops to ensure drawing order, could be optimized I guess - kuter
+    for (auto& obj : room.entities) {
+        // Draw Bosses
+        if (registry.bosses.has(obj)) {
+
+            if (room.id == ROOM_ID::CP_BOSS) {
+                BossAISystem::render();
+            }
+            else {
+                GreatBossAISystem::render();
+            }
+        }
+    }
+
+    // unfortunately we need to have 3 for loops to ensure drawing order, could be optimized I guess - kuter
+    for (auto& obj : room.entities) {
+        // Draw bad objects
+        if (registry.badObjs.has(obj) && registry.badObjTimers.has(obj) && registry.sprites.has(obj))
+        {
+            BadObjTimer& bt = registry.badObjTimers.get(obj);
+            if (bt.elapsed_time > bt.stall) {
+                auto& transform = registry.transforms.get(obj);
+                auto& sprite = registry.sprites.get(obj);
+                renderSystem.drawEntity(sprite, transform);
+                if (!bt.isActive) {
+                    bt.isActive = true;
+                    registry.damages.emplace(obj, std::move(Damage{ bt.damage }));
+                }
+            }
+        }
+    }
+
 
     for (auto& obj : room.entities) {
         // Draw the savepoints
@@ -1030,7 +1124,6 @@ void WorldSystem::render() {
             auto& sprite = registry.sprites.get(obj);
             renderSystem.drawEntity(sprite, transform);
         }
-
 
         // Draw Bosses
         if (registry.bosses.has(obj)) {
@@ -1231,7 +1324,7 @@ void WorldSystem::processPlayerInput(int key, int action) {
                     }
                     else {
                         HealTimer& h_timer = registry.healTimers.get(m_player);
-                        h_timer.counter_ms -= 11.f;
+                        h_timer.elapsed_time -= ws_delta_time;
                         interrupted_heal = false;
                     }
                 }

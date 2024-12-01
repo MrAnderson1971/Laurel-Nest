@@ -11,36 +11,34 @@ enum class gSTATE {
     SMASH = IDLE + 1,
     SPEAR_SINGLE = SMASH + 1,
     SPEAR_MANY = SPEAR_SINGLE + 1,
-    NUKE = SPEAR_MANY + 1,
-    HIT = NUKE + 1,
+    HIT = SPEAR_MANY + 1,
     DEATH = HIT + 1
 };
 
-gSTATE current_state;
+static gSTATE current_state;
 Entity great_boss_room;
 
 // Redo all this
-constexpr float SMASH_1_GREAT_BIRD_WIDTH = 0.58f * 1053.f;
-constexpr float SMASH_1_GREAT_BIRD_HEIGHT = 0.58f * 425.f;
-constexpr float IDLE_GREAT_BIRD_WIDTH = 0.625f * 1054.f;
-constexpr float IDLE_GREAT_BIRD_HEIGHT = 0.625f * 559.f;
-constexpr float SMASH_2_GREAT_BIRD_WIDTH = 0.58f * 1098.f;
-constexpr float SMASH_2_GREAT_BIRD_HEIGHT = 0.58f * 441.f;
-constexpr float HIT_GREAT_BIRD_WIDTH = 0.59f * 1029.f;
-constexpr float HIT_GREAT_BIRD_HEIGHT = 0.59f * 570.f;
-constexpr float DEATH_GREAT_BIRD_WIDTH = 0.6f * 976.f;
-constexpr float DEATH_GREAT_BIRD_HEIGHT = 0.6f * 395.f;
-constexpr float SPIKE_GREAT_BIRD_WIDTH = 0.6f * 244.f;
-constexpr float SPIKE_GREAT_BIRD_HEIGHT = 0.6f * 977.f;
+constexpr float SMASH_1_GREAT_BIRD_WIDTH = 0.58f * 1053.f * 2.f;
+constexpr float SMASH_1_GREAT_BIRD_HEIGHT = 0.58f * 425.f * 2.f;
+constexpr float IDLE_GREAT_BIRD_WIDTH = 0.625f * 1054.f * 2.f;
+constexpr float IDLE_GREAT_BIRD_HEIGHT = 0.625f * 559.f * 2.f;
+constexpr float SMASH_2_GREAT_BIRD_WIDTH = 0.58f * 1098.f * 2.f;
+constexpr float SMASH_2_GREAT_BIRD_HEIGHT = 0.58f * 441.f * 2.f;
+constexpr float HIT_GREAT_BIRD_WIDTH = 0.58f * 1029.f * 2.f;
+constexpr float HIT_GREAT_BIRD_HEIGHT = 0.58f * 570.f * 2.f;
+constexpr float DEATH_GREAT_BIRD_WIDTH = 0.6f * 976.f * 2.f;
+constexpr float DEATH_GREAT_BIRD_HEIGHT = 0.6f * 395.f * 2.f;
 
 bool animationDoneG = false;
 
 
-float wave_time = 5.f;
-float spear_time = 5.f;
-float multiple_time = 3.0f;
-float nuke_time = 3.0f;
-
+float wave_time = 10.5f;
+float wave_init = wave_time;
+float spear_time = 6.f;
+float spear_init = spear_time;
+float multiple_time = 12.5f;
+float multiple_init = multiple_time;
 
 bool can_wave(float time) {
     if (wave_time <= 0) {
@@ -66,14 +64,6 @@ bool can_multiple(float time) {
     return false;
 }
 
-bool can_nuke(float time) {
-    if (nuke_time <= 0) {
-        return true;
-    }
-    nuke_time = nuke_time - time;
-    return false;
-}
-
 Entity greatBird;
 
 Entity GreatBossAISystem::init(Entity bossRoom) {
@@ -95,13 +85,20 @@ Entity GreatBossAISystem::init(Entity bossRoom) {
     // Idle
     idleSprite.push_back(renderSystem.loadTexture("greatbird_idle.PNG"));
     // smash
+    for (unsigned i = 1; i <= 3; i++) {
+        smashSprites.push_back(renderSystem.loadTexture("greatbird_smash1.PNG"));
+    }
+    for (unsigned i = 1; i <= 4; i++) {
+        smashSprites.push_back(renderSystem.loadTexture("greatbird_smash2.PNG"));
+    }
+
     for (unsigned i = 1; i <= 2; i++) {
-        smashSprites.push_back(renderSystem.loadTexture("greatbird_smash" + std::to_string(i) + ".PNG"));
+        smashSprites.push_back(renderSystem.loadTexture("greatbird_smash1.PNG"));
     }
     // hit
     hitSprite.push_back(renderSystem.loadTexture("greatbird_hit.PNG"));
     // dead
-    deathSprite.push_back(renderSystem.loadTexture("greatbird_death.PNG"));
+    deathSprite.push_back(renderSystem.loadTexture("greatbird_dead.PNG"));
 
 
     greatBirdAnimations.addState(GBState::GB_IDLE, std::move(idleSprite));
@@ -120,17 +117,18 @@ Entity GreatBossAISystem::init(Entity bossRoom) {
 
     Boss gbBoss = Boss();
     gbBoss.hitbox = { IDLE_GREAT_BIRD_WIDTH,IDLE_GREAT_BIRD_HEIGHT };
-    gbBoss.attackbox = { 0, 0 };
-    gbBoss.bodybox = { 0, 0 };
+    gbBoss.attackbox = { IDLE_GREAT_BIRD_WIDTH, IDLE_GREAT_BIRD_WIDTH };
+    gbBoss.bodybox = { IDLE_GREAT_BIRD_WIDTH, IDLE_GREAT_BIRD_WIDTH };
+    gbBoss.boxType = BoxType::HIT_BOX;
     registry.bosses.emplace(greatBird, gbBoss);
 
     registry.healths.emplace(greatBird, std::move(Health{ 20, 20 }));
-    // registry.damages.emplace(greatBird, std::move(Damage{ 1 }));
+    registry.damages.emplace(greatBird, std::move(Damage{ 0 }));
 
     return greatBird;
 };
 
-void GreatBossAISystem::step(Entity player, float elapsed_time) {
+void GreatBossAISystem::step(Entity player, float elapsed_time, Entity current_room) {
     if (!registry.gbAnimations.has(greatBird)) {
         return;
     }
@@ -138,6 +136,11 @@ void GreatBossAISystem::step(Entity player, float elapsed_time) {
     Motion& greatBirdMotion = registry.motions.get(greatBird);
     Motion& playerMotion = registry.motions.get(player);
     Boss& greatBirdBoss = registry.bosses.get(greatBird);
+    int room_width = renderSystem.getWindowWidth();
+    float spike1pos = room_width * 0.20f;
+    float spike2pos = room_width * 0.40f;
+    float spike3pos = room_width * 0.60f;
+    float spike4pos = room_width * 0.80f;
 
     // check for death
     // check for death
@@ -148,46 +151,56 @@ void GreatBossAISystem::step(Entity player, float elapsed_time) {
     else if (animationDoneG) {
         animationDoneG = false;
         if (current_state == gSTATE::IDLE) {
-            greatBirdBoss.hitbox = { IDLE_GREAT_BIRD_WIDTH, IDLE_GREAT_BIRD_HEIGHT };
 
             if (can_wave(elapsed_time)) {
                 current_state = gSTATE::SMASH;
                 a.setState(GB_SMASH);
-                wave_time = 5.0f;
+                greatBirdMotion.position.y += 80.f; //reposition
+                smash_attack(current_room);
+                wave_time = wave_init;
             }
             else if (can_spear(elapsed_time)) {
                 current_state = gSTATE::SPEAR_SINGLE;
                 a.setState(GB_IDLE);
-                spear_time = 5.0f;
+                spear_attack_stub(playerMotion.position.x, current_room);
+                spear_attack(playerMotion.position.x, current_room);
+                spear_time = spear_init;
             }
             else if (can_multiple(elapsed_time)) {
                 current_state = gSTATE::SPEAR_MANY;
                 a.setState(GB_IDLE);
-                multiple_time = 3.0f;
-            }
-            else if (can_nuke(elapsed_time)) {
-                current_state = gSTATE::NUKE;
-                a.setState(GB_IDLE);
-                nuke_time = 3.0f;
+                spear_attack_stub(spike1pos, current_room);
+                spear_attack(spike1pos, current_room);
+                spear_attack_stub(spike2pos, current_room);
+                spear_attack(spike2pos, current_room);
+                spear_attack_stub(spike3pos, current_room);
+                spear_attack(spike3pos, current_room);
+                spear_attack_stub(spike4pos, current_room);
+                spear_attack(spike4pos, current_room);
+                multiple_time = multiple_init;
             }
         }
         else if (current_state == gSTATE::SMASH) {
-            greatBirdBoss.hitbox = { SMASH_1_GREAT_BIRD_WIDTH, SMASH_1_GREAT_BIRD_HEIGHT };
-
+            greatBirdMotion.position.y -= 80.f; //reposition
             if (can_spear(elapsed_time)) {
                 current_state = gSTATE::SPEAR_SINGLE;
                 a.setState(GB_IDLE);
-                spear_time = 5.0f;
+                spear_attack_stub(playerMotion.position.x, current_room);
+                spear_attack(playerMotion.position.x, current_room);
+                spear_time = spear_init;
             }
             else if (can_multiple(elapsed_time)) {
                 current_state = gSTATE::SPEAR_MANY;
                 a.setState(GB_IDLE);
-                multiple_time = 3.0f;
-            }
-            else if (can_nuke(elapsed_time)) {
-                current_state = gSTATE::NUKE;
-                a.setState(GB_IDLE);
-                nuke_time = 3.0f;
+                spear_attack_stub(spike1pos, current_room);
+                spear_attack(spike1pos, current_room);
+                spear_attack_stub(spike2pos, current_room);
+                spear_attack(spike2pos, current_room);
+                spear_attack_stub(spike3pos, current_room);
+                spear_attack(spike3pos, current_room);
+                spear_attack_stub(spike4pos, current_room);
+                spear_attack(spike4pos, current_room);
+                multiple_time = multiple_init;
             }
             else {
                 current_state = gSTATE::IDLE;
@@ -195,22 +208,25 @@ void GreatBossAISystem::step(Entity player, float elapsed_time) {
             }
         }
         else if (current_state == gSTATE::SPEAR_SINGLE) {
-            greatBirdBoss.hitbox = { IDLE_GREAT_BIRD_WIDTH, IDLE_GREAT_BIRD_HEIGHT };
-
             if (can_wave(elapsed_time)) {
                 current_state = gSTATE::SMASH;
                 a.setState(GB_SMASH);
-                wave_time = 5.0f;
+                greatBirdMotion.position.y += 80.f; //reposition
+                smash_attack(current_room);
+                wave_time = wave_init;
             }
             else if (can_multiple(elapsed_time)) {
                 current_state = gSTATE::SPEAR_MANY;
                 a.setState(GB_IDLE);
-                multiple_time = 3.0f;
-            }
-            else if (can_nuke(elapsed_time)) {
-                current_state = gSTATE::NUKE;
-                a.setState(GB_IDLE);
-                nuke_time = 3.0f;
+                spear_attack_stub(spike1pos, current_room);
+                spear_attack(spike1pos, current_room);
+                spear_attack_stub(spike2pos, current_room);
+                spear_attack(spike2pos, current_room);
+                spear_attack_stub(spike3pos, current_room);
+                spear_attack(spike3pos, current_room);
+                spear_attack_stub(spike4pos, current_room);
+                spear_attack(spike4pos, current_room);
+                multiple_time = multiple_init;
             }
             else {
                 current_state = gSTATE::IDLE;
@@ -218,45 +234,18 @@ void GreatBossAISystem::step(Entity player, float elapsed_time) {
             }
         }
         else if (current_state == gSTATE::SPEAR_MANY) {
-            greatBirdBoss.hitbox = { IDLE_GREAT_BIRD_WIDTH - 50.f, IDLE_GREAT_BIRD_HEIGHT };
-
             if (can_wave(elapsed_time)) {
                 current_state = gSTATE::SMASH;
                 a.setState(GB_SMASH);
-                wave_time = 5.0f;
+                greatBirdMotion.position.y += 80.f; //reposition
+                wave_time = wave_init;
             }
             else if (can_spear(elapsed_time)) {
                 current_state = gSTATE::SPEAR_SINGLE;
                 a.setState(GB_IDLE);
-                multiple_time = 3.0f;
-            }
-            else if (can_nuke(elapsed_time)) {
-                current_state = gSTATE::NUKE;
-                a.setState(GB_IDLE);
-                nuke_time = 3.0f;
-            }
-            else {
-                current_state = gSTATE::IDLE;
-                a.setState(GB_IDLE);
-            }
-        }
-        else if (current_state == gSTATE::NUKE) {
-            greatBirdBoss.hitbox = { SMASH_1_GREAT_BIRD_WIDTH, SMASH_1_GREAT_BIRD_HEIGHT };
-
-            if (can_wave(elapsed_time)) {
-                current_state = gSTATE::SMASH;
-                a.setState(GB_SMASH);
-                wave_time = 5.0f;
-            }
-            else if (can_spear(elapsed_time)) {
-                current_state = gSTATE::SPEAR_SINGLE;
-                a.setState(GB_IDLE);
-                multiple_time = 3.0f;
-            }
-            else if (can_multiple(elapsed_time)) {
-                current_state = gSTATE::SPEAR_MANY;
-                a.setState(GB_IDLE);
-                multiple_time = 3.0f;
+                spear_attack_stub(playerMotion.position.x, current_room);
+                spear_attack(playerMotion.position.x, current_room);
+                spear_time = spear_init;
             }
             else {
                 current_state = gSTATE::IDLE;
@@ -285,24 +274,12 @@ void GreatBossAISystem::step(Entity player, float elapsed_time) {
     case gSTATE::SPEAR_MANY:
         greatBirdMotion.scale = { IDLE_GREAT_BIRD_WIDTH, IDLE_GREAT_BIRD_HEIGHT };
         break;
-    case gSTATE::NUKE:
-        greatBirdMotion.scale = { IDLE_GREAT_BIRD_WIDTH, IDLE_GREAT_BIRD_HEIGHT };
-        break;
     case gSTATE::DEATH:
         greatBirdMotion.scale = { DEATH_GREAT_BIRD_WIDTH, DEATH_GREAT_BIRD_HEIGHT };
         break;
     case gSTATE::HIT:
         greatBirdMotion.scale = { HIT_GREAT_BIRD_WIDTH, HIT_GREAT_BIRD_HEIGHT };
         break;
-    }
-
-    switch (greatBirdBoss.boxType) {
-    case BoxType::ATTACK_BOX:
-        greatBirdMotion.boundingBox = greatBirdBoss.attackbox;
-    case BoxType::BODY_BOX:
-        greatBirdMotion.boundingBox = greatBirdBoss.bodybox;
-    case BoxType::HIT_BOX:
-        greatBirdMotion.boundingBox = greatBirdBoss.hitbox;
     }
 };
 
@@ -343,6 +320,12 @@ void GreatBossAISystem::gb_get_damaged(Entity weapon, bool& isDead, bool& a_pres
             // also finish the game and erase data
             // renderSystem.getGameStateManager()->pauseState<>();
         }
+        else {
+            if (registry.motions.has(greatBird)) {
+                Motion& gbm = registry.motions.get(greatBird);
+                //gbm.position.y += 50.f;
+            }
+        }
     }
 }
 
@@ -355,38 +338,115 @@ void GreatBossAISystem::update_damaged_gb_sprites(float delta_time) {
             if (damaged_timer.counter_ms <= 0) {
                 registry.gbAnimations.get(entity).setState(GB_IDLE);
                 current_state = gSTATE::IDLE;
-                registry.motions.get(entity).scale = { IDLE_GREAT_BIRD_WIDTH, IDLE_GREAT_BIRD_HEIGHT };
+                Motion& gbMotion = registry.motions.get(entity);
+                gbMotion.scale = { IDLE_GREAT_BIRD_WIDTH, IDLE_GREAT_BIRD_HEIGHT };
+                gbMotion.position = glm::vec2(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() / 2.0f + 90.f);
                 registry.recentDamageTimers.remove(entity);
             }
         }
     }
 }
+// Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 0.5f, 0.5f, 0.0f);
 
-
-void GreatBossAISystem::smash_attack() {
+void GreatBossAISystem::smash_attack(Entity current_room) {
     Entity wave = Entity();
-
-    // change to smash
-    registry.sprites.emplace(wave, g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND));
+    Sprite waveSprite = g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND_SMASH);
+    registry.sprites.emplace(wave, waveSprite);
 
     Motion waveMotion;
-    waveMotion.position = { renderSystem.getWindowWidth() / 2, 200.f };
-    waveMotion.scale = { 50, 50 };
-
+    waveMotion.position = glm::vec2(renderSystem.getWindowWidth() * 0.5f, renderSystem.getWindowHeight());
+    waveMotion.scale = { 2000.f, 200.f };
     registry.motions.emplace(wave, std::move(waveMotion));
 
     TransformComponent wave_transform;
+    wave_transform.position = glm::vec3(renderSystem.getWindowWidth() * 0.5f, renderSystem.getWindowHeight(), 0.0);
+    wave_transform.scale = glm::vec3(2000.f, 200.f, 1.0);
+    wave_transform.rotation = 0.0;
     registry.transforms.emplace(wave, std::move(wave_transform));
 
-    //registry.projectiles.emplace(spit, std::move(Projectile{ ProjectileType::SPIT }));
-    // instead projectiles, emplace 
 
-    registry.damages.emplace(wave, std::move(Damage{ 1 }));
-    registry.hostiles.emplace(wave, std::move(Hostile()));
+    registry.badObjs.emplace(wave, std::move(BadObj()));
+    BadObjTimer bt;
+    bt.elapsed_time = 0.f;
+    bt.max_time = 900.f;
+    bt.stall = 550.f;
+    bt.damage = 1;
+    registry.badObjTimers.emplace(wave, std::move(bt));
 
-    // TODO: maybe do this differently
-    // registry.rooms.get(current_room).insert(wave);
+    registry.bounding_box.emplace(wave);
+    BoundingBox bb = registry.bounding_box.get(wave);
+    bb.height = waveSprite.height;
+    bb.width = waveSprite.width;
+
+
+    registry.rooms.get(current_room).insert(wave);
 }
 
-void GreatBossAISystem::spear_attack(float x_pos) {}
+void GreatBossAISystem::spear_attack_stub(float x_pos, Entity current_room) {
+    Entity spear = Entity();
+    Sprite spearSprite = g_texture_paths->at(TEXTURE_ASSET_ID::SPIKE);
+    registry.sprites.emplace(spear, spearSprite);
+
+    Motion spearMotion;
+    spearMotion.position = glm::vec2(x_pos, renderSystem.getWindowHeight());
+    spearMotion.scale = { 200.f, 200.f };
+    registry.motions.emplace(spear, std::move(spearMotion));
+
+    TransformComponent spear_transform;
+    spear_transform.position = glm::vec3(x_pos, renderSystem.getWindowHeight(), 0.0);
+    spear_transform.scale = glm::vec3(200.f, 200.f, 1.0);
+    spear_transform.rotation = 0.0;
+    registry.transforms.emplace(spear, std::move(spear_transform));
+
+
+    registry.badObjs.emplace(spear, std::move(BadObj()));
+    BadObjTimer bt;
+    bt.elapsed_time = 0.f;
+    bt.max_time = 800.f;
+    bt.stall = 0.f;
+    bt.damage = 0;
+    registry.badObjTimers.emplace(spear, std::move(bt));
+
+    registry.bounding_box.emplace(spear);
+    BoundingBox bb = registry.bounding_box.get(spear);
+    bb.height = spearSprite.height;
+    bb.width = spearSprite.width;
+
+    registry.rooms.get(current_room).insert(spear);
+}
+
+void GreatBossAISystem::spear_attack(float x_pos, Entity current_room) {
+
+    Entity spear = Entity();
+    Sprite spearSprite = g_texture_paths->at(TEXTURE_ASSET_ID::SPIKE);
+    registry.sprites.emplace(spear, spearSprite);
+
+    Motion spearMotion;
+    spearMotion.position = glm::vec2(x_pos, renderSystem.getWindowHeight() - 100.f);
+    spearMotion.scale = { spearSprite.width * 0.8f, spearSprite.height * 1.5f};
+    registry.motions.emplace(spear, std::move(spearMotion));
+
+    TransformComponent spear_transform;
+    spear_transform.position = glm::vec3(x_pos, renderSystem.getWindowHeight() - 100.f, 0.0);
+    spear_transform.scale = glm::vec3(spearSprite.width * 0.8f, spearSprite.height * 1.5f, 1.0);
+    spear_transform.rotation = 0.0;
+    registry.transforms.emplace(spear, std::move(spear_transform));
+
+
+    registry.badObjs.emplace(spear, std::move(BadObj()));
+    BadObjTimer bt;
+    bt.elapsed_time = 0.f;
+    bt.max_time = 1600.f;
+    bt.stall = 800.f;
+    bt.damage = 1;
+    registry.badObjTimers.emplace(spear, std::move(bt));
+
+    registry.bounding_box.emplace(spear);
+    BoundingBox bb = registry.bounding_box.get(spear);
+    bb.height = spearSprite.height;
+    bb.width = spearSprite.width;
+
+    registry.rooms.get(current_room).insert(spear);
+
+}
 

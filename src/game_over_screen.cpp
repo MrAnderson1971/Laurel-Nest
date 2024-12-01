@@ -44,11 +44,9 @@ void GameOverScreen::on_mouse_move(const vec2&) {}
 
 void GameOverScreen::on_mouse_click(int button, int action, const vec2&, int) {}
 
-void GameOverScreen::render()
-{
+void GameOverScreen::render() {
     // Clear the screen
-    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    MenuState::render();
 
     if (registry.sprites.has(gameOverEntity) &&
         registry.transforms.has(gameOverEntity))

@@ -188,7 +188,10 @@ struct BadObj {
 
 struct BadObjTimer {
     float max_time;
-    float elapsed_time;
+    float elapsed_time = 0.f;
+    float stall;
+    bool isActive = false;
+    int damage;
 };
 
 // A timer that will be associated to when the player can get damaged again 
@@ -212,6 +215,7 @@ struct HealTimer
 struct PlusHeartTimer
 {
     float counter_ms = 500;
+
 };
 
 enum class ProjectileType {
@@ -353,6 +357,7 @@ enum class TEXTURE_ASSET_ID {
     CEILING_SPIT,                         // ceiling_spit.png 
     SPLASH_SCREEN,                        // splash_screen.png
     DEMO_GROUND,                          // demo_ground.png
+    DEMO_GROUND_SMASH,
     DEMO_WALL,                            // demo_wall.png
     DEMO_CEILING,                         // demo_ceiling.png
     HEART_3,                              // heart_3.png
@@ -404,6 +409,7 @@ enum class TEXTURE_ASSET_ID {
     OGRE_KAT_1,
     OGRE_KAT_2,
     PLUS_HEART,
+    SPIKE,
     TEXTURE_COUNT                         // Count of all textures
 };
 constexpr int texture_count = static_cast<int>(TEXTURE_ASSET_ID::TEXTURE_COUNT);
