@@ -114,7 +114,7 @@ Entity CPRoom1Strategy::execute() {
     room.insert(m_ground);
     room.insert(m_platform1);
     room.insert(m_platform2);
-    //room.insert(g1.entity);
+    room.insert(g1.entity);
 
     room.setMusic(Mix_LoadMUS(audio_path("cesspit.wav").c_str()));
     registry.rooms.emplace(m_room1, std::move(room));

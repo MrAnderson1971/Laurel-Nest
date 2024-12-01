@@ -537,11 +537,16 @@ void WorldSystem::handle_collisions() {
         if (registry.grounds.has(entity_other) && !(registry.movingPlatform.has(entity_other) && registry.flyingGoombaAnimations.has(entity))) {
             if (direction.x != 0 && thisMotion.velocity.x != 0) {
                 thisMotion.velocity.x = 0;
-                if (direction.x > 0) {
+                if (registry.players.has(entity)) {
                     thisMotion.position.x -= overlap.x;
                 }
                 else {
-                    thisMotion.position.x += overlap.x;
+                    if (direction.x > 0) {
+                    thisMotion.position.x -= overlap.x;
+                    }
+                    else {
+                        thisMotion.position.x += overlap.x;
+                    }
                 }
             }
             else if (registry.players.has(entity)) {
