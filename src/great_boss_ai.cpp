@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "cutscene.hpp"
+#include "serialize.hpp"
 
 
 enum class gSTATE {
@@ -316,9 +317,10 @@ void GreatBossAISystem::gb_get_damaged(Entity weapon, bool& isDead, bool& a_pres
             Mix_HaltMusic();
             registry.gravity.emplace(greatBird, Gravity());
 
-            // TODO end cutscne
             // also finish the game and erase data
             // renderSystem.getGameStateManager()->pauseState<>();
+            renderSystem.getGameStateManager()->pauseState<EndingCutscene<1>>();
+            clearSaveData();
         }
         else {
             if (registry.motions.has(greatBird)) {
