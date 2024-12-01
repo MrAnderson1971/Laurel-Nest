@@ -277,19 +277,21 @@ void WorldSystem::handle_connections(float deltaTime) {
 
                     // set spawn point of player in new room
                     playerMotion.position = connection.nextSpawn;
-                }
-                // handle music
-                Room& r = registry.rooms.get(current_room);
-                std::shared_ptr<Mix_Music> music = r.music;
-                if (music != nullptr && r.id == ROOM_ID::CP_BOSS && !isChickenDead) {
-                    Mix_PlayMusic(music.get(), 1);
-                    continue_music = true;
-                }
+                    
+                    // handle music
+                    Room& r = registry.rooms.get(current_room);
+                    std::shared_ptr<Mix_Music> music = r.music;
+                    if (music != nullptr && r.id == ROOM_ID::CP_BOSS && !isChickenDead) {
+                        Mix_PlayMusic(music.get(), 1);
+                        continue_music = true;
+                    }
+
+
+                    // No need to check if boss is alive, the game ends when it dies
+                    if (music != nullptr && r.id == ROOM_ID::LN_BOSS) {
+                        Mix_PlayMusic(music.get(), 1);
+                    }
                 
-                
-                // No need to check if boss is alive, the game ends when it dies
-                if (music != nullptr && r.id == ROOM_ID::LN_BOSS) {
-                    Mix_PlayMusic(music.get(), 1);
                 }
             }
         }
