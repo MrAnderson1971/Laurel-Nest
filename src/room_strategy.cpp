@@ -1446,38 +1446,6 @@ Entity LNRoom1Strategy::execute() {
     room.insert_swarm_goomba(gs5.entity);
     room.insert_swarm_goomba(gs6.entity);*/
 
-    GoombaSwarm gs1 = GoombaSwarm();
-    gs1.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
-
-    GoombaSwarm gs2 = GoombaSwarm();
-    gs2.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
-
-    GoombaSwarm gs3 = GoombaSwarm();
-    gs3.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
-
-    GoombaSwarm gs4 = GoombaSwarm();
-    gs4.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
-
-    GoombaSwarm gs5 = GoombaSwarm();
-    gs5.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
-
-    GoombaSwarm gs6 = GoombaSwarm();
-    gs6.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
-
-    room.insert(gs1.entity);
-    room.insert(gs2.entity);
-    room.insert(gs3.entity);
-    room.insert(gs4.entity);
-    room.insert(gs5.entity);
-    room.insert(gs6.entity);
-
-    room.insert_swarm_goomba(gs1.entity);
-    room.insert_swarm_goomba(gs2.entity);
-    room.insert_swarm_goomba(gs3.entity);
-    room.insert_swarm_goomba(gs4.entity);
-    room.insert_swarm_goomba(gs5.entity);
-    room.insert_swarm_goomba(gs6.entity);
-
     room.insert(m_bg);
     room.insert(m_arrow_bmt);
     room.insert(m_arrow_boss);
