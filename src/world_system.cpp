@@ -1178,7 +1178,7 @@ void WorldSystem::useFlameThrower() {
    registry.transforms.emplace(m_fireball, std::move(fireballTransform));
 
    Damage fireballDamage;
-   fireballDamage.damage_dealt = 2;
+   fireballDamage.damage_dealt = 3;
    registry.damages.emplace(m_fireball, fireballDamage);
 
    BoundingBox fireballBB;

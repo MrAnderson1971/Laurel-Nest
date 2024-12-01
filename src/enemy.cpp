@@ -15,6 +15,13 @@ void Enemy::set_direction(bool dir) {
 	patrol.movingRight = dir;
 }
 
+// dir = true, moves right, left otherwise
+void Enemy::set_health(const int num) {
+	Health& health = registry.healths.get(entity);
+	health.max_health = num;
+	health.current_health = num;
+}
+
 GoombaLand::GoombaLand() {
 	entity = Entity();
 }
@@ -137,7 +144,7 @@ void GoombaFlying::init_components(float x, float y) {
 	state.idle_flying_altitude = y;
 
 	registry.goombaFlyingStates.emplace(entity, std::move(state));
-	registry.healths.emplace(entity, std::move(Health{ 4,4}));
+	registry.healths.emplace(entity, std::move(Health{ 5,5}));
 	registry.damages.emplace(entity, std::move(Damage{ 1 }));
 	registry.patrol_ais.emplace(entity, std::move(Patrol_AI()));
 
