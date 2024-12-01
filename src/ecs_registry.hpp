@@ -37,6 +37,7 @@ public:
     ComponentContainer<GoombaFlyingState> goombaFlyingStates;
     ComponentContainer<Animation<PlayerState>> playerAnimations;
     ComponentContainer<Animation<ChickenState>> chickenAnimations;
+    ComponentContainer<Animation<GBState>> gbAnimations;
     ComponentContainer<Animation<FlyingGoombaState>> flyingGoombaAnimations;
     ComponentContainer<Gravity> gravity;
     ComponentContainer<Patrol_AI> patrol;
@@ -50,6 +51,9 @@ public:
     ComponentContainer<Pelican> pelican;
     ComponentContainer<Elder> elder;
     ComponentContainer<Kat> kat;
+
+    ComponentContainer<BadObj> badObjs;
+    ComponentContainer<BadObjTimer> badObjTimers;
 
     ComponentContainer<Room> rooms;
     ComponentContainer<Connection> doors;
@@ -107,6 +111,9 @@ public:
         registry_list.push_back(&elder);
         registry_list.push_back(&kat);
         registry_list.push_back(&walls);
+        registry_list.push_back(&badObjs);
+        registry_list.push_back(&badObjTimers);
+        registry_list.push_back(&gbAnimations);
     }
 
     void clear_all_components() {

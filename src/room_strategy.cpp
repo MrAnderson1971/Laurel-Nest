@@ -3,6 +3,7 @@
 #include "render_system.hpp"
 #include "enemy.hpp"
 #include "boss_ai.hpp"
+#include "great_boss_ai.hpp"
 #include "components.hpp"
 #include "world_system.hpp"
 #include "serialize.hpp"
@@ -1365,7 +1366,8 @@ Entity LNBossRoomStrategy::execute() {
     Entity m_boss_platform = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::GREATBIRD_PLATFORM), 1.f, 1.f, 0.5f, 0.86f, 0.0f);
 
     // greatbird boss
-    Entity m_greatbird = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::GREATBIRD_IDLE), 1.f, 1.f, 0.5f, 0.65f, 0.0f);
+    //Entity m_greatbird = GreatBossAISystem::init(m_room);
+    //SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::GREATBIRD_IDLE), 1.f, 1.f, 0.5f, 0.65f, 0.0f);
 
     // ceiling
     Entity m_ceiling = SetCeiling(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_CEILING), 0.5f);
@@ -1381,7 +1383,7 @@ Entity LNBossRoomStrategy::execute() {
     room.insert(m_ceiling);
     room.insert(m_ground);
     room.insert(m_boss_platform);
-    room.insert(m_greatbird);
+    // room.insert(m_greatbird);
     room.setMusic(Mix_LoadMUS(audio_path("greatBird.wav").c_str()));
     registry.rooms.emplace(m_room, std::move(room));
 
