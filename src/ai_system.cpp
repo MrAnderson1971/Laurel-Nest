@@ -9,6 +9,7 @@ bool aim = false;
 //int second_charge;
 //
 //float can_charge_timer = 0.5f;
+constexpr float swarmGoomba_visualRange = 200.f;
 
 
 void AISystem::step(Entity player_entity, Entity current_room)
@@ -234,6 +235,7 @@ bool AISystem::can_flying_goomba_detect_player(Motion flyingGoombaMotion, Motion
 }
 
 void AISystem::flying_goomba_charge(Motion& flyingGoombaMotion, Motion playerMotion) {
+
     vec3 v = AISystem::calculate_velocity(flyingGoombaMotion, playerMotion);
     flyingGoombaMotion.velocity = { v.x, v.y };
     flyingGoombaMotion.angle = v.z;
@@ -268,7 +270,6 @@ void AISystem::spawn_flying_goomba_spear(Motion flyingGoombaMotion, vec3 X_Y_Ang
     registry.rooms.get(current_room).insert(spear);
 }
 
-
 void AISystem::group_behaviour(Entity player){
     // Make all goombas chase
     // Make all ceiling goombas target
@@ -295,12 +296,128 @@ void AISystem::group_behaviour(Entity player){
     aim = true;
 }
 
+void AISystem::swarm_goomba_step(Entity current_room) {
+    if (registry.rooms.has(current_room) && registry.rooms.get(current_room).has_swarm_goombas()) {
+        std::set<Entity> swarm_goombas = registry.rooms.get(current_room).swarm_goombas;
+        for (Entity swarm_goomba : swarm_goombas) {
+            AISystem::swarm_goomba_fly_towards_centre(swarm_goomba, swarm_goombas);
+            AISystem::swarm_goomba_avoid_others(swarm_goomba, swarm_goombas);
+            AISystem::swarm_goomba_match_velocity(swarm_goomba, swarm_goombas);
+            //AISystem::swarm_goomba_limit_speed(swarm_goomba);
+            //AISystem::swarm_goomba_keep_witihin_bounds(swarm_goomba);
+        }
+    }
+}
+
+void AISystem::swarm_goomba_keep_witihin_bounds(Entity swarmGoomba) {
+    Motion& swarmGoombaMotion = registry.motions.get(swarmGoomba);
+    vec2 position = swarmGoombaMotion.position;
+    vec2 velocity = swarmGoombaMotion.velocity;
+
+    if (position.x < 0) {
+        velocity.x *= -1;
+    }
+    if (position.x > renderSystem.getWindowWidth()) {
+        velocity.x *= -1;
+    }
+    if (position.y < 10 && !signof(velocity.y)) {
+        velocity.y *= -1;
+    }
+    if (position.y > renderSystem.getWindowHeight()) {
+        velocity.x *= -1;
+    }
+}
+
+void AISystem::swarm_goomba_fly_towards_centre(Entity swarmGoomba, std::set<Entity> swarmGoombas) {
+    const float centeringFactor = 1.f;
+
+    float center_x = 0;
+    float center_y = 0;
+    int numNeighbors = 0;
+    Motion& thisMotion = registry.motions.get(swarmGoomba);
+    for (Entity otherSwarmGoomba : swarmGoombas) {
+        Motion otherMotion = registry.motions.get(otherSwarmGoomba);
+        if (calculate_distance(thisMotion, otherMotion) < swarmGoomba_visualRange) {
+            center_x += otherMotion.position.x;
+            center_y += otherMotion.position.y;
+            numNeighbors++;
+        }
+    }
+
+    if (numNeighbors) {
+        center_x /= numNeighbors;
+        center_y /= numNeighbors;
+        thisMotion.velocity.x += (center_x - thisMotion.position.x) * centeringFactor;
+        thisMotion.velocity.y += (center_y - thisMotion.position.y) * centeringFactor;
+    }
+}
+
+void AISystem::swarm_goomba_avoid_others(Entity swarmGoomba, std::set<Entity> swarmGoombas) {
+    const float min_distance = 100.f;
+    const float avoidFactor = 1.f;
+    float move_x = 0;
+    float move_y = 0;
+    Motion& thisMotion = registry.motions.get(swarmGoomba);
+    for (Entity otherSwarmGoomba : swarmGoombas) {
+        Motion otherMotion = registry.motions.get(otherSwarmGoomba);
+        if (otherSwarmGoomba != swarmGoomba) {
+            if (calculate_distance(thisMotion, otherMotion) < min_distance) {
+                move_x += thisMotion.position.x - otherMotion.position.x;
+                move_y += thisMotion.position.y - otherMotion.position.y;
+            }
+        }
+    }
+    thisMotion.velocity.x += move_x * avoidFactor;
+    thisMotion.velocity.y += move_y * avoidFactor;
+}
+
+void AISystem::swarm_goomba_match_velocity(Entity swarmGoomba, std::set<Entity> swarmGoombas) {
+    const float matching_factor = 1.f;
+
+    float avg_dx = 0;
+    float avg_dy = 0;
+    float numNeighbors = 0;
+    Motion& thisMotion = registry.motions.get(swarmGoomba);
+    for (Entity otherSwarmGoomba : swarmGoombas) {
+        Motion otherMotion = registry.motions.get(otherSwarmGoomba);
+        if (calculate_distance(thisMotion, otherMotion) < swarmGoomba_visualRange) {
+            avg_dx += otherMotion.velocity.x;
+            avg_dy += otherMotion.velocity.y;
+            numNeighbors++;
+        }
+    }
+
+    if (numNeighbors) {
+        avg_dx /= numNeighbors;
+        avg_dy /= numNeighbors;
+
+        thisMotion.velocity.x += (avg_dx - thisMotion.velocity.x) * matching_factor;
+        thisMotion.velocity.y += (avg_dy - thisMotion.velocity.y) * matching_factor;
+    }
+}
+
+void AISystem::swarm_goomba_limit_speed(Entity swarmGoomba) {
+    const float speed_limit = TPS;
+    Motion& sg_motion = registry.motions.get(swarmGoomba);
+    const float speed = static_cast<float>(sqrt(pow(sg_motion.velocity.x, 2) + pow(sg_motion.velocity.y, 2)));
+    
+    if (speed > speed_limit) {
+        sg_motion.velocity.x = (sg_motion.velocity.x / speed) * speed_limit;
+        sg_motion.velocity.y = (sg_motion.velocity.y / speed) * speed_limit;
+    }
+}
+
 float AISystem::get_angle(Entity e1, Entity e2){
     Motion m1 = registry.motions.get(e1);
     Motion m2 = registry.motions.get(e2);
     float x = abs(m1.position.x - m2.position.x);
     float y = abs(m1.position.y - m2.position.y);
     return atan(x/y);
+}
+
+
+float AISystem::calculate_distance(Motion motion_1, Motion motion_2) {
+    return static_cast<float>(sqrt((pow(motion_1.position.x - motion_2.position.x, 2) + pow(motion_1.position.y - motion_2.position.y, 2))));
 }
 
 void AISystem::init_aim(){

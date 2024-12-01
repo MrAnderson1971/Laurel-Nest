@@ -24,6 +24,8 @@ bool Show_FPS = true;
 bool isChickenDead = false;
 bool start_from_checkpoint = false;
 std::unordered_map<TEXTURE_ASSET_ID, Sprite>* g_texture_paths = nullptr;
+std::default_random_engine rng = std::default_random_engine(std::random_device()());
+std::uniform_real_distribution<float> uniform_dist(0, 1);
 
 WorldSystem::WorldSystem() : a_pressed(false), d_pressed(false) {
     regionManager = std::make_unique<RegionManager>();
@@ -207,21 +209,16 @@ void WorldSystem::update(float deltaTime) {
     update_damaged_player_sprites(deltaTime);
     handle_ai();
     handle_saving();
-
-    if (registry.weapons.has(m_flameThrower)) {
-        auto& weapon = registry.weapons.get(m_flameThrower);
-        if (weapon.cooldown <= 0) {
-            flameThrower_enabled = true;
-        } else {
-            weapon.cooldown -= deltaTime;
-        }
-    }
-
+    handle_hostiles_in_doors();
+    handle_flamethrower(deltaTime);
+    
     GoombaLogic::update_goomba_projectile_timer(deltaTime, current_room);
     GoombaLogic::update_damaged_goomba_sprites(deltaTime);
     AISystem::flying_goomba_step(m_player, current_room, deltaTime);
+    AISystem::swarm_goomba_step(current_room);
     BossAISystem::step(m_player, deltaTime);
     BossAISystem::update_damaged_chicken_sprites(deltaTime);
+    
 
     // look for specific rooms with restrictions
     if (registry.rooms.has(current_room) && registry.rooms.get(current_room).id == ROOM_ID::BMT_3 && !registry.rooms.get(current_room).clear) {
@@ -366,6 +363,14 @@ void WorldSystem::handle_motions(float deltaTime) {
                 if (entity == m_player) {
                     isGrounded = true;
                     coyoteTimer = MAX_COYOTE_TIME;
+                }
+            }
+
+            // Guard against the swarm goombas for flying out of the top of the screen
+            if (m.position[1] < 25 && registry.hostiles.has(entity) && registry.hostiles.get(entity).type == HostileType::GOOMBA_SWARM) {
+                m.position[1] = 25;
+                if (m.velocity.y < 0) {
+                    m.velocity.y *= -1;;
                 }
             }
 
@@ -532,7 +537,17 @@ void WorldSystem::handle_collisions() {
         if (registry.grounds.has(entity_other) && !(registry.movingPlatform.has(entity_other) && registry.flyingGoombaAnimations.has(entity))) {
             if (direction.x != 0 && thisMotion.velocity.x != 0) {
                 thisMotion.velocity.x = 0;
-                thisMotion.position.x -= overlap.x;
+                if (registry.players.has(entity)) {
+                    thisMotion.position.x -= overlap.x;
+                }
+                else {
+                    if (direction.x > 0) {
+                    thisMotion.position.x -= overlap.x;
+                    }
+                    else {
+                        thisMotion.position.x += overlap.x;
+                    }
+                }
             }
             else if (registry.players.has(entity)) {
                 if (a_pressed) {
@@ -546,7 +561,6 @@ void WorldSystem::handle_collisions() {
                     // Downward collision
                     thisMotion.position.y -= overlap.y;
                     thisMotion.velocity.y = 0;
-
                     if (registry.players.has(entity)) {
                         // Player has collided with the ground
                         isGrounded = true;
@@ -575,6 +589,13 @@ void WorldSystem::handle_collisions() {
             }
         }
 
+        // Make the swarm goomba bounce off the ground
+        if (registry.hostiles.has(entity) && registry.hostiles.get(entity).type == HostileType::GOOMBA_SWARM
+            && registry.grounds.has(entity_other)) {
+            if (thisMotion.velocity.y > 0) {
+                thisMotion.velocity.y *= -1;
+            }
+        }
 
         // Handle the goombas when they collide with a wall
         if(registry.walls.has(entity) && registry.hostiles.has(entity_other)){
@@ -591,6 +612,10 @@ void WorldSystem::handle_collisions() {
                     else if (registry.hostiles.get(entity_other).type == HostileType::GOOMBA_LAND) {
                         change = -150;
                     }
+                    else if (registry.hostiles.get(entity_other).type == HostileType::GOOMBA_SWARM) {
+                        change = -75;
+                    }
+
                 }else {
                     if (registry.hostiles.get(entity_other).type == HostileType::GOOMBA_FLYING) {
                         change = 200;
@@ -598,11 +623,13 @@ void WorldSystem::handle_collisions() {
                     else if (registry.hostiles.get(entity_other).type == HostileType::GOOMBA_LAND) {
                         change = 150;
                     }
+                    else if (registry.hostiles.get(entity_other).type == HostileType::GOOMBA_SWARM) {
+                        change = 75;
+                    }
                 }
                 m_fying_goomba.position.x = m_wall.position.x + change;
                 patrol.movingRight = !patrol.movingRight;
             }
-            //m_fying_goomba.velocity.x *= -1;
         }
 
         // change the flying goomba's animation when it impacts the ground
@@ -628,7 +655,7 @@ void WorldSystem::handle_collisions() {
                     boss.boxType = BoxType::HIT_BOX;
                     BossAISystem::chicken_get_damaged(m_sword, isChickenDead, a_pressed, d_pressed, m_player);
                 } else {
-                    GoombaLogic::goomba_get_damaged(entity_other, m_sword);
+                    GoombaLogic::goomba_get_damaged(entity_other, m_sword, current_room);
                 }
                 if (!registry.invinciblityTimers.has(m_player)) {
                     InvincibilityTimer& timer = registry.invinciblityTimers.emplace(m_player);
@@ -650,8 +677,10 @@ void WorldSystem::handle_collisions() {
         if (registry.projectiles.has(entity) && registry.projectiles.get(entity).type == ProjectileType::FIREBALL && isFlameThrowerEquipped) {
             if (registry.hostiles.has(entity_other) && registry.damages.has(entity)) {
                 if (registry.healths.has(entity_other) && registry.healths.get(entity_other).current_health > 0) {
-                    GoombaLogic::goomba_get_damaged(entity_other, entity);
-                    registry.remove_all_components_of(entity);  // Remove fireball upon hit
+                    GoombaLogic::goomba_get_damaged(entity_other, entity, current_room);
+                    if (registry.hostiles.get(entity_other).type != HostileType::GOOMBA_SWARM) {
+                        registry.remove_all_components_of(entity);  // Remove fireball upon hit unless its a swarm goomba
+                    }
                 }
             }
             if (registry.bosses.has(entity_other)) {
@@ -677,9 +706,10 @@ void WorldSystem::handle_collisions() {
             registry.remove_all_components_of(entity);
         }
 
-        // Once the ceiling goomba is dead. change its sprite to the dead sprite
-        if (registry.hostiles.has(entity) && registry.hostiles.get(entity).type == HostileType::GOOMBA_CEILING && !registry.healths.has(entity) && registry.grounds.has(entity_other)) {
-            GoombaLogic::goomba_ceiling_splat(entity);
+        // Once the ceiling or swarm goomba is dead. change its sprite to the dead sprite
+        if (registry.hostiles.has(entity) && (registry.hostiles.get(entity).type == HostileType::GOOMBA_CEILING || registry.hostiles.get(entity).type == HostileType::GOOMBA_SWARM) &&
+            !registry.healths.has(entity) && registry.grounds.has(entity_other)) {
+            GoombaLogic::goomba_ceiling_swarm_splat(entity);
         }
 
         // handle extra heart powerup, restore all health and remove heart entity
@@ -818,6 +848,7 @@ void WorldSystem::handle_bmt3() {
     }
 }
 
+
 // move this elsewhere later
 std::string dialogue[7] = { "You, you! You're not a bird?",
 "Seeking the Crown of Claws, hmm?",
@@ -872,6 +903,31 @@ void WorldSystem::handle_pelican() {
         }
     }
     //pelican_talk = false;
+}
+
+void WorldSystem::handle_hostiles_in_doors() {
+    if (registry.rooms.has(current_room)) {
+        for (Entity entity : registry.rooms.get(current_room).entities) {
+            if (registry.hostiles.has(entity) && registry.motions.has(entity) && !registry.healths.has(entity)) {
+                Motion hostile_motion = registry.motions.get(entity);
+                if (hostile_motion.position.y > renderSystem.getWindowHeight() - 10) {
+                    registry.remove_all_components_of(entity);
+                }
+            }
+        }
+    }
+}
+
+void WorldSystem::handle_flamethrower(float deltaTime) {
+    if (registry.weapons.has(m_flameThrower)) {
+        auto& weapon = registry.weapons.get(m_flameThrower);
+        if (weapon.cooldown <= 0) {
+            flameThrower_enabled = true;
+        }
+        else {
+            weapon.cooldown -= deltaTime;
+        }
+    }
 }
 
 void WorldSystem::render() {

@@ -23,9 +23,28 @@ void GoombaLogic::goomba_ceiling_death(Entity hostile) {
 }
 
 // Update the ceiling goomba's falling sprite to its dead sprite
-void GoombaLogic::goomba_ceiling_splat(Entity hostile) {
+void GoombaLogic::goomba_ceiling_swarm_splat(Entity hostile) {
     Sprite& goombaCeilingSprite = registry.sprites.get(hostile);
     goombaCeilingSprite = g_texture_paths->at(TEXTURE_ASSET_ID::GOOMBA_DEAD);
+}
+
+void GoombaLogic::goomba_swarm_death(Entity hostile, Entity current_room) {
+    Sprite& goombaCeilingSprite = registry.sprites.get(hostile);
+    goombaCeilingSprite = g_texture_paths->at(TEXTURE_ASSET_ID::CEILING_FALL);
+
+    Motion& hostile_motion = registry.motions.get(hostile);
+    hostile_motion.velocity = { 0,0 };
+    
+    registry.gravity.emplace(hostile, std::move(Gravity()));
+
+    Room& room = registry.rooms.get(current_room);
+    room.swarm_goombas.erase(hostile);
+
+    registry.damages.remove(hostile);
+    registry.patrol_ais.remove(hostile);
+    registry.healths.remove(hostile);
+
+    registry.list_all_components_of(hostile);
 }
 
 void GoombaLogic::goomba_land_death(Entity hostile) {
@@ -61,7 +80,7 @@ void GoombaLogic::goomba_flying_death(Entity hostile) {
     registry.healths.remove(hostile);
 }
 
-void GoombaLogic::goomba_get_damaged(Entity hostile, Entity m_weapon) {
+void GoombaLogic::goomba_get_damaged(Entity hostile, Entity m_weapon, Entity current_room) {
     if (registry.healths.has(hostile)) {
         Health& hostile_health = registry.healths.get(hostile);
         Damage damage = registry.damages.get(m_weapon);
@@ -92,7 +111,9 @@ void GoombaLogic::goomba_get_damaged(Entity hostile, Entity m_weapon) {
             }
         }
         else {
-            if (registry.hostiles.get(hostile).type == HostileType::GOOMBA_FLYING) {
+            if (registry.hostiles.get(hostile).type == HostileType::GOOMBA_SWARM) {
+                goomba_swarm_death(hostile, current_room);
+            } else if (registry.hostiles.get(hostile).type == HostileType::GOOMBA_FLYING) {
                 goomba_flying_death(hostile);
             } else if (registry.hostiles.get(hostile).type == HostileType::GOOMBA_CEILING) {
                 goomba_ceiling_death(hostile);

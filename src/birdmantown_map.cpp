@@ -30,8 +30,6 @@ void Birdmantown::init() {
     m_room4 = currentRoom->execute();
     //start_room = m_room4;
 
-
-
     setRoomStrategy(std::make_unique<NPCRoom1Strategy>());
     m_npc_room1 = currentRoom->execute();
     //start_room = m_npc_room1;
@@ -199,6 +197,8 @@ Connection Birdmantown::SetDoor(float width, float height, float xPos, float yPo
     doorConnection.nextRoom = connectNextRoom;
     doorConnection.nextSpawn = connectNextSpawn;
     doorConnection.switchMap = false;
+
+    registry.doors.emplace(m_door, doorConnection);
 
     return doorConnection;
 }

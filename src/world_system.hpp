@@ -1,6 +1,7 @@
 #pragma once
 #include "common.hpp"
 #include <memory>
+#include <random>
 #include "ecs.hpp"
 #include "game_state.hpp"
 #include "render_system.hpp"
@@ -65,6 +66,8 @@ public:
 	void handle_saving();
 	void handle_pelican();
 	void handle_bmt3();
+	void handle_hostiles_in_doors();
+	void handle_flamethrower(float deltaTime);
 
 	void draw_npc_interact(Entity obj);
 
@@ -146,3 +149,7 @@ private:
 };
 
 extern std::unordered_map<TEXTURE_ASSET_ID, Sprite>* g_texture_paths;
+
+// C++ random number generator
+extern std::default_random_engine rng;
+extern std::uniform_real_distribution<float> uniform_dist; // number between 0..1

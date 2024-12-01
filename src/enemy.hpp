@@ -49,3 +49,11 @@ private:
 	void init_sprite() override;
 	void init_components(float x, float y) override;
 };
+
+class GoombaSwarm : public Enemy {
+public:
+	GoombaSwarm();
+private:
+	void init_sprite() override;
+	void init_components(float x, float y) override;
+};
