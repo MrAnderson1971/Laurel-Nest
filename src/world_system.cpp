@@ -202,13 +202,14 @@ void WorldSystem::init() {
 
 void WorldSystem::update(float deltaTime) {
     deltaTime = min(deltaTime, max_delta_time); // so if there's a lag spike the movement doesn't become so large you phase through walls
+    AISystem::swarm_goomba_step(current_room);
     AISystem::flying_goomba_step(m_player, current_room, deltaTime);
+    handle_ai();
     handle_connections(deltaTime);
     handle_motions(deltaTime);
     handle_collisions();
     handle_invinciblity(deltaTime);
     update_damaged_player_sprites(deltaTime);
-    handle_ai();
     handle_saving();
     handle_hostiles_in_doors();
     handle_flamethrower(deltaTime);
