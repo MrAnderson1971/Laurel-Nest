@@ -207,6 +207,7 @@ void WorldSystem::update(float deltaTime) {
     handle_motions(deltaTime);
     handle_collisions();
     handle_invinciblity(deltaTime);
+    handle_plus_heart(deltaTime);
     update_damaged_player_sprites(deltaTime);
     handle_ai();
     handle_saving();
@@ -762,6 +763,21 @@ void WorldSystem::handle_invinciblity(float deltaTime) {
     }
 }
 
+void WorldSystem::handle_plus_heart(float deltaTime) {
+    std::vector<Entity> to_remove;
+    for (auto& e : registry.plusHeartTimers.entities) {
+        auto& i = registry.plusHeartTimers.get(e);
+        i.counter_ms -= deltaTime * 1000;
+        if (i.counter_ms <= 0) {
+            to_remove.push_back(e);
+        }
+    }
+
+    for (auto& e : to_remove) {
+        registry.plusHeartTimers.remove(e);
+    }
+}
+
 // TODO for Kuter: possibly need to add guards here once the goomba is tied to a room
 // to not step the ai of enemies in invisible rooms.
 void WorldSystem::handle_ai() {
@@ -1020,6 +1036,13 @@ void WorldSystem::render() {
         if (registry.bosses.has(obj)) {
             BossAISystem::render();
         }
+
+        // draw the plus heart sprite
+        if (registry.plusHeartTimers.has(obj) && registry.transforms.has(obj) && registry.sprites.has(obj)) {
+            auto& transform = registry.transforms.get(obj);
+            auto& sprite = registry.sprites.get(obj);
+            renderSystem.drawEntity(sprite, transform);
+        }
     }
 
     // Draw the player entity if it exists and has the required components
@@ -1202,13 +1225,13 @@ void WorldSystem::processPlayerInput(int key, int action) {
                     if (!registry.healTimers.has(m_player)) {
                         registry.healTimers.emplace(m_player, HealTimer());
                     }
-                    else if (registry.healTimers.get(m_player).elapsed_time <= 0) {
+                    else if (registry.healTimers.get(m_player).counter_ms <= 0) {
                         player_get_healed();
                         registry.healTimers.remove(m_player);
                     }
                     else {
                         HealTimer& h_timer = registry.healTimers.get(m_player);
-                        h_timer.elapsed_time -= 11.f;
+                        h_timer.counter_ms -= 11.f;
                         interrupted_heal = false;
                     }
                 }
@@ -1384,6 +1407,7 @@ void WorldSystem::player_get_healed() {
         health_flask.num_uses--;
         registry.playerAnimations.get(m_player).setState(PlayerState::IDLE);
         Mix_PlayChannel(HEAL_SOUND_CHANNEL, heal_sound, 0);
+        create_heal_up_sprite();
         update_status_bar(player_health.current_health);
         printf("You have %d uses of your health flask left \n", health_flask.num_uses);
     }
@@ -1392,6 +1416,28 @@ void WorldSystem::player_get_healed() {
     }
     else {
         printf("You have no more uses of your health flask \n");
+    }
+}
+
+void WorldSystem::create_heal_up_sprite() {
+    Entity heal_up = Entity();
+
+    registry.sprites.emplace(heal_up, g_texture_paths->at(TEXTURE_ASSET_ID::PLUS_HEART));
+
+    Motion player_motion = registry.motions.get(m_player);
+    Motion hp_motion;
+    hp_motion.position = vec2(player_motion.position.x , player_motion.position.y - 125.f);
+    hp_motion.scale = {PLUS_HEART_WIDTH ,PLUS_HEART_HEIGHT};
+    hp_motion.velocity.y = -100.f;
+    registry.motions.emplace(heal_up, std::move(hp_motion));
+
+    TransformComponent hp_transform;
+    registry.transforms.emplace(heal_up, std::move(hp_transform));
+
+    registry.plusHeartTimers.emplace(heal_up, std::move(PlusHeartTimer()));
+
+    if (registry.rooms.has(current_room)) {
+        registry.rooms.get(current_room).insert(heal_up);
     }
 }
 

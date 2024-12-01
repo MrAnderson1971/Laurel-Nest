@@ -17,6 +17,7 @@ public:
     ComponentContainer<Damage> damages;
     ComponentContainer<RecentlyDamagedTimer> recentDamageTimers;
     ComponentContainer<InvincibilityTimer> invinciblityTimers;
+    ComponentContainer<PlusHeartTimer> plusHeartTimers;
     ComponentContainer<HealTimer> healTimers;
     ComponentContainer<ProjectileTimer> projectileTimers;
     ComponentContainer<Projectile> projectiles;
@@ -67,6 +68,7 @@ public:
     // IMPORTANT: Don't forget to add any newly added containers!
     ECSRegistry()
     {
+        registry_list.push_back(&plusHeartTimers);
         registry_list.push_back(&healTimers);
         registry_list.push_back(&goombaFlyingStates);
         registry_list.push_back(&savePoints);

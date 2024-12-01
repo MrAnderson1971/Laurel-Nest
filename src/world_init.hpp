@@ -81,6 +81,7 @@ inline std::unordered_map<TEXTURE_ASSET_ID, std::string> createTextureAssetMap()
         {TEXTURE_ASSET_ID::OGRE_KAT_1, "kat1.png"},
         {TEXTURE_ASSET_ID::OGRE_KAT_2, "kat2.png"},
         {TEXTURE_ASSET_ID::GREATBIRD_IDLE, "greatbird_idle.PNG"},
+        {TEXTURE_ASSET_ID::PLUS_HEART, "plus_heart.png"},
     };
 }
 
