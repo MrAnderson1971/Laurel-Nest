@@ -58,6 +58,15 @@ enum class HostileType {
     GOOMBA_FLYING,
 };
 
+enum class GreatBird {
+    IDLE,
+    SMASH,
+    SPEAR_SINGLE,
+    SPEAR_MANY,
+    NUKE,
+    DEATH,
+};
+
 /* Template Animation component for animated sprites
 Each supports different animation states, such as walking, jumping, etc.
 */

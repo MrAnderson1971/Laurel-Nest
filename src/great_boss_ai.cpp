@@ -35,6 +35,50 @@ constexpr float SPIKE_GREAT_BIRD_HEIGHT = 0.6f * 977.f;
 
 bool animationDone = false;
 
+
+float wave_time = 5.f;
+float spear_time = 5.f;
+float multiple_time = 3.0f;
+float nuke_time = 3.0f;
+
+
+bool can_wave(float time){
+    if(wave_time <= 0){
+        return true;
+    }else{
+        wave_time = wave_time - time;
+    }
+}
+
+bool can_spear(float time){
+    if(spear_time <= 0){
+        return true;
+    }else{
+        spear_time = spear_time - time;
+    }
+}
+
+bool can_multiple(float time){
+    if(multiple_time <= 0){
+        return true;
+    }else{
+        multiple_time = multiple_time - time;
+    }
+}
+
+bool can_nuke(float time){
+    if(nuke_time <= 0){
+        return true;
+    }else{
+        nuke_time = nuke_time - time;
+    }
+}
+
+Entity greatBird;
+
+
+
+
 Entity GreatBossAISystem::init(Entity bossRoom) {
     current_state = STATE::IDLE;
     boss_room = bossRoom;
@@ -45,7 +89,7 @@ Entity GreatBossAISystem::init(Entity bossRoom) {
     gbMotion.scale = { IDLE_GREAT_BIRD_WIDTH, IDLE_GREAT_BIRD_HEIGHT };
     registry.motions.emplace(gb, gbMotion);
 
-    Animation<ChickenState> chickenAnimations(CHICKEN_PECK);
+    Animation<GreatBird> greatBird(IDLE);
     std::vector<Sprite> idleSprite;
     std::vector<Sprite> SMASH_Sprites;
     std::vector<Sprite> HIT_Sprite;
@@ -53,35 +97,20 @@ Entity GreatBossAISystem::init(Entity bossRoom) {
     std::vector<Sprite> deathSprite;
 
     // Idle
-    idleSprite.push_back(renderSystem.loadTexture("greatbird_idle.png"));
+    idleSprite.push_back(renderSystem.loadTexture("greatbird_idle.PNG"));
 
     // walking
-    for (unsigned i = 1; i <= 6; i++) {
-        walkingSprites.push_back(renderSystem.loadTexture("greatbird_smash" + std::to_string(i) + ".png"));
-    }
-
-    // Pecking
     for (unsigned i = 1; i <= 2; i++) {
-        Sprite sprite(renderSystem.loadTexture("ChickenPeck" + std::to_string(i) + ".png"));
-        peckingSprites.push_back(sprite);
+        walkingSprites.push_back(renderSystem.loadTexture("greatbird_smash" + std::to_string(i) + ".PNG"));
     }
 
-    for (unsigned i = 1; i <= 2; i++) {
-        peckingSprites.push_back(renderSystem.loadTexture("ChickenPeck" + std::to_string(3 - i) + ".png"));
-    }
+    HIT_sprite.push_back(renderSystem.loadTexture("greatbird_hit.PNG"));
 
-    // Flame
-    Sprite flame_sprite(renderSystem.loadTexture("ChickenFire.png"));
-    flameSprite.push_back(flame_sprite);
-    flameSprite.push_back(flame_sprite);
-    flameSprite.push_back(flame_sprite);
-    flameSprite.push_back(flame_sprite);
+    deathsprite.push_back(renderSystem.loadTexture("greatbird_death.PNG"));
 
-    // Hit
-    hitSprite.push_back(renderSystem.loadTexture("ChickenHit.png"));
+    SPIKE_Sprite.push_back(renderSystem.loadTexture("greatbird_death.PNG"));
 
-    // Death
-    deathSprite.push_back(renderSystem.loadTexture("ChickenDead.png"));
+
 
     chickenAnimations.addState(ChickenState::CHICKEN_IDLE, std::move(idleSprite));
     chickenAnimations.addState(ChickenState::CHICKEN_WALK, std::move(walkingSprites));
@@ -117,99 +146,74 @@ Entity GreatBossAISystem::init(Entity bossRoom) {
 };
 
 void GreatBossAISystem::step(Entity player, float elapsed_time) {
-    if (!registry.chickenAnimations.has(chicken)) {
+    if (!registry.greatBirdAnimation.has(greatBird)) {
         return;
     }
-    auto& a = registry.chickenAnimations.get(chicken);
-    Motion& chickenMotion = registry.motions.get(chicken);
+    auto& a = registry.greatBirdAnimation.get(greatBird);
+    Motion& greatBirdMotion = registry.motions.get(greatBird);
     Motion& playerMotion = registry.motions.get(player);
-    Boss& chickenBoss = registry.bosses.get(chicken);
+    Boss& greatBirdBoss = registry.bosses.get(greatBird);
 
     // check for death
     // check for death
-    if (registry.healths.get(chicken).current_health <= 0) {
+    if (registry.healths.get(greatBird).current_health <= 0) {
         current_state = STATE::DEATH;
-        a.setState(CHICKEN_DEATH);
+        a.setState(DEATH);
 
-        chickenBoss.hitbox = { DEATH_CHICKEN_WIDTH, DEATH_CHICKEN_HEIGHT };
-        chickenBoss.attackbox = { DEATH_CHICKEN_WIDTH, DEATH_CHICKEN_HEIGHT };
-        chickenBoss.bodybox = { DEATH_CHICKEN_WIDTH, DEATH_CHICKEN_HEIGHT };
+        greatBirdBoss.hitbox = { DEATH_GREAT_BIRD_WIDTH, DEATH_GREAT_BIRD_HEIGHT };
+        greatBirdBoss.attackbox = { DEATH_GREAT_BIRD_WIDTH, DEATH_GREAT_BIRD_HEIGHT };
+        greatBirdBoss.bodybox = { DEATH_GREAT_BIRD_WIDTH, DEATH_GREAT_BIRD_HEIGHT };
     }
     else if (animationDone) {
         animationDone = false;
         if (current_state == STATE::IDLE) {
-            chickenBoss.hitbox = { WALKING_CHICKEN_WIDTH - 50.f, WALKING_CHICKEN_HEIGHT };
-            chickenBoss.attackbox = { WALKING_CHICKEN_WIDTH - 200.f, WALKING_CHICKEN_HEIGHT };
-            chickenBoss.bodybox = { WALKING_CHICKEN_WIDTH - 200.f, WALKING_CHICKEN_HEIGHT + 200.f };
+            greatBirdBoss.hitbox = { IDLE_GREAT_BIRD_WIDTH - 50.f, IDLE_GREAT_BIRD_HEIGHT };
+            greatBirdBoss.attackbox = { IDLE_GREAT_BIRD_WIDTH - 200.f, IDLE_GREAT_BIRD_HEIGHT };
+            greatBirdBoss.bodybox = { IDLE_GREAT_BIRD_WIDTH - 200.f, IDLE_GREAT_BIRD_HEIGHT + 200.f };
 
-            if (canPeck(chickenMotion, playerMotion, elapsed_time)) {
-                current_state = STATE::PECK;
-                a.setState(CHICKEN_PECK);
+            if(can_wave(elapsed_time)){
+                current_state == STATE::WAVE;
+                a.setState(GREATBIRD_WAVE);
+                wave_time = 5.0f;
+            }else if(can_spear(elapsed_time)){
+                current_state == STATE::SPEAR;
+                a.setState(GREATBIRD_SPEAR);
+                spear_time = 5.0f;
+            }else if(can_multiple(elapsed_time)){
+                current_state == STATE::MULTIPLE_SPEAR;
+                a.setState(GREATBIRD_MULTIPLE_SPEAR);
+                multiple_time = 3.0f;
+            }else if(can_nuke(elapsed_time)){
+                current_state == STATE::NUKE;
+                a.setState(GREATBIRD_NUKE);
+                nuke_time = 3.0f;
             }
-            else if (canWalk(chickenMotion, playerMotion)) {
-                current_state = STATE::WALK;
-                a.setState(CHICKEN_WALK);
-            }
-            else if (canFlame(chickenMotion, playerMotion, elapsed_time)) {
-                current_state = STATE::FLAME;
-                a.setState(CHICKEN_FLAME);
-                flame_cooldown = 1.5f;
-                if (canSuperFlame(chickenMotion, playerMotion)) {
-
-                    float pos1 = chickenMotion.position.x - 100.f;
-                    float pos2 = chickenMotion.position.x - 200.f;
-                    float pos3 = chickenMotion.position.x - 300.f;
-                    float pos4 = chickenMotion.position.x - 400.f;
-                    float pos5 = chickenMotion.position.x - 500.f;
-                    if (pos1 != playerMotion.position.x) {
-                        flame_attack(pos1);
-                    }
-                    if (pos2 != playerMotion.position.x) {
-                        flame_attack(pos2);
-                    }
-                    if (pos3 != playerMotion.position.x) {
-                        flame_attack(pos3);
-                    }
-                    if (pos4 != playerMotion.position.x) {
-                        flame_attack(pos4);
-                    }
-                    if (pos5 != playerMotion.position.x) {
-                        flame_attack(pos5);
-                    }
-                }
-                else {
-                    flame_attack(renderSystem.getWindowWidth() / 6.f);
-                    flame_attack(renderSystem.getWindowWidth() / 3.f);
-                    // flame_attack(renderSystem.getWindowWidth() * (2.f/3.f));
-                    flame_attack(renderSystem.getWindowWidth() * (5.f / 6.f));
-                }
-            }
-
         }
-        else if (current_state == STATE::PECK) {
-            chickenBoss.hitbox = { PECK_CHICKEN_WIDTH, PECK_CHICKEN_HEIGHT * 0.6f };
-            chickenBoss.attackbox = { PECK_CHICKEN_WIDTH - 100.f, PECK_CHICKEN_HEIGHT * 0.6f };
-            chickenBoss.bodybox = { PECK_CHICKEN_WIDTH - 100.f, PECK_CHICKEN_HEIGHT + 200.f };
+        else if (current_state == STATE::WAVE) {
+            greatBirdBoss.hitbox = { SMASH_1_GREAT_BIRD_WIDTH, SMASH_1_GREAT_BIRD_HEIGHT * 0.6f };
+            greatBirdBoss.attackbox = { SMASH_1_GREAT_BIRD_WIDTH - 100.f, SMASH_1_GREAT_BIRD_HEIGHT * 0.6f };
+            greatBirdBoss.bodybox = { SMASH_1_GREAT_BIRD_WIDTH - 100.f, SMASH_1_GREAT_BIRD_HEIGHT + 200.f };
 
-            if (canWalk(chickenMotion, playerMotion)) {
-                current_state = STATE::WALK;
-                a.setState(CHICKEN_WALK);
-            }
-            else if (canFlame(chickenMotion, playerMotion, elapsed_time)) {
-                current_state = STATE::FLAME;
-                a.setState(CHICKEN_FLAME);
-                flame_cooldown = 1.5f;
-                flame_attack(renderSystem.getWindowWidth() / 6.f);
-                flame_attack(renderSystem.getWindowWidth() / 3.f);
-                // flame_attack(renderSystem.getWindowWidth() * (2.f / 3.f));
-                flame_attack(renderSystem.getWindowWidth() * (5.f / 6.f));
+            if(can_spear(elapsed_time)) {
+                current_state == STATE::SPEAR;
+                a.setState(GREATBIRD_SPEAR);
+                spear_time = 5.0f
+            }else if (can_multiple(elapsed_time)) {
+                    current_state = STATE::MULTIPLE_SPEAR;
+                    a.setState(GREATBIRD_MULTIPLE_SPEAR);
+                    multiple_time = 3.0f;
+                }
+            }else if(can_nuke(elapsed_time)){
+                current_state = STATE::NUKE;
+                a.setState(GREATBIRD_NUKE);
+                nuke_time = 3.0f;
             }
             else {
                 current_state = STATE::IDLE;
-                a.setState(CHICKEN_IDLE);
+                a.setState(GREATBIRD_IDLE);
             }
         }
-        else if (current_state == STATE::WALK) {
+        else if (current_state == STATE::SPEAR) {
             walkRight = false;
             walkLeft = false;
 
@@ -230,7 +234,7 @@ void GreatBossAISystem::step(Entity player, float elapsed_time) {
                 a.setState(CHICKEN_IDLE);
             }
         }
-        else if (current_state == STATE::FLAME) {
+        else if (current_state == STATE::MULTIPLE_SPEAR) {
 
             chickenBoss.hitbox = { WALKING_CHICKEN_WIDTH - 50.f, WALKING_CHICKEN_HEIGHT };
             chickenBoss.attackbox = { WALKING_CHICKEN_WIDTH - 200.f, WALKING_CHICKEN_HEIGHT };
