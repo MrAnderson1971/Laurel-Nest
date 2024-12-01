@@ -17,7 +17,7 @@ protected:
 class OpeningCutscene : public Cutscene<LAST_OPENING_ANIMATION_FRAME> {
 public:
 	OpeningCutscene();
-	~OpeningCutscene() override = default;
+	~OpeningCutscene() override;
 
 	void init() override {}
 	void cleanup() override {}
@@ -29,9 +29,17 @@ public:
 
 private:
 	bool hasLoaded;
+	bool isShowingTutorial;
 	float seconds_passed;
 	int frameCount;
 	std::array<boost::optional<Sprite>, totalFrames> frames;
+
+	Entity tutorialEntity;
+	Entity control_keys;
+	Entity mouse_click;
+	Entity h_key;
+	Entity e_key;
+	Entity q_key;
 };
 
 class PickupCutscene : public Cutscene<LAST_PICKUP_ANIMATION_FRAME> {
