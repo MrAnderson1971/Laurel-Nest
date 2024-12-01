@@ -209,7 +209,7 @@ struct ProjectileTimer
 
 struct HealTimer
 {
-    float counter_ms = 499;
+    float counter_ms = 0.25;
 };
 
 struct PlusHeartTimer

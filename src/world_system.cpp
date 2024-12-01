@@ -1324,7 +1324,7 @@ void WorldSystem::processPlayerInput(int key, int action) {
                     }
                     else {
                         HealTimer& h_timer = registry.healTimers.get(m_player);
-                        h_timer.elapsed_time -= ws_delta_time;
+                        h_timer.counter_ms -= ws_delta_time;
                         interrupted_heal = false;
                     }
                 }
