@@ -694,8 +694,10 @@ void WorldSystem::handle_collisions() {
             if (registry.bosses.has(entity_other)) {
                 Boss& boss = registry.bosses.get(entity_other);
                 boss.boxType = BoxType::BODY_BOX;
-                BossAISystem::chicken_get_damaged(entity, isChickenDead, a_pressed, d_pressed, m_player);
-                registry.remove_all_components_of(entity);
+                if (registry.healths.has(entity_other) && registry.healths.get(entity_other).current_health > 0) {
+                    BossAISystem::chicken_get_damaged(entity, isChickenDead, a_pressed, d_pressed, m_player);
+                    registry.remove_all_components_of(entity);
+                }
             }
         }
 

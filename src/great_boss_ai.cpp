@@ -16,7 +16,7 @@ enum class gSTATE {
     DEATH = HIT + 1
 };
 
-gSTATE current_state;
+static gSTATE current_state;
 Entity great_boss_room;
 
 // Redo all this

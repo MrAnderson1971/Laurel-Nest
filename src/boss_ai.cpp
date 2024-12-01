@@ -20,7 +20,7 @@ enum class STATE {
 	DEATH = HIT + 1
 };
 
-STATE current_state;
+static STATE current_state;
 Entity boss_room;
 Entity chicken;
 float flame_cooldown = 0;
