@@ -297,14 +297,15 @@ void GreatBossAISystem::gb_get_damaged(Entity weapon, bool& isDead, bool& a_pres
     Damage& weapon_damage = registry.damages.get(weapon);
     // if (chicken_health.current_health - weapon_damage.damage_dealt >= 0) {
     if (gb_health.current_health > 0) {
-        if (gb_health.current_health - weapon_damage.damage_dealt > 0) {
+        if (gb_health.current_health - weapon_damage.damage_dealt > 0 && !registry.invinciblityTimers.has(greatBird)) {
             if (!registry.recentDamageTimers.has(greatBird)) {
                 registry.recentDamageTimers.emplace(greatBird, RecentlyDamagedTimer());
             }
             registry.gbAnimations.get(greatBird).setState(GB_HIT);
             current_state = gSTATE::HIT;
         }
-
+        InvincibilityTimer& timer = registry.invinciblityTimers.emplace(greatBird, InvincibilityTimer());
+        timer.counter_ms = 1000.f;
         gb_health.current_health -= weapon_damage.damage_dealt;
         printf("Great Bird now has %d hearts\n", gb_health.current_health);
         if (gb_health.current_health <= 0) {
