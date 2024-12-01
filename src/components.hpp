@@ -206,7 +206,7 @@ struct ProjectileTimer
 
 struct HealTimer
 {
-    float max_time = 499;
+    float max_time = 0.25;
     float elapsed_time = max_time;
 };
 

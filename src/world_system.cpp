@@ -203,6 +203,7 @@ void WorldSystem::init() {
 
 void WorldSystem::update(float deltaTime) {
     deltaTime = min(deltaTime, max_delta_time); // so if there's a lag spike the movement doesn't become so large you phase through walls
+    ws_delta_time = deltaTime;
     handle_connections(deltaTime);
     handle_motions(deltaTime);
     handle_collisions();
@@ -1208,7 +1209,7 @@ void WorldSystem::processPlayerInput(int key, int action) {
                     }
                     else {
                         HealTimer& h_timer = registry.healTimers.get(m_player);
-                        h_timer.elapsed_time -= 11.f;
+                        h_timer.elapsed_time -= ws_delta_time;
                         interrupted_heal = false;
                     }
                 }
