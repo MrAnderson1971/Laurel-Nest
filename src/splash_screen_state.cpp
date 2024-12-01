@@ -6,7 +6,10 @@
 #include "serialize.hpp"
 #include <iostream>
 
+std::unique_ptr<Sprite> backgroundImage = nullptr;
+
 SplashScreenState::SplashScreenState() : hasLoaded(false), music(Mix_LoadMUS(audio_path("title.wav").c_str())) {
+    backgroundImage = std::make_unique<Sprite>(renderSystem.loadTexture("background.png"));
 }
 
 SplashScreenState::~SplashScreenState() {
