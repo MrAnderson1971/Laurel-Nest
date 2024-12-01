@@ -2,8 +2,13 @@
 #include "render_system.hpp"
 #include "world_system.hpp"
 #include "world_init.hpp"
+#include "splash_screen_state.hpp"
 
 OpeningCutscene::OpeningCutscene() : hasLoaded(false), isShowingTutorial(true), seconds_passed(0.f), frameCount(0) {
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    TransformComponent transform{ vec3(window_width_px / 2.f, window_height_px / 2.f, 0.f), vec3(window_width_px, window_height_px, 1.f), 0.f };
+    renderSystem.drawEntity(*backgroundImage, transform);
     Sprite tutorialSprite(renderSystem.loadTexture("tutorial/box.PNG"));
     registry.sprites.emplace(tutorialEntity, tutorialSprite);
     registry.transforms.emplace(tutorialEntity, TransformComponent{
@@ -94,7 +99,7 @@ void OpeningCutscene::on_key(int, int, int action, int) {
     if (action == GLFW_PRESS) {
         if (isShowingTutorial) {
             isShowingTutorial = false;
-        } else if (!hasLoaded) {        // press any button to skip
+        } else if (!hasLoaded && frameCount >= 1) {        // press any button to skip
             hasLoaded = true;
             renderSystem.getGameStateManager()->changeState<WorldSystem>();
         }
@@ -118,6 +123,8 @@ void OpeningCutscene::render() {
     if (isShowingTutorial) {
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+        TransformComponent transform{ vec3(window_width_px / 2.f, window_height_px / 2.f, 0.f), vec3(window_width_px, window_height_px, 1.f), 0.f };
+        renderSystem.drawEntity(*backgroundImage, transform);
 
         renderSystem.drawEntity(registry.sprites.get(tutorialEntity), registry.transforms.get(tutorialEntity));
 
@@ -137,6 +144,8 @@ void OpeningCutscene::render() {
 
         renderSystem.drawEntity(registry.sprites.get(q_key), registry.transforms.get(q_key));
         renderSystem.renderText("Key To Unequip", window_width_px * 0.7f, window_height_px * 0.25f, 0.8f, vec3(1), mat4(1));
+
+        renderSystem.renderText("Press any Key to Continue", window_width_px * 0.4f, window_height_px * 0.1f, 0.8f, vec3(1), mat4(1));
     } else {
         TransformComponent transform{ vec3(window_width_px / 2.f, window_height_px / 2.f, 0.f), vec3(window_width_px, window_height_px, 1.f), 0.f };
         renderSystem.drawEntity(frames[frameCount].get(), transform);
