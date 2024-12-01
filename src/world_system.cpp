@@ -980,6 +980,11 @@ void WorldSystem::render() {
     std::string uses_string = "Health Flask uses: " + num_uses;
     renderSystem.renderText(uses_string, static_cast<float>(window_width_px * 0.045), static_cast<float>(window_height_px * 0.80), 0.75f, font_color, font_trans);
 
+    // text for sword power up
+    if (swordPowerUp_0) {
+        std::string uses_string_sword = "2X Attack Power!";
+        renderSystem.renderText(uses_string_sword, static_cast<float>(window_width_px * 0.045), static_cast<float>(window_height_px * 0.77), 0.75f, font_color, font_trans);
+    }
 
     // Draw the flame thrower if the boss is killed
     if (registry.transforms.has(m_flameThrower) && registry.sprites.has(m_flameThrower))
