@@ -209,6 +209,7 @@ struct ProjectileTimer
 
 struct HealTimer
 {
+    static constexpr float max_time = 0.25f;
     float counter_ms = 0.25;
 };
 

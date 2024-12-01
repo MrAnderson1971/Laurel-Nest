@@ -1206,7 +1206,7 @@ void WorldSystem::render() {
         std::stringstream ss;
         auto& healTimer = registry.healTimers.get(m_player);
         ss << "Hold to Heal: " << std::fixed << std::setprecision(2)
-        << clamp((healTimer.max_time - healTimer.elapsed_time) / healTimer.max_time * 100.f, 0, 100) << "%";
+        << clamp((HealTimer::max_time - healTimer.counter_ms) / healTimer.max_time * 100.f, 0, 100) << "%";
         renderSystem.renderText(ss.str(), x_pos, y_pos, 0.5f, vec3(1), mat4(1));
     }
 
