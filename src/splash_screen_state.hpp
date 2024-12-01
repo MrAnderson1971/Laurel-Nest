@@ -23,4 +23,5 @@ private:
     Entity optionsEntity;
     Entity esc_key;
     bool hasLoaded;
+    Mix_Music* music;
 };
