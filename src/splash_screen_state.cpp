@@ -104,5 +104,9 @@ void SplashScreenState::render() {
 }
 
 void SplashScreenState::cleanup() {
-    registry.clear_all_components();
+    registry.remove_all_components_of(splashScreenEntity);
+    registry.remove_all_components_of(namesEntity);
+    registry.remove_all_components_of(quitEntity);
+    registry.remove_all_components_of(optionsEntity);
+    registry.remove_all_components_of(esc_key);
 }

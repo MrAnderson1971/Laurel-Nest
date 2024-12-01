@@ -29,6 +29,7 @@ public:
 
 private:
 	bool hasLoaded;
+	bool isShowingTutorial;
 	float seconds_passed;
 	int frameCount;
 	std::array<boost::optional<Sprite>, totalFrames> frames;
