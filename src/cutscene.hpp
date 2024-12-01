@@ -1,17 +1,24 @@
 #pragma once
 #include "game_state.hpp"
 #include "components.hpp"
+#include "splash_screen_state.hpp"
 #include <array>
 #include <boost/optional.hpp>
+#include <sstream>
 
 constexpr int LAST_OPENING_ANIMATION_FRAME = 18;
 constexpr int LAST_PICKUP_ANIMATION_FRAME = 6;
+constexpr int LAST_ENDING_ANIMATION_FRAME = 5;
 constexpr float SECONDS_PER_FRAME = 0.5f;
 
 template<int Frames>
 struct Cutscene : public GameState {
 protected:
+	Cutscene(float seconds_passed_, int frameCount_): seconds_passed(seconds_passed_), frameCount(frameCount_) {};
 	static constexpr int totalFrames = Frames;
+	float seconds_passed;
+	int frameCount;
+	std::array<boost::optional<Sprite>, totalFrames> frames;
 };
 
 class OpeningCutscene : public Cutscene<LAST_OPENING_ANIMATION_FRAME> {
@@ -30,9 +37,6 @@ public:
 private:
 	bool hasLoaded;
 	bool isShowingTutorial;
-	float seconds_passed;
-	int frameCount;
-	std::array<boost::optional<Sprite>, totalFrames> frames;
 
 	Entity tutorialEntity;
 	Entity control_keys;
@@ -56,9 +60,69 @@ public:
 	void render() override;
 
 private:
-	float seconds_passed;
-	int frameCount;
 	float transitionFrame;
 	bool finishedCutscene;
-	std::array<boost::optional<Sprite>, totalFrames> frames;
 };
+
+template<int Which>
+class EndingCutscene : public Cutscene<LAST_ENDING_ANIMATION_FRAME> {
+public:
+	EndingCutscene();
+	~EndingCutscene() override = default;
+
+	void init() override {}
+	void cleanup() override {}
+	void on_key(int key, int scancode, int action, int mods) override {};
+	void on_mouse_click(int button, int action, const glm::vec2& position, int mods) override {};
+	void on_mouse_move(const vec2& position) override {};
+	void update(float deltaTime) override;
+	void render() override;
+
+private:
+	float transitionFrame;
+	bool finishedCutscene;
+};
+
+template<int Which>
+EndingCutscene<Which>::EndingCutscene() : Cutscene(0.f, 0), transitionFrame(-0.5f), finishedCutscene(false) {
+	std::array<std::future<Image>, totalFrames> images;
+	std::atomic<int> count;
+	for (int i = 0; i < totalFrames; i++) {
+		std::stringstream filePath;
+		filePath << "ending_" << Which << "/" << i << ".png";
+		images[i] = loadImageData(filePath.str(), count);
+	}
+
+	for (int i = 0; i < totalFrames; i++) {
+		frames[i] = bindTexture(images[i].get());
+	}
+}
+
+template<int Which>
+void EndingCutscene<Which>::update(float deltaTime) {
+	if (!finishedCutscene) {
+		seconds_passed += deltaTime;
+		if (seconds_passed > SECONDS_PER_FRAME) {
+			seconds_passed = 0;
+			if (++frameCount >= totalFrames) {
+				finishedCutscene = true;
+				renderSystem.captureScreen();
+			}
+		}
+	}
+	else {
+		while (transitionFrame < 1.f) {
+			transitionFrame += deltaTime * 2.f;
+			renderSystem.doGlassBreakTransition(clamp(static_cast<int>(transitionFrame * 100), 0, 100), 100);
+		}
+		renderSystem.getGameStateManager()->resetPausedStates<SplashScreenState>();
+	}
+}
+
+template<int Which>
+void EndingCutscene<Which>::render() {
+	if (!finishedCutscene) {
+		TransformComponent transform{ vec3(window_width_px / 2.f, window_height_px / 2.f, 0.f), vec3(window_width_px, window_height_px, 1.f), 0.f };
+		renderSystem.drawEntity(frames[frameCount].get(), transform);
+	}
+}

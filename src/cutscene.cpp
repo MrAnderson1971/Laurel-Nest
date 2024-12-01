@@ -4,7 +4,7 @@
 #include "world_init.hpp"
 #include "splash_screen_state.hpp"
 
-OpeningCutscene::OpeningCutscene() : hasLoaded(false), isShowingTutorial(true), seconds_passed(0.f), frameCount(0) {
+OpeningCutscene::OpeningCutscene() : Cutscene(0.f, 0), hasLoaded(false), isShowingTutorial(true) {
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     TransformComponent transform{ vec3(window_width_px / 2.f, window_height_px / 2.f, 0.f), vec3(window_width_px, window_height_px, 1.f), 0.f };
@@ -155,7 +155,7 @@ void OpeningCutscene::render() {
 void OpeningCutscene::on_mouse_click(int, int, const vec2&, int) {}
 void OpeningCutscene::on_mouse_move(const vec2&) {}
 
-PickupCutscene::PickupCutscene() : frameCount(0), seconds_passed(0.f), transitionFrame(-0.5f), finishedCutscene(false) {
+PickupCutscene::PickupCutscene() : Cutscene(0.f, 0), transitionFrame(-0.5f), finishedCutscene(false) {
     std::array<std::future<Image>, totalFrames> images;
     std::atomic<int> count;
     for (int i = 0; i < totalFrames; i++) {
