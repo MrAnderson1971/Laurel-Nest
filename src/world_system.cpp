@@ -204,6 +204,9 @@ void WorldSystem::init() {
 void WorldSystem::update(float deltaTime) {
     deltaTime = min(deltaTime, max_delta_time); // so if there's a lag spike the movement doesn't become so large you phase through walls
     ws_delta_time = deltaTime;
+    AISystem::swarm_goomba_step(current_room);
+    AISystem::flying_goomba_step(m_player, current_room, deltaTime);
+    handle_ai();
     handle_connections(deltaTime);
     handle_motions(deltaTime);
     handle_collisions();
@@ -211,15 +214,12 @@ void WorldSystem::update(float deltaTime) {
     handle_plus_heart(deltaTime);
     handle_bad_timers(deltaTime);
     update_damaged_player_sprites(deltaTime);
-    handle_ai();
     handle_saving();
     handle_hostiles_in_doors();
     handle_flamethrower(deltaTime);
     
     GoombaLogic::update_goomba_projectile_timer(deltaTime, current_room);
     GoombaLogic::update_damaged_goomba_sprites(deltaTime);
-    AISystem::flying_goomba_step(m_player, current_room, deltaTime);
-    AISystem::swarm_goomba_step(current_room);
     // Only step if the player is in the Chicken boss room
     if (registry.rooms.has(current_room) && registry.rooms.get(current_room).id == ROOM_ID::CP_BOSS) {
         BossAISystem::step(m_player, deltaTime);
@@ -1203,7 +1203,11 @@ void WorldSystem::render() {
         Motion player_motion = registry.motions.get(m_player);
         float x_pos = player_motion.position.x - 60.f;
         float y_pos = renderSystem.getWindowHeight() - player_motion.position.y - (WALKING_BB_HEIGHT / 2) - 20;
-        renderSystem.renderText("Hold To Heal", x_pos, y_pos, 0.5f, vec3(1), mat4(1));
+        std::stringstream ss;
+        auto& healTimer = registry.healTimers.get(m_player);
+        ss << "Hold to Heal: " << std::fixed << std::setprecision(2)
+        << clamp((healTimer.max_time - healTimer.elapsed_time) / healTimer.max_time * 100.f, 0, 100) << "%";
+        renderSystem.renderText(ss.str(), x_pos, y_pos, 0.5f, vec3(1), mat4(1));
     }
 
     // lower left instructions to open pause menue
@@ -1314,7 +1318,8 @@ void WorldSystem::processPlayerInput(int key, int action) {
         switch (key) {
         case GLFW_KEY_H:
             if (registry.playerAnimations.has(m_player) && registry.playerAnimations.get(m_player).getState() == PlayerState::IDLE) {
-                if (registry.healths.has(m_player) && registry.healths.get(m_player).current_health != registry.healths.get(m_player).max_health) {
+                if (registry.healths.has(m_player) && registry.healths.get(m_player).current_health != registry.healths.get(m_player).max_health
+                    && registry.healthFlasks.has(m_player) && registry.healthFlasks.get(m_player).num_uses > 0) {
                     if (!registry.healTimers.has(m_player)) {
                         registry.healTimers.emplace(m_player, HealTimer());
                     }
