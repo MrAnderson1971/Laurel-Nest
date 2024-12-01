@@ -7,11 +7,9 @@
 
 // Ecah struct below reprsenets a state transition
 
-float can_peck_timer = 0.5f;
+float peck_cooldown_timer = 0.3f;
 float last_peck = 0;
-
-
-
+float can_attack = 1.f;
 
 enum class STATE {
 	IDLE = 0,
@@ -25,7 +23,7 @@ enum class STATE {
 STATE current_state;
 Entity boss_room;
 Entity chicken;
-int flame_cooldown = 0;
+float flame_cooldown = 0;
 //float WALKING_CHICKEN_WIDTH = 500.f;
 //float WALKING_CHICKEN_HEIGHT = 500.f;
 constexpr float WALKING_CHICKEN_WIDTH = 0.58f * 866.f;
@@ -43,7 +41,6 @@ bool walkLeft = false;
 bool walkRight = false;
 
 bool superFlameDone = false;
-
 
 bool canSuperFlame(Motion chickenMotion, Motion playerMotion){
     Health health = registry.healths.get(chicken);
@@ -84,21 +81,22 @@ void walk(Motion& chickenMotion, Motion& playerMotion) {
 }
 
 bool canPeck(Motion chickenMotion, Motion playerMotion, float time) {
-    can_peck_timer -= time;
-    if(can_peck_timer > 0){
+    peck_cooldown_timer -= time;
+    if(peck_cooldown_timer > 0){
         return false;
     }
-    if (chickenMotion.position.x < playerMotion.position.x + 300.f &&
+    if (chickenMotion.position.x < playerMotion.position.x + 320.f &&
         chickenMotion.position.x > playerMotion.position.x) {
-        can_peck_timer = 0.5f;
+        peck_cooldown_timer = 0.3f;
         return true;
     }
     return false;
 }
-bool canFlame(Motion chickenMotion, Motion playerMotion) {
-	if (flame_cooldown <= 0 && chickenMotion.position.x > playerMotion.position.x + 350.f) {
+bool canFlame(Motion chickenMotion, Motion playerMotion, float time) {
+    if (flame_cooldown <= 0) {
 		return true;
 	}
+    flame_cooldown = flame_cooldown - time;
 	return false;
 }
 
@@ -220,10 +218,10 @@ void BossAISystem::step(Entity player, float elapsed_time) {
 				current_state = STATE::WALK;
 				a.setState(CHICKEN_WALK);
 			}
-			else if (canFlame(chickenMotion, playerMotion)) {
+			else if (canFlame(chickenMotion, playerMotion, elapsed_time)) {
 				current_state = STATE::FLAME;
 				a.setState(CHICKEN_FLAME);
-				flame_cooldown = 600;
+				flame_cooldown = 1.5f;
                 if(canSuperFlame(chickenMotion, playerMotion)){
 
                     float pos1 = chickenMotion.position.x - 100.f;
@@ -264,10 +262,10 @@ void BossAISystem::step(Entity player, float elapsed_time) {
 				current_state = STATE::WALK;
 				a.setState(CHICKEN_WALK);
 			}
-			else if (canFlame(chickenMotion, playerMotion)) {
+			else if (canFlame(chickenMotion, playerMotion, elapsed_time)) {
 				current_state = STATE::FLAME;
 				a.setState(CHICKEN_FLAME);
-				flame_cooldown = 600;
+				flame_cooldown = 1.5f;
 				flame_attack(renderSystem.getWindowWidth() / 6.f);
 				flame_attack(renderSystem.getWindowWidth() / 3.f);
 				// flame_attack(renderSystem.getWindowWidth() * (2.f / 3.f));
@@ -327,9 +325,9 @@ void BossAISystem::step(Entity player, float elapsed_time) {
 		a.next(elapsed_time);
 	}
 
-	if (flame_cooldown > 0) {
-		flame_cooldown--;
-	}
+//	if (flame_cooldown > 0) {
+//		flame_cooldown--;
+//	}
 
 	switch (current_state) {
 	case STATE::IDLE:
@@ -371,7 +369,7 @@ void BossAISystem::render() {
 	}
 }
 
-void BossAISystem::chicken_get_damaged(Entity weapon, bool& isDead) {
+void BossAISystem::chicken_get_damaged(Entity weapon, bool& isDead, bool& a_pressed, bool& d_pressed, Entity& player) {
 	Health& chicken_health = registry.healths.get(chicken);
 	Damage& weapon_damage = registry.damages.get(weapon);
 	// if (chicken_health.current_health - weapon_damage.damage_dealt >= 0) {
@@ -389,7 +387,9 @@ void BossAISystem::chicken_get_damaged(Entity weapon, bool& isDead) {
 		if (chicken_health.current_health <= 0) {
 			registry.damages.remove(chicken);
 			isDead = true;
-			// TODO: SOMEHOW REMOVE THE MUSIC I (JETT) DONT KNOW HOW TO DO THAT
+			a_pressed = false;
+			d_pressed = false;
+			registry.motions.get(player).velocity.x = 0;
 			Mix_HaltMusic();
 			registry.gravity.emplace(chicken, Gravity());
 			renderSystem.getGameStateManager()->pauseState<PickupCutscene>();

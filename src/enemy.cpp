@@ -9,9 +9,17 @@ Enemy::Enemy() {
 	entity = Entity();
 }
 
+// dir = true, moves right, left otherwise
 void Enemy::set_direction(bool dir) {
 	auto& patrol = registry.patrol_ais.get(entity);
 	patrol.movingRight = dir;
+}
+
+// dir = true, moves right, left otherwise
+void Enemy::set_health(const int num) {
+	Health& health = registry.healths.get(entity);
+	health.max_health = num;
+	health.current_health = num;
 }
 
 GoombaLand::GoombaLand() {
@@ -94,6 +102,7 @@ void GoombaFlying::init_sprite() {
 			g_texture_paths->at(TEXTURE_ASSET_ID::BIRDMAN_FLY3),
 			g_texture_paths->at(TEXTURE_ASSET_ID::BIRDMAN_FLY4),
 	};
+	std::vector<Sprite> throwingSprites = idleSprites;
 
 	Sprite deadSprite = g_texture_paths->at(TEXTURE_ASSET_ID::BIRDMAN_DEAD);
 	Sprite hitSprite = g_texture_paths->at(TEXTURE_ASSET_ID::BIRDMAN_HIT);
@@ -104,6 +113,7 @@ void GoombaFlying::init_sprite() {
 	deadSprites.push_back(deadSprite);
 
 	goombaAnimations.addState(FlyingGoombaState::FLYING_GOOMBA_IDLE, std::move(idleSprites));
+	goombaAnimations.addState(FlyingGoombaState::FLYING_GOOMBA_THROW_PROJECTILE, std::move(throwingSprites));
 	goombaAnimations.addState(FlyingGoombaState::FLYING_GOOMBA_CHARGE, std::move(chargeSprites));
 	goombaAnimations.addState(FlyingGoombaState::FLYING_GOOMBA_HIT, std::move(hitSprites));
 	goombaAnimations.addState(FlyingGoombaState::FLYING_GOOMBA_DEAD, std::move(deadSprites));
@@ -117,7 +127,7 @@ void GoombaFlying::init_components(float x, float y) {
 	Motion goombaMotion;
 	goombaMotion.position = vec2(x, y);
 	goombaMotion.scale = GOOMBA_FLYING_FLY_SCALE;
-	goombaMotion.velocity = { TPS , 0 };
+	//goombaMotion.velocity = { TPS , 0 };
 	goombaMotion.old_velocity = goombaMotion.velocity;
 	registry.motions.emplace(entity, std::move(goombaMotion));
 
@@ -130,12 +140,23 @@ void GoombaFlying::init_components(float x, float y) {
 
 	GoombaFlyingState state;
 	state.current_state = FlyingGoombaState::FLYING_GOOMBA_IDLE;
-	state.last_state = state.current_state;
+	state.last_attack = FlyingGoombaState::FLYING_GOOMBA_THROW_PROJECTILE;
 	state.idle_flying_altitude = y;
 
 	registry.goombaFlyingStates.emplace(entity, std::move(state));
-	registry.healths.emplace(entity, std::move(Health{ 4,4}));
+	registry.healths.emplace(entity, std::move(Health{ 5,5}));
 	registry.damages.emplace(entity, std::move(Damage{ 1 }));
 	registry.patrol_ais.emplace(entity, std::move(Patrol_AI()));
 
+}
+
+// By default, the intial attack is the charge
+void GoombaFlying::set_initial_attack(FlyingGoombaState state) {
+	GoombaFlyingState& s = registry.goombaFlyingStates.get(entity);
+	if (state == FlyingGoombaState::FLYING_GOOMBA_CHARGE) {
+		s.last_attack = FlyingGoombaState::FLYING_GOOMBA_THROW_PROJECTILE;
+	}
+	else if (state == FlyingGoombaState::FLYING_GOOMBA_THROW_PROJECTILE) {
+		s.last_attack = FlyingGoombaState::FLYING_GOOMBA_CHARGE;
+	}
 }
