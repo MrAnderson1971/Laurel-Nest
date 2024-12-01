@@ -215,7 +215,6 @@ void WorldSystem::update(float deltaTime) {
     
     GoombaLogic::update_goomba_projectile_timer(deltaTime, current_room);
     GoombaLogic::update_damaged_goomba_sprites(deltaTime);
-    AISystem::swarm_goomba_step(current_room);
     BossAISystem::step(m_player, deltaTime);
     BossAISystem::update_damaged_chicken_sprites(deltaTime);
     
