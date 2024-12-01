@@ -1065,7 +1065,7 @@ Entity NPCRoom2Strategy::execute() {
 
     // note on bg: don't add motion
     registry.grounds.emplace(m_wall, std::move(Ground()));
-    registry.grounds.emplace(m_wall_block1, std::move(Ground()));
+    //registry.grounds.emplace(m_wall_block1, std::move(Ground()));
     registry.grounds.emplace(m_wall_block2, std::move(Ground()));
     registry.grounds.emplace(m_wall_block3, std::move(Ground()));
     registry.grounds.emplace(m_wall_block4, std::move(Ground()));
@@ -1090,7 +1090,7 @@ Entity NPCRoom2Strategy::execute() {
     room.insert(m_bg);
     room.insert(m_arrow4);
     room.insert(m_wall);
-    room.insert(m_wall_block1);
+    //room.insert(m_wall_block1);
     room.insert(m_wall_block2);
     room.insert(m_wall_block3);
     room.insert(m_wall_block4);
