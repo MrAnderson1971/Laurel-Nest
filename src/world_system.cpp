@@ -917,7 +917,8 @@ void WorldSystem::handle_saving() {
 void WorldSystem::handle_bmt3() {
     bool cleared = true;
     for (auto entity : registry.rooms.get(current_room).entities) {
-        if (registry.goombaFlyingStates.has(entity) && registry.goombaFlyingStates.get(entity).current_state != FLYING_GOOMBA_DEAD) {
+        // check all enemy goombas are dead, should not be in patrolAI reg
+        if (registry.patrol_ais.has(entity) ) {
             cleared = false;
         }
     }
