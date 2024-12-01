@@ -10,6 +10,7 @@
 #include "serialize.hpp"
 #include "common.hpp"
 #include "boss_ai.hpp"
+#include "great_boss_ai.hpp"
 #include "world_init.hpp"
 
 // stlib
@@ -220,6 +221,11 @@ void WorldSystem::update(float deltaTime) {
     if (registry.rooms.has(current_room) && registry.rooms.get(current_room).id == ROOM_ID::CP_BOSS) {
         BossAISystem::step(m_player, deltaTime);
         BossAISystem::update_damaged_chicken_sprites(deltaTime);
+    }
+
+    if (registry.rooms.has(current_room) && registry.rooms.get(current_room).id == ROOM_ID::LN_BOSS) {
+        //GreatBossAISystem::step(m_player, deltaTime);
+        //GreatBossAISystem::update_damaged_gb_sprites(deltaTime);
     }
     
     // look for specific rooms with restrictions

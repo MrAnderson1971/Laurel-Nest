@@ -44,6 +44,14 @@ enum ChickenState {
     CHICKEN_DEATH
 };
 
+enum GBState {
+    GB_IDLE,
+    GB_SMASH,
+    GB_HIT,
+    GB_DEATH
+};
+
+
 enum FlyingGoombaState {
     FLYING_GOOMBA_IDLE,
     FLYING_GOOMBA_CHARGE,
@@ -172,6 +180,15 @@ struct Elder {
 };
 
 struct Kat {
+};
+
+// spears and yellow ground for the Gb
+struct BadObj {
+};
+
+struct BadObjTimer {
+    float max_time;
+    float elapsed_time;
 };
 
 // A timer that will be associated to when the player can get damaged again 

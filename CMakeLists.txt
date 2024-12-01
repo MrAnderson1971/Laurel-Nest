@@ -39,7 +39,7 @@ if (IS_OS_MAC)
 endif()
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES}
-        src/cutscene.cpp)
+        src/cutscene.cpp "src/great_boss_ai.cpp")
 
 target_include_directories(${PROJECT_NAME} PUBLIC src/)
 
