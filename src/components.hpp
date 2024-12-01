@@ -44,6 +44,14 @@ enum ChickenState {
     CHICKEN_DEATH
 };
 
+enum GBState {
+    GB_IDLE,
+    GB_SMASH,
+    GB_HIT,
+    GB_DEATH
+};
+
+
 enum FlyingGoombaState {
     FLYING_GOOMBA_IDLE,
     FLYING_GOOMBA_CHARGE,
@@ -174,6 +182,18 @@ struct Elder {
 struct Kat {
 };
 
+// spears and yellow ground for the Gb
+struct BadObj {
+};
+
+struct BadObjTimer {
+    float max_time;
+    float elapsed_time = 0.f;
+    float stall;
+    bool isActive = false;
+    int damage;
+};
+
 // A timer that will be associated to when the player can get damaged again 
 struct InvincibilityTimer
 {
@@ -189,7 +209,7 @@ struct ProjectileTimer
 
 struct HealTimer
 {
-    float max_time = 499;
+    float max_time = 0.25;
     float elapsed_time = max_time;
 };
 
@@ -332,6 +352,7 @@ enum class TEXTURE_ASSET_ID {
     CEILING_SPIT,                         // ceiling_spit.png 
     SPLASH_SCREEN,                        // splash_screen.png
     DEMO_GROUND,                          // demo_ground.png
+    DEMO_GROUND_SMASH,
     DEMO_WALL,                            // demo_wall.png
     DEMO_CEILING,                         // demo_ceiling.png
     HEART_3,                              // heart_3.png
@@ -382,6 +403,7 @@ enum class TEXTURE_ASSET_ID {
     BIRDMAN_ELDER,
     OGRE_KAT_1,
     OGRE_KAT_2,
+    SPIKE,
     TEXTURE_COUNT                         // Count of all textures
 };
 constexpr int texture_count = static_cast<int>(TEXTURE_ASSET_ID::TEXTURE_COUNT);
@@ -415,6 +437,7 @@ enum class ROOM_ID {
     BMT_2,
     BMT_3,
     BMT_4,
+    BMT_5,
     NPC_1,
     NPC_3,
     LN_1,

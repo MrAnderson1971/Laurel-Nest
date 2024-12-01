@@ -62,6 +62,7 @@ public:
 	void handle_connections(float deltaTime);
 	void handle_collisions();
 	void handle_invinciblity(float deltaTime);
+	void handle_bad_timers(float deltaTime);
 	void handle_ai();
 	void handle_saving();
 	void handle_pelican();
@@ -97,6 +98,7 @@ private:
 	void update_status_bar(int num_hearts);
 	void upgrade_player_health();
 
+	float ws_delta_time;
     float coyoteTimer = 0.f;
     bool isGrounded = false;
 	bool canAttack = true;
