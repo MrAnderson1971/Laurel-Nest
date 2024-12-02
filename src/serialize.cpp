@@ -88,9 +88,13 @@ void readFromSaveFile(const std::string& filePath, SaveFile& sf) {
 			}
 			break;
 		case SAVEFILE_LINES::SWORD_DAMAGE:
+#ifdef GOD_MODE
+			sf.sword_damage = 999;
+#else
 			if (iss >> value) {
 				sf.sword_damage = value;
 			}
+#endif
 			break;
 		case SAVEFILE_LINES::HEART_POWER_UP_0:
 			if (iss >> std::boolalpha >> value_b) {

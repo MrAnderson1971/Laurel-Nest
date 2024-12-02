@@ -6,6 +6,8 @@
 #include <boost/optional.hpp>
 #include <sstream>
 
+#include "serialize.hpp"
+
 constexpr int LAST_OPENING_ANIMATION_FRAME = 18;
 constexpr int LAST_PICKUP_ANIMATION_FRAME = 6;
 constexpr int LAST_ENDING_ANIMATION_FRAME = 5;
@@ -85,6 +87,7 @@ private:
 
 template<int Which>
 EndingCutscene<Which>::EndingCutscene() : Cutscene(0.f, 0), transitionFrame(-0.5f), finishedCutscene(false) {
+	clearSaveData();
 	std::array<std::future<Image>, totalFrames> images;
 	std::atomic<int> count;
 	for (int i = 0; i < totalFrames; i++) {

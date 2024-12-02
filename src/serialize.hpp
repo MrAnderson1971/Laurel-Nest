@@ -1,6 +1,7 @@
 #pragma once
 #define SAVE_FILE_PATH "saveFile.txt"
 #include <string>
+//#define GOD_MODE
 
 enum class SAVEFILE_LINES {
 	IS_INIT,
