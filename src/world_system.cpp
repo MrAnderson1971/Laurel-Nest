@@ -1401,7 +1401,7 @@ void WorldSystem::processPlayerInput(int key, int action) {
                     playerMotion.velocity[1] += player_speed * 2.0f; // Increase downward velocity
                 }
             }
-            break;            
+            break;
             // Equip / unequip flamethrower
         case GLFW_KEY_E:
             if (isChickenDead) {
@@ -1431,7 +1431,7 @@ void WorldSystem::processPlayerInput(int key, int action) {
             do_save = true;
             break;
             // talk
-        case GLFW_KEY_T:
+        case GLFW_KEY_T: {
             Room& room = registry.rooms.get(current_room);
 
             if (room.id == ROOM_ID::CP_ENTRANCE) {
@@ -1464,6 +1464,7 @@ void WorldSystem::processPlayerInput(int key, int action) {
                 break;
             }
             break;
+        }
             case GLFW_KEY_C:
                 // good ending
                     if (registry.rooms.has(current_room) && registry.rooms.get(current_room).id == ROOM_ID::LN_BOSS && isGreatBirdDead) {
