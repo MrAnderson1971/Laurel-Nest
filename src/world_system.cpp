@@ -1126,11 +1126,6 @@ void WorldSystem::render() {
             renderSystem.drawEntity(sprite, transform);
         }
 
-        // Draw Bosses
-        if (registry.bosses.has(obj)) {
-            BossAISystem::render();
-        }
-
         // draw the plus heart sprite
         if (registry.plusHeartTimers.has(obj) && registry.transforms.has(obj) && registry.sprites.has(obj)) {
             auto& transform = registry.transforms.get(obj);
