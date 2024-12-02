@@ -40,7 +40,7 @@ void Birdmantown::init() {
 
     setRoomStrategy(std::make_unique<NPCRoom2Strategy>());
     m_npc_room2 = currentRoom->execute();
-    //start_room = m_npc_room2;
+    start_room = m_npc_room2;
     
 
     setRoomStrategy(std::make_unique<LNRoom1Strategy>());

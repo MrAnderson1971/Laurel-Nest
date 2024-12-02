@@ -69,6 +69,8 @@ public:
 	void handle_ai();
 	void handle_saving();
 	void handle_pelican();
+	void handle_elder();
+	void handle_ogre();
 	void handle_bmt3();
 	void handle_hostiles_in_doors();
 	void handle_flamethrower(float deltaTime);
@@ -137,10 +139,13 @@ private:
 	bool skip_dialogue = false;
 
 	bool pelican_talk = false;
-	// move these into components
 	int pelicanIndex = 0;
-	int ogreTimer = 0;
-	int ogreCount = 0;
+	
+	bool elder_talk = false;
+	int elderIndex = 0;
+
+	bool ogre_talk = false;
+	int ogreIndex = 0;
 
 	bool continue_music = true;
 	bool do_save = false;

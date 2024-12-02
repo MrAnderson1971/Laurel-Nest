@@ -944,6 +944,29 @@ std::string pelicanDialogue[9] = { "You, you! I thought you were a bird!",
 "Oh, Blazing Master! Have mercy on the poor fool.",
 "Hahahahahaha!" };
 
+std::string elderDialogue[9] = { 
+"So it was you who felled the Blazing Lord.",
+"I am Tipp, Birdman Elder, and I seek the next monarch.",
+"This was once a prosperous realm,",
+"When my master, the Great Bird, was yet mighty.",
+"Alas, my Lord has lost his wits, and so has his minions.",
+"Strong human, you would make a fine heir.",
+"Ascend the Laurel Nest, give my Lord an honorable end.",
+"He too would have wished it, in his right mind.",
+"Take the throne and make the realm prosper."};
+
+std::string ogreDialogue[9] = { 
+"Oh! If I didn't see the human face behind your mask...",
+"I might have smashed it in. Haha!",
+"I am Kat, Ogre Warrior!! Enemy of the Great Bird and his kin.",
+"They conquered and burned my homeland.",
+"The tyrant, so called, Great Bird, must be put down!",
+"You seem to be a strong one. Why not lend me a hand?",
+"Ascend thee Laural Nest, overthrow the tyrant,",
+"And leave this wicked realm to rot!",
+"May the Bird Kind falter and perish!!"
+};
+
 // npc stuff // TODO KUTER
 void WorldSystem::handle_pelican() {
     // check if plaican is alive?
@@ -969,7 +992,7 @@ void WorldSystem::handle_pelican() {
                     pelican_sprite = g_texture_paths->at(TEXTURE_ASSET_ID::PELICAN_TALK);
                     Sprite boxSprite = g_texture_paths->at(TEXTURE_ASSET_ID::TEXT_BOX);
                     TransformComponent boxTransform;
-                    boxTransform.position = glm::vec3(renderSystem.getWindowWidth() - 410.f, renderSystem.getWindowHeight() - 950.f, 0.0);
+                    boxTransform.position = glm::vec3(renderSystem.getWindowWidth() - 400.f, renderSystem.getWindowHeight() - 950.f, 0.0);
                     boxTransform.scale = glm::vec3(boxSprite.width / 8.f, boxSprite.height / 15.f, 1.0);
                     boxTransform.rotation = 0.0f;
                     renderSystem.drawEntity(boxSprite, boxTransform);
@@ -985,7 +1008,91 @@ void WorldSystem::handle_pelican() {
             }
         }
     }
-    //pelican_talk = false;
+}
+
+// npc stuff // TODO KUTER
+void WorldSystem::handle_elder() {
+    // check if plaican is alive?
+    if (!registry.rooms.has(current_room)) {
+        return;
+    }
+    Room& room = registry.rooms.get(current_room);
+    for (Entity sp : registry.elder.entities) {
+        if (room.has(sp)) {
+            // check if the player is within range of the savepoint
+            Motion player_motion = registry.motions.get(m_player);
+            Motion elder_point_motion = registry.motions.get(sp);
+            float elder_point_lower_bound_x = elder_point_motion.position.x - elder_point_motion.scale.x;
+            float elder_point_upper_bound_x = elder_point_motion.position.x + elder_point_motion.scale.x;
+            float elder_point_lower_bound_y = elder_point_motion.position.y - elder_point_motion.scale.y;
+            float elder_point_upper_bound_y = elder_point_motion.position.y + elder_point_motion.scale.y;
+            if (elder_point_lower_bound_x <= player_motion.position.x && player_motion.position.x < elder_point_upper_bound_x
+                && elder_point_lower_bound_y < player_motion.position.y && player_motion.position.y < elder_point_upper_bound_y) {
+                if (elder_talk) {
+                    double position_x = elder_point_motion.position.x - 500.f;
+                    double position_y = elder_point_motion.position.y - 425.f;
+                    Sprite& elder_sprite = registry.sprites.get(sp);
+                    Sprite boxSprite = g_texture_paths->at(TEXTURE_ASSET_ID::TEXT_BOX);
+                    TransformComponent boxTransform;
+                    boxTransform.position = glm::vec3(renderSystem.getWindowWidth() - 360.f, renderSystem.getWindowHeight() - 450.f, 0.0);
+                    boxTransform.scale = glm::vec3(boxSprite.width / 8.f, boxSprite.height / 15.f, 1.0);
+                    boxTransform.rotation = 0.0f;
+                    renderSystem.drawEntity(boxSprite, boxTransform);
+
+                    renderSystem.renderText(elderDialogue[elderIndex], static_cast<float>(position_x), static_cast<float>(position_y),
+                        0.5f, font_color, font_trans);
+                }
+            }
+            else {
+                // Sprite& pelican_sprite = registry.sprites.get(sp);
+                // pelican_sprite = g_texture_paths->at(TEXTURE_ASSET_ID::PELICAN_IDLE);
+                elder_talk = false;
+            }
+        }
+    }
+}
+
+// npc stuff // TODO KUTER
+void WorldSystem::handle_ogre() {
+    // check if plaican is alive?
+    if (!registry.rooms.has(current_room)) {
+        return;
+    }
+    Room& room = registry.rooms.get(current_room);
+    for (Entity sp : registry.kat.entities) {
+        if (room.has(sp)) {
+            // check if the player is within range of the savepoint
+            Motion player_motion = registry.motions.get(m_player);
+            Motion kat_point_motion = registry.motions.get(sp);
+            float kat_point_lower_bound_x = kat_point_motion.position.x - kat_point_motion.scale.x;
+            float kat_point_upper_bound_x = kat_point_motion.position.x + kat_point_motion.scale.x;
+            float kat_point_lower_bound_y = kat_point_motion.position.y - kat_point_motion.scale.y;
+            float kat_point_upper_bound_y = kat_point_motion.position.y + kat_point_motion.scale.y;
+            if (kat_point_lower_bound_x <= player_motion.position.x && player_motion.position.x < kat_point_upper_bound_x
+                && kat_point_lower_bound_y < player_motion.position.y && player_motion.position.y < kat_point_upper_bound_y) {
+                if (ogre_talk) {
+                    double position_x = kat_point_motion.position.x - 300.f;
+                    double position_y = kat_point_motion.position.y - 280.f;
+                    Sprite& kat_sprite = registry.sprites.get(sp);
+                    kat_sprite = g_texture_paths->at(TEXTURE_ASSET_ID::OGRE_KAT_2);
+
+                    Sprite boxSprite = g_texture_paths->at(TEXTURE_ASSET_ID::TEXT_BOX);
+                    TransformComponent boxTransform;
+                    boxTransform.position = glm::vec3(renderSystem.getWindowWidth() / 2.f, renderSystem.getWindowHeight() - 550.f, 0.0);
+                    boxTransform.scale = glm::vec3(boxSprite.width / 8.f, boxSprite.height / 15.f, 1.0);
+                    boxTransform.rotation = 0.0f;
+                    renderSystem.drawEntity(boxSprite, boxTransform);
+                    renderSystem.renderText(ogreDialogue[ogreIndex], static_cast<float>(position_x), static_cast<float>(position_y),
+                        0.5f, font_color, font_trans);
+                }
+            }
+            else {
+                Sprite& kat_sprite = registry.sprites.get(sp);
+                kat_sprite = g_texture_paths->at(TEXTURE_ASSET_ID::OGRE_KAT_1);
+                ogre_talk = false;
+            }
+        }
+    }
 }
 
 void WorldSystem::handle_hostiles_in_doors() {
@@ -1185,6 +1292,8 @@ void WorldSystem::render() {
     }
 
     handle_pelican();
+    handle_elder();
+    handle_ogre();
 
     // draw the text that appears when healing
     if (registry.healTimers.has(m_player) && interrupted_heal) {
@@ -1298,14 +1407,38 @@ void WorldSystem::processPlayerInput(int key, int action) {
             break;
             // talk
         case GLFW_KEY_T:
+            Room& room = registry.rooms.get(current_room);
 
-            if (pelican_talk && pelicanIndex < 8) {
-                pelicanIndex++;
+            if (room.id == ROOM_ID::CP_ENTRANCE) {
+                if (pelican_talk && pelicanIndex < 8) {
+                    pelicanIndex++;
+                }
+                else if (pelicanIndex >= 8 || pelican_talk == false) {
+                    pelican_talk = !pelican_talk;
+                }
+                break;
             }
-            else if (pelicanIndex >= 8 || pelican_talk == false) {
-                pelican_talk = !pelican_talk;
+
+            if (room.id == ROOM_ID::NPC_1) {
+                if (elder_talk && elderIndex < 8) {
+                    elderIndex++;
+                }
+                else if (elderIndex >= 8 || elder_talk == false) {
+                    elder_talk = !elder_talk;
+                }
+                break;
             }
-            break;
+
+            if (room.id == ROOM_ID::NPC_2) {
+                if (ogre_talk && ogreIndex < 8) {
+                    ogreIndex++;
+                }
+                else if (ogreIndex >= 8 || ogre_talk == false) {
+                    ogre_talk = !ogre_talk;
+                }
+                break;
+            }
+
         }
         interrupted_heal = true;
     }
