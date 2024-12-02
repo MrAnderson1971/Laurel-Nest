@@ -387,7 +387,7 @@ void WorldSystem::handle_motions(float deltaTime) {
             if (m.position[1] < 25 && registry.hostiles.has(entity) && registry.hostiles.get(entity).type == HostileType::GOOMBA_SWARM) {
                 m.position[1] = 25;
                 if (m.velocity.y < 0) {
-                    m.velocity.y *= -1;;
+                    m.velocity.y = 200;
                 }
             }
 
@@ -558,7 +558,19 @@ void WorldSystem::handle_collisions() {
         // gaurd against moving platform and flying goombas because i'm tired
         if (registry.grounds.has(entity_other) && !(registry.movingPlatform.has(entity_other) && registry.flyingGoombaAnimations.has(entity))) {
             if (direction.x != 0 && thisMotion.velocity.x != 0) {
-                thisMotion.velocity.x = 0;
+                if (registry.hostiles.has(entity) && registry.hostiles.get(entity).type == HostileType::GOOMBA_SWARM &&
+                    registry.healths.has(entity) && registry.patrol_ais.has(entity)) {
+                    if (direction.x > 0) {
+                        registry.patrol_ais.get(entity).movingRight = false;
+                    }
+                    else {
+                        registry.patrol_ais.get(entity).movingRight = true;
+                    }
+                }
+                else {
+                    thisMotion.velocity.x = 0;
+                }
+                
                 if (registry.players.has(entity)) {
                     thisMotion.position.x -= overlap.x;
                 }
