@@ -597,3 +597,21 @@ struct MenuItem {
 struct Wall{
 
 };
+
+struct EndingTriggers {
+    Motion position;
+    bool isThroneEnding;
+
+    EndingTriggers(float width, float height, float xPos, float yPos, bool isThroneEnding_) :
+    isThroneEnding(isThroneEnding_) {
+        if (yPos == 0.f) {
+            position.position = glm::vec2(window_width_px * xPos, window_height_px * yPos + 10.f);
+        } else {
+            position.position = glm::vec2(window_width_px * xPos, window_height_px * yPos);
+        }
+        width *= 1203;
+        height *= 1168;
+        position.scale = { width, height };
+        position.angle = 0.f;
+    }
+};

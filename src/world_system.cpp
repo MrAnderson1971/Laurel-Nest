@@ -21,8 +21,11 @@
 #include <string>
 #include <algorithm>
 
+#include "cutscene.hpp"
+
 bool Show_FPS = true;
 bool isChickenDead = false;
+bool isGreatBirdDead = false;
 bool start_from_checkpoint = false;
 std::unordered_map<TEXTURE_ASSET_ID, Sprite>* g_texture_paths = nullptr;
 std::default_random_engine rng = std::default_random_engine(std::random_device( )());
@@ -55,6 +58,7 @@ void WorldSystem::init() {
     heartPowerUp_1 = sf.heart_power_up_1;
     swordPowerUp_0 = sf.sword_power_up_0;
     isChickenDead = sf.is_chicken_dead;
+    isGreatBirdDead = false;
     start_from_checkpoint = sf.start_from_checkpoint;
     saved_this_instance = sf.saved_this_instance;
     /*isChickenDead = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::IS_CHICKEN_DEAD), false);
@@ -531,6 +535,11 @@ void WorldSystem::handle_collisions() {
         Motion& thisMotion = registry.motions.get(entity);
         Motion& otherMotion = registry.motions.get(entity_other);
 
+        // trigger bad ending when boss dies
+        if (registry.players.has(entity) && registry.endingTriggers.has(entity_other) && isGreatBirdDead) {
+            renderSystem.getGameStateManager()->pauseState<EndingCutscene<1>>();
+        }
+
         // Check first - Skip handling collision if it's between spit and fireball projectiles
         if (registry.projectiles.has(entity) && registry.projectiles.has(entity_other)) {
             auto projectileType1 = registry.projectiles.get(entity).type;
@@ -689,8 +698,7 @@ void WorldSystem::handle_collisions() {
                 else if (registry.bosses.has(entity_other) && isChickenDead) {
                     Boss& boss = registry.bosses.get(entity_other);
                     boss.boxType = BoxType::HIT_BOX;
-                    bool mock;
-                    GreatBossAISystem::gb_get_damaged(m_sword, mock, a_pressed, d_pressed, m_player);
+                    GreatBossAISystem::gb_get_damaged(m_sword, isGreatBirdDead, a_pressed, d_pressed, m_player);
                 } else {
                     GoombaLogic::goomba_get_damaged(entity_other, m_sword, current_room);
                 }
@@ -706,7 +714,9 @@ void WorldSystem::handle_collisions() {
                     boss.boxType = BoxType::ATTACK_BOX;
                 }
                 if (!registry.invinciblityTimers.has(entity) && registry.damages.get(entity_other).damage_dealt > 0) {
+#ifndef GOD_MODE
                     player_get_damaged(entity_other);
+#endif
                 }
             }
         }
@@ -947,7 +957,7 @@ std::string pelicanDialogue[9] = { "You, you! I thought you were a bird!",
 "Oh, Blazing Master! Have mercy on the poor fool.",
 "Hahahahahaha!" };
 
-std::string elderDialogue[9] = { 
+std::string elderDialogue[9] = {
 "So it was you who felled the Blazing Lord.",
 "I am Tipp, Birdman Elder, and I seek the next monarch.",
 "This was once a prosperous realm,",
@@ -958,7 +968,7 @@ std::string elderDialogue[9] = {
 "He too would have wished it, in his right mind.",
 "Take the throne and make the realm prosper."};
 
-std::string ogreDialogue[9] = { 
+std::string ogreDialogue[9] = {
 "Oh! If I didn't see the human face behind your mask...",
 "I might have smashed it in. Haha!",
 "I am Kat, Ogre Warrior!! Enemy of the Great Bird and his kin.",
@@ -1319,6 +1329,18 @@ void WorldSystem::render() {
     // lower left instructions to open pause menue
     renderSystem.drawEntity(registry.sprites.get(m_esc), registry.transforms.get(m_esc));
     renderSystem.renderText("For Pause Menu", window_width_px * 0.1f, window_height_px * 0.05f, 0.5f, vec3(1), mat4(1));
+
+    // PRESS C TO ASCEND THE THRONE text
+    if (registry.rooms.has(current_room) && registry.rooms.get(current_room).id == ROOM_ID::LN_BOSS && isGreatBirdDead) {
+        vec3 color;
+        auto& playerMotion = registry.motions.get(m_player);
+        if (playerMotion.position.x >= window_width_px * 0.33f && playerMotion.position.x <= window_width_px * 0.66f) {
+            color = vec3(1);
+        } else {
+            color = vec3(0.5);
+        }
+        renderSystem.renderText("Press C to Ascend the Throne", window_width_px * 0.4f, window_height_px * 0.5f, 1.f, color, mat4(1));
+    }
 }
 
 void WorldSystem::processPlayerInput(int key, int action) {
@@ -1379,7 +1401,7 @@ void WorldSystem::processPlayerInput(int key, int action) {
                     playerMotion.velocity[1] += player_speed * 2.0f; // Increase downward velocity
                 }
             }
-            break;            
+            break;
             // Equip / unequip flamethrower
         case GLFW_KEY_E:
             if (isChickenDead) {
@@ -1409,7 +1431,7 @@ void WorldSystem::processPlayerInput(int key, int action) {
             do_save = true;
             break;
             // talk
-        case GLFW_KEY_T:
+        case GLFW_KEY_T: {
             Room& room = registry.rooms.get(current_room);
 
             if (room.id == ROOM_ID::CP_ENTRANCE) {
@@ -1441,7 +1463,17 @@ void WorldSystem::processPlayerInput(int key, int action) {
                 }
                 break;
             }
-
+            break;
+        }
+            case GLFW_KEY_C:
+                // good ending
+                    if (registry.rooms.has(current_room) && registry.rooms.get(current_room).id == ROOM_ID::LN_BOSS && isGreatBirdDead) {
+                        auto& playerMotion = registry.motions.get(m_player);
+                        if (playerMotion.position.x >= window_width_px * 0.33f && playerMotion.position.x <= window_width_px * 0.66f) {
+                            renderSystem.getGameStateManager()->pauseState<EndingCutscene<2>>();
+                        }
+                    }
+            break;
         }
         interrupted_heal = true;
     }

@@ -41,6 +41,7 @@ constexpr int FLAME_BEAK_SHOOT_CHANNEL = 5;
 
 extern bool Show_FPS;
 extern bool isChickenDead;
+extern bool isGreatBirdDead;
 extern bool start_from_checkpoint;
 
 class RegionManager;

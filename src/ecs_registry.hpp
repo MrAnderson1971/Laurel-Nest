@@ -64,6 +64,8 @@ public:
     ComponentContainer<MenuItem> menuItems;
     ComponentContainer<Wall> walls;
 
+    ComponentContainer<EndingTriggers> endingTriggers;
+
     // constructor that adds all containers for looping over them
     // IMPORTANT: Don't forget to add any newly added containers!
     ECSRegistry()
@@ -116,6 +118,7 @@ public:
         registry_list.push_back(&badObjs);
         registry_list.push_back(&badObjTimers);
         registry_list.push_back(&gbAnimations);
+        registry_list.push_back(&endingTriggers);
     }
 
     void clear_all_components() {

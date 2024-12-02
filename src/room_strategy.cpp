@@ -1554,6 +1554,11 @@ Entity LNBossRoomStrategy::execute() {
     // ground
     Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 0.5f, 0.5f, 0.0f);
 
+    Entity m_badEnding;
+    EndingTriggers badEndingTrigger(0.03f, 0.8f, 0.f, 0.4f, false);
+    registry.endingTriggers.emplace(m_badEnding, badEndingTrigger);
+    registry.motions.emplace(m_badEnding, badEndingTrigger.position);
+
     // note on bg: don't add motion
     registry.grounds.emplace(m_ground, std::move(Ground()));
 
@@ -1563,6 +1568,7 @@ Entity LNBossRoomStrategy::execute() {
     room.insert(m_ground);
     room.insert(m_boss_platform);
     room.insert(m_greatbird);
+    room.insert(m_badEnding);
     room.setMusic(Mix_LoadMUS(audio_path("greatBird.wav").c_str()));
     registry.rooms.emplace(m_room, std::move(room));
 
