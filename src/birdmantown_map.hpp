@@ -18,8 +18,8 @@ public:
     Entity m_room5;
     Entity m_npc_room1;
     Entity m_npc_room2;
-    Entity m_npc_room3;
     Entity m_ln_room1;
+    Entity m_ln_room2;
     Entity m_ln_boss_room;
 
     Connection SetDoor(float width, float height, float xPos, float yPos, Entity connectNextRoom, vec2 connectNextSpawn);

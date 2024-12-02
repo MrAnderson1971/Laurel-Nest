@@ -95,12 +95,12 @@ class NPCRoom2Strategy : public RoomStrategy {
 	Entity execute() override;
 };
 
-class NPCRoom3Strategy : public RoomStrategy {
+// laurel nest
+class LNRoom1Strategy : public RoomStrategy {
 	Entity execute() override;
 };
 
-// laurel nest
-class LNRoom1Strategy : public RoomStrategy {
+class LNRoom2Strategy : public RoomStrategy {
 	Entity execute() override;
 };
 

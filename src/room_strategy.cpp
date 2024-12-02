@@ -1344,41 +1344,6 @@ Entity NPCRoom2Strategy::execute() {
     return m_room;
 }
 
-// TODO: npc room before bossroom
-Entity NPCRoom3Strategy::execute() {
-    Entity m_room;
-    // for handling transitions
-    Room room;
-
-    // background
-    Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::LN_BG));
-
-    // arrows
-    Entity m_arrow_ln1 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), -0.3f, 0.3f, 0.05f, 0.87f, 0.f);
-    Entity m_arrow_boss = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), 0.3f, 0.3f, 0.95f, 0.87f, 0.f);
-
-    // ceiling
-    Entity m_ceiling = SetCeiling(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_CEILING), 0.5f);
-
-    // ground
-    Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 0.5f, 0.5f, 0.0f);
-
-    // note on bg: don't add motion
-    registry.grounds.emplace(m_ground, std::move(Ground()));
-    registry.grounds.emplace(m_arrow_ln1, std::move(Ground()));
-    registry.grounds.emplace(m_arrow_boss, std::move(Ground()));
-
-    room.insert(m_bg);
-    room.insert(m_ceiling);
-    room.insert(m_arrow_ln1);
-    room.insert(m_arrow_boss);
-    room.insert(m_ground);
-
-    registry.rooms.emplace(m_room, std::move(room));
-
-    return m_room;
-}
-
 //TODO: special flying birdman?
 Entity LNRoom1Strategy::execute() {
     Entity m_room;
@@ -1391,7 +1356,7 @@ Entity LNRoom1Strategy::execute() {
 
     // arrows
     Entity m_arrow_bmt = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), 0.3f, 0.3f, 0.03f, 0.9f, 90.f);
-    Entity m_arrow_boss = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), 0.3f, 0.3f, 0.95f, 0.87f, 0.f);
+    Entity m_arrow_ln2 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), 0.3f, 0.3f, 0.95f, 0.87f, 0.f);
 
     // wall
     Entity m_wall = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL), 1.f, 0.6f, 0.6f, 0.01f, 500.f);
@@ -1450,7 +1415,7 @@ Entity LNRoom1Strategy::execute() {
 
     room.insert(m_bg);
     room.insert(m_arrow_bmt);
-    room.insert(m_arrow_boss);
+    room.insert(m_arrow_ln2);
     room.insert(m_wall);
     room.insert(m_ceiling);
     room.insert(m_ground);
@@ -1461,6 +1426,57 @@ Entity LNRoom1Strategy::execute() {
     // testing pos
     //Entity m_pos = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DOOR), 0.03f, 0.4f, 1.f, 0.7f);
     //room.insert(m_pos);
+
+    registry.rooms.emplace(m_room, std::move(room));
+
+    return m_room;
+}
+
+// TODO: npc room before bossroom
+Entity LNRoom2Strategy::execute() {
+    Entity m_room;
+    // for handling transitions
+    Room room;
+
+    // background
+    Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::LN_BG));
+
+    // arrows
+    Entity m_arrow_ln1 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), -0.3f, 0.3f, 0.05f, 0.7f, 0.f);
+    Entity m_arrow_boss = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), 0.3f, 0.3f, 0.95f, 0.7f, 0.f);
+
+    // wall left
+    Entity m_wall_left = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_WALL), -1.f, 1.f, 0.5f, 0.05f, .0f);
+
+    // wall right
+    Entity m_wall_right = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_WALL), 1.f, 1.f, 0.5f, 0.95f, .0f);
+
+    // platforms
+    Entity m_platform1 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.3f, 0.6f);
+    Entity m_platform2 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.5f, 0.5f);
+    Entity m_platform3 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.7f, 0.6f);
+
+    // ceiling
+    Entity m_ceiling = SetCeiling(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_CEILING), 0.5f);
+
+    // note on bg: don't add motion
+    registry.grounds.emplace(m_arrow_ln1, std::move(Ground()));
+    registry.grounds.emplace(m_arrow_boss, std::move(Ground()));
+    registry.grounds.emplace(m_wall_left, std::move(Ground()));
+    registry.grounds.emplace(m_wall_right, std::move(Ground()));
+    registry.grounds.emplace(m_platform1, std::move(Ground()));
+    registry.grounds.emplace(m_platform2, std::move(Ground()));
+    registry.grounds.emplace(m_platform3, std::move(Ground()));
+
+    room.insert(m_bg);
+    room.insert(m_ceiling);
+    room.insert(m_arrow_ln1);
+    room.insert(m_arrow_boss);
+    room.insert(m_wall_left);
+    room.insert(m_wall_right);
+    room.insert(m_platform1);
+    room.insert(m_platform2);
+    room.insert(m_platform3);
 
     registry.rooms.emplace(m_room, std::move(room));
 
