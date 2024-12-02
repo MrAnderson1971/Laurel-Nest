@@ -311,7 +311,7 @@ void GreatBossAISystem::gb_get_damaged(Entity weapon, bool& isDead, bool& a_pres
     if (gb_health.current_health > 0) {
         if (!registry.invinciblityTimers.has(greatBird)) {
             gb_health.current_health -= weapon_damage.damage_dealt;
-            if (gb_health.current_health - weapon_damage.damage_dealt > 0) {
+            if (gb_health.current_health) {
                 if (!registry.recentDamageTimers.has(greatBird)) {
                     registry.recentDamageTimers.emplace(greatBird, RecentlyDamagedTimer());
                 }
