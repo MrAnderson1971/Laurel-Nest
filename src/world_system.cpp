@@ -831,6 +831,9 @@ void WorldSystem::handle_bad_timers(float deltaTime) {
         if (registry.badObjs.has(e)) {
             registry.badObjs.remove(e);
         }
+        if (registry.envObject.has(e)) {
+            registry.envObject.remove(e);
+        }
         if (registry.damages.has(e)) {
             registry.damages.remove(e);
         }

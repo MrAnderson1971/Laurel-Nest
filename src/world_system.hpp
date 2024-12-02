@@ -146,6 +146,7 @@ private:
 
 	bool ogre_talk = false;
 	int ogreIndex = 0;
+	bool ogre_dance = true;
 
 	bool continue_music = true;
 	bool do_save = false;
