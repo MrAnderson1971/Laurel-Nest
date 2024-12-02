@@ -60,7 +60,7 @@ void WorldSystem::init() {
     isChickenDead = sf.is_chicken_dead;
     isGreatBirdDead = false;
     start_from_checkpoint = sf.start_from_checkpoint;
-    saved_this_instance = sf.saved_this_instance;
+    saved_this_instance = false;
     /*isChickenDead = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::IS_CHICKEN_DEAD), false);
     heartPowerUp_0 = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::HEART_POWER_UP_0), false);
     heartPowerUp_1 = readBoolFromFile(SAVE_FILE_PATH, static_cast<int>(SAVEFILE_LINES::HEART_POWER_UP_1), false);
@@ -919,7 +919,7 @@ void WorldSystem::handle_saving() {
                         health.current_health = health.max_health;
                         HealthFlask& healthFlask = registry.healthFlasks.get(m_player);
                         healthFlask.num_uses = healthFlask.max_uses;
-                        saved_this_instance = true;
+                        //saved_this_instance = true;
                     }
                    
                     write_to_save_file();
