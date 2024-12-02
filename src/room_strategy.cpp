@@ -1566,6 +1566,7 @@ Entity LNBossRoomStrategy::execute() {
     // room.insert(m_arrow_ln);
     room.insert(m_ceiling);
     room.insert(m_ground);
+    room.insert(m_arrow_ln2);
     room.insert(m_boss_platform);
     room.insert(m_greatbird);
     room.insert(m_badEnding);
