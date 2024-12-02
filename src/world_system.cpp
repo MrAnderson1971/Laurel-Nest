@@ -933,15 +933,16 @@ void WorldSystem::handle_bmt3() {
     }
 }
 
-
 // move this elsewhere later
-std::string dialogue[7] = { "You, you! You're not a bird?",
-"Seeking the Crown of Claws, hmm?",
-"But the Chicken Clan left us.",
-"Everything below is covered in poop.",
-"The sewers are overflown,",
-"and the birds yearn for flesh.",
-"Hahahaha!" };
+std::string pelicanDialogue[9] = { "You, you! I thought you were a bird!",
+"But, no! That is but a mask that you wear.",
+"A human in the Realm of Birds?",
+"You seek the Laurel Throne, then? To ursurp the Great Bird?",
+"Alas, you landed too far, hahaha!",
+"And to get to the throne, you must traverse the Old Sewers.",
+"But the birds yearn for flesh.",
+"Oh, Blazing Master! Have mercy on the poor fool.",
+"Hahahahahaha!" };
 
 // npc stuff // TODO KUTER
 void WorldSystem::handle_pelican() {
@@ -963,20 +964,17 @@ void WorldSystem::handle_pelican() {
                 && pelican_point_lower_bound_y < player_motion.position.y && player_motion.position.y < pelican_point_upper_bound_y) {
                 if (pelican_talk) {
                     double position_x = pelican_point_motion.position.x - 500.f;
-                    double position_y = pelican_point_motion.position.y + 550.f;
-                    if (pelicanIndex >= 6) {
-                        position_x += 400.f;
-                    }
+                    double position_y = pelican_point_motion.position.y + 625.f;
                     Sprite& pelican_sprite = registry.sprites.get(sp);
                     pelican_sprite = g_texture_paths->at(TEXTURE_ASSET_ID::PELICAN_TALK);
-                    // draw box, init in world_init
-                    // save dialogue of pelican in an array
-                    // have  an index
-                    // print from the array, increase index
-                    // if chicken is dead index can increase more
+                    Sprite boxSprite = g_texture_paths->at(TEXTURE_ASSET_ID::TEXT_BOX);
+                    TransformComponent boxTransform;
+                    boxTransform.position = glm::vec3(renderSystem.getWindowWidth() - 410.f, renderSystem.getWindowHeight() - 950.f, 0.0);
+                    boxTransform.scale = glm::vec3(boxSprite.width / 8.f, boxSprite.height / 15.f, 1.0);
+                    boxTransform.rotation = 0.0f;
+                    renderSystem.drawEntity(boxSprite, boxTransform);
 
-
-                    renderSystem.renderText(dialogue[pelicanIndex], static_cast<float>(position_x), static_cast<float>(position_y),
+                    renderSystem.renderText(pelicanDialogue[pelicanIndex], static_cast<float>(position_x), static_cast<float>(position_y),
                         0.5f, font_color, font_trans);
                 }
             }
@@ -1300,10 +1298,11 @@ void WorldSystem::processPlayerInput(int key, int action) {
             break;
             // talk
         case GLFW_KEY_T:
-            if (pelican_talk && pelicanIndex < 6) {
+
+            if (pelican_talk && pelicanIndex < 8) {
                 pelicanIndex++;
             }
-            else if (pelicanIndex >= 6 || pelican_talk == false) {
+            else if (pelicanIndex >= 8 || pelican_talk == false) {
                 pelican_talk = !pelican_talk;
             }
             break;
