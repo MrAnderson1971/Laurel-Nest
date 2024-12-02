@@ -383,7 +383,7 @@ void WorldSystem::handle_motions(float deltaTime) {
             if (m.position[1] < 25 && registry.hostiles.has(entity) && registry.hostiles.get(entity).type == HostileType::GOOMBA_SWARM) {
                 m.position[1] = 25;
                 if (m.velocity.y < 0) {
-                    m.velocity.y *= -1;;
+                    m.velocity.y = 200;
                 }
             }
 
