@@ -41,11 +41,21 @@ float spear_init = spear_time;
 float multiple_time = 2.5f;
 float multiple_init = multiple_time;
 
+float can_attack_time = 2.5f;
+
 bool can_wave(float time) {
     if (wave_time <= 0) {
         return true;
     }
     wave_time = wave_time - time;
+    return false;
+}
+
+bool can_attack(float time){
+    if(can_attack_time <= 0){
+        return true;
+    }
+    can_attack_time = can_attack_time - time;
     return false;
 }
 
@@ -152,105 +162,107 @@ void GreatBossAISystem::step(Entity player, float elapsed_time, Entity current_r
     else if (animationDoneG) {
         animationDoneG = false;
         if (current_state == gSTATE::IDLE) {
-
-            if (can_wave(elapsed_time)) {
-                current_state = gSTATE::SMASH;
-                a.setState(GB_SMASH);
-                greatBirdMotion.position.y += 80.f; //reposition
-                smash_attack(current_room);
-                wave_time = wave_init;
-            }
-            else if (can_spear(elapsed_time)) {
-                current_state = gSTATE::SPEAR_SINGLE;
-                a.setState(GB_IDLE);
-                spear_attack_stub(playerMotion.position.x, current_room);
-                spear_attack(playerMotion.position.x, current_room);
-                spear_time = spear_init;
-            }
-            else if (can_multiple(elapsed_time)) {
-                current_state = gSTATE::SPEAR_MANY;
-                a.setState(GB_IDLE);
-                spear_attack_stub(spike1pos, current_room);
-                spear_attack(spike1pos, current_room);
-                spear_attack_stub(spike2pos, current_room);
-                spear_attack(spike2pos, current_room);
-                spear_attack_stub(spike3pos, current_room);
-                spear_attack(spike3pos, current_room);
-                spear_attack_stub(spike4pos, current_room);
-                spear_attack(spike4pos, current_room);
-                multiple_time = multiple_init;
+            if(can_attack(elapsed_time)){
+                if (can_wave(elapsed_time)) {
+                    current_state = gSTATE::SMASH;
+                    a.setState(GB_SMASH);
+                    greatBirdMotion.position.y += 80.f; //reposition
+                    smash_attack(current_room);
+                    wave_time = wave_init;
+                } else if (can_spear(elapsed_time)) {
+                    current_state = gSTATE::SPEAR_SINGLE;
+                    a.setState(GB_IDLE);
+                    spear_attack_stub(playerMotion.position.x, current_room);
+                    spear_attack(playerMotion.position.x, current_room);
+                    spear_time = spear_init;
+                } else if (can_multiple(elapsed_time)) {
+                    current_state = gSTATE::SPEAR_MANY;
+                    a.setState(GB_IDLE);
+                    spear_attack_stub(spike1pos, current_room);
+                    spear_attack(spike1pos, current_room);
+                    spear_attack_stub(spike2pos, current_room);
+                    spear_attack(spike2pos, current_room);
+                    spear_attack_stub(spike3pos, current_room);
+                    spear_attack(spike3pos, current_room);
+                    spear_attack_stub(spike4pos, current_room);
+                    spear_attack(spike4pos, current_room);
+                    multiple_time = multiple_init;
+                    can_attack_time = 2.5f;
+                }
             }
         }
         else if (current_state == gSTATE::SMASH) {
             greatBirdMotion.position.y -= 80.f; //reposition
-            if (can_spear(elapsed_time)) {
-                current_state = gSTATE::SPEAR_SINGLE;
-                a.setState(GB_IDLE);
-                spear_attack_stub(playerMotion.position.x, current_room);
-                spear_attack(playerMotion.position.x, current_room);
-                spear_time = spear_init;
-            }
-            else if (can_multiple(elapsed_time)) {
-                current_state = gSTATE::SPEAR_MANY;
-                a.setState(GB_IDLE);
-                spear_attack_stub(spike1pos, current_room);
-                spear_attack(spike1pos, current_room);
-                spear_attack_stub(spike2pos, current_room);
-                spear_attack(spike2pos, current_room);
-                spear_attack_stub(spike3pos, current_room);
-                spear_attack(spike3pos, current_room);
-                spear_attack_stub(spike4pos, current_room);
-                spear_attack(spike4pos, current_room);
-                multiple_time = multiple_init;
-            }
-            else {
-                current_state = gSTATE::IDLE;
-                a.setState(GB_IDLE);
+            if(can_attack(elapsed_time)) {
+                if (can_spear(elapsed_time)) {
+                    current_state = gSTATE::SPEAR_SINGLE;
+                    a.setState(GB_IDLE);
+                    spear_attack_stub(playerMotion.position.x, current_room);
+                    spear_attack(playerMotion.position.x, current_room);
+                    spear_time = spear_init;
+                } else if (can_multiple(elapsed_time)) {
+                    current_state = gSTATE::SPEAR_MANY;
+                    a.setState(GB_IDLE);
+                    spear_attack_stub(spike1pos, current_room);
+                    spear_attack(spike1pos, current_room);
+                    spear_attack_stub(spike2pos, current_room);
+                    spear_attack(spike2pos, current_room);
+                    spear_attack_stub(spike3pos, current_room);
+                    spear_attack(spike3pos, current_room);
+                    spear_attack_stub(spike4pos, current_room);
+                    spear_attack(spike4pos, current_room);
+                    multiple_time = multiple_init;
+                    can_attack_time = 2.5f;
+                } else {
+                    current_state = gSTATE::IDLE;
+                    a.setState(GB_IDLE);
+                }
             }
         }
         else if (current_state == gSTATE::SPEAR_SINGLE) {
-            if (can_wave(elapsed_time)) {
-                current_state = gSTATE::SMASH;
-                a.setState(GB_SMASH);
-                greatBirdMotion.position.y += 80.f; //reposition
-                smash_attack(current_room);
-                wave_time = wave_init;
-            }
-            else if (can_multiple(elapsed_time)) {
-                current_state = gSTATE::SPEAR_MANY;
-                a.setState(GB_IDLE);
-                spear_attack_stub(spike1pos, current_room);
-                spear_attack(spike1pos, current_room);
-                spear_attack_stub(spike2pos, current_room);
-                spear_attack(spike2pos, current_room);
-                spear_attack_stub(spike3pos, current_room);
-                spear_attack(spike3pos, current_room);
-                spear_attack_stub(spike4pos, current_room);
-                spear_attack(spike4pos, current_room);
-                multiple_time = multiple_init;
-            }
-            else {
-                current_state = gSTATE::IDLE;
-                a.setState(GB_IDLE);
+            if(can_attack(elapsed_time)) {
+                if (can_wave(elapsed_time)) {
+                    current_state = gSTATE::SMASH;
+                    a.setState(GB_SMASH);
+                    greatBirdMotion.position.y += 80.f; //reposition
+                    smash_attack(current_room);
+                    wave_time = wave_init;
+                } else if (can_multiple(elapsed_time)) {
+                    current_state = gSTATE::SPEAR_MANY;
+                    a.setState(GB_IDLE);
+                    spear_attack_stub(spike1pos, current_room);
+                    spear_attack(spike1pos, current_room);
+                    spear_attack_stub(spike2pos, current_room);
+                    spear_attack(spike2pos, current_room);
+                    spear_attack_stub(spike3pos, current_room);
+                    spear_attack(spike3pos, current_room);
+                    spear_attack_stub(spike4pos, current_room);
+                    spear_attack(spike4pos, current_room);
+                    multiple_time = multiple_init;
+                    can_attack_time = 2.5f;
+                } else {
+                    current_state = gSTATE::IDLE;
+                    a.setState(GB_IDLE);
+                }
             }
         }
         else if (current_state == gSTATE::SPEAR_MANY) {
-            if (can_wave(elapsed_time)) {
-                current_state = gSTATE::SMASH;
-                a.setState(GB_SMASH);
-                greatBirdMotion.position.y += 80.f; //reposition
-                wave_time = wave_init;
-            }
-            else if (can_spear(elapsed_time)) {
-                current_state = gSTATE::SPEAR_SINGLE;
-                a.setState(GB_IDLE);
-                spear_attack_stub(playerMotion.position.x, current_room);
-                spear_attack(playerMotion.position.x, current_room);
-                spear_time = spear_init;
-            }
-            else {
-                current_state = gSTATE::IDLE;
-                a.setState(GB_IDLE);
+            if(can_attack(elapsed_time)) {
+                if (can_wave(elapsed_time)) {
+                    current_state = gSTATE::SMASH;
+                    a.setState(GB_SMASH);
+                    greatBirdMotion.position.y += 80.f; //reposition
+                    wave_time = wave_init;
+                } else if (can_spear(elapsed_time)) {
+                    current_state = gSTATE::SPEAR_SINGLE;
+                    a.setState(GB_IDLE);
+                    spear_attack_stub(playerMotion.position.x, current_room);
+                    spear_attack(playerMotion.position.x, current_room);
+                    spear_time = spear_init;
+                } else {
+                    current_state = gSTATE::IDLE;
+                    a.setState(GB_IDLE);
+                }
             }
         }
     }
