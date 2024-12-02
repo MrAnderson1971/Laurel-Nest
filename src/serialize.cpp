@@ -1,5 +1,6 @@
 #include "serialize.hpp"
 #include <fstream>
+#include <iostream>
 #include <sstream>
 
 int readIntFromFile(const std::string& filePath, int lineNumber, int defaultValue) {
@@ -125,4 +126,15 @@ void readFromSaveFile(const std::string& filePath, SaveFile& sf) {
 		}
 		currentLine++;
 	}
+}
+
+void clearSaveData() {
+	std::fstream fs;
+	fs.open(SAVE_FILE_PATH, std::ios::out);
+	if (!fs.is_open()) {
+		std::error_code ec(errno, std::generic_category());
+		std::cerr << "Error: Failed to open file at " << SAVE_FILE_PATH << ". Reason: "
+			<< ec.message() << std::endl;
+	}
+	fs.close();
 }

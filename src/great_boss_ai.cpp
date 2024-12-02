@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "cutscene.hpp"
+#include "serialize.hpp"
 
 
 enum class gSTATE {
@@ -186,6 +187,7 @@ void GreatBossAISystem::step(Entity player, float elapsed_time, Entity current_r
                     spear_attack_stub(spike4pos, current_room);
                     spear_attack(spike4pos, current_room);
                     multiple_time = multiple_init;
+                    can_attack_time = 2.5f;
                 }
             }
         }
@@ -210,6 +212,7 @@ void GreatBossAISystem::step(Entity player, float elapsed_time, Entity current_r
                     spear_attack_stub(spike4pos, current_room);
                     spear_attack(spike4pos, current_room);
                     multiple_time = multiple_init;
+                    can_attack_time = 2.5f;
                 } else {
                     current_state = gSTATE::IDLE;
                     a.setState(GB_IDLE);
@@ -236,6 +239,7 @@ void GreatBossAISystem::step(Entity player, float elapsed_time, Entity current_r
                     spear_attack_stub(spike4pos, current_room);
                     spear_attack(spike4pos, current_room);
                     multiple_time = multiple_init;
+                    can_attack_time = 2.5f;
                 } else {
                     current_state = gSTATE::IDLE;
                     a.setState(GB_IDLE);
@@ -324,6 +328,10 @@ void GreatBossAISystem::gb_get_damaged(Entity weapon, bool& isDead, bool& a_pres
                 registry.motions.get(player).velocity.x = 0;
                 Mix_HaltMusic();
                 registry.gravity.emplace(greatBird, Gravity());
+
+                // ending 1 and clear save data
+                renderSystem.getGameStateManager()->pauseState<EndingCutscene<1>>();
+                clearSaveData();
             }
         }
     }

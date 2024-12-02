@@ -411,6 +411,7 @@ enum class TEXTURE_ASSET_ID {
     OGRE_KAT_2,
     PLUS_HEART,
     SPIKE,
+    TEXT_BOX,
     TEXTURE_COUNT                         // Count of all textures
 };
 constexpr int texture_count = static_cast<int>(TEXTURE_ASSET_ID::TEXTURE_COUNT);
@@ -446,8 +447,9 @@ enum class ROOM_ID {
     BMT_4,
     BMT_5,
     NPC_1,
-    NPC_3,
+    NPC_2,
     LN_1,
+    LN_2,
     LN_BOSS
 };
 

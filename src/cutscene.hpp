@@ -9,19 +9,19 @@
 constexpr int LAST_OPENING_ANIMATION_FRAME = 18;
 constexpr int LAST_PICKUP_ANIMATION_FRAME = 6;
 constexpr int LAST_ENDING_ANIMATION_FRAME = 5;
-constexpr float SECONDS_PER_FRAME = 0.5f;
 
-template<int Frames>
+template<int Frames, int FramesPerSecond>
 struct Cutscene : public GameState {
 protected:
 	Cutscene(float seconds_passed_, int frameCount_): seconds_passed(seconds_passed_), frameCount(frameCount_) {};
 	static constexpr int totalFrames = Frames;
+	static constexpr float SECONDS_PER_FRAME = 1.f / FramesPerSecond;
 	float seconds_passed;
 	int frameCount;
 	std::array<boost::optional<Sprite>, totalFrames> frames;
 };
 
-class OpeningCutscene : public Cutscene<LAST_OPENING_ANIMATION_FRAME> {
+class OpeningCutscene : public Cutscene<LAST_OPENING_ANIMATION_FRAME, 2> {
 public:
 	OpeningCutscene();
 	~OpeningCutscene() override;
@@ -46,7 +46,7 @@ private:
 	Entity q_key;
 };
 
-class PickupCutscene : public Cutscene<LAST_PICKUP_ANIMATION_FRAME> {
+class PickupCutscene : public Cutscene<LAST_PICKUP_ANIMATION_FRAME, 2> {
 public:
 	PickupCutscene();
 	~PickupCutscene() override = default;
@@ -65,7 +65,7 @@ private:
 };
 
 template<int Which>
-class EndingCutscene : public Cutscene<LAST_ENDING_ANIMATION_FRAME> {
+class EndingCutscene : public Cutscene<LAST_ENDING_ANIMATION_FRAME, 1> {
 public:
 	EndingCutscene();
 	~EndingCutscene() override = default;

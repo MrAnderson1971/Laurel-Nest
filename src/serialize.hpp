@@ -55,3 +55,5 @@ void readFromSaveFile(const std::string& filePath, SaveFile& sf);
 
 
 constexpr int line_count = static_cast<int>(SAVEFILE_LINES::SAVEFILE_LINES);
+
+void clearSaveData();
