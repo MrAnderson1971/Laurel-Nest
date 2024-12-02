@@ -631,16 +631,16 @@ Entity BMTRoom1Strategy::execute() {
     gc1.set_spit_timer(1.f);*/
     
     GoombaSwarm gs1 = GoombaSwarm();
-    gs1.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
+    gs1.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.5f) * uniform_dist(rng));
 
     GoombaSwarm gs2 = GoombaSwarm();
-    gs2.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
+    gs2.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.5f) * uniform_dist(rng));
 
     GoombaSwarm gs3 = GoombaSwarm();
-    gs3.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
+    gs3.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.5f) * uniform_dist(rng));
 
     GoombaSwarm gs4 = GoombaSwarm();
-    gs4.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
+    gs4.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.5f) * uniform_dist(rng));
 
     room.insert(gs1.entity);
     room.insert(gs2.entity);
@@ -1065,28 +1065,28 @@ Entity BMTRoom5Strategy::execute() {
 
     // swarm goombas
     GoombaSwarm gs1 = GoombaSwarm();
-    gs1.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
+    gs1.init(renderSystem.getWindowWidth() - ((renderSystem.getWindowWidth() / 2.f) * uniform_dist(rng)), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
 
     GoombaSwarm gs2 = GoombaSwarm();
-    gs2.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
+    gs2.init(renderSystem.getWindowWidth() - ((renderSystem.getWindowWidth() / 2.f) * uniform_dist(rng)), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
 
     GoombaSwarm gs3 = GoombaSwarm();
-    gs3.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
+    gs3.init(renderSystem.getWindowWidth() - ((renderSystem.getWindowWidth() / 2.f) * uniform_dist(rng)), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
 
     GoombaSwarm gs4 = GoombaSwarm();
-    gs4.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
+    gs4.init(renderSystem.getWindowWidth() - ((renderSystem.getWindowWidth() / 2.f) * uniform_dist(rng)), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
 
     GoombaSwarm gs5 = GoombaSwarm();
-    gs5.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
+    gs5.init(renderSystem.getWindowWidth() - ((renderSystem.getWindowWidth() / 2.f) * uniform_dist(rng)), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
 
     GoombaSwarm gs6 = GoombaSwarm();
-    gs6.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
+    gs6.init(renderSystem.getWindowWidth() - ((renderSystem.getWindowWidth() / 2.f) * uniform_dist(rng)), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
 
     GoombaSwarm gs7 = GoombaSwarm();
-    gs7.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
+    gs7.init(renderSystem.getWindowWidth() - ((renderSystem.getWindowWidth() / 2.f) * uniform_dist(rng)), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
 
     GoombaSwarm gs8 = GoombaSwarm();
-    gs8.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
+    gs8.init(renderSystem.getWindowWidth() - ((renderSystem.getWindowWidth() / 2.f) * uniform_dist(rng)), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
 
     room.insert(gs1.entity);
     room.insert(gs2.entity);
