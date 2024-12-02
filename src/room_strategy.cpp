@@ -1445,6 +1445,23 @@ Entity LNRoom2Strategy::execute() {
     Entity m_arrow_ln1 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), -0.3f, 0.3f, 0.05f, 0.7f, 0.f);
     Entity m_arrow_boss = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), 0.3f, 0.3f, 0.95f, 0.7f, 0.f);
 
+    // spears
+    Entity m_spike_b1 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::SPIKE), 0.8f, 0.5f, 0.18f, 1.f);
+    registry.damages.emplace(m_spike_b1);
+
+    Entity m_spike_b2 = SetSpikeObstacle(0.8f, 0.5f, 0.25f, 1.f);
+    Entity m_spike_b3 = SetSpikeObstacle(0.8f, 0.5f, 0.35f, 1.f);
+    Entity m_spike_b4 = SetSpikeObstacle(0.8f, 0.5f, 0.45f, 1.f);
+    Entity m_spike_b5 = SetSpikeObstacle(0.8f, 0.5f, 0.55f, 1.f);
+    Entity m_spike_b6 = SetSpikeObstacle(0.8f, 0.5f, 0.65f, 1.f);
+    Entity m_spike_b7 = SetSpikeObstacle(0.8f, 0.5f, 0.75f, 1.f);
+    Entity m_spike_b8 = SetSpikeObstacle(0.8f, 0.5f, 0.82f, 1.f);
+    Entity m_spike1 = SetSpikeObstacle(0.5f, 0.5f, 0.3f, 0.9f);
+    Entity m_spike2 = SetSpikeObstacle(0.5f, 0.5f, 0.4f, 0.9f);
+    Entity m_spike3 = SetSpikeObstacle(0.5f, 0.5f, 0.5f, 0.9f);
+    Entity m_spike4 = SetSpikeObstacle(0.5f, 0.5f, 0.6f, 0.9f);
+    Entity m_spike5 = SetSpikeObstacle(0.5f, 0.5f, 0.7f, 0.9f);
+
     // wall left
     Entity m_wall_left = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_WALL), -1.f, 1.f, 0.5f, 0.05f, .0f);
 
@@ -1467,6 +1484,19 @@ Entity LNRoom2Strategy::execute() {
     registry.grounds.emplace(m_platform1, std::move(Ground()));
     registry.grounds.emplace(m_platform2, std::move(Ground()));
     registry.grounds.emplace(m_platform3, std::move(Ground()));
+    registry.grounds.emplace(m_spike1, std::move(Ground()));
+    registry.grounds.emplace(m_spike2, std::move(Ground()));
+    registry.grounds.emplace(m_spike3, std::move(Ground()));
+    registry.grounds.emplace(m_spike4, std::move(Ground()));
+    registry.grounds.emplace(m_spike5, std::move(Ground()));
+    registry.grounds.emplace(m_spike_b1, std::move(Ground()));
+    registry.grounds.emplace(m_spike_b2, std::move(Ground()));
+    registry.grounds.emplace(m_spike_b3, std::move(Ground()));
+    registry.grounds.emplace(m_spike_b4, std::move(Ground()));
+    registry.grounds.emplace(m_spike_b5, std::move(Ground()));
+    registry.grounds.emplace(m_spike_b6, std::move(Ground()));
+    registry.grounds.emplace(m_spike_b7, std::move(Ground()));
+    registry.grounds.emplace(m_spike_b8, std::move(Ground()));
 
     room.insert(m_bg);
     room.insert(m_ceiling);
@@ -1477,6 +1507,19 @@ Entity LNRoom2Strategy::execute() {
     room.insert(m_platform1);
     room.insert(m_platform2);
     room.insert(m_platform3);
+    room.insert(m_spike1);
+    room.insert(m_spike2);
+    room.insert(m_spike3);
+    room.insert(m_spike4);
+    room.insert(m_spike5);
+    room.insert(m_spike_b1);
+    room.insert(m_spike_b2);
+    room.insert(m_spike_b3);
+    room.insert(m_spike_b4);
+    room.insert(m_spike_b5);
+    room.insert(m_spike_b6);
+    room.insert(m_spike_b7);
+    room.insert(m_spike_b8);
 
     registry.rooms.emplace(m_room, std::move(room));
 
@@ -1674,6 +1717,15 @@ Entity RoomStrategy::SetPlatform(Sprite platformSprite, float width, float heigh
 
     // return ground
     return m_platform;
+}
+
+Entity RoomStrategy::SetSpikeObstacle(float width, float height, float xPos, float yPos) {
+    Entity spike = Entity();
+    spike = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::SPIKE), width, height, xPos, yPos);
+    Damage spikeDamage;
+    spikeDamage.damage_dealt = 10;
+    registry.damages.emplace(spike, std::move(spikeDamage));
+    return spike;
 }
 
 Entity RoomStrategy::SetMovingPlatform(Sprite platformSprite, bool vertical, float width, float height, float xPos, float yPos, vec2 start, vec2 end, bool moving) {

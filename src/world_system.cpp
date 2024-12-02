@@ -1491,7 +1491,7 @@ void WorldSystem::player_get_damaged(Entity hostile) {
         if (!registry.recentDamageTimers.has(m_player)) {
             registry.recentDamageTimers.emplace(m_player, RecentlyDamagedTimer());
         }
-        if (player_health.current_health == 0) {
+        if (player_health.current_health <= 0) {
             renderSystem.getGameStateManager()->changeState<GameOverScreen>();
         }
     }

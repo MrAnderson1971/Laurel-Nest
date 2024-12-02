@@ -17,6 +17,8 @@ public:
 
     Entity SetPlatform(Sprite platformSprite, float width, float height, float xPos, float yPos);
 
+	Entity SetSpikeObstacle(float width, float height, float xPos, float yPos);
+
 	Entity SetMovingPlatform(Sprite platformSprite, bool vertical, float width, float height, float xPos, float yPos, vec2 startPos, vec2 endPos, bool moving);
 
 	Entity SetBGElem(Sprite elemSprite, float width, float height, float xPos, float yPos, float rot);
