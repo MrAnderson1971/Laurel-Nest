@@ -405,6 +405,7 @@ enum class TEXTURE_ASSET_ID {
     ARROW,                              // arrow.png
     SWORD_POWERUP,
     GREATBIRD_PLATFORM,
+    GREATBIRD_PLATFORM_SMASH,
     GREATBIRD_IDLE,
     BIRDMAN_ELDER,
     OGRE_KAT_1,

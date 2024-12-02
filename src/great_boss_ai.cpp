@@ -382,8 +382,31 @@ void GreatBossAISystem::smash_attack(Entity current_room) {
     bb.height = waveSprite.height;
     bb.width = waveSprite.width;
 
+    Entity plt = Entity();
+    Sprite pltSprite = g_texture_paths->at(TEXTURE_ASSET_ID::GREATBIRD_PLATFORM_SMASH);
+    registry.sprites.emplace(plt, pltSprite);
+
+    Motion pltMotion;
+    pltMotion.position = glm::vec2(renderSystem.getWindowWidth() * 0.5f, renderSystem.getWindowHeight() * 0.86);
+    pltMotion.scale = { pltSprite.width, pltSprite.height };
+    registry.motions.emplace(plt, std::move(pltMotion));
+
+    TransformComponent plt_transform;
+    plt_transform.position = glm::vec3(renderSystem.getWindowWidth() * 0.5f, renderSystem.getWindowHeight() * 0.86, 0.0);
+    plt_transform.scale = glm::vec3(pltSprite.width, pltSprite.height, 1.0);
+    plt_transform.rotation = 0.0;
+    registry.transforms.emplace(plt, std::move(plt_transform));
+
+    registry.envObject.emplace(plt, std::move(Environment()));
+    BadObjTimer pltBt;
+    pltBt.elapsed_time = 0.f;
+    pltBt.max_time = 900.f;
+    pltBt.stall = 550.f;
+    pltBt.damage = 0;
+    registry.badObjTimers.emplace(plt, std::move(pltBt));
 
     registry.rooms.get(current_room).insert(wave);
+    registry.rooms.get(current_room).insert(plt);
 }
 
 void GreatBossAISystem::spear_attack_stub(float x_pos, Entity current_room) {
