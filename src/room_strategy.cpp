@@ -911,7 +911,7 @@ Entity BMTRoom4Strategy::execute() {
 
     // arrows
     Entity m_arrow1 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), 0.3f, 0.3f, 0.03f, 0.9f, 90.f);
-    Entity m_arrow_npc3 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), 0.3f, 0.3f, 0.95f, 0.87f, 0.f);
+    Entity m_arrow_5 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), 0.3f, 0.3f, 0.95f, 0.87f, 0.f);
     Entity m_arrow_ln = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), 0.3f, 0.3f, 0.97f, 0.15f, 270.f);
 
     // walls
@@ -991,7 +991,7 @@ Entity BMTRoom4Strategy::execute() {
 
     room.insert(m_bg);
     room.insert(m_arrow1);
-    room.insert(m_arrow_npc3);
+    room.insert(m_arrow_5);
     room.insert(m_arrow_ln);
     room.insert(m_wall_left);
     room.insert(m_wall_right);
@@ -1243,7 +1243,7 @@ Entity NPCRoom2Strategy::execute() {
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_BG));
 
     // arrows
-    Entity m_arrow4 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), -0.3f, 0.3f, 0.05f, 0.87f, 0.f);
+    Entity m_arrow5 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), -0.3f, 0.3f, 0.05f, 0.87f, 0.f);
 
     // wall
     Entity m_wall = SetWall(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_WALL), 1.f, 0.6f, 0.6f, 0.99f, 500.f);
@@ -1319,7 +1319,7 @@ Entity NPCRoom2Strategy::execute() {
     room.insert(poor_bird_11);
     room.insert(poor_bird_12);
     room.insert(m_bg);
-    room.insert(m_arrow4);
+    room.insert(m_arrow5);
     room.insert(m_wall);
     //room.insert(m_wall_block1);
     //room.insert(m_wall_block2);
@@ -1538,8 +1538,8 @@ Entity LNBossRoomStrategy::execute() {
     // background
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::LN_THRONE_BG));
 
-    // no arrow 
-    // Entity m_arrow_ln = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), -0.3f, 0.3f, 0.05f, 0.87f, 0.f);
+    // arrows 
+    Entity m_arrow_ln2 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::ARROW), -0.3f, 0.3f, 0.05f, 0.87f, 0.f);
 
     // platform for boss
     Entity m_boss_platform = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::GREATBIRD_PLATFORM), 1.f, 1.f, 0.5f, 0.86f, 0.0f);
