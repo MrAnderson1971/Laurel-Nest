@@ -549,7 +549,19 @@ void WorldSystem::handle_collisions() {
         // gaurd against moving platform and flying goombas because i'm tired
         if (registry.grounds.has(entity_other) && !(registry.movingPlatform.has(entity_other) && registry.flyingGoombaAnimations.has(entity))) {
             if (direction.x != 0 && thisMotion.velocity.x != 0) {
-                thisMotion.velocity.x = 0;
+                if (registry.hostiles.has(entity) && registry.hostiles.get(entity).type == HostileType::GOOMBA_SWARM &&
+                    registry.healths.has(entity) && registry.patrol_ais.has(entity)) {
+                    if (direction.x > 0) {
+                        registry.patrol_ais.get(entity).movingRight = false;
+                    }
+                    else {
+                        registry.patrol_ais.get(entity).movingRight = true;
+                    }
+                }
+                else {
+                    thisMotion.velocity.x = 0;
+                }
+                
                 if (registry.players.has(entity)) {
                     thisMotion.position.x -= overlap.x;
                 }
