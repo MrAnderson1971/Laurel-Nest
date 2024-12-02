@@ -25,7 +25,7 @@ bool Show_FPS = true;
 bool isChickenDead = false;
 bool start_from_checkpoint = false;
 std::unordered_map<TEXTURE_ASSET_ID, Sprite>* g_texture_paths = nullptr;
-std::default_random_engine rng = std::default_random_engine(std::random_device()());
+std::default_random_engine rng = std::default_random_engine(std::random_device( )());
 std::uniform_real_distribution<float> uniform_dist(0, 1);
 
 WorldSystem::WorldSystem() : a_pressed(false), d_pressed(false) {
@@ -1197,7 +1197,7 @@ void WorldSystem::render() {
     }
     else if (registry.healTimers.has(m_player)) {
         Motion player_motion = registry.motions.get(m_player);
-        float x_pos = player_motion.position.x - 60.f;
+        float x_pos = player_motion.position.x - 85.f;
         float y_pos = renderSystem.getWindowHeight() - player_motion.position.y - (WALKING_BB_HEIGHT / 2) - 20;
         std::stringstream ss;
         auto& healTimer = registry.healTimers.get(m_player);
