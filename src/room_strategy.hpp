@@ -17,6 +17,8 @@ public:
 
     Entity SetPlatform(Sprite platformSprite, float width, float height, float xPos, float yPos);
 
+	Entity SetSpikeObstacle(float width, float height, float xPos, float yPos);
+
 	Entity SetMovingPlatform(Sprite platformSprite, bool vertical, float width, float height, float xPos, float yPos, vec2 startPos, vec2 endPos, bool moving);
 
 	Entity SetBGElem(Sprite elemSprite, float width, float height, float xPos, float yPos, float rot);
@@ -95,12 +97,12 @@ class NPCRoom2Strategy : public RoomStrategy {
 	Entity execute() override;
 };
 
-class NPCRoom3Strategy : public RoomStrategy {
+// laurel nest
+class LNRoom1Strategy : public RoomStrategy {
 	Entity execute() override;
 };
 
-// laurel nest
-class LNRoom1Strategy : public RoomStrategy {
+class LNRoom2Strategy : public RoomStrategy {
 	Entity execute() override;
 };
 
