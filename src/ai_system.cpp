@@ -66,10 +66,10 @@ void AISystem::step(Entity player_entity, Entity current_room)
 }
 
 
-void AISystem::ceiling_goomba_attack(Entity ceilingGoomba, Entity current_room) {
+void AISystem::ceiling_goomba_attack(Entity& ceilingGoomba, Entity& current_room) {
     Entity spit = Entity();
     // 8 is the roomID for BMT_4
-    if(current_room.getId() == 11){
+    if (registry.rooms.has(current_room) && registry.rooms.get(current_room).id == ROOM_ID::BMT_4){
         aim = true;
     }
 

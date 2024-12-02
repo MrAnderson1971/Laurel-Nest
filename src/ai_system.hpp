@@ -9,7 +9,7 @@ class AISystem
 {
 public:
     static void step(Entity player_entity, Entity current_room);
-    static void ceiling_goomba_attack(Entity ceilingGoomba, Entity current_room);
+    static void ceiling_goomba_attack(Entity& ceilingGoomba, Entity& current_room);
     void static group_behaviour(Entity player);
 
     void static flying_goomba_step(Entity player, Entity current_room, float elapsed_time);
