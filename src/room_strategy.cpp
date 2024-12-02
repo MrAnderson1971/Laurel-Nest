@@ -1237,7 +1237,7 @@ Entity NPCRoom2Strategy::execute() {
     Entity m_room;
     // for handling transitions
     Room room;
-    room.id = ROOM_ID::NPC_3;
+    room.id = ROOM_ID::NPC_2;
     room.clear = true;
     // background
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::BMT_BG));
@@ -1437,6 +1437,8 @@ Entity LNRoom2Strategy::execute() {
     Entity m_room;
     // for handling transitions
     Room room;
+    room.id = ROOM_ID::LN_2;
+    room.clear = true;
 
     // background
     Entity m_bg = SetBG(g_texture_paths->at(TEXTURE_ASSET_ID::LN_BG));

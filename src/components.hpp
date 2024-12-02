@@ -447,8 +447,9 @@ enum class ROOM_ID {
     BMT_4,
     BMT_5,
     NPC_1,
-    NPC_3,
+    NPC_2,
     LN_1,
+    LN_2,
     LN_BOSS
 };
 
