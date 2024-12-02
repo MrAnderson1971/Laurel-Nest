@@ -26,6 +26,9 @@ public:
     bool operator<(const Entity& other) const {
         return id < other.id;
     }
+    unsigned int getId() const{
+        return id;
+    }
 };
 
 // Common interface to refer to all containers in the ECS registry

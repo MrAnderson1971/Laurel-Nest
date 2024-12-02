@@ -34,11 +34,11 @@ constexpr float DEATH_GREAT_BIRD_HEIGHT = 0.6f * 395.f * 2.f;
 bool animationDoneG = false;
 
 
-float wave_time = 10.5f;
+float wave_time = 1.5f;
 float wave_init = wave_time;
-float spear_time = 6.f;
+float spear_time = 1.8f;
 float spear_init = spear_time;
-float multiple_time = 12.5f;
+float multiple_time = 2.5f;
 float multiple_init = multiple_time;
 
 bool can_wave(float time) {

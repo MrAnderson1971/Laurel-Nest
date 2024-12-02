@@ -42,7 +42,7 @@ void AISystem::step(Entity player_entity, Entity current_room)
                         }
                         //                if (motion_player.position.x < motion.position.x) {
                         //                    motion.velocity.x = -5.0f;
-                        //                } else {
+                        //                } else {2
                         //                    motion.velocity.x = 5.0f;
                         //                }
                         patrol_component.dashStartX = motion.position.x;
@@ -68,6 +68,10 @@ void AISystem::step(Entity player_entity, Entity current_room)
 
 void AISystem::ceiling_goomba_attack(Entity ceilingGoomba, Entity current_room) {
     Entity spit = Entity();
+    // 8 is the roomID for BMT_4
+    if(current_room.getId() == 11){
+        aim = true;
+    }
 
     registry.sprites.emplace(spit, g_texture_paths->at(TEXTURE_ASSET_ID::CEILING_SPIT));
 
