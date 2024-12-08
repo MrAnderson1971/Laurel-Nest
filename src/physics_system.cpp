@@ -28,16 +28,16 @@ vec2 get_bounding_box(const Motion& motion)
 }
 
 bool PhysicsSystem::checkForCollision(Entity e1, Entity e2, vec2& direction, vec2& overlap) {
-    Motion motion1 = registry.motions.get(e1);
-    Motion motion2 = registry.motions.get(e2);
+    Motion motion1 = registry.component<Motion>().get(e1);
+    Motion motion2 = registry.component<Motion>().get(e2);
     vec2 box1 = get_bounding_box(motion1);
     vec2 box2 = get_bounding_box(motion2);
 
     vec2 half_size1;
     vec2 half_size2;
 
-    if(registry.bosses.has(e1)){
-        if(registry.healths.get(e1).current_health > 0){
+    if(registry.component<Boss>().has(e1)){
+        if(registry.component<Health>().get(e1).current_health > 0){
             half_size1 = (box1/2.f);
             half_size1.y += 200.f;
             half_size2 = box2 / 2.f;
@@ -45,8 +45,8 @@ bool PhysicsSystem::checkForCollision(Entity e1, Entity e2, vec2& direction, vec
             half_size1 = box1 / 2.f;
             half_size2 = box2 / 2.f;
         }
-    }else if(registry.bosses.has(e2)){
-        if(registry.healths.get(e2).current_health > 0) {
+    }else if(registry.component<Boss>().has(e2)){
+        if(registry.component<Health>().get(e2).current_health > 0) {
             half_size1 = (box1 / 2.f);
             half_size2 = box2 / 2.f;
             half_size2.y += 200.f;
@@ -97,9 +97,9 @@ void projectOntoAxis(const std::vector<vec2>& points, const vec2& axis, float& m
 
 // uses separating axis theorem
 bool playerMeshCollide(Entity player, Entity other, vec2& direction, vec2& overlap) {
-    auto& motion = registry.motions.get(other);
-    auto& motion1 = registry.motions.get(player);
-    const Mesh& mesh = registry.playerMeshes.get(player).stateMeshes[PlayerState::WALKING];
+    auto& motion = registry.component<Motion>().get(other);
+    auto& motion1 = registry.component<Motion>().get(player);
+    const Mesh& mesh = registry.component<PlayerMeshes>().get(player).stateMeshes[PlayerState::WALKING];
 
     // Transform player's mesh vertices to world space
     Transform trans;
@@ -193,12 +193,12 @@ void PhysicsSystem::step(float elapsed_ms) {
     float step_seconds = elapsed_ms / 1000.f;
 
     // Only load entities that are already in this room.
-    if (!registry.rooms.has(currentRoom)) {
+    if (!registry.component<Room>().has(currentRoom)) {
         return;
     }
-    Room& room = registry.rooms.get(currentRoom);
+    Room& room = registry.component<Room>().get(currentRoom);
     std::vector<Entity> roomEntities{ player };
-    for (const auto& entity : registry.motions.entities) {
+    for (const auto& entity : registry.component<Motion>().entities) {
         if (room.has(entity)) {
             roomEntities.push_back(entity);
         }
@@ -230,7 +230,7 @@ void PhysicsSystem::step(float elapsed_ms) {
                         // TODO for Kuter: there is an even better optimization, only loop the room entity list
 
                             // Mesh Collision for player
-                            if (registry.players.has(entity_i)) {
+                            if (registry.component<Player>().has(entity_i)) {
                                 vec2 direction2;
                                 vec2 overlap2;
                                 if (playerMeshCollide(entity_i, entity_j, direction2, overlap2)) {
@@ -257,6 +257,6 @@ void PhysicsSystem::step(float elapsed_ms) {
     threadPool.waitForCompletion();
 
     for (auto& c : collisions) {
-        registry.collisions.emplace_with_duplicates(std::get<0>(c), std::get<1>(c), std::get<2>(c), std::get<3>(c));
+        registry.component<Collision>().emplace_with_duplicates(std::get<0>(c), std::get<1>(c), std::get<2>(c), std::get<3>(c));
     }
 }

@@ -70,28 +70,28 @@ void PauseState::spline(float t, const std::vector<float>& controlPoints, int wh
         a2 * localT +
         a3;
 
-    registry.transforms.get(pauseScreenEntity).position[which] = result;
+    registry.component<TransformComponent>().get(pauseScreenEntity).position[which] = result;
 }
 
 void PauseState::init() {
     Sprite pauseSprite = renderSystem.loadTexture("pause_screen.png");
 
-    registry.transforms.emplace(pauseScreenEntity, TransformComponent{
+    registry.component<TransformComponent>().emplace(pauseScreenEntity, TransformComponent{
         vec3(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() / 2.f - 100, 0.0f),
         vec3(pauseSprite.width, pauseSprite.height, 1.0f), 0.f
     });
-    registry.sprites.emplace(pauseScreenEntity, pauseSprite);
+    registry.component<Sprite>().emplace(pauseScreenEntity, pauseSprite);
 
     MenuItem optionsComponent(renderSystem.loadTexture("menu/options_active.png"), renderSystem.loadTexture("menu/options_inactive.png"),
         renderSystem.getWindowWidth() / 2.f, renderSystem.getWindowHeight() / 2.f + 150.f);
-    registry.menuItems.emplace(optionsEntity, optionsComponent);
+    registry.component<MenuItem>().emplace(optionsEntity, optionsComponent);
     MenuItem quitComponent{renderSystem.loadTexture("menu/quit_active.png"), renderSystem.loadTexture("menu/quit_inactive.png"),
     renderSystem.getWindowWidth() / 2.f, renderSystem.getWindowHeight() / 2.f + 150.f + optionsComponent.transformInactive.scale.y * 3};
-    registry.menuItems.emplace(quitEntity, quitComponent);
+    registry.component<MenuItem>().emplace(quitEntity, quitComponent);
 
     Sprite escSprite(renderSystem.loadTexture("tutorial/esc_key.PNG"));
-    registry.sprites.emplace(esc_key, escSprite);
-    registry.transforms.emplace(esc_key, TransformComponent{
+    registry.component<Sprite>().emplace(esc_key, escSprite);
+    registry.component<TransformComponent>().emplace(esc_key, TransformComponent{
         vec3(renderSystem.getWindowWidth() * 0.08f, renderSystem.getWindowHeight() * 0.94f, 0.f),
         vec3(escSprite.width * 0.3f, escSprite.height * 0.3f, 1.f), 0.f
         });
@@ -133,29 +133,29 @@ void PauseState::cleanup() {
 void PauseState::render() {
     MenuState::render();
 
-    if (registry.sprites.has(pauseScreenEntity) &&
-        registry.transforms.has(pauseScreenEntity))
+    if (registry.component<Sprite>().has(pauseScreenEntity) &&
+        registry.component<TransformComponent>().has(pauseScreenEntity))
     {
         // Retrieve the Sprite and TransformComponent using the registry
-        auto& sprite = registry.sprites.get(pauseScreenEntity);
-        auto& transform = registry.transforms.get(pauseScreenEntity);
+        auto& sprite = registry.component<Sprite>().get(pauseScreenEntity);
+        auto& transform = registry.component<TransformComponent>().get(pauseScreenEntity);
 
         // Use the render system to draw the entity
         renderSystem.drawEntity(sprite, transform);
     }
-    renderMenuItem(registry.menuItems.get(optionsEntity), mouse_pos);
-    renderMenuItem(registry.menuItems.get(quitEntity), mouse_pos);
+    renderMenuItem(registry.component<MenuItem>().get(optionsEntity), mouse_pos);
+    renderMenuItem(registry.component<MenuItem>().get(quitEntity), mouse_pos);
 
-    renderSystem.drawEntity(registry.sprites.get(esc_key), registry.transforms.get(esc_key));
+    renderSystem.drawEntity(registry.component<Sprite>().get(esc_key), registry.component<TransformComponent>().get(esc_key));
     renderSystem.renderText("To Resume Game", window_width_px * 0.1f, window_height_px * 0.05f, 0.5f, vec3(1), mat4(1));
 }
 
 void PauseState::on_mouse_click(int button, int action, const glm::vec2& position, int mods) {
     if (action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_LEFT) {
-        if (registry.menuItems.get(optionsEntity).isPointWithin(mouse_pos)) {
+        if (registry.component<MenuItem>().get(optionsEntity).isPointWithin(mouse_pos)) {
             renderSystem.getGameStateManager()->pauseState<OptionsMenu>();
         }
-        else if (registry.menuItems.get(quitEntity).isPointWithin(mouse_pos)) {
+        else if (registry.component<MenuItem>().get(quitEntity).isPointWithin(mouse_pos)) {
             renderSystem.getGameStateManager()->resetPausedStates<SplashScreenState>();
         }
     }

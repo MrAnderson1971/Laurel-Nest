@@ -113,13 +113,13 @@ void Cesspit::init() {
     door_cp_to_bmt.switchMap = true;
     list_ex.doors.push_back(door_cp_to_bmt);
 
-    registry.doorList.emplace(m_entrance_room, std::move(list_en));
-    registry.doorList.emplace(m_room1, std::move(list_1));
-    registry.doorList.emplace(m_room2, std::move(list_2));
-    registry.doorList.emplace(m_room3, std::move(list_3));
-    registry.doorList.emplace(m_room4, std::move(list_4));
-    registry.doorList.emplace(m_boss_room, std::move(list_boss));
-    registry.doorList.emplace(m_exit_room, std::move(list_ex));
+    registry.component<ConnectionList>().emplace(m_entrance_room, std::move(list_en));
+    registry.component<ConnectionList>().emplace(m_room1, std::move(list_1));
+    registry.component<ConnectionList>().emplace(m_room2, std::move(list_2));
+    registry.component<ConnectionList>().emplace(m_room3, std::move(list_3));
+    registry.component<ConnectionList>().emplace(m_room4, std::move(list_4));
+    registry.component<ConnectionList>().emplace(m_boss_room, std::move(list_boss));
+    registry.component<ConnectionList>().emplace(m_exit_room, std::move(list_ex));
 }
 
 Connection Cesspit::SetDoor(float width, float height, float xPos, float yPos, Entity connectNextRoom, vec2 connectNextSpawn) {
@@ -129,7 +129,7 @@ Connection Cesspit::SetDoor(float width, float height, float xPos, float yPos, E
     Sprite doorSprite(g_texture_paths->at(TEXTURE_ASSET_ID::DOOR));
     width *= doorSprite.width;
     height *= doorSprite.height;
-    registry.sprites.emplace(m_door, doorSprite);
+    registry.component<Sprite>().emplace(m_door, doorSprite);
 
     // Create and initialize a Motion component for the platform
     Motion doorMotion;
@@ -140,14 +140,14 @@ Connection Cesspit::SetDoor(float width, float height, float xPos, float yPos, E
     }
     doorMotion.velocity = glm::vec2(0, 0);
     doorMotion.scale = { width, height };
-    registry.motions.emplace(m_door, std::move(doorMotion));
+    registry.component<Motion>().emplace(m_door, std::move(doorMotion));
 
     // add platform to environment to render out later
     Environment doorObj;
-    registry.envObject.emplace(m_door, std::move(doorObj));
+    registry.component<Environment>().emplace(m_door, std::move(doorObj));
 
-    registry.bounding_box.emplace(m_door);
-    BoundingBox bb = registry.bounding_box.get(m_door);
+    registry.component<BoundingBox>().emplace(m_door);
+    BoundingBox bb = registry.component<BoundingBox>().get(m_door);
     bb.height = doorSprite.height;
     bb.width = doorSprite.width;
 
@@ -157,7 +157,7 @@ Connection Cesspit::SetDoor(float width, float height, float xPos, float yPos, E
     doorConnection.nextSpawn = connectNextSpawn;
     doorConnection.switchMap = false;
 
-    registry.doors.emplace(m_door, doorConnection);
+    registry.component<Connection>().emplace(m_door, doorConnection);
 
     return doorConnection;
 }

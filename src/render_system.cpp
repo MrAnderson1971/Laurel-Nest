@@ -699,10 +699,10 @@ void RenderSystem::loadPlayerMeshes(Entity playerEntity) {
     };
 
     // Check if the player already has a PlayerMeshes component
-    if (!registry.playerMeshes.has(playerEntity)) {
-        registry.playerMeshes.emplace(playerEntity, PlayerMeshes{});
+    if (!registry.component<PlayerMeshes>().has(playerEntity)) {
+        registry.component<PlayerMeshes>().emplace(playerEntity, PlayerMeshes{});
     }
-    auto& playerMeshesComponent = registry.playerMeshes.get(playerEntity);
+    auto& playerMeshesComponent = registry.component<PlayerMeshes>().get(playerEntity);
 
     // Load each mesh for the specified player states
     for (const auto& playerMeshPath : playerMeshPaths) {
@@ -719,8 +719,8 @@ void RenderSystem::loadPlayerMeshes(Entity playerEntity) {
 
 const Mesh& RenderSystem::getPlayerMesh(Entity playerEntity, PlayerState state) {
     static Mesh emptyMesh;
-    if (registry.playerMeshes.has(playerEntity)) {
-        const auto& playerMeshes = registry.playerMeshes.get(playerEntity).stateMeshes;
+    if (registry.component<PlayerMeshes>().has(playerEntity)) {
+        const auto& playerMeshes = registry.component<PlayerMeshes>().get(playerEntity).stateMeshes;
         auto it = playerMeshes.find(state);
         if (it != playerMeshes.end()) {
             return it->second;

@@ -43,7 +43,7 @@ bool walkRight = false;
 bool superFlameDone = false;
 
 bool canSuperFlame(Motion chickenMotion, Motion playerMotion){
-    Health health = registry.healths.get(chicken);
+    Health health = registry.component<Health>().get(chicken);
     if(!superFlameDone && health.current_health <= 5){
         superFlameDone = true;
         return true;
@@ -110,7 +110,7 @@ Entity BossAISystem::init(Entity bossRoom) {
 	chickenMotion.position = glm::vec2(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() / 2.0f + 90.f);
 	chickenMotion.velocity = glm::vec2(0, 0);
 	chickenMotion.scale = { WALKING_CHICKEN_WIDTH, WALKING_CHICKEN_HEIGHT };
-	registry.motions.emplace(chicken, chickenMotion);
+	registry.component<Motion>().emplace(chicken, chickenMotion);
 
 	Animation<ChickenState> chickenAnimations(CHICKEN_PECK);
 	std::vector<Sprite> idleSprite;
@@ -158,44 +158,44 @@ Entity BossAISystem::init(Entity bossRoom) {
     chickenAnimations.addState(ChickenState::CHICKEN_HIT, std::move(hitSprite));
 	chickenAnimations.addState(ChickenState::CHICKEN_DEATH, std::move(deathSprite));
 
-	registry.chickenAnimations.emplace(chicken, std::move(chickenAnimations));
+	registry.component<Animation<ChickenState>>().emplace(chicken, std::move(chickenAnimations));
 
 	TransformComponent chickenTransform;
 	chickenTransform.position = glm::vec3(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() / 2.0f, 0.0f);
 	chickenTransform.scale = glm::vec3(WALKING_CHICKEN_WIDTH, WALKING_CHICKEN_HEIGHT, 1.0f);
 	chickenTransform.rotation = 0.0f;
-	registry.transforms.emplace(chicken, std::move(chickenTransform));
+	registry.component<TransformComponent>().emplace(chicken, std::move(chickenTransform));
 
 	Boss chickenBoss = Boss();
 	chickenBoss.hitbox = { WALKING_CHICKEN_WIDTH, WALKING_CHICKEN_HEIGHT };
 	chickenBoss.attackbox = { WALKING_CHICKEN_WIDTH, WALKING_CHICKEN_HEIGHT };
 	chickenBoss.bodybox = { WALKING_CHICKEN_WIDTH, WALKING_CHICKEN_HEIGHT };
-	registry.bosses.emplace(chicken, chickenBoss);
+	registry.component<Boss>().emplace(chicken, chickenBoss);
 
 	if (!isChickenDead) {
-		registry.healths.emplace(chicken, std::move(Health{ 10, 10 }));
-		registry.damages.emplace(chicken, std::move(Damage{ 1 }));
+		registry.component<Health>().emplace(chicken, std::move(Health{ 10, 10 }));
+		registry.component<Damage>().emplace(chicken, std::move(Damage{ 1 }));
 	}
 	else {
-		registry.healths.emplace(chicken, std::move(Health{ 10, 0 }));
-		registry.gravity.emplace(chicken, std::move(Gravity()));
+		registry.component<Health>().emplace(chicken, std::move(Health{ 10, 0 }));
+		registry.component<Gravity>().emplace(chicken, std::move(Gravity()));
 	}
 
 	return chicken;
 };
 
 void BossAISystem::step(Entity player, float elapsed_time) {
-	if (!registry.chickenAnimations.has(chicken)) {
+	if (!registry.component<Animation<ChickenState>>().has(chicken)) {
 		return;
 	}
-	auto& a = registry.chickenAnimations.get(chicken);
-	Motion& chickenMotion = registry.motions.get(chicken);
-	Motion& playerMotion = registry.motions.get(player);
-    Boss& chickenBoss = registry.bosses.get(chicken);
+	auto& a = registry.component<Animation<ChickenState>>().get(chicken);
+	Motion& chickenMotion = registry.component<Motion>().get(chicken);
+	Motion& playerMotion = registry.component<Motion>().get(player);
+    Boss& chickenBoss = registry.component<Boss>().get(chicken);
 
 	// check for death
 	// check for death
-	if (registry.healths.get(chicken).current_health <= 0) {
+	if (registry.component<Health>().get(chicken).current_health <= 0) {
 		current_state = STATE::DEATH;
 		a.setState(CHICKEN_DEATH);
 
@@ -361,37 +361,37 @@ void BossAISystem::step(Entity player, float elapsed_time) {
 };
 
 void BossAISystem::render() {
-	if (registry.chickenAnimations.has(chicken) &&
-		registry.transforms.has(chicken)) {
-		auto& animation = registry.chickenAnimations.get(chicken);
-		auto& transform = registry.transforms.get(chicken);
+	if (registry.component<Animation<ChickenState>>().has(chicken) &&
+		registry.component<TransformComponent>().has(chicken)) {
+		auto& animation = registry.component<Animation<ChickenState>>().get(chicken);
+		auto& transform = registry.component<TransformComponent>().get(chicken);
 		renderSystem.drawEntity(animation.getCurrentFrame(), transform);
 	}
 }
 
 void BossAISystem::chicken_get_damaged(Entity weapon, bool& isDead, bool& a_pressed, bool& d_pressed, Entity& player) {
-	Health& chicken_health = registry.healths.get(chicken);
-	Damage& weapon_damage = registry.damages.get(weapon);
+	Health& chicken_health = registry.component<Health>().get(chicken);
+	Damage& weapon_damage = registry.component<Damage>().get(weapon);
 	// if (chicken_health.current_health - weapon_damage.damage_dealt >= 0) {
     if (chicken_health.current_health > 0) {
         if (chicken_health.current_health - weapon_damage.damage_dealt > 0) {
-			if (!registry.recentDamageTimers.has(chicken)) {
-				registry.recentDamageTimers.emplace(chicken, RecentlyDamagedTimer());
+			if (!registry.component<RecentlyDamagedTimer>().has(chicken)) {
+				registry.component<RecentlyDamagedTimer>().emplace(chicken, RecentlyDamagedTimer());
 			}
-            registry.chickenAnimations.get(chicken).setState(CHICKEN_HIT);
+            registry.component<Animation<ChickenState>>().get(chicken).setState(CHICKEN_HIT);
             current_state = STATE::HIT;
         }
 
 		chicken_health.current_health -= weapon_damage.damage_dealt;
 		printf("Chicken now has %d hearts\n", chicken_health.current_health);
 		if (chicken_health.current_health <= 0) {
-			registry.damages.remove(chicken);
+			registry.component<Damage>().remove(chicken);
 			isDead = true;
 			a_pressed = false;
 			d_pressed = false;
-			registry.motions.get(player).velocity.x = 0;
+			registry.component<Motion>().get(player).velocity.x = 0;
 			Mix_HaltMusic();
-			registry.gravity.emplace(chicken, Gravity());
+			registry.component<Gravity>().emplace(chicken, Gravity());
 			renderSystem.getGameStateManager()->pauseState<PickupCutscene>();
 		}
 	}
@@ -399,15 +399,15 @@ void BossAISystem::chicken_get_damaged(Entity weapon, bool& isDead, bool& a_pres
 
 // Add this function to manage the chicken’s transition back to WALK after HIT
 void BossAISystem::update_damaged_chicken_sprites(float delta_time) {
-    for (Entity entity : registry.recentDamageTimers.entities) {
-        if (registry.chickenAnimations.has(entity)) {
-            RecentlyDamagedTimer& damaged_timer = registry.recentDamageTimers.get(entity);
+    for (Entity entity : registry.component<RecentlyDamagedTimer>().entities) {
+        if (registry.component<Animation<ChickenState>>().has(entity)) {
+            RecentlyDamagedTimer& damaged_timer = registry.component<RecentlyDamagedTimer>().get(entity);
             damaged_timer.counter_ms -= delta_time;
             if (damaged_timer.counter_ms <= 0) {
-                registry.chickenAnimations.get(entity).setState(CHICKEN_WALK);
+                registry.component<Animation<ChickenState>>().get(entity).setState(CHICKEN_WALK);
                 current_state = STATE::WALK;
-                registry.motions.get(entity).scale = { WALKING_CHICKEN_WIDTH, WALKING_CHICKEN_HEIGHT };
-                registry.recentDamageTimers.remove(entity);
+                registry.component<Motion>().get(entity).scale = { WALKING_CHICKEN_WIDTH, WALKING_CHICKEN_HEIGHT };
+                registry.component<RecentlyDamagedTimer>().remove(entity);
             }
         }
     }
@@ -417,26 +417,26 @@ void BossAISystem::flame_attack(float x_pos) {
 	Entity flame = Entity();
 
 	Sprite flameSprite = renderSystem.loadTexture("ChickenFireball.png");
-	registry.sprites.emplace(flame, renderSystem.loadTexture("ChickenFireball.png"));
+	registry.component<Sprite>().emplace(flame, renderSystem.loadTexture("ChickenFireball.png"));
 
 	Motion motion;
 	motion.position = { x_pos, 0.0f };
 	motion.scale = { flameSprite.width / 4.f, flameSprite.height / 4.f };
-	registry.motions.emplace(flame, std::move(motion));
+	registry.component<Motion>().emplace(flame, std::move(motion));
 
 	// Create and initialize a TransformComponent for the background
 	TransformComponent flameTransform;
 	flameTransform.position = glm::vec3(x_pos, 0.0, 0.0);
 	flameTransform.scale = glm::vec3(flameSprite.width / 4.f, flameSprite.height / 4.f, 1.0);
 	flameTransform.rotation = 3.14f + 3.14f / 2.f;
-	registry.transforms.emplace(flame, std::move(flameTransform));
+	registry.component<TransformComponent>().emplace(flame, std::move(flameTransform));
 
-	registry.projectiles.emplace(flame, std::move(Projectile{ ProjectileType::SPIT }));
-	registry.gravity.emplace(flame, std::move(Gravity()));
-	registry.damages.emplace(flame, std::move(Damage{ 1 }));
-	registry.hostiles.emplace(flame, std::move(Hostile()));
+	registry.component<Projectile>().emplace(flame, std::move(Projectile{ ProjectileType::SPIT }));
+	registry.component<Gravity>().emplace(flame, std::move(Gravity()));
+	registry.component<Damage>().emplace(flame, std::move(Damage{ 1 }));
+	registry.component<Hostile>().emplace(flame, std::move(Hostile()));
 
-	registry.rooms.get(boss_room).insert(flame);
+	registry.component<Room>().get(boss_room).insert(flame);
 }
 
 

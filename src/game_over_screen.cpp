@@ -25,9 +25,9 @@ void GameOverScreen::init()
     splashTransform.scale = glm::vec3(splashSprite.width, splashSprite.height, 1.0f);
     splashTransform.rotation = 0.0f;
 
-    registry.transforms.emplace(gameOverEntity, std::move(splashTransform));
+    registry.component<TransformComponent>().emplace(gameOverEntity, std::move(splashTransform));
 
-    registry.sprites.emplace(gameOverEntity, std::move(splashSprite));
+    registry.component<Sprite>().emplace(gameOverEntity, std::move(splashSprite));
 }
 
 void GameOverScreen::cleanup() {
@@ -49,12 +49,12 @@ void GameOverScreen::render() {
     // Clear the screen
     MenuState::render();
 
-    if (registry.sprites.has(gameOverEntity) &&
-        registry.transforms.has(gameOverEntity))
+    if (registry.component<Sprite>().has(gameOverEntity) &&
+        registry.component<TransformComponent>().has(gameOverEntity))
     {
         // Retrieve the Sprite and TransformComponent using the registry
-        auto& sprite = registry.sprites.get(gameOverEntity);
-        auto& transform = registry.transforms.get(gameOverEntity);
+        auto& sprite = registry.component<Sprite>().get(gameOverEntity);
+        auto& transform = registry.component<TransformComponent>().get(gameOverEntity);
 
         // Use the render system to draw the entity
         renderSystem.drawEntity(sprite, transform, transparency);

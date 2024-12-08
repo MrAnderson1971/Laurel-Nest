@@ -14,20 +14,20 @@ constexpr float swarmGoomba_visualRange = 200.f;
 
 void AISystem::step(Entity player_entity, Entity current_room)
 {
-    size_t size = registry.patrol_ais.size();
+    size_t size = registry.component<Patrol_AI>().size();
     const float chaseRange = 400.0f;
     const float dashDistance = 1000.0f;
 
 
     for (int i = 0; i < size; i++) {
-        Patrol_AI& patrol_component = registry.patrol_ais.components[i];
-        Entity entity = registry.patrol_ais.entities[i];
-        Motion& motion = registry.motions.get(entity);
-        Motion& motion_player = registry.motions.get(player_entity);
+        Patrol_AI& patrol_component = registry.component<Patrol_AI>().components[i];
+        Entity entity = registry.component<Patrol_AI>().entities[i];
+        Motion& motion = registry.component<Motion>().get(entity);
+        Motion& motion_player = registry.component<Motion>().get(player_entity);
         
 
-        if (registry.hostiles.has(entity)) {
-            if (registry.hostiles.get(entity).type == HostileType::GOOMBA_LAND) {
+        if (registry.component<Hostile>().has(entity)) {
+            if (registry.component<Hostile>().get(entity).type == HostileType::GOOMBA_LAND) {
                 float player_distance_x = abs(motion_player.position.x - motion.position.x);
                 float player_distance_y = abs(motion_player.position.y - motion.position.y);
                 if (!patrol_component.landed && player_distance_y < 100) {
@@ -36,7 +36,7 @@ void AISystem::step(Entity player_entity, Entity current_room)
                 if (patrol_component.landed) {
                     if (!patrol_component.chasing && player_distance_x < chaseRange && player_distance_y <= 100) {
                         patrol_component.chasing = true;
-                        Room& r = registry.rooms.get(current_room);
+                        Room& r = registry.component<Room>().get(current_room);
                         if(r.has(entity)){
                             group_behaviour(player_entity);
                         }
@@ -60,7 +60,7 @@ void AISystem::step(Entity player_entity, Entity current_room)
                     }
                 }
             }
-            //else if (registry.hostiles.get(entity).type == HostileType::GOOMBA_FLYING) {}
+            //else if (registry.component<Hostile>().get(entity).type == HostileType::GOOMBA_FLYING) {}
         }
     }
 }
@@ -69,57 +69,57 @@ void AISystem::step(Entity player_entity, Entity current_room)
 void AISystem::ceiling_goomba_attack(Entity& ceilingGoomba, Entity& current_room) {
     Entity spit = Entity();
     // 8 is the roomID for BMT_4
-    if (registry.rooms.has(current_room) && registry.rooms.get(current_room).id == ROOM_ID::BMT_4){
+    if (registry.component<Room>().has(current_room) && registry.component<Room>().get(current_room).id == ROOM_ID::BMT_4){
         aim = true;
     }
 
-    registry.sprites.emplace(spit, g_texture_paths->at(TEXTURE_ASSET_ID::CEILING_SPIT));
+    registry.component<Sprite>().emplace(spit, g_texture_paths->at(TEXTURE_ASSET_ID::CEILING_SPIT));
 
-    Motion ceilingGoombaMotion = registry.motions.get(ceilingGoomba);
+    Motion ceilingGoombaMotion = registry.component<Motion>().get(ceilingGoomba);
     Motion goombaMotion;
     goombaMotion.position = ceilingGoombaMotion.position;
     goombaMotion.scale = GOOMBA_CEILING_SPIT_SCALE;
 
     if(aim){
-        Entity player = registry.players.entities[0];
-        Motion player_motion = registry.motions.get(player);
+        Entity player = registry.component<Player>().entities[0];
+        Motion player_motion = registry.component<Motion>().get(player);
         vec2 dif = {abs(player_motion.position.x - goombaMotion.position.x), abs(player_motion.position.y - goombaMotion.position.y)};
 
         goombaMotion.angle = get_angle(player, ceilingGoomba);
-        if(goombaMotion.position.x < registry.motions.get(player).position.x){
+        if(goombaMotion.position.x < registry.component<Motion>().get(player).position.x){
             goombaMotion.velocity.x += 5 * dif.x/window_width_px * TPS;
         } else{
             goombaMotion.velocity.x += -5 * dif.x/window_width_px * TPS;
         }
     }
-    registry.motions.emplace(spit, std::move(goombaMotion));
+    registry.component<Motion>().emplace(spit, std::move(goombaMotion));
 
     TransformComponent spit_transform;
-    registry.transforms.emplace(spit, std::move(spit_transform));
+    registry.component<TransformComponent>().emplace(spit, std::move(spit_transform));
 
-    registry.projectiles.emplace(spit, std::move(Projectile{ ProjectileType::SPIT }));
-    registry.gravity.emplace(spit, std::move(Gravity()));
-    registry.damages.emplace(spit, std::move(Damage{ 1 }));
-    registry.hostiles.emplace(spit, std::move(Hostile()));
+    registry.component<Projectile>().emplace(spit, std::move(Projectile{ ProjectileType::SPIT }));
+    registry.component<Gravity>().emplace(spit, std::move(Gravity()));
+    registry.component<Damage>().emplace(spit, std::move(Damage{ 1 }));
+    registry.component<Hostile>().emplace(spit, std::move(Hostile()));
     
     // TODO: maybe do this differently
-    registry.rooms.get(current_room).insert(spit);
+    registry.component<Room>().get(current_room).insert(spit);
     aim = false;
 }
 
 // CREATE A GUARD IN WorldSystem::update()
 void AISystem::flying_goomba_step(Entity player, Entity current_room, float elapsed_time) {
-    if (registry.rooms.has(current_room)) {
+    if (registry.component<Room>().has(current_room)) {
         int count = 0;
-        for (Entity entity : registry.rooms.get(current_room).entities) {
-            if (registry.hostiles.has(entity) && registry.hostiles.get(entity).type == HostileType::GOOMBA_FLYING) {
+        for (Entity entity : registry.component<Room>().get(current_room).entities) {
+            if (registry.component<Hostile>().has(entity) && registry.component<Hostile>().get(entity).type == HostileType::GOOMBA_FLYING) {
 
-                auto& flyingGoomba_Animation = registry.flyingGoombaAnimations.get(entity);
-                Motion& flyingGoombaMotion = registry.motions.get(entity);
-                Motion& playerMotion = registry.motions.get(player);
+                auto& flyingGoomba_Animation = registry.component<Animation<FlyingGoombaState>>().get(entity);
+                Motion& flyingGoombaMotion = registry.component<Motion>().get(entity);
+                Motion& playerMotion = registry.component<Motion>().get(player);
 
-                if (registry.goombaFlyingStates.has(entity)) {
-                    GoombaFlyingState& fg_state = registry.goombaFlyingStates.get(entity);
+                if (registry.component<GoombaFlyingState>().has(entity)) {
+                    GoombaFlyingState& fg_state = registry.component<GoombaFlyingState>().get(entity);
 
                     if (fg_state.current_state != FlyingGoombaState::FLYING_GOOMBA_DEAD) {
                         if (fg_state.animationDone) {
@@ -255,36 +255,36 @@ void AISystem::spawn_flying_goomba_spear(Motion flyingGoombaMotion, vec3 X_Y_Ang
     Entity spear = Entity();
 
     // GIVE IT A PROPER SPEAR SPRITE AT SOME POINT
-    registry.sprites.emplace(spear, g_texture_paths->at(TEXTURE_ASSET_ID::CEILING_SPIT));
+    registry.component<Sprite>().emplace(spear, g_texture_paths->at(TEXTURE_ASSET_ID::CEILING_SPIT));
 
     Motion spearMotion;
     spearMotion.position = flyingGoombaMotion.position;
     spearMotion.velocity = { X_Y_Angle.x / (20 + gap), X_Y_Angle.y };
     spearMotion.scale = GOOMBA_CEILING_SPIT_SCALE*2.f;
     spearMotion.angle = X_Y_Angle.z;
-    registry.motions.emplace(spear, std::move(spearMotion));
+    registry.component<Motion>().emplace(spear, std::move(spearMotion));
 
     TransformComponent spear_transform;
-    registry.transforms.emplace(spear, std::move(spear_transform));
+    registry.component<TransformComponent>().emplace(spear, std::move(spear_transform));
 
-    registry.projectiles.emplace(spear, std::move(Projectile{ ProjectileType::SPEAR }));
-    registry.damages.emplace(spear, std::move(Damage{ 1 }));
-    registry.hostiles.emplace(spear, std::move(Hostile()));
+    registry.component<Projectile>().emplace(spear, std::move(Projectile{ ProjectileType::SPEAR }));
+    registry.component<Damage>().emplace(spear, std::move(Damage{ 1 }));
+    registry.component<Hostile>().emplace(spear, std::move(Hostile()));
 
-    registry.rooms.get(current_room).insert(spear);
+    registry.component<Room>().get(current_room).insert(spear);
 }
 
 void AISystem::group_behaviour(Entity player){
     // Make all goombas chase
     // Make all ceiling goombas target
-    size_t size_ground_goomba = registry.patrol_ais.size();
-    Motion player_motion = registry.motions.get(player);
+    size_t size_ground_goomba = registry.component<Patrol_AI>().size();
+    Motion player_motion = registry.component<Motion>().get(player);
 
     gb = true;
     for(int i = 0; i < size_ground_goomba; i++){
-        Entity goomba = registry.patrol_ais.entities[i];
-        Motion goomba_motion = registry.motions.get(goomba);
-        Patrol_AI component = registry.patrol_ais.get(goomba);
+        Entity goomba = registry.component<Patrol_AI>().entities[i];
+        Motion goomba_motion = registry.component<Motion>().get(goomba);
+        Patrol_AI component = registry.component<Patrol_AI>().get(goomba);
         float pos_x = goomba_motion.position.x - player_motion.position.x;
         if(pos_x > 0){
             if(component.movingRight){
@@ -301,8 +301,8 @@ void AISystem::group_behaviour(Entity player){
 }
 
 void AISystem::swarm_goomba_step(Entity current_room) {
-    if (registry.rooms.has(current_room) && registry.rooms.get(current_room).has_swarm_goombas()) {
-        std::set<Entity> swarm_goombas = registry.rooms.get(current_room).swarm_goombas;
+    if (registry.component<Room>().has(current_room) && registry.component<Room>().get(current_room).has_swarm_goombas()) {
+        std::set<Entity> swarm_goombas = registry.component<Room>().get(current_room).swarm_goombas;
         for (Entity swarm_goomba : swarm_goombas) {
             AISystem::swarm_goomba_fly_towards_centre(swarm_goomba, swarm_goombas);
             AISystem::swarm_goomba_avoid_others(swarm_goomba, swarm_goombas);
@@ -314,7 +314,7 @@ void AISystem::swarm_goomba_step(Entity current_room) {
 }
 
 void AISystem::swarm_goomba_keep_witihin_bounds(Entity swarmGoomba) {
-    Motion& swarmGoombaMotion = registry.motions.get(swarmGoomba);
+    Motion& swarmGoombaMotion = registry.component<Motion>().get(swarmGoomba);
     vec2 position = swarmGoombaMotion.position;
     vec2 velocity = swarmGoombaMotion.velocity;
 
@@ -338,9 +338,9 @@ void AISystem::swarm_goomba_fly_towards_centre(Entity swarmGoomba, std::set<Enti
     float center_x = 0;
     float center_y = 0;
     int numNeighbors = 0;
-    Motion& thisMotion = registry.motions.get(swarmGoomba);
+    Motion& thisMotion = registry.component<Motion>().get(swarmGoomba);
     for (Entity otherSwarmGoomba : swarmGoombas) {
-        Motion otherMotion = registry.motions.get(otherSwarmGoomba);
+        Motion otherMotion = registry.component<Motion>().get(otherSwarmGoomba);
         if (calculate_distance(thisMotion, otherMotion) < swarmGoomba_visualRange) {
             center_x += otherMotion.position.x;
             center_y += otherMotion.position.y;
@@ -361,9 +361,9 @@ void AISystem::swarm_goomba_avoid_others(Entity swarmGoomba, std::set<Entity> sw
     const float avoidFactor = 1.f;
     float move_x = 0;
     float move_y = 0;
-    Motion& thisMotion = registry.motions.get(swarmGoomba);
+    Motion& thisMotion = registry.component<Motion>().get(swarmGoomba);
     for (Entity otherSwarmGoomba : swarmGoombas) {
-        Motion otherMotion = registry.motions.get(otherSwarmGoomba);
+        Motion otherMotion = registry.component<Motion>().get(otherSwarmGoomba);
         if (otherSwarmGoomba != swarmGoomba) {
             if (calculate_distance(thisMotion, otherMotion) < min_distance) {
                 move_x += thisMotion.position.x - otherMotion.position.x;
@@ -381,9 +381,9 @@ void AISystem::swarm_goomba_match_velocity(Entity swarmGoomba, std::set<Entity> 
     float avg_dx = 0;
     float avg_dy = 0;
     float numNeighbors = 0;
-    Motion& thisMotion = registry.motions.get(swarmGoomba);
+    Motion& thisMotion = registry.component<Motion>().get(swarmGoomba);
     for (Entity otherSwarmGoomba : swarmGoombas) {
-        Motion otherMotion = registry.motions.get(otherSwarmGoomba);
+        Motion otherMotion = registry.component<Motion>().get(otherSwarmGoomba);
         if (calculate_distance(thisMotion, otherMotion) < swarmGoomba_visualRange) {
             avg_dx += otherMotion.velocity.x;
             avg_dy += otherMotion.velocity.y;
@@ -402,7 +402,7 @@ void AISystem::swarm_goomba_match_velocity(Entity swarmGoomba, std::set<Entity> 
 
 void AISystem::swarm_goomba_limit_speed(Entity swarmGoomba) {
     const float speed_limit = TPS;
-    Motion& sg_motion = registry.motions.get(swarmGoomba);
+    Motion& sg_motion = registry.component<Motion>().get(swarmGoomba);
     const float speed = static_cast<float>(sqrt(pow(sg_motion.velocity.x, 2) + pow(sg_motion.velocity.y, 2)));
     
     if (speed > speed_limit) {
@@ -412,8 +412,8 @@ void AISystem::swarm_goomba_limit_speed(Entity swarmGoomba) {
 }
 
 float AISystem::get_angle(Entity e1, Entity e2){
-    Motion m1 = registry.motions.get(e1);
-    Motion m2 = registry.motions.get(e2);
+    Motion m1 = registry.component<Motion>().get(e1);
+    Motion m2 = registry.component<Motion>().get(e2);
     float x = abs(m1.position.x - m2.position.x);
     float y = abs(m1.position.y - m2.position.y);
     return atan(x/y);

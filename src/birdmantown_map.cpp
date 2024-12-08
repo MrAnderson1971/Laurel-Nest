@@ -164,17 +164,17 @@ void Birdmantown::init() {
     // boss to exit: (0.03f, 0.4f, 1.f, 0.7f)
 
 
-    registry.doorList.emplace(m_entrance_room, std::move(list_en));
-    registry.doorList.emplace(m_room1, std::move(list_1));
-    registry.doorList.emplace(m_room2, std::move(list_2));
-    registry.doorList.emplace(m_room3, std::move(list_3));
-    registry.doorList.emplace(m_room4, std::move(list_4));
-    registry.doorList.emplace(m_room5, std::move(list_5));
-    registry.doorList.emplace(m_npc_room1, std::move(list_npc1));
-    registry.doorList.emplace(m_npc_room2, std::move(list_npc2));
-    registry.doorList.emplace(m_ln_room2, std::move(list_ln2));
-    registry.doorList.emplace(m_ln_room1, std::move(list_ln1));
-    //registry.doorList.emplace(m_ln_boss_room, std::move(list_boss));
+    registry.component<ConnectionList>().emplace(m_entrance_room, std::move(list_en));
+    registry.component<ConnectionList>().emplace(m_room1, std::move(list_1));
+    registry.component<ConnectionList>().emplace(m_room2, std::move(list_2));
+    registry.component<ConnectionList>().emplace(m_room3, std::move(list_3));
+    registry.component<ConnectionList>().emplace(m_room4, std::move(list_4));
+    registry.component<ConnectionList>().emplace(m_room5, std::move(list_5));
+    registry.component<ConnectionList>().emplace(m_npc_room1, std::move(list_npc1));
+    registry.component<ConnectionList>().emplace(m_npc_room2, std::move(list_npc2));
+    registry.component<ConnectionList>().emplace(m_ln_room2, std::move(list_ln2));
+    registry.component<ConnectionList>().emplace(m_ln_room1, std::move(list_ln1));
+    //registry.component<ConnectionList>().emplace(m_ln_boss_room, std::move(list_boss));
 }
 
 Connection Birdmantown::SetDoor(float width, float height, float xPos, float yPos, Entity connectNextRoom, vec2 connectNextSpawn) {
@@ -184,7 +184,7 @@ Connection Birdmantown::SetDoor(float width, float height, float xPos, float yPo
     Sprite doorSprite(g_texture_paths->at(TEXTURE_ASSET_ID::DOOR));
     width *= doorSprite.width;
     height *= doorSprite.height;
-    registry.sprites.emplace(m_door, doorSprite);
+    registry.component<Sprite>().emplace(m_door, doorSprite);
 
     // Create and initialize a Motion component for the platform
     Motion doorMotion;
@@ -195,14 +195,14 @@ Connection Birdmantown::SetDoor(float width, float height, float xPos, float yPo
     }
     doorMotion.velocity = glm::vec2(0, 0);
     doorMotion.scale = { width, height };
-    registry.motions.emplace(m_door, std::move(doorMotion));
+    registry.component<Motion>().emplace(m_door, std::move(doorMotion));
 
     // add platform to environment to render out later
     Environment doorObj;
-    registry.envObject.emplace(m_door, std::move(doorObj));
+    registry.component<Environment>().emplace(m_door, std::move(doorObj));
 
-    registry.bounding_box.emplace(m_door);
-    BoundingBox bb = registry.bounding_box.get(m_door);
+    registry.component<BoundingBox>().emplace(m_door);
+    BoundingBox bb = registry.component<BoundingBox>().get(m_door);
     bb.height = doorSprite.height;
     bb.width = doorSprite.width;
 
@@ -212,7 +212,7 @@ Connection Birdmantown::SetDoor(float width, float height, float xPos, float yPo
     doorConnection.nextSpawn = connectNextSpawn;
     doorConnection.switchMap = false;
 
-    registry.doors.emplace(m_door, doorConnection);
+    registry.component<Connection>().emplace(m_door, doorConnection);
 
     return doorConnection;
 }

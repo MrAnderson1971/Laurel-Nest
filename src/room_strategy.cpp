@@ -45,12 +45,12 @@ Entity CPEntranceRoomStrategy::execute() {
     Entity pelican = SetPelican(renderSystem.getWindowWidth() - 200.f, renderSystem.getWindowHeight() - 747.f);
 
     // note on bg: don't add motion
-    registry.grounds.emplace(m_wall_bound_left, std::move(Ground()));
-    registry.grounds.emplace(m_wall_bound_right, std::move(Ground()));
-    registry.grounds.emplace(m_ground_left, std::move(Ground()));
-    registry.grounds.emplace(m_wall_right, std::move(Ground()));
-    registry.grounds.emplace(m_platform1, std::move(Ground()));
-    registry.grounds.emplace(m_platform2, std::move(Ground()));
+    registry.component<Ground>().emplace(m_wall_bound_left, std::move(Ground()));
+    registry.component<Ground>().emplace(m_wall_bound_right, std::move(Ground()));
+    registry.component<Ground>().emplace(m_ground_left, std::move(Ground()));
+    registry.component<Ground>().emplace(m_wall_right, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform1, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform2, std::move(Ground()));
 
     room.insert(m_bg);
     room.insert(m_arrow1);
@@ -64,7 +64,7 @@ Entity CPEntranceRoomStrategy::execute() {
     room.insert(pelican);
     room.setMusic(Mix_LoadMUS(audio_path("cesspit.wav").c_str()));
 
-    registry.rooms.emplace(m_entrance_room, std::move(room));
+    registry.component<Room>().emplace(m_entrance_room, std::move(room));
 
 
     return m_entrance_room;
@@ -99,10 +99,10 @@ Entity CPRoom1Strategy::execute() {
     Entity m_platform2 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 0.1f, 0.2f, 0.21f, 0.65f);
 
     // note on bg: don't add motion
-    registry.grounds.emplace(m_wall, std::move(Ground()));
-    registry.grounds.emplace(m_ground, std::move(Ground()));
-    registry.grounds.emplace(m_platform1, std::move(Ground()));
-    registry.grounds.emplace(m_platform2, std::move(Ground()));
+    registry.component<Ground>().emplace(m_wall, std::move(Ground()));
+    registry.component<Ground>().emplace(m_ground, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform1, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform2, std::move(Ground()));
 
     GoombaLand g1 = GoombaLand();
     g1.init(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight()* 4.f / 5.f);
@@ -118,7 +118,7 @@ Entity CPRoom1Strategy::execute() {
     room.insert(g1.entity);
 
     room.setMusic(Mix_LoadMUS(audio_path("cesspit.wav").c_str()));
-    registry.rooms.emplace(m_room1, std::move(room));
+    registry.component<Room>().emplace(m_room1, std::move(room));
     return m_room1;
 }
 
@@ -171,15 +171,15 @@ Entity CPRoom2Strategy::execute() {
     g1.set_spit_timer(1.f);
 
     // note on bg: don't add motion
-    registry.grounds.emplace(m_wall_left, std::move(Ground()));
-    registry.grounds.emplace(m_wall_right, std::move(Ground()));
-    registry.grounds.emplace(m_pipe_left, std::move(Ground()));
-    registry.grounds.emplace(m_pipe_right, std::move(Ground()));
-    registry.grounds.emplace(m_platform1, std::move(Ground()));
-    registry.grounds.emplace(m_platform2, std::move(Ground()));
-    registry.grounds.emplace(m_platform3, std::move(Ground()));
-    registry.grounds.emplace(m_platform4, std::move(Ground()));
-    //registry.grounds.emplace(m_platform_g1, std::move(Ground()));
+    registry.component<Ground>().emplace(m_wall_left, std::move(Ground()));
+    registry.component<Ground>().emplace(m_wall_right, std::move(Ground()));
+    registry.component<Ground>().emplace(m_pipe_left, std::move(Ground()));
+    registry.component<Ground>().emplace(m_pipe_right, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform1, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform2, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform3, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform4, std::move(Ground()));
+    //registry.component<Ground>().emplace(m_platform_g1, std::move(Ground()));
 
     room.insert(m_bg);
     room.insert(m_arrow1);
@@ -198,7 +198,7 @@ Entity CPRoom2Strategy::execute() {
     room.insert(g1.entity);
 
     room.setMusic(Mix_LoadMUS(audio_path("cesspit.wav").c_str()));
-    registry.rooms.emplace(m_room2, std::move(room));
+    registry.component<Room>().emplace(m_room2, std::move(room));
     return m_room2;
 }
 
@@ -251,17 +251,17 @@ Entity CPRoom3Strategy::execute() {
 
 
     // note on bg: don't add motion
-    registry.grounds.emplace(m_wall_left, std::move(Ground()));
-    registry.grounds.emplace(m_wall_right, std::move(Ground()));
-    registry.grounds.emplace(m_ground, std::move(Ground()));
-    registry.grounds.emplace(m_platform1, std::move(Ground()));
-    registry.grounds.emplace(m_platform2, std::move(Ground()));
-    registry.grounds.emplace(m_pipe1, std::move(Ground()));
-    registry.grounds.emplace(m_pipe2, std::move(Ground()));
-    registry.grounds.emplace(m_pipe3, std::move(Ground()));
+    registry.component<Ground>().emplace(m_wall_left, std::move(Ground()));
+    registry.component<Ground>().emplace(m_wall_right, std::move(Ground()));
+    registry.component<Ground>().emplace(m_ground, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform1, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform2, std::move(Ground()));
+    registry.component<Ground>().emplace(m_pipe1, std::move(Ground()));
+    registry.component<Ground>().emplace(m_pipe2, std::move(Ground()));
+    registry.component<Ground>().emplace(m_pipe3, std::move(Ground()));
 
     // add heart
-    registry.heartPowerUp.emplace(m_heart, std::move(HeartPowerUp{0}));
+    registry.component<HeartPowerUp>().emplace(m_heart, std::move(HeartPowerUp{0}));
 
     room.insert(m_arrow2);
     room.insert(m_wall_left);
@@ -278,7 +278,7 @@ Entity CPRoom3Strategy::execute() {
     room.insert(g1.entity);
     room.insert(m_platform_g1);
     room.setMusic(Mix_LoadMUS(audio_path("cesspit.wav").c_str()));
-    registry.rooms.emplace(m_room3, std::move(room));
+    registry.component<Room>().emplace(m_room3, std::move(room));
     return m_room3;
 }
 
@@ -319,10 +319,10 @@ Entity CPRoom4Strategy::execute() {
     g3.init(renderSystem.getWindowWidth() * 1.f, renderSystem.getWindowHeight() * 4.f / 5.f);
 
     // note on bg: don't add motion
-    registry.grounds.emplace(m_ground, std::move(Ground()));
-    registry.grounds.emplace(m_platform1, std::move(Ground()));
-    registry.grounds.emplace(m_platform2, std::move(Ground()));
-    //registry.grounds.emplace(m_platform_g, std::move(Ground()));
+    registry.component<Ground>().emplace(m_ground, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform1, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform2, std::move(Ground()));
+    //registry.component<Ground>().emplace(m_platform_g, std::move(Ground()));
 
     room.insert(m_bg);
     room.insert(m_arrow3);
@@ -336,7 +336,7 @@ Entity CPRoom4Strategy::execute() {
     room.insert(g2.entity);
     room.insert(g3.entity);
     room.setMusic(Mix_LoadMUS(audio_path("cesspit.wav").c_str()));
-    registry.rooms.emplace(m_room4, std::move(room)); 
+    registry.component<Room>().emplace(m_room4, std::move(room)); 
 
     return m_room4;
 
@@ -363,7 +363,7 @@ Entity CPBossRoomStrategy::execute() {
     Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 1.0f, 0.5f, 20.0f);
 
     // note on bg: don't add motion
-    registry.grounds.emplace(m_ground, std::move(Ground()));
+    registry.component<Ground>().emplace(m_ground, std::move(Ground()));
 
     Entity chicken = BossAISystem::init(m_boss_room);
 
@@ -374,7 +374,7 @@ Entity CPBossRoomStrategy::execute() {
     room.insert(m_ground);
     room.insert(chicken);
     room.setMusic(Mix_LoadMUS(audio_path("blazingChicken.wav").c_str()));
-    registry.rooms.emplace(m_boss_room, std::move(room));
+    registry.component<Room>().emplace(m_boss_room, std::move(room));
 
     return m_boss_room;
 }
@@ -432,16 +432,16 @@ Entity CPExitRoomStrategy::execute() {
     
 
     // note on bg: don't add motion
-    registry.grounds.emplace(m_wall_left, std::move(Ground()));
-    registry.grounds.emplace(m_wall_right, std::move(Ground()));
-    registry.grounds.emplace(m_ground, std::move(Ground()));
-    registry.grounds.emplace(m_platform1, std::move(Ground()));
-    registry.grounds.emplace(m_platform2, std::move(Ground()));
-    registry.grounds.emplace(m_platform3, std::move(Ground()));
-    registry.grounds.emplace(m_platform4, std::move(Ground()));
-    registry.grounds.emplace(m_platform5, std::move(Ground()));
-    registry.grounds.emplace(m_platform6, std::move(Ground()));
-    registry.grounds.emplace(m_platform7, std::move(Ground()));
+    registry.component<Ground>().emplace(m_wall_left, std::move(Ground()));
+    registry.component<Ground>().emplace(m_wall_right, std::move(Ground()));
+    registry.component<Ground>().emplace(m_ground, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform1, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform2, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform3, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform4, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform5, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform6, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform7, std::move(Ground()));
 
 
     room.insert(m_bg);
@@ -459,7 +459,7 @@ Entity CPExitRoomStrategy::execute() {
     room.insert(m_platform7);
     room.insert(m_check_point);
     room.setMusic(Mix_LoadMUS(audio_path("cesspit.wav").c_str()));
-    registry.rooms.emplace(m_exit_room, std::move(room));
+    registry.component<Room>().emplace(m_exit_room, std::move(room));
     return m_exit_room;
 }
 
@@ -544,15 +544,15 @@ Entity BMTEntranceRoomStrategy::execute() {
 //    gc4.set_spit_timer(1.8f);
 
     // note on bg: don't add motion
-    registry.grounds.emplace(m_wall_left, std::move(Ground()));
-    registry.grounds.emplace(m_wall_right, std::move(Ground()));
-    registry.grounds.emplace(m_ground, std::move(Ground()));
-    registry.grounds.emplace(m_platform1, std::move(Ground()));
-    registry.grounds.emplace(m_platform2, std::move(Ground()));
-    registry.grounds.emplace(m_platform3, std::move(Ground()));
-    //registry.grounds.emplace(m_platform_g1, std::move(Ground()));
-    //registry.grounds.emplace(m_platform_g2, std::move(Ground()));
-    //registry.grounds.emplace(m_platform_g3, std::move(Ground()));
+    registry.component<Ground>().emplace(m_wall_left, std::move(Ground()));
+    registry.component<Ground>().emplace(m_wall_right, std::move(Ground()));
+    registry.component<Ground>().emplace(m_ground, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform1, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform2, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform3, std::move(Ground()));
+    //registry.component<Ground>().emplace(m_platform_g1, std::move(Ground()));
+    //registry.component<Ground>().emplace(m_platform_g2, std::move(Ground()));
+    //registry.component<Ground>().emplace(m_platform_g3, std::move(Ground()));
 
     room.insert(m_bg);
     room.insert(m_arrow_cp);
@@ -576,7 +576,7 @@ Entity BMTEntranceRoomStrategy::execute() {
 
 
     room.setMusic(Mix_LoadMUS(audio_path("cesspit.wav").c_str()));
-    registry.rooms.emplace(m_room, std::move(room));
+    registry.component<Room>().emplace(m_room, std::move(room));
 
     return m_room;
 }
@@ -654,15 +654,15 @@ Entity BMTRoom1Strategy::execute() {
     
 
     // note on bg: don't add motion
-    registry.grounds.emplace(m_wall, std::move(Ground()));
-    registry.grounds.emplace(m_ground1, std::move(Ground()));
-    registry.grounds.emplace(m_ground2, std::move(Ground()));
-    registry.grounds.emplace(m_platform1, std::move(Ground()));
-    registry.grounds.emplace(m_platform2, std::move(Ground()));
-    registry.grounds.emplace(m_platform3, std::move(Ground()));
-    registry.grounds.emplace(m_platform4, std::move(Ground()));
-    registry.grounds.emplace(m_platform5, std::move(Ground()));
-    //registry.grounds.emplace(m_platform_g, std::move(Ground()));
+    registry.component<Ground>().emplace(m_wall, std::move(Ground()));
+    registry.component<Ground>().emplace(m_ground1, std::move(Ground()));
+    registry.component<Ground>().emplace(m_ground2, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform1, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform2, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform3, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform4, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform5, std::move(Ground()));
+    //registry.component<Ground>().emplace(m_platform_g, std::move(Ground()));
 
     room.insert(m_bg);
     room.insert(m_arrow_en);
@@ -683,7 +683,7 @@ Entity BMTRoom1Strategy::execute() {
 
     room.setMusic(Mix_LoadMUS(audio_path("cesspit.wav").c_str()));
 
-    registry.rooms.emplace(m_room, std::move(room));
+    registry.component<Room>().emplace(m_room, std::move(room));
 
     return m_room;
 }
@@ -742,16 +742,16 @@ Entity BMTRoom2Strategy::execute() {
     Entity m_ground = SetGround(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND), 1.0f, 0.5f, 0.5f, 0.0f);
 
     // note on bg: don't add motion
-    registry.grounds.emplace(m_wall_bound, std::move(Ground()));
-    registry.grounds.emplace(m_ground, std::move(Ground()));
-    registry.grounds.emplace(m_wall, std::move(Ground()));
-    registry.grounds.emplace(m_platform1, std::move(Ground()));
-    registry.grounds.emplace(m_platform2, std::move(Ground()));
-    registry.grounds.emplace(m_wall2, std::move(Ground()));
-    registry.grounds.emplace(m_heart, std::move(Ground()));
+    registry.component<Ground>().emplace(m_wall_bound, std::move(Ground()));
+    registry.component<Ground>().emplace(m_ground, std::move(Ground()));
+    registry.component<Ground>().emplace(m_wall, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform1, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform2, std::move(Ground()));
+    registry.component<Ground>().emplace(m_wall2, std::move(Ground()));
+    registry.component<Ground>().emplace(m_heart, std::move(Ground()));
 
     // add heart
-    registry.heartPowerUp.emplace(m_heart, std::move(HeartPowerUp{1}));
+    registry.component<HeartPowerUp>().emplace(m_heart, std::move(HeartPowerUp{1}));
 
     room.insert(m_bg);
     room.insert(m_arrow1);
@@ -774,7 +774,7 @@ Entity BMTRoom2Strategy::execute() {
 
     room.setMusic(Mix_LoadMUS(audio_path("cesspit.wav").c_str()));
 
-    registry.rooms.emplace(m_room, std::move(room));
+    registry.component<Room>().emplace(m_room, std::move(room));
 
     return m_room;
 }
@@ -827,12 +827,12 @@ Entity BMTRoom3Strategy::execute() {
     gl2.set_direction(false);
 
     // note on bg: don't add motion
-    registry.grounds.emplace(m_wall, std::move(Ground()));
-    registry.grounds.emplace(m_ground, std::move(Ground()));
-    registry.grounds.emplace(m_platform, std::move(Ground()));
+    registry.component<Ground>().emplace(m_wall, std::move(Ground()));
+    registry.component<Ground>().emplace(m_ground, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform, std::move(Ground()));
 
     // add sword
-    registry.swordPowerUp.emplace(m_sword, std::move(SwordPowerUp()));
+    registry.component<SwordPowerUp>().emplace(m_sword, std::move(SwordPowerUp()));
 
     // swarm goombas
     /*GoombaSwarm gs1 = GoombaSwarm();
@@ -894,7 +894,7 @@ Entity BMTRoom3Strategy::execute() {
 
     room.setMusic(Mix_LoadMUS(audio_path("cesspit.wav").c_str()));
 
-    registry.rooms.emplace(m_room, std::move(room));
+    registry.component<Room>().emplace(m_room, std::move(room));
 
     return m_room;
 }
@@ -972,22 +972,22 @@ Entity BMTRoom4Strategy::execute() {
     gc3.set_spit_timer(2.5f);
 
     // note on bg: don't add motion
-    registry.grounds.emplace(m_wall_left, std::move(Ground()));
-    registry.grounds.emplace(m_wall_right, std::move(Ground()));
-    registry.grounds.emplace(m_bound1, std::move(Ground()));
-    registry.grounds.emplace(m_bound2, std::move(Ground()));
-    registry.grounds.emplace(m_bound3, std::move(Ground()));
-    registry.grounds.emplace(m_ground, std::move(Ground()));
-    registry.grounds.emplace(m_platform1, std::move(Ground()));
-    registry.grounds.emplace(m_platform2, std::move(Ground()));
-    registry.grounds.emplace(m_platform3, std::move(Ground()));
-    registry.grounds.emplace(m_platform4, std::move(Ground()));
-    registry.grounds.emplace(m_platform5, std::move(Ground()));
-    registry.grounds.emplace(m_platform6, std::move(Ground()));
-    registry.grounds.emplace(m_platform7, std::move(Ground()));
-    registry.grounds.emplace(m_platform8, std::move(Ground()));
-    //registry.grounds.emplace(m_platform_g1, std::move(Ground()));
-    //registry.grounds.emplace(m_platform_g3, std::move(Ground()));
+    registry.component<Ground>().emplace(m_wall_left, std::move(Ground()));
+    registry.component<Ground>().emplace(m_wall_right, std::move(Ground()));
+    registry.component<Ground>().emplace(m_bound1, std::move(Ground()));
+    registry.component<Ground>().emplace(m_bound2, std::move(Ground()));
+    registry.component<Ground>().emplace(m_bound3, std::move(Ground()));
+    registry.component<Ground>().emplace(m_ground, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform1, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform2, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform3, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform4, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform5, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform6, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform7, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform8, std::move(Ground()));
+    //registry.component<Ground>().emplace(m_platform_g1, std::move(Ground()));
+    //registry.component<Ground>().emplace(m_platform_g3, std::move(Ground()));
 
     room.insert(m_bg);
     room.insert(m_arrow1);
@@ -1017,7 +1017,7 @@ Entity BMTRoom4Strategy::execute() {
 
     room.setMusic(Mix_LoadMUS(audio_path("cesspit.wav").c_str()));
 
-    registry.rooms.emplace(m_room, std::move(room));
+    registry.component<Room>().emplace(m_room, std::move(room));
 
     return m_room;
 }
@@ -1108,16 +1108,16 @@ Entity BMTRoom5Strategy::execute() {
     
 
     // note on bg: don't add motion
-    registry.grounds.emplace(m_wall, std::move(Ground()));
-    registry.grounds.emplace(m_ground, std::move(Ground()));
-    registry.grounds.emplace(m_platform1, std::move(Ground()));
-    registry.grounds.emplace(m_platform2, std::move(Ground()));
-    registry.grounds.emplace(m_platform3, std::move(Ground()));
-    registry.grounds.emplace(m_platform4, std::move(Ground()));
-    registry.grounds.emplace(m_platform5, std::move(Ground()));
-    registry.grounds.emplace(m_platform6, std::move(Ground()));
-    //registry.grounds.emplace(m_platform_g1, std::move(Ground()));
-    //registry.grounds.emplace(m_platform_g3, std::move(Ground()));
+    registry.component<Ground>().emplace(m_wall, std::move(Ground()));
+    registry.component<Ground>().emplace(m_ground, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform1, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform2, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform3, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform4, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform5, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform6, std::move(Ground()));
+    //registry.component<Ground>().emplace(m_platform_g1, std::move(Ground()));
+    //registry.component<Ground>().emplace(m_platform_g3, std::move(Ground()));
 
     room.insert(m_bg);
     room.insert(m_arrow4);
@@ -1134,7 +1134,7 @@ Entity BMTRoom5Strategy::execute() {
 
     room.setMusic(Mix_LoadMUS(audio_path("cesspit.wav").c_str()));
 
-    registry.rooms.emplace(m_room, std::move(room));
+    registry.component<Room>().emplace(m_room, std::move(room));
 
     return m_room;
 }
@@ -1193,16 +1193,16 @@ gc2.set_spit_timer(1.1f);
 //gc4.set_spit_timer(1.5f);
 
 // note on bg: don't add motion
-registry.grounds.emplace(m_wall, std::move(Ground()));
-registry.grounds.emplace(m_platform_npc1, std::move(Ground()));
-registry.grounds.emplace(m_platform_npc2, std::move(Ground()));
-registry.grounds.emplace(m_platform_npc3, std::move(Ground()));
-registry.grounds.emplace(m_platform_npc4, std::move(Ground()));
-registry.grounds.emplace(m_wall_block1, std::move(Ground()));
-registry.grounds.emplace(m_wall_block2, std::move(Ground()));
-registry.grounds.emplace(m_wall_block3, std::move(Ground()));
-registry.grounds.emplace(m_wall_block4, std::move(Ground()));
-registry.grounds.emplace(m_ground, std::move(Ground()));
+registry.component<Ground>().emplace(m_wall, std::move(Ground()));
+registry.component<Ground>().emplace(m_platform_npc1, std::move(Ground()));
+registry.component<Ground>().emplace(m_platform_npc2, std::move(Ground()));
+registry.component<Ground>().emplace(m_platform_npc3, std::move(Ground()));
+registry.component<Ground>().emplace(m_platform_npc4, std::move(Ground()));
+registry.component<Ground>().emplace(m_wall_block1, std::move(Ground()));
+registry.component<Ground>().emplace(m_wall_block2, std::move(Ground()));
+registry.component<Ground>().emplace(m_wall_block3, std::move(Ground()));
+registry.component<Ground>().emplace(m_wall_block4, std::move(Ground()));
+registry.component<Ground>().emplace(m_ground, std::move(Ground()));
 
 // NPC
 // Entity elder = SetBirdmanElder(renderSystem.getWindowWidth() - 200.f, renderSystem.getWindowHeight() - 747.f);
@@ -1227,7 +1227,7 @@ registry.grounds.emplace(m_ground, std::move(Ground()));
  room.insert(m_wall_block4);
  room.insert(m_ground);
 
- registry.rooms.emplace(m_room, std::move(room));
+ registry.component<Room>().emplace(m_room, std::move(room));
 
  return m_room;
     }
@@ -1292,18 +1292,18 @@ Entity NPCRoom2Strategy::execute() {
     Entity poor_bird_12 = SetBGElem(g_texture_paths->at(TEXTURE_ASSET_ID::GOOMBA_DEAD), 0.3f, 0.3f, 0.85f, 0.355f, 0.f);
 
     // note on bg: don't add motion
-    registry.grounds.emplace(m_wall, std::move(Ground()));
-    //registry.grounds.emplace(m_wall_block1, std::move(Ground()));
-    //registry.grounds.emplace(m_wall_block2, std::move(Ground()));
-    //registry.grounds.emplace(m_wall_block3, std::move(Ground()));
-    //registry.grounds.emplace(m_wall_block4, std::move(Ground()));
-    //registry.grounds.emplace(m_wall_block5, std::move(Ground()));
-    registry.grounds.emplace(m_platform1, std::move(Ground()));
-    registry.grounds.emplace(m_platform2, std::move(Ground()));
-    registry.grounds.emplace(m_platform3, std::move(Ground()));
-    registry.grounds.emplace(m_platform4, std::move(Ground()));
-    registry.grounds.emplace(m_platform5, std::move(Ground()));
-    registry.grounds.emplace(m_ground, std::move(Ground()));
+    registry.component<Ground>().emplace(m_wall, std::move(Ground()));
+    //registry.component<Ground>().emplace(m_wall_block1, std::move(Ground()));
+    //registry.component<Ground>().emplace(m_wall_block2, std::move(Ground()));
+    //registry.component<Ground>().emplace(m_wall_block3, std::move(Ground()));
+    //registry.component<Ground>().emplace(m_wall_block4, std::move(Ground()));
+    //registry.component<Ground>().emplace(m_wall_block5, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform1, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform2, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform3, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform4, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform5, std::move(Ground()));
+    registry.component<Ground>().emplace(m_ground, std::move(Ground()));
 
     room.insert(ogre);
     room.insert(poor_bird_1);
@@ -1339,7 +1339,7 @@ Entity NPCRoom2Strategy::execute() {
     Entity ex = SetDoorEx(0.1f, 0.1f, 0.08f, 0.8f);
     room.insert(ex);*/
 
-    registry.rooms.emplace(m_room, std::move(room));
+    registry.component<Room>().emplace(m_room, std::move(room));
 
     return m_room;
 }
@@ -1378,8 +1378,8 @@ Entity LNRoom1Strategy::execute() {
     gf2.set_direction(false);
 
     // note on bg: don't add motion
-    registry.grounds.emplace(m_wall, std::move(Ground()));
-    registry.grounds.emplace(m_ground, std::move(Ground()));
+    registry.component<Ground>().emplace(m_wall, std::move(Ground()));
+    registry.component<Ground>().emplace(m_ground, std::move(Ground()));
 
     /*GoombaSwarm gs1 = GoombaSwarm();
     gs1.init(renderSystem.getWindowWidth() * uniform_dist(rng), (renderSystem.getWindowHeight() * 0.75f) * uniform_dist(rng));
@@ -1427,7 +1427,7 @@ Entity LNRoom1Strategy::execute() {
     //Entity m_pos = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::DOOR), 0.03f, 0.4f, 1.f, 0.7f);
     //room.insert(m_pos);
 
-    registry.rooms.emplace(m_room, std::move(room));
+    registry.component<Room>().emplace(m_room, std::move(room));
 
     return m_room;
 }
@@ -1449,7 +1449,7 @@ Entity LNRoom2Strategy::execute() {
 
     // spears
     Entity m_spike_b1 = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::SPIKE), 0.8f, 0.5f, 0.18f, 1.f);
-    registry.damages.emplace(m_spike_b1);
+    registry.component<Damage>().emplace(m_spike_b1);
 
     Entity m_spike_b2 = SetSpikeObstacle(0.8f, 0.5f, 0.25f, 1.f);
     Entity m_spike_b3 = SetSpikeObstacle(0.8f, 0.5f, 0.35f, 1.f);
@@ -1479,26 +1479,26 @@ Entity LNRoom2Strategy::execute() {
     Entity m_ceiling = SetCeiling(g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_CEILING), 0.5f);
 
     // note on bg: don't add motion
-    registry.grounds.emplace(m_arrow_ln1, std::move(Ground()));
-    registry.grounds.emplace(m_arrow_boss, std::move(Ground()));
-    registry.grounds.emplace(m_wall_left, std::move(Ground()));
-    registry.grounds.emplace(m_wall_right, std::move(Ground()));
-    registry.grounds.emplace(m_platform1, std::move(Ground()));
-    registry.grounds.emplace(m_platform2, std::move(Ground()));
-    registry.grounds.emplace(m_platform3, std::move(Ground()));
-    registry.grounds.emplace(m_spike1, std::move(Ground()));
-    registry.grounds.emplace(m_spike2, std::move(Ground()));
-    registry.grounds.emplace(m_spike3, std::move(Ground()));
-    registry.grounds.emplace(m_spike4, std::move(Ground()));
-    registry.grounds.emplace(m_spike5, std::move(Ground()));
-    registry.grounds.emplace(m_spike_b1, std::move(Ground()));
-    registry.grounds.emplace(m_spike_b2, std::move(Ground()));
-    registry.grounds.emplace(m_spike_b3, std::move(Ground()));
-    registry.grounds.emplace(m_spike_b4, std::move(Ground()));
-    registry.grounds.emplace(m_spike_b5, std::move(Ground()));
-    registry.grounds.emplace(m_spike_b6, std::move(Ground()));
-    registry.grounds.emplace(m_spike_b7, std::move(Ground()));
-    registry.grounds.emplace(m_spike_b8, std::move(Ground()));
+    registry.component<Ground>().emplace(m_arrow_ln1, std::move(Ground()));
+    registry.component<Ground>().emplace(m_arrow_boss, std::move(Ground()));
+    registry.component<Ground>().emplace(m_wall_left, std::move(Ground()));
+    registry.component<Ground>().emplace(m_wall_right, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform1, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform2, std::move(Ground()));
+    registry.component<Ground>().emplace(m_platform3, std::move(Ground()));
+    registry.component<Ground>().emplace(m_spike1, std::move(Ground()));
+    registry.component<Ground>().emplace(m_spike2, std::move(Ground()));
+    registry.component<Ground>().emplace(m_spike3, std::move(Ground()));
+    registry.component<Ground>().emplace(m_spike4, std::move(Ground()));
+    registry.component<Ground>().emplace(m_spike5, std::move(Ground()));
+    registry.component<Ground>().emplace(m_spike_b1, std::move(Ground()));
+    registry.component<Ground>().emplace(m_spike_b2, std::move(Ground()));
+    registry.component<Ground>().emplace(m_spike_b3, std::move(Ground()));
+    registry.component<Ground>().emplace(m_spike_b4, std::move(Ground()));
+    registry.component<Ground>().emplace(m_spike_b5, std::move(Ground()));
+    registry.component<Ground>().emplace(m_spike_b6, std::move(Ground()));
+    registry.component<Ground>().emplace(m_spike_b7, std::move(Ground()));
+    registry.component<Ground>().emplace(m_spike_b8, std::move(Ground()));
 
     room.insert(m_bg);
     room.insert(m_ceiling);
@@ -1523,7 +1523,7 @@ Entity LNRoom2Strategy::execute() {
     room.insert(m_spike_b7);
     room.insert(m_spike_b8);
 
-    registry.rooms.emplace(m_room, std::move(room));
+    registry.component<Room>().emplace(m_room, std::move(room));
 
     return m_room;
 }
@@ -1556,11 +1556,11 @@ Entity LNBossRoomStrategy::execute() {
 
     Entity m_badEnding;
     EndingTriggers badEndingTrigger(0.03f, 0.8f, 0.f, 0.4f, false);
-    registry.endingTriggers.emplace(m_badEnding, badEndingTrigger);
-    registry.motions.emplace(m_badEnding, badEndingTrigger.position);
+    registry.component<EndingTriggers>().emplace(m_badEnding, badEndingTrigger);
+    registry.component<Motion>().emplace(m_badEnding, badEndingTrigger.position);
 
     // note on bg: don't add motion
-    registry.grounds.emplace(m_ground, std::move(Ground()));
+    registry.component<Ground>().emplace(m_ground, std::move(Ground()));
 
     room.insert(m_bg);
     // room.insert(m_arrow_ln);
@@ -1571,7 +1571,7 @@ Entity LNBossRoomStrategy::execute() {
     room.insert(m_greatbird);
     room.insert(m_badEnding);
     room.setMusic(Mix_LoadMUS(audio_path("greatBird.wav").c_str()));
-    registry.rooms.emplace(m_room, std::move(room));
+    registry.component<Room>().emplace(m_room, std::move(room));
 
     return m_room;
 }
@@ -1585,11 +1585,11 @@ Entity RoomStrategy::SetBG(Sprite bgSprite) {
     bgTransform.position = glm::vec3(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() / 2.0f, 0.0);
     bgTransform.scale = glm::vec3(bgSprite.width, bgSprite.height, 1.0);
     bgTransform.rotation = 0.0f;
-    registry.sprites.emplace(m_bg, bgSprite);
-    registry.transforms.emplace(m_bg, std::move(bgTransform));
+    registry.component<Sprite>().emplace(m_bg, bgSprite);
+    registry.component<TransformComponent>().emplace(m_bg, std::move(bgTransform));
 
     Environment bgObj;
-    registry.envObject.emplace(m_bg, std::move(bgObj));
+    registry.component<Environment>().emplace(m_bg, std::move(bgObj));
 
     // return bg
     return m_bg;
@@ -1606,19 +1606,19 @@ Entity RoomStrategy::SetCeiling(Sprite ceilingSprite, float xPos) {
     ceilingTransform.position = glm::vec3(renderSystem.getWindowWidth() * xPos, 100.0, 0.0);
     ceilingTransform.scale = glm::vec3(ceilingSprite.width, ceilingSprite.height, 1.0);
     ceilingTransform.rotation = 0.0f;
-    registry.sprites.emplace(m_ceiling, ceilingSprite);
-    registry.transforms.emplace(m_ceiling, ceilingTransform);
+    registry.component<Sprite>().emplace(m_ceiling, ceilingSprite);
+    registry.component<TransformComponent>().emplace(m_ceiling, ceilingTransform);
 
     // Create and initialize a Motion component for the ceiling
     Motion ceilingMotion;
     ceilingMotion.position = glm::vec2(renderSystem.getWindowWidth() * xPos, 100.0);
     ceilingMotion.velocity = glm::vec2(0, 0);
     ceilingMotion.scale = { ceilingSprite.width, ceilingSprite.height };
-    registry.motions.emplace(m_ceiling, std::move(ceilingMotion));
+    registry.component<Motion>().emplace(m_ceiling, std::move(ceilingMotion));
 
     // add ceiling to environment to render out later
     Environment ceilingObj;
-    registry.envObject.emplace(m_ceiling, std::move(ceilingObj));
+    registry.component<Environment>().emplace(m_ceiling, std::move(ceilingObj));
 
     // return ceiling
     return m_ceiling;
@@ -1626,7 +1626,7 @@ Entity RoomStrategy::SetCeiling(Sprite ceilingSprite, float xPos) {
 
 Entity RoomStrategy::SetGround(Sprite groundSprite, float width, float height, float xPos, float yPos) {
     Entity m_ground;
-    registry.sprites.emplace(m_ground, groundSprite);
+    registry.component<Sprite>().emplace(m_ground, groundSprite);
     width *= groundSprite.width;
     height *= groundSprite.height;
 
@@ -1636,21 +1636,21 @@ Entity RoomStrategy::SetGround(Sprite groundSprite, float width, float height, f
     groundTransform.position = glm::vec3(renderSystem.getWindowWidth() * xPos, renderSystem.getWindowHeight() - yPos, 0.0);
     groundTransform.scale = glm::vec3(width, height, 1.0);
     groundTransform.rotation = 0.0f;
-    registry.transforms.emplace(m_ground, std::move(groundTransform));
+    registry.component<TransformComponent>().emplace(m_ground, std::move(groundTransform));
 
     // Create and initialize a Motion component for the ground
     Motion groundMotion;
     groundMotion.position = glm::vec2(renderSystem.getWindowWidth() * xPos, renderSystem.getWindowHeight() - yPos);
     groundMotion.velocity = glm::vec2(0, 0);
     groundMotion.scale = { width, height };
-    registry.motions.emplace(m_ground, std::move(groundMotion));
+    registry.component<Motion>().emplace(m_ground, std::move(groundMotion));
 
     // add ground to environment to render out later
     Environment groundObj;
-    registry.envObject.emplace(m_ground, std::move(groundObj));
+    registry.component<Environment>().emplace(m_ground, std::move(groundObj));
 
-    registry.bounding_box.emplace(m_ground);
-    BoundingBox bb = registry.bounding_box.get(m_ground);
+    registry.component<BoundingBox>().emplace(m_ground);
+    BoundingBox bb = registry.component<BoundingBox>().get(m_ground);
     bb.height = groundSprite.height;
     bb.width = groundSprite.width;
 
@@ -1660,7 +1660,7 @@ Entity RoomStrategy::SetGround(Sprite groundSprite, float width, float height, f
 
 Entity RoomStrategy::SetWall(Sprite groundSprite, float left, float width, float height, float xPos, float yPos) {
     Entity m_ground;
-    registry.sprites.emplace(m_ground, groundSprite);
+    registry.component<Sprite>().emplace(m_ground, groundSprite);
     width *= groundSprite.width;
     height *= groundSprite.height;
 
@@ -1670,25 +1670,25 @@ Entity RoomStrategy::SetWall(Sprite groundSprite, float left, float width, float
     groundTransform.position = glm::vec3(renderSystem.getWindowWidth() * xPos, renderSystem.getWindowHeight() * yPos, 0.0);
     groundTransform.scale = glm::vec3(width, height, 1.0);
     groundTransform.rotation = 0.0f;
-    registry.transforms.emplace(m_ground, std::move(groundTransform));
+    registry.component<TransformComponent>().emplace(m_ground, std::move(groundTransform));
 
     // Create and initialize a Motion component for the ground
     Motion groundMotion;
     groundMotion.position = glm::vec2(renderSystem.getWindowWidth() * xPos, renderSystem.getWindowHeight() - yPos);
     groundMotion.velocity = glm::vec2(0, 0);
     groundMotion.scale = {left*width, height };
-    registry.motions.emplace(m_ground, std::move(groundMotion));
+    registry.component<Motion>().emplace(m_ground, std::move(groundMotion));
 
     // add ground to environment to render out later
     Environment groundObj;
-    registry.envObject.emplace(m_ground, std::move(groundObj));
+    registry.component<Environment>().emplace(m_ground, std::move(groundObj));
 
-    registry.bounding_box.emplace(m_ground);
-    BoundingBox bb = registry.bounding_box.get(m_ground);
+    registry.component<BoundingBox>().emplace(m_ground);
+    BoundingBox bb = registry.component<BoundingBox>().get(m_ground);
     bb.height = groundSprite.height;
     bb.width = groundSprite.width;
 
-    registry.walls.emplace(m_ground);
+    registry.component<Wall>().emplace(m_ground);
 
     // return ground
     return m_ground;
@@ -1696,7 +1696,7 @@ Entity RoomStrategy::SetWall(Sprite groundSprite, float left, float width, float
 
 Entity RoomStrategy::SetPlatform(Sprite platformSprite, float width, float height, float xPos, float yPos) {
     Entity m_platform = Entity();
-    registry.sprites.emplace(m_platform, platformSprite);
+    registry.component<Sprite>().emplace(m_platform, platformSprite);
     width *= platformSprite.width;
     height *= platformSprite.height;
 
@@ -1706,21 +1706,21 @@ Entity RoomStrategy::SetPlatform(Sprite platformSprite, float width, float heigh
     platformTransform.position = glm::vec3(renderSystem.getWindowWidth() * xPos, renderSystem.getWindowHeight() * yPos, 0.0);
     platformTransform.scale = glm::vec3(width, height, 1.0);
     platformTransform.rotation = 0.0f;
-    registry.transforms.emplace(m_platform, std::move(platformTransform));
+    registry.component<TransformComponent>().emplace(m_platform, std::move(platformTransform));
 
     // Create and initialize a Motion component for the platform
     Motion platformMotion;
     platformMotion.position = glm::vec2(renderSystem.getWindowWidth() * xPos, renderSystem.getWindowHeight() * yPos);
     platformMotion.velocity = glm::vec2(0, 0);
     platformMotion.scale = { width, height };
-    registry.motions.emplace(m_platform, std::move(platformMotion));
+    registry.component<Motion>().emplace(m_platform, std::move(platformMotion));
 
     // add platform to environment to render out later
     Environment platformObj;
-    registry.envObject.emplace(m_platform, std::move(platformObj));
+    registry.component<Environment>().emplace(m_platform, std::move(platformObj));
 
-    registry.bounding_box.emplace(m_platform);
-    BoundingBox bb = registry.bounding_box.get(m_platform);
+    registry.component<BoundingBox>().emplace(m_platform);
+    BoundingBox bb = registry.component<BoundingBox>().get(m_platform);
     bb.height = platformSprite.height;
     bb.width = platformSprite.width;
 
@@ -1733,13 +1733,13 @@ Entity RoomStrategy::SetSpikeObstacle(float width, float height, float xPos, flo
     spike = SetPlatform(g_texture_paths->at(TEXTURE_ASSET_ID::SPIKE), width, height, xPos, yPos);
     Damage spikeDamage;
     spikeDamage.damage_dealt = 20;
-    registry.damages.emplace(spike, std::move(spikeDamage));
+    registry.component<Damage>().emplace(spike, std::move(spikeDamage));
     return spike;
 }
 
 Entity RoomStrategy::SetMovingPlatform(Sprite platformSprite, bool vertical, float width, float height, float xPos, float yPos, vec2 start, vec2 end, bool moving) {
     Entity m_platform = Entity();
-    registry.sprites.emplace(m_platform, platformSprite);
+    registry.component<Sprite>().emplace(m_platform, platformSprite);
     width *= platformSprite.width;
     height *= platformSprite.height;
 
@@ -1749,7 +1749,7 @@ Entity RoomStrategy::SetMovingPlatform(Sprite platformSprite, bool vertical, flo
     platformTransform.position = glm::vec3(renderSystem.getWindowWidth() * xPos, renderSystem.getWindowHeight() * yPos, 0.0);
     platformTransform.scale = glm::vec3(width, height, 1.0);
     platformTransform.rotation = 0.0f;
-    registry.transforms.emplace(m_platform, std::move(platformTransform));
+    registry.component<TransformComponent>().emplace(m_platform, std::move(platformTransform));
 
     // Create and initialize a Motion component for the platform
     Motion platformMotion;
@@ -1762,14 +1762,14 @@ Entity RoomStrategy::SetMovingPlatform(Sprite platformSprite, bool vertical, flo
         platformMotion.velocity = glm::vec2(0, 0);
     }
     platformMotion.scale = { width, height };
-    registry.motions.emplace(m_platform, std::move(platformMotion));
+    registry.component<Motion>().emplace(m_platform, std::move(platformMotion));
 
     // add platform to environment to render out later
     Environment platformObj;
-    registry.envObject.emplace(m_platform, std::move(platformObj));
+    registry.component<Environment>().emplace(m_platform, std::move(platformObj));
 
-    registry.bounding_box.emplace(m_platform);
-    BoundingBox bb = registry.bounding_box.get(m_platform);
+    registry.component<BoundingBox>().emplace(m_platform);
+    BoundingBox bb = registry.component<BoundingBox>().get(m_platform);
     bb.height = platformSprite.height;
     bb.width = platformSprite.width;
 
@@ -1779,7 +1779,7 @@ Entity RoomStrategy::SetMovingPlatform(Sprite platformSprite, bool vertical, flo
     platformMove.startPos = start;
     platformMove.endPos = end;
     platformMove.moving = moving;
-    registry.movingPlatform.emplace(m_platform, std::move(platformMove));
+    registry.component<MovingPlatform>().emplace(m_platform, std::move(platformMove));
 
     // return ground
     return m_platform;
@@ -1789,7 +1789,7 @@ Entity RoomStrategy::SetDoorEx(float width, float height, float xPos, float yPos
     //Connection connectingDoor;
     Entity m_door = Entity();
     Sprite doorSprite(renderSystem.loadTexture("door.PNG"));
-    registry.sprites.emplace(m_door, doorSprite);
+    registry.component<Sprite>().emplace(m_door, doorSprite);
     width *= doorSprite.width;
     height *= doorSprite.height;
 
@@ -1797,25 +1797,25 @@ Entity RoomStrategy::SetDoorEx(float width, float height, float xPos, float yPos
     platformTransform.position = glm::vec3(renderSystem.getWindowWidth() * xPos, renderSystem.getWindowHeight() * yPos, 0.0);
     platformTransform.scale = glm::vec3(width, height, 1.0);
     platformTransform.rotation = 0.0f;
-    registry.transforms.emplace(m_door, std::move(platformTransform));
+    registry.component<TransformComponent>().emplace(m_door, std::move(platformTransform));
 
     // Create and initialize a Motion component for the platform
     Motion doorMotion;
     doorMotion.position = glm::vec2(renderSystem.getWindowWidth() * xPos, renderSystem.getWindowHeight() * yPos);
     doorMotion.velocity = glm::vec2(0, 0);
     doorMotion.scale = { width, height };
-    registry.motions.emplace(m_door, std::move(doorMotion));
+    registry.component<Motion>().emplace(m_door, std::move(doorMotion));
 
     // add platform to environment to render out later
     Environment doorObj;
-    registry.envObject.emplace(m_door, std::move(doorObj));
+    registry.component<Environment>().emplace(m_door, std::move(doorObj));
 
-    registry.bounding_box.emplace(m_door);
-    BoundingBox bb = registry.bounding_box.get(m_door);
+    registry.component<BoundingBox>().emplace(m_door);
+    BoundingBox bb = registry.component<BoundingBox>().get(m_door);
     bb.height = doorSprite.height;
     bb.width = doorSprite.width;
 
-    registry.doors.emplace(m_door, Connection());
+    registry.component<Connection>().emplace(m_door, Connection());
 
     return m_door;
 }
@@ -1825,28 +1825,28 @@ Entity RoomStrategy::SetBGElem(Sprite elemSprite, float width, float height, flo
     Sprite bgElemSprite(elemSprite);
     width *= bgElemSprite.width;
     height *= bgElemSprite.height;
-    registry.sprites.emplace(elem, std::move(bgElemSprite));
+    registry.component<Sprite>().emplace(elem, std::move(bgElemSprite));
 
     // Create and initialize a TransformComponent for the spaceship
     TransformComponent elemTransform;
     elemTransform.position = glm::vec3(renderSystem.getWindowWidth() * xPos, renderSystem.getWindowHeight() * yPos, 0.0);
     elemTransform.scale = glm::vec3(width, height, 1.0);
     elemTransform.rotation = rot;
-    registry.transforms.emplace(elem, std::move(elemTransform));
+    registry.component<TransformComponent>().emplace(elem, std::move(elemTransform));
 
     // add spaceship to environment to render out later
     Environment elemObj;
-    registry.envObject.emplace(elem, std::move(elemObj));
+    registry.component<Environment>().emplace(elem, std::move(elemObj));
 
     return elem;
 }
 
 Entity RoomStrategy::SetCheckpoint(float xPos, float yPos) {
     Entity savePoint = Entity();
-    registry.sprites.emplace(savePoint, g_texture_paths->at(TEXTURE_ASSET_ID::CHECKPOINT));
+    registry.component<Sprite>().emplace(savePoint, g_texture_paths->at(TEXTURE_ASSET_ID::CHECKPOINT));
 
     TransformComponent savePointTransform;
-    registry.transforms.emplace(savePoint, std::move(savePointTransform));
+    registry.component<TransformComponent>().emplace(savePoint, std::move(savePointTransform));
 
     Motion savePointMotion;
     savePointMotion.position = glm::vec2(renderSystem.getWindowWidth() * xPos, renderSystem.getWindowHeight() * yPos);
@@ -1854,9 +1854,9 @@ Entity RoomStrategy::SetCheckpoint(float xPos, float yPos) {
     // TODO GIVE IT A PROPER SCALE
     int factor = 1;
     savePointMotion.scale = {285 / factor, 318 / factor };
-    registry.motions.emplace(savePoint, std::move(savePointMotion));
+    registry.component<Motion>().emplace(savePoint, std::move(savePointMotion));
 
-    registry.savePoints.emplace(savePoint, std::move(SavePoint()));
+    registry.component<SavePoint>().emplace(savePoint, std::move(SavePoint()));
 
     return savePoint;
 }
@@ -1872,16 +1872,16 @@ Entity RoomStrategy::SetPelican(float xPos, float yPos) {
     pelicanTransform.position = glm::vec3(xPos, yPos, 0.0);
     pelicanTransform.scale = glm::vec3(pelicanSprite.width, pelicanSprite.height, 1.0);
     pelicanTransform.rotation = 0.0f;
-    registry.transforms.emplace(pelican, pelicanTransform);
-    registry.sprites.emplace(pelican, pelicanSprite);
+    registry.component<TransformComponent>().emplace(pelican, pelicanTransform);
+    registry.component<Sprite>().emplace(pelican, pelicanSprite);
 
     Motion npcMotion;
     npcMotion.position = glm::vec2(xPos, yPos);
     npcMotion.scale = { pelicanSprite.width, pelicanSprite.height };
-    registry.motions.emplace(pelican, std::move(npcMotion));
+    registry.component<Motion>().emplace(pelican, std::move(npcMotion));
 
     Pelican pelicanNPC;
-    registry.pelican.emplace(pelican, std::move(pelicanNPC));
+    registry.component<Pelican>().emplace(pelican, std::move(pelicanNPC));
     return pelican;
 }
 
@@ -1896,16 +1896,16 @@ Entity RoomStrategy::SetBirdmanElder(float xPos, float yPos) {
     elderTransform.position = glm::vec3(xPos, yPos, 0.0);
     elderTransform.scale = glm::vec3(elderSprite.width, elderSprite.height, 1.0);
     elderTransform.rotation = 0.0f;
-    registry.transforms.emplace(elder, elderTransform);
-    registry.sprites.emplace(elder, elderSprite);
+    registry.component<TransformComponent>().emplace(elder, elderTransform);
+    registry.component<Sprite>().emplace(elder, elderSprite);
 
     Motion npcMotion;
     npcMotion.position = glm::vec2(xPos, yPos);
     npcMotion.scale = { elderSprite.width, elderSprite.height };
-    registry.motions.emplace(elder, std::move(npcMotion));
+    registry.component<Motion>().emplace(elder, std::move(npcMotion));
 
     Elder elderNPC;
-    registry.elder.emplace(elder, std::move(elderNPC));
+    registry.component<Elder>().emplace(elder, std::move(elderNPC));
     return elder;
 }
 
@@ -1920,15 +1920,15 @@ Entity RoomStrategy::SetOgreKat(float xPos, float yPos) {
     ogreTransform.position = glm::vec3(xPos, yPos, 0.0);
     ogreTransform.scale = glm::vec3(ogreSprite.width, ogreSprite.height, 1.0);
     ogreTransform.rotation = 0.0f;
-    registry.transforms.emplace(ogre, ogreTransform);
-    registry.sprites.emplace(ogre, ogreSprite);
+    registry.component<TransformComponent>().emplace(ogre, ogreTransform);
+    registry.component<Sprite>().emplace(ogre, ogreSprite);
 
     Motion npcMotion;
     npcMotion.position = glm::vec2(xPos, yPos);
     npcMotion.scale = { ogreSprite.width, ogreSprite.height };
-    registry.motions.emplace(ogre, std::move(npcMotion));
+    registry.component<Motion>().emplace(ogre, std::move(npcMotion));
 
     Kat katNPC;
-    registry.kat.emplace(ogre, std::move(katNPC));
+    registry.component<Kat>().emplace(ogre, std::move(katNPC));
     return ogre;
 }

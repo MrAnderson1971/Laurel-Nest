@@ -85,7 +85,7 @@ Entity GreatBossAISystem::init(Entity bossRoom) {
     gbMotion.position = glm::vec2(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() / 2.0f + 90.f);
     gbMotion.velocity = glm::vec2(0, 0);
     gbMotion.scale = { IDLE_GREAT_BIRD_WIDTH, IDLE_GREAT_BIRD_HEIGHT };
-    registry.motions.emplace(greatBird, gbMotion);
+    registry.component<Motion>().emplace(greatBird, gbMotion);
 
     Animation<GBState> greatBirdAnimations(GB_IDLE);
     std::vector<Sprite> idleSprite;
@@ -118,35 +118,35 @@ Entity GreatBossAISystem::init(Entity bossRoom) {
     greatBirdAnimations.addState(GBState::GB_DEATH, std::move(deathSprite));
 
 
-    registry.gbAnimations.emplace(greatBird, std::move(greatBirdAnimations));
+    registry.component<Animation<GBState>>().emplace(greatBird, std::move(greatBirdAnimations));
 
     TransformComponent gbTransform;
     gbTransform.position = glm::vec3(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() / 2.0f, 0.0f);
     gbTransform.scale = glm::vec3(IDLE_GREAT_BIRD_WIDTH, IDLE_GREAT_BIRD_HEIGHT, 1.0f);
     gbTransform.rotation = 0.0f;
-    registry.transforms.emplace(greatBird, std::move(gbTransform));
+    registry.component<TransformComponent>().emplace(greatBird, std::move(gbTransform));
 
     Boss gbBoss = Boss();
     gbBoss.hitbox = { IDLE_GREAT_BIRD_WIDTH,IDLE_GREAT_BIRD_HEIGHT };
     gbBoss.attackbox = { IDLE_GREAT_BIRD_WIDTH, IDLE_GREAT_BIRD_WIDTH };
     gbBoss.bodybox = { IDLE_GREAT_BIRD_WIDTH, IDLE_GREAT_BIRD_WIDTH };
     gbBoss.boxType = BoxType::HIT_BOX;
-    registry.bosses.emplace(greatBird, gbBoss);
+    registry.component<Boss>().emplace(greatBird, gbBoss);
 
-    registry.healths.emplace(greatBird, std::move(Health{ 20, 20 }));
-    registry.damages.emplace(greatBird, std::move(Damage{ 0 }));
+    registry.component<Health>().emplace(greatBird, std::move(Health{ 20, 20 }));
+    registry.component<Damage>().emplace(greatBird, std::move(Damage{ 0 }));
 
     return greatBird;
 };
 
 void GreatBossAISystem::step(Entity player, float elapsed_time, Entity current_room) {
-    if (!registry.gbAnimations.has(greatBird)) {
+    if (!registry.component<Animation<GBState>>().has(greatBird)) {
         return;
     }
-    auto& a = registry.gbAnimations.get(greatBird);
-    Motion& greatBirdMotion = registry.motions.get(greatBird);
-    Motion& playerMotion = registry.motions.get(player);
-    Boss& greatBirdBoss = registry.bosses.get(greatBird);
+    auto& a = registry.component<Animation<GBState>>().get(greatBird);
+    Motion& greatBirdMotion = registry.component<Motion>().get(greatBird);
+    Motion& playerMotion = registry.component<Motion>().get(player);
+    Boss& greatBirdBoss = registry.component<Boss>().get(greatBird);
     int room_width = renderSystem.getWindowWidth();
     float spike1pos = room_width * 0.20f;
     float spike2pos = room_width * 0.40f;
@@ -155,7 +155,7 @@ void GreatBossAISystem::step(Entity player, float elapsed_time, Entity current_r
 
     // check for death
     // check for death
-    if (registry.healths.get(greatBird).current_health <= 0) {
+    if (registry.component<Health>().get(greatBird).current_health <= 0) {
         current_state = gSTATE::DEATH;
         a.setState(GB_DEATH);
     }
@@ -297,37 +297,37 @@ void GreatBossAISystem::step(Entity player, float elapsed_time, Entity current_r
 };
 
 void GreatBossAISystem::render() {
-    if (registry.gbAnimations.has(greatBird) &&
-        registry.transforms.has(greatBird)) {
-        auto& animation = registry.gbAnimations.get(greatBird);
-        auto& transform = registry.transforms.get(greatBird);
+    if (registry.component<Animation<GBState>>().has(greatBird) &&
+        registry.component<TransformComponent>().has(greatBird)) {
+        auto& animation = registry.component<Animation<GBState>>().get(greatBird);
+        auto& transform = registry.component<TransformComponent>().get(greatBird);
         renderSystem.drawEntity(animation.getCurrentFrame(), transform);
     }
 }
 
 void GreatBossAISystem::gb_get_damaged(Entity weapon, bool& isDead, bool& a_pressed, bool& d_pressed, Entity& player) {
-    Health& gb_health = registry.healths.get(greatBird);
-    Damage& weapon_damage = registry.damages.get(weapon);
+    Health& gb_health = registry.component<Health>().get(greatBird);
+    Damage& weapon_damage = registry.component<Damage>().get(weapon);
     if (gb_health.current_health > 0) {
-        if (!registry.invinciblityTimers.has(greatBird)) {
+        if (!registry.component<InvincibilityTimer>().has(greatBird)) {
             gb_health.current_health -= weapon_damage.damage_dealt;
             if (gb_health.current_health) {
-                if (!registry.recentDamageTimers.has(greatBird)) {
-                    registry.recentDamageTimers.emplace(greatBird, RecentlyDamagedTimer());
+                if (!registry.component<RecentlyDamagedTimer>().has(greatBird)) {
+                    registry.component<RecentlyDamagedTimer>().emplace(greatBird, RecentlyDamagedTimer());
                 }
-                registry.gbAnimations.get(greatBird).setState(GB_HIT);
+                registry.component<Animation<GBState>>().get(greatBird).setState(GB_HIT);
                 current_state = gSTATE::HIT;
-                InvincibilityTimer& timer = registry.invinciblityTimers.emplace(greatBird, InvincibilityTimer());
+                InvincibilityTimer& timer = registry.component<InvincibilityTimer>().emplace(greatBird, InvincibilityTimer());
                 timer.counter_ms = 1000.f;
             }
             else {
-                registry.damages.remove(greatBird);
+                registry.component<Damage>().remove(greatBird);
                 isDead = true;
                 a_pressed = false;
                 d_pressed = false;
-                registry.motions.get(player).velocity.x = 0;
+                registry.component<Motion>().get(player).velocity.x = 0;
                 Mix_HaltMusic();
-                registry.gravity.emplace(greatBird, Gravity());
+                registry.component<Gravity>().emplace(greatBird, Gravity());
             }
         }
     }
@@ -335,17 +335,17 @@ void GreatBossAISystem::gb_get_damaged(Entity weapon, bool& isDead, bool& a_pres
 
 // Add this function to manage the transition back to IDLE after HIT
 void GreatBossAISystem::update_damaged_gb_sprites(float delta_time) {
-    for (Entity entity : registry.recentDamageTimers.entities) {
-        if (registry.gbAnimations.has(entity)) {
-            RecentlyDamagedTimer& damaged_timer = registry.recentDamageTimers.get(entity);
+    for (Entity entity : registry.component<RecentlyDamagedTimer>().entities) {
+        if (registry.component<Animation<GBState>>().has(entity)) {
+            RecentlyDamagedTimer& damaged_timer = registry.component<RecentlyDamagedTimer>().get(entity);
             damaged_timer.counter_ms -= delta_time;
             if (damaged_timer.counter_ms <= 0) {
-                registry.gbAnimations.get(entity).setState(GB_IDLE);
+                registry.component<Animation<GBState>>().get(entity).setState(GB_IDLE);
                 current_state = gSTATE::IDLE;
-                Motion& gbMotion = registry.motions.get(entity);
+                Motion& gbMotion = registry.component<Motion>().get(entity);
                 gbMotion.scale = { IDLE_GREAT_BIRD_WIDTH, IDLE_GREAT_BIRD_HEIGHT };
                 gbMotion.position = glm::vec2(renderSystem.getWindowWidth() / 2.0f, renderSystem.getWindowHeight() / 2.0f + 90.f);
-                registry.recentDamageTimers.remove(entity);
+                registry.component<RecentlyDamagedTimer>().remove(entity);
             }
         }
     }
@@ -355,125 +355,125 @@ void GreatBossAISystem::update_damaged_gb_sprites(float delta_time) {
 void GreatBossAISystem::smash_attack(Entity current_room) {
     Entity wave = Entity();
     Sprite waveSprite = g_texture_paths->at(TEXTURE_ASSET_ID::DEMO_GROUND_SMASH);
-    registry.sprites.emplace(wave, waveSprite);
+    registry.component<Sprite>().emplace(wave, waveSprite);
 
     Motion waveMotion;
     waveMotion.position = glm::vec2(renderSystem.getWindowWidth() * 0.5f, renderSystem.getWindowHeight());
     waveMotion.scale = { 2000.f, 200.f };
-    registry.motions.emplace(wave, std::move(waveMotion));
+    registry.component<Motion>().emplace(wave, std::move(waveMotion));
 
     TransformComponent wave_transform;
     wave_transform.position = glm::vec3(renderSystem.getWindowWidth() * 0.5f, renderSystem.getWindowHeight(), 0.0);
     wave_transform.scale = glm::vec3(2000.f, 200.f, 1.0);
     wave_transform.rotation = 0.0;
-    registry.transforms.emplace(wave, std::move(wave_transform));
+    registry.component<TransformComponent>().emplace(wave, std::move(wave_transform));
 
 
-    registry.badObjs.emplace(wave, std::move(BadObj()));
+    registry.component<BadObj>().emplace(wave, std::move(BadObj()));
     BadObjTimer bt;
     bt.elapsed_time = 0.f;
     bt.max_time = 900.f;
     bt.stall = 550.f;
     bt.damage = 1;
-    registry.badObjTimers.emplace(wave, std::move(bt));
+    registry.component<BadObjTimer>().emplace(wave, std::move(bt));
 
-    registry.bounding_box.emplace(wave);
-    BoundingBox bb = registry.bounding_box.get(wave);
+    registry.component<BoundingBox>().emplace(wave);
+    BoundingBox bb = registry.component<BoundingBox>().get(wave);
     bb.height = waveSprite.height;
     bb.width = waveSprite.width;
 
     Entity plt = Entity();
     Sprite pltSprite = g_texture_paths->at(TEXTURE_ASSET_ID::GREATBIRD_PLATFORM_SMASH);
-    registry.sprites.emplace(plt, pltSprite);
+    registry.component<Sprite>().emplace(plt, pltSprite);
 
     Motion pltMotion;
     pltMotion.position = glm::vec2(renderSystem.getWindowWidth() * 0.5f, renderSystem.getWindowHeight() * 0.86);
     pltMotion.scale = { pltSprite.width, pltSprite.height };
-    registry.motions.emplace(plt, std::move(pltMotion));
+    registry.component<Motion>().emplace(plt, std::move(pltMotion));
 
     TransformComponent plt_transform;
     plt_transform.position = glm::vec3(renderSystem.getWindowWidth() * 0.5f, renderSystem.getWindowHeight() * 0.86, 0.0);
     plt_transform.scale = glm::vec3(pltSprite.width, pltSprite.height, 1.0);
     plt_transform.rotation = 0.0;
-    registry.transforms.emplace(plt, std::move(plt_transform));
+    registry.component<TransformComponent>().emplace(plt, std::move(plt_transform));
 
-    registry.envObject.emplace(plt, std::move(Environment()));
+    registry.component<Environment>().emplace(plt, std::move(Environment()));
     BadObjTimer pltBt;
     pltBt.elapsed_time = 0.f;
     pltBt.max_time = 900.f;
     pltBt.stall = 550.f;
     pltBt.damage = 0;
-    registry.badObjTimers.emplace(plt, std::move(pltBt));
+    registry.component<BadObjTimer>().emplace(plt, std::move(pltBt));
 
-    registry.rooms.get(current_room).insert(wave);
-    registry.rooms.get(current_room).insert(plt);
+    registry.component<Room>().get(current_room).insert(wave);
+    registry.component<Room>().get(current_room).insert(plt);
 }
 
 void GreatBossAISystem::spear_attack_stub(float x_pos, Entity current_room) {
     Entity spear = Entity();
     Sprite spearSprite = g_texture_paths->at(TEXTURE_ASSET_ID::SPIKE);
-    registry.sprites.emplace(spear, spearSprite);
+    registry.component<Sprite>().emplace(spear, spearSprite);
 
     Motion spearMotion;
     spearMotion.position = glm::vec2(x_pos, renderSystem.getWindowHeight());
     spearMotion.scale = { 200.f, 200.f };
-    registry.motions.emplace(spear, std::move(spearMotion));
+    registry.component<Motion>().emplace(spear, std::move(spearMotion));
 
     TransformComponent spear_transform;
     spear_transform.position = glm::vec3(x_pos, renderSystem.getWindowHeight(), 0.0);
     spear_transform.scale = glm::vec3(200.f, 200.f, 1.0);
     spear_transform.rotation = 0.0;
-    registry.transforms.emplace(spear, std::move(spear_transform));
+    registry.component<TransformComponent>().emplace(spear, std::move(spear_transform));
 
 
-    registry.badObjs.emplace(spear, std::move(BadObj()));
+    registry.component<BadObj>().emplace(spear, std::move(BadObj()));
     BadObjTimer bt;
     bt.elapsed_time = 0.f;
     bt.max_time = 800.f;
     bt.stall = 0.f;
     bt.damage = 0;
-    registry.badObjTimers.emplace(spear, std::move(bt));
+    registry.component<BadObjTimer>().emplace(spear, std::move(bt));
 
-    registry.bounding_box.emplace(spear);
-    BoundingBox bb = registry.bounding_box.get(spear);
+    registry.component<BoundingBox>().emplace(spear);
+    BoundingBox bb = registry.component<BoundingBox>().get(spear);
     bb.height = spearSprite.height;
     bb.width = spearSprite.width;
 
-    registry.rooms.get(current_room).insert(spear);
+    registry.component<Room>().get(current_room).insert(spear);
 }
 
 void GreatBossAISystem::spear_attack(float x_pos, Entity current_room) {
 
     Entity spear = Entity();
     Sprite spearSprite = g_texture_paths->at(TEXTURE_ASSET_ID::SPIKE);
-    registry.sprites.emplace(spear, spearSprite);
+    registry.component<Sprite>().emplace(spear, spearSprite);
 
     Motion spearMotion;
     spearMotion.position = glm::vec2(x_pos, renderSystem.getWindowHeight() - 100.f);
     spearMotion.scale = { spearSprite.width * 0.8f, spearSprite.height * 1.5f};
-    registry.motions.emplace(spear, std::move(spearMotion));
+    registry.component<Motion>().emplace(spear, std::move(spearMotion));
 
     TransformComponent spear_transform;
     spear_transform.position = glm::vec3(x_pos, renderSystem.getWindowHeight() - 100.f, 0.0);
     spear_transform.scale = glm::vec3(spearSprite.width * 0.8f, spearSprite.height * 1.5f, 1.0);
     spear_transform.rotation = 0.0;
-    registry.transforms.emplace(spear, std::move(spear_transform));
+    registry.component<TransformComponent>().emplace(spear, std::move(spear_transform));
 
 
-    registry.badObjs.emplace(spear, std::move(BadObj()));
+    registry.component<BadObj>().emplace(spear, std::move(BadObj()));
     BadObjTimer bt;
     bt.elapsed_time = 0.f;
     bt.max_time = 1600.f;
     bt.stall = 800.f;
     bt.damage = 1;
-    registry.badObjTimers.emplace(spear, std::move(bt));
+    registry.component<BadObjTimer>().emplace(spear, std::move(bt));
 
-    registry.bounding_box.emplace(spear);
-    BoundingBox bb = registry.bounding_box.get(spear);
+    registry.component<BoundingBox>().emplace(spear);
+    BoundingBox bb = registry.component<BoundingBox>().get(spear);
     bb.height = spearSprite.height;
     bb.width = spearSprite.width;
 
-    registry.rooms.get(current_room).insert(spear);
+    registry.component<Room>().get(current_room).insert(spear);
 
 }
 
