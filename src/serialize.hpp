@@ -36,7 +36,11 @@ struct SaveFile {
 	int player_max_health = 3;
 	int player_current_health = 3;
 	int health_flask_uses = 3;
+#ifdef GOD_MODE
+	int sword_damage = 999;
+#else
 	int sword_damage = 1;
+#endif
 	bool heart_power_up_0 = false;
 	bool heart_power_up_1 = false;
 	bool sword_power_up_0 = false;
