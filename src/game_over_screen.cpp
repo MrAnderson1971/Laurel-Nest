@@ -1,7 +1,7 @@
 #include "game_over_screen.hpp"
 #include "ecs_registry.hpp"
 #include "game_state_manager.hpp"
-#include "splash_screen_state.hpp"
+#include "world_system.hpp"
 #include <limits>
 
 static float lerp(float a, float b, float t) {
@@ -9,7 +9,7 @@ static float lerp(float a, float b, float t) {
     return (1 - t) * a + t * b;
 }
 
-GameOverScreen::GameOverScreen() : time(0.f), transparency(0.f) {}
+GameOverScreen::GameOverScreen() : time(0.f), transparency(0.f), hasLoaded(false) {}
 
 GameOverScreen::~GameOverScreen() {
     GameOverScreen::cleanup();
@@ -35,8 +35,9 @@ void GameOverScreen::cleanup() {
 }
 
 void GameOverScreen::on_key(int key, int, int action, int) {
-    if (action == GLFW_PRESS && transparency + std::numeric_limits<float>::epsilon() >= 1) {
-        renderSystem.getGameStateManager()->changeState<SplashScreenState>();
+    if (action == GLFW_PRESS && transparency + std::numeric_limits<float>::epsilon() >= 1 && !hasLoaded) {
+        hasLoaded = true;
+        renderSystem.getGameStateManager()->changeState<WorldSystem>();
     }
 }
 

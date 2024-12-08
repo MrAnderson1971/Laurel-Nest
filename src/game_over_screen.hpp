@@ -19,4 +19,5 @@ private:
     Entity gameOverEntity;
     float time;
     float transparency;
+    bool hasLoaded;
 };
