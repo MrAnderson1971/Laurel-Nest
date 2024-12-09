@@ -502,7 +502,6 @@ void RenderSystem::renderLoop()
         if (gameStateManager)
         {
             gameStateManager->update(deltaTime);
-           
             gameStateManager->render();
         }
         // FPS stuff
@@ -532,7 +531,8 @@ void RenderSystem::renderLoop()
         
 
         glfwSwapBuffers(window);
-        glfwPollEvents();
+        glfwPollEvents();            gameStateManager->discard();
+        gameStateManager->create();
     }
 }
 

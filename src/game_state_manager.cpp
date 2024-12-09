@@ -2,8 +2,13 @@
 
 void GameStateManager::resumeState() {
     if (!pausedState.empty()) {
-        currentState = std::move(pausedState.top()); // do not init
-        pausedState.pop();
+        if (currentState) {
+            discards.push_back(std::move(currentState));
+        }
+        stateCreator = [this]() {
+            currentState = std::move(pausedState.top());
+            pausedState.pop();
+            };
     }
 }
 
@@ -46,4 +51,15 @@ void GameStateManager::render()
 GameState* GameStateManager::getCurrentState() const
 {
     return currentState.get();
+}
+
+void GameStateManager::discard() {
+    discards.clear();
+}
+
+void GameStateManager::create() {
+    if (stateCreator) {
+        stateCreator.get()();
+        stateCreator.reset();
+    }
 }
