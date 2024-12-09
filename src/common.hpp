@@ -25,13 +25,53 @@
 using namespace glm;
 
 #include "ecs.hpp"
+#include <filesystem>
+
+#ifdef _WIN32
+#include <windows.h>
+#elif __APPLE__
+#include <mach-o/dyld.h>
+#elif __linux__
+#include <unistd.h>
+#endif
+
+inline std::string get_executable_path() {
+    std::filesystem::path exe_path;
+
+#ifdef _WIN32
+    char path[MAX_PATH];
+    GetModuleFileNameA(nullptr, path, MAX_PATH);
+    exe_path = std::filesystem::path(path).parent_path();
+#elif __APPLE__
+    char path[1024];
+    uint32_t size = sizeof(path);
+    if (_NSGetExecutablePath(path, &size) == 0) {
+        exe_path = std::filesystem::path(path).parent_path();
+    }
+    else {
+        throw std::runtime_error("Buffer too small to get executable path.");
+    }
+#elif __linux__
+    char path[1024];
+    ssize_t len = readlink("/proc/self/exe", path, sizeof(path) - 1);
+    if (len != -1) {
+        path[len] = '\0';
+        exe_path = std::filesystem::path(path).parent_path();
+    }
+    else {
+        throw std::runtime_error("Failed to get executable path.");
+    }
+#else
+    throw std::runtime_error("Unsupported platform");
+#endif
+
+    return exe_path.string() + "/";
+}
 
 // Simple utility functions to avoid mistyping directory name
 // audio_path("audio.ogg") -> data/audio/audio.ogg
-// Get defintion of PROJECT_SOURCE_DIR from:
-#include "../ext/project_path.hpp"
-inline std::string data_path() { return std::string(PROJECT_SOURCE_DIR) + "data"; };
-inline std::string shader_path(const std::string& name) { return std::string(PROJECT_SOURCE_DIR) + "/shaders/" + name; };
+inline std::string data_path() { return get_executable_path() + "data"; };
+inline std::string shader_path(const std::string& name) { return get_executable_path() + "/shaders/" + name; };
 inline std::string textures_path(const std::string& name) { return data_path() + "/textures/" + std::string(name); };
 inline std::string audio_path(const std::string& name) { return data_path() + "/audio/" + std::string(name); };
 inline std::string mesh_path(const std::string& name) { return data_path() + "/meshes/" + std::string(name); };

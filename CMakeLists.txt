@@ -5,7 +5,7 @@ project(game)
 if (POLICY CMP0025)
     cmake_policy(SET CMP0025 NEW)
 endif ()
-set (CMAKE_CXX_STANDARD 14)
+set (CMAKE_CXX_STANDARD 17)
 
 # nice hierarchical structure in MSVC
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -22,9 +22,6 @@ else()
 endif()
 
 # Create executable target
-
-# Generate the shader folder location to the header
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/ext/project_path.hpp.in" "${CMAKE_CURRENT_SOURCE_DIR}/ext/project_path.hpp")
 
 # You can switch to use the file GLOB for simplicity but at your own risk
 file(GLOB SOURCE_FILES src/*.cpp src/*.hpp)
@@ -199,3 +196,15 @@ target_link_libraries(${PROJECT_NAME} PUBLIC ${GLFW_LIBRARIES} ${SDL2_LIBRARIES}
 if(IS_OS_LINUX)
     target_link_libraries(${PROJECT_NAME} PUBLIC glfw ${CMAKE_DL_LIBS})
 endif()
+
+# Define asset directories to be copied
+set(ASSETS_DIRS data shaders)
+
+# Loop through each asset directory and copy it to the build directory
+foreach(ASSET_DIR ${ASSETS_DIRS})
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/${ASSET_DIR}
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>/${ASSET_DIR}
+    )
+endforeach()

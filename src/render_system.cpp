@@ -212,8 +212,8 @@ std::string RenderSystem::readShaderFile(const std::string& filePath)
 bool RenderSystem::fontInit(const std::string& font_filename, unsigned int font_default_size) {
     
     // read in our shader files
-    std::string vertexShaderSource = readShaderFile(PROJECT_SOURCE_DIR + std::string("shaders/font.vs.glsl"));
-    std::string fragmentShaderSource = readShaderFile(PROJECT_SOURCE_DIR + std::string("shaders/font.fs.glsl"));
+    std::string vertexShaderSource = readShaderFile(shader_path("font.vs.glsl"));
+    std::string fragmentShaderSource = readShaderFile(shader_path("font.fs.glsl"));
     const char* vertexShaderSource_c = vertexShaderSource.c_str();
     const char* fragmentShaderSource_c = fragmentShaderSource.c_str();
 
@@ -484,7 +484,7 @@ void RenderSystem::renderLoop()
     std::string prev_FPS_string = "";
 
     // setup fonts
-    std::string font_filename = PROJECT_SOURCE_DIR +
+    std::string font_filename = get_executable_path() +
         std::string("data/fonts/Share-Bold.ttf");
     unsigned int font_default_size = 48;
     fontInit(font_filename, font_default_size);
