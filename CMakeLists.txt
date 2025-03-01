@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.1)
 project(game)
 
+# Set default build type to Release if not specified
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
+endif()
+message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+
 # Set c++11
 if (POLICY CMP0025)
     cmake_policy(SET CMP0025 NEW)
@@ -128,6 +134,7 @@ if (MSVC)
             /wd4127
             /we4715
             /we4239
+            $<$<CONFIG:Release>:/O2>  # Optimization flag for Release builds
     )
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     # GCC/Clang-specific compile options
@@ -136,6 +143,7 @@ elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
             -Wextra
             -Wpedantic
             -Wno-unused-parameter
+            $<$<CONFIG:Release>:-O3>  # Optimization flag for Release builds
     )
 endif()
 
